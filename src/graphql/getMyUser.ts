@@ -11,14 +11,15 @@ export const query = gql`
       IDP
       email
       dataCommons
-      studies
-      organization {
-        orgID
-        orgName
-        status
-        createdAt
-        updateAt
+      studies {
+        _id
+        studyName
+        studyAbbreviation
+        dbGaPID
+        controlledAccess
       }
+      permissions
+      notifications
       createdAt
       updateAt
     }
@@ -26,5 +27,10 @@ export const query = gql`
 `;
 
 export type Response = {
-  getMyUser: User;
+  getMyUser: User & {
+    studies: Pick<
+      ApprovedStudy,
+      "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
+    >[];
+  };
 };

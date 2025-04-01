@@ -1,3 +1,5 @@
+import { Logger } from "./logger";
+
 /**
  * Capitalizes the first letter of a given string.
  * If the input string is empty, it returns an empty string.
@@ -198,25 +200,42 @@ export const isStringLengthBetween = (
 };
 
 /**
- * Formats a person's name as "lastName, firstName" or returns the available name if one is missing.
- * If both names are missing, returns an empty string.
+ * Extracts the major and minor version numbers from a version string.
  *
- * @param firstName - The person's first name.
- * @param lastName - The person's last name.
- * @returns The formatted name.
+ * @param {string} version - The version string to parse.
+ * @returns {string} A string representing the major and minor version numbers.
+ * Otherwise, an empty string.
  */
-export const formatName = (firstName?: string, lastName?: string): string => {
-  const trimmedFirstName = typeof firstName === "string" ? firstName?.trim() : "";
-  const trimmedLastName = typeof lastName === "string" ? lastName?.trim() : "";
+export const extractVersion = (version: string): string => {
+  if (!version || typeof version !== "string") {
+    Logger.error(`extractVersion: Invalid version value provided.`, version);
+    return "";
+  }
 
-  if (trimmedFirstName && trimmedLastName) {
-    return `${trimmedLastName}, ${trimmedFirstName}`;
+  const firstPeriodIndex: number = version.indexOf(".");
+  if (firstPeriodIndex === -1) {
+    Logger.error(
+      `extractVersion: Invalid version string: "${version}". Expected at least one period to separate major and minor versions.`
+    );
+    return "";
   }
-  if (trimmedLastName) {
-    return trimmedLastName;
+
+  const majorPart: string = version.substring(0, firstPeriodIndex);
+  const remainder: string = version.substring(firstPeriodIndex + 1);
+
+  const majorMatch: RegExpMatchArray | null = majorPart.match(/\d+/);
+  if (!majorMatch) {
+    Logger.error(`extractVersion: Invalid major version in string: "${version}"`);
+    return "";
   }
-  if (trimmedFirstName) {
-    return trimmedFirstName;
+  const major: string = majorMatch[0];
+
+  const minorMatch: RegExpMatchArray | null = remainder.match(/^\d+/);
+  if (!minorMatch) {
+    Logger.error(`extractVersion: Invalid minor version in string: "${version}"`);
+    return "";
   }
-  return "";
+  const minor: string = minorMatch[0];
+
+  return `${major}.${minor}`;
 };

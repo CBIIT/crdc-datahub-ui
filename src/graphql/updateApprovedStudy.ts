@@ -10,6 +10,7 @@ export const mutation = gql`
     $dbGaPID: String
     $ORCID: String
     $PI: String
+    $primaryContactID: String
   ) {
     updateApprovedStudy(
       studyID: $studyID
@@ -20,6 +21,7 @@ export const mutation = gql`
       dbGaPID: $dbGaPID
       ORCID: $ORCID
       PI: $PI
+      primaryContactID: $primaryContactID
     ) {
       _id
       studyName
@@ -29,6 +31,9 @@ export const mutation = gql`
       openAccess
       PI
       ORCID
+      programs {
+        _id
+      }
       createdAt
     }
   }
@@ -43,6 +48,7 @@ export type Input = {
   dbGaPID: string;
   ORCID: string;
   PI: string;
+  primaryContactID: string;
 };
 
 export type Response = {

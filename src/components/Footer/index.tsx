@@ -1,9 +1,15 @@
 import { useMediaQuery } from "@mui/material";
+import { FC, memo } from "react";
 import FooterDesktop from "./FooterDesktop";
 import FooterTablet from "./FooterTablet";
 import FooterMobile from "./FooterMobile";
 
-const Footer = () => {
+/**
+ * Provides the footer component based on the screen size.
+ *
+ * @returns The footer component.
+ */
+const Footer: FC = () => {
   const tablet = useMediaQuery("(min-width: 768px) and (max-width: 1024px)");
   const mobile = useMediaQuery("(max-width: 767px)");
 
@@ -18,4 +24,4 @@ const Footer = () => {
   return <FooterDesktop />;
 };
 
-export default Footer;
+export default memo<FC>(Footer);

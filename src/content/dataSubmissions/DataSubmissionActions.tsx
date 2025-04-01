@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/Shared/Dialog";
-import { EXPORT_SUBMISSION, ExportSubmissionResp } from "../../graphql";
 import { ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -89,12 +88,13 @@ export type ActiveDialog =
   | "Cancel";
 
 type ActionConfig = {
-  roles: User["role"][];
+  hasPermission: (user: User, submission: Submission) => boolean;
   statuses: SubmissionStatus[];
 };
 
 type ActionKey =
   | "Submit"
+  | "AdminSubmit"
   | "Release"
   | "Withdraw"
   | "SubmittedReject"
@@ -104,31 +104,43 @@ type ActionKey =
 
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
-    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "create", submission),
+    statuses: ["In Progress", "Withdrawn", "Rejected"],
+  },
+  AdminSubmit: {
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "admin_submit", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
-    roles: ["Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   Withdraw: {
-    roles: ["Submitter", "Organization Owner"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["Submitted"],
   },
   SubmittedReject: {
-    roles: ["Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   ReleasedReject: {
-    roles: ["Data Commons POC", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "confirm", submission),
     statuses: ["Released"],
   },
   Complete: {
-    roles: ["Data Curator", "Admin", "Data Commons POC"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "confirm", submission),
     statuses: ["Released"],
   },
   Cancel: {
-    roles: ["Submitter", "Organization Owner", "Data Curator", "Admin"],
+    hasPermission: (user, submission) =>
+      hasPermission(user, "data_submission", "cancel", submission),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };
@@ -154,47 +166,12 @@ const DataSubmissionActions = ({
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
 
-  const collaborator = submission?.collaborators?.find((c) => c.collaboratorID === user?._id);
-
-  const [exportSubmission] = useMutation<ExportSubmissionResp>(EXPORT_SUBMISSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
-  const handleExportSubmission = async (): Promise<boolean> => {
-    if (!submission?._id) {
-      return false;
-    }
-
-    try {
-      const { data: d, errors } = await exportSubmission({
-        variables: {
-          _id: submission._id,
-        },
-      });
-      if (errors || !d?.exportSubmission?.success) {
-        throw new Error();
-      }
-      return d.exportSubmission.success;
-    } catch (err) {
-      onError("Unable to export submission.");
-    }
-
-    return false;
-  };
-
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
       setCurrentDialog(null);
     }
     setAction(action);
-    if (action === "Release") {
-      const isExported = await handleExportSubmission();
-      if (!isExported) {
-        setAction(null);
-        return;
-      }
-    }
+
     if (typeof onAction === "function") {
       await onAction(action, reviewComment || null);
     }
@@ -213,7 +190,9 @@ const DataSubmissionActions = ({
 
   const canShowAction = (actionKey: ActionKey) => {
     const config = actionConfig[actionKey];
-    return config?.statuses?.includes(submission?.status) && config?.roles?.includes(user?.role);
+    return (
+      config?.statuses?.includes(submission?.status) && config?.hasPermission(user, submission)
+    );
   };
 
   const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,7 +203,8 @@ const DataSubmissionActions = ({
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
-      {canShowAction("Submit") ? (
+      {canShowAction("Submit") ||
+      (canShowAction("AdminSubmit") && submitActionButton?.isAdminOverride) ? (
         <Tooltip
           placement="top"
           title={submitActionButton?.tooltip}
@@ -237,11 +217,7 @@ const DataSubmissionActions = ({
               color="primary"
               onClick={() => onOpenDialog("Submit")}
               loading={action === "Submit"}
-              disabled={
-                (collaborator && collaborator.permission !== "Can Edit") ||
-                !submitActionButton?.enabled ||
-                (action && action !== "Submit")
-              }
+              disabled={!submitActionButton?.enabled || (action && action !== "Submit")}
             >
               {submitActionButton?.isAdminOverride ? "Admin Submit" : "Submit"}
             </StyledLoadingButton>
@@ -289,10 +265,7 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Withdraw")}
           loading={action === "Withdraw"}
-          disabled={
-            (collaborator && collaborator.permission !== "Can Edit") ||
-            (action && action !== "Withdraw")
-          }
+          disabled={action && action !== "Withdraw"}
         >
           Withdraw
         </StyledLoadingButton>
@@ -314,10 +287,7 @@ const DataSubmissionActions = ({
           color="error"
           onClick={() => onOpenDialog("Cancel")}
           loading={action === "Cancel"}
-          disabled={
-            (collaborator && collaborator.permission !== "Can Edit") ||
-            (action && action !== "Cancel")
-          }
+          disabled={action && action !== "Cancel"}
         >
           Cancel
         </StyledLoadingButton>

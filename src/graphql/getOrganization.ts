@@ -5,6 +5,8 @@ export const query = gql`
     getOrganization(orgID: $orgID) {
       _id
       name
+      abbreviation
+      description
       status
       conciergeID
       conciergeName

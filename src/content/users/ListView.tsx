@@ -15,26 +15,17 @@ import {
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import {
-  Status as OrgStatus,
-  useOrganizationListContext,
-} from "../../components/Contexts/OrganizationListContext";
 import PageBanner from "../../components/PageBanner";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
 import { compareStrings, formatIDP, sortData } from "../../utils";
-import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 
-type T = User;
+type T = ListUsersResp["listUsers"][number];
 
 type FilterForm = {
-  /**
-   * @see Organization["_id"] | "All"
-   */
-  organization: string;
   role: User["role"] | "All";
   status: User["userStatus"] | "All";
 };
@@ -142,7 +133,6 @@ const StyledActionButton = styled(Button)(
 type TouchedState = { [K in keyof FilterForm]: boolean };
 
 const initialTouchedFields: TouchedState = {
-  organization: false,
   role: false,
   status: false,
 };
@@ -177,15 +167,6 @@ const columns: Column<T>[] = [
     renderValue: (a) => a.email,
     comparator: (a, b) => a.email.localeCompare(b.email),
     field: "email",
-  },
-  {
-    label: "Organization",
-    renderValue: (a) => a.organization?.orgName || "",
-    comparator: (a, b) => compareStrings(a?.organization?.orgName, b?.organization?.orgName),
-    sx: {
-      width: "11%",
-    },
-    fieldKey: "orgName",
   },
   {
     label: "Status",
@@ -233,9 +214,7 @@ const columns: Column<T>[] = [
 const ListingView: FC = () => {
   usePageTitle("Manage Users");
 
-  const { user, status: authStatus } = useAuthContext();
   const { state } = useLocation();
-  const { data: orgData, activeOrganizations, status: orgStatus } = useOrganizationListContext();
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const [dataset, setDataset] = useState<T[]>([]);
   const [count, setCount] = useState<number>(0);
@@ -243,12 +222,11 @@ const ListingView: FC = () => {
 
   const { watch, setValue, control } = useForm<FilterForm>({
     defaultValues: {
-      organization: "All",
       role: "All",
       status: "All",
     },
   });
-  const orgFilter = watch("organization");
+
   const roleFilter = watch("role");
   const statusFilter = watch("status");
   const tableRef = useRef<TableMethods>(null);
@@ -269,7 +247,6 @@ const ListingView: FC = () => {
     }
 
     const filters: FilterFunction<T>[] = [
-      (u: T) => (orgFilter && orgFilter !== "All" ? u.organization?.orgID === orgFilter : true),
       (u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true),
       (u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true),
     ];
@@ -282,33 +259,15 @@ const ListingView: FC = () => {
     setDataset(paginatedData);
   };
 
-  useEffect(() => {
-    if (user?.role !== "Organization Owner") {
-      return;
-    }
-
-    const orgID = orgData?.find((org: Organization) => org._id === user.organization?.orgID)?._id;
-    setValue("organization", orgID || "All");
-  }, [user, orgData]);
-
-  const isValidOrg = (orgId: string) => !!activeOrganizations?.find((org) => org._id === orgId);
   const isRoleFilterOption = (role: string): role is FilterForm["role"] =>
     ["All", ...Roles].includes(role);
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
     ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
-    if (!activeOrganizations?.length) {
-      return;
-    }
-
-    const organizationId = searchParams.get("organization");
     const role = searchParams.get("role");
     const status = searchParams.get("status");
 
-    if (isValidOrg(organizationId) && organizationId !== orgFilter) {
-      setValue("organization", organizationId);
-    }
     if (isRoleFilterOption(role) && role !== roleFilter) {
       setValue("role", role);
     }
@@ -317,25 +276,15 @@ const ListingView: FC = () => {
     }
 
     setTablePage(0);
-  }, [
-    activeOrganizations,
-    searchParams.get("organization"),
-    searchParams.get("role"),
-    searchParams.get("status"),
-  ]);
+  }, [searchParams.get("role"), searchParams.get("status")]);
 
   useEffect(() => {
-    if (!touchedFilters.organization && !touchedFilters.role && !touchedFilters.status) {
+    if (!touchedFilters.role && !touchedFilters.status) {
       return;
     }
 
     const newSearchParams = new URLSearchParams(searchParams);
 
-    if (orgFilter && orgFilter !== "All") {
-      newSearchParams.set("organization", orgFilter);
-    } else if (orgFilter === "All") {
-      newSearchParams.delete("organization");
-    }
     if (roleFilter && roleFilter !== "All") {
       newSearchParams.set("role", roleFilter);
     } else if (roleFilter === "All") {
@@ -350,7 +299,7 @@ const ListingView: FC = () => {
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [orgFilter, roleFilter, statusFilter, touchedFilters]);
+  }, [roleFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
@@ -372,33 +321,6 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterContainer>
-          <StyledInlineLabel htmlFor="organization-filter">Organization</StyledInlineLabel>
-          <StyledFormControl>
-            <Controller
-              name="organization"
-              control={control}
-              render={({ field }) => (
-                <StyledSelect
-                  {...field}
-                  disabled={user.role === "Organization Owner"}
-                  value={field.value}
-                  MenuProps={{ disablePortal: true }}
-                  inputProps={{ id: "organization-filter" }}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    handleFilterChange("organization");
-                  }}
-                >
-                  <MenuItem value="All">All</MenuItem>
-                  {activeOrganizations?.map((org: Organization) => (
-                    <MenuItem key={org._id} value={org._id}>
-                      {org.name}
-                    </MenuItem>
-                  ))}
-                </StyledSelect>
-              )}
-            />
-          </StyledFormControl>
           <StyledInlineLabel htmlFor="role-filter">Role</StyledInlineLabel>
           <StyledFormControl>
             <Controller
@@ -454,7 +376,7 @@ const ListingView: FC = () => {
           columns={columns}
           data={dataset || []}
           total={count || 0}
-          loading={loading || orgStatus === OrgStatus.LOADING || authStatus === AuthStatus.LOADING}
+          loading={loading}
           disableUrlParams={false}
           defaultRowsPerPage={20}
           defaultOrder="asc"

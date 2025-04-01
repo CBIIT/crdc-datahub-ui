@@ -1,5 +1,5 @@
 import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
-import { cloneDeep } from "lodash";
+import { cloneDeep, merge } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
 import { useFormContext } from "../../../components/Contexts/FormContext";
@@ -16,6 +16,7 @@ import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
 import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
 import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400,
@@ -34,16 +35,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { readOnlyInputs } = useFormMode();
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const {
-    nextButtonRef,
-    saveFormRef,
-    submitFormRef,
-    approveFormRef,
-    inquireFormRef,
-    rejectFormRef,
-    exportButtonRef,
-    getFormObjectRef,
-  } = refs;
+  const { getFormObjectRef } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
 
   const [cancerTypes, setCancerTypes] = useState<string[]>(data.cancerTypes || []);
@@ -53,6 +45,10 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   );
   const [otherSpecies, setOtherSpecies] = useState<string>(data.otherSpeciesOfSubjects);
   const [otherSpeciesEnabled, setOtherSpeciesEnabled] = useState<boolean>(data.otherSpeciesEnabled);
+  const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(
+    data.study?.isDbGapRegistered
+  );
+  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -60,7 +56,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
 
@@ -110,18 +106,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setOtherSpeciesEnabled(checked);
   };
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
+  const handleIsDbGapRegisteredChange = (e, checked: boolean) => {
+    setIsdbGaPRegistered(checked);
+    if (!checked) {
+      setDbGaPPPHSNumber("");
     }
+  };
 
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    exportButtonRef.current.style.display = "none";
+  useEffect(() => {
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -149,6 +141,35 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           required
           readOnly={readOnlyInputs}
+        />
+      </SectionGroup>
+
+      {/* dbGaP Registration section */}
+      <SectionGroup
+        title={SectionCMetadata.sections.DBGAP_REGISTRATION.title}
+        description={SectionCMetadata.sections.DBGAP_REGISTRATION.description}
+      >
+        <SwitchInput
+          id="section-c-dbGaP-registration"
+          label="Has your study been registered in dbGaP?"
+          name="study[isDbGapRegistered]"
+          required
+          value={isDbGapRegistered}
+          onChange={handleIsDbGapRegisteredChange}
+          isBoolean
+          readOnly={readOnlyInputs}
+        />
+        <TextInput
+          id="section-c-if-yes-provide-dbgap-phs-number"
+          label="If yes, provide dbGaP PHS number with the version number"
+          name="study[dbGaPPPHSNumber]"
+          value={dbGaPPPHSNumber}
+          onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
+          maxLength={50}
+          placeholder={'Ex/ "phs002529.v1.p1". 50 characters allowed'}
+          gridWidth={12}
+          readOnly={readOnlyInputs || !isDbGapRegistered}
+          required={isDbGapRegistered}
         />
       </SectionGroup>
 
@@ -183,6 +204,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               checked={otherCancerTypesEnabled}
               onChange={handleOtherCancerTypesCheckboxChange}
               readOnly={cancerTypes.includes(CUSTOM_CANCER_TYPES.NOT_APPLICABLE) || readOnlyInputs}
+              inputProps={{ "aria-label": "Toggle Other cancer type(s)" }}
             />
           }
           name="otherCancerTypes"
@@ -233,6 +255,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               checked={otherSpeciesEnabled}
               onChange={handleOtherSpeciesCheckboxChange}
               readOnly={readOnlyInputs}
+              inputProps={{ "aria-label": "Toggle Other Specie(s) involved" }}
             />
           }
           name="otherSpeciesOfSubjects"
@@ -251,8 +274,9 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           type="text"
           value={data.numberOfParticipants}
           filter={filterPositiveIntegerString}
-          validate={(input: string) => isValidInRange(input, 1)} // greater than 0
-          errorText="Value must be greater than 0."
+          validate={(input: string) => isValidInRange(input, 1, 2000000000)} // between 1 and 2bn
+          errorText="Value must be between 1 and 2,000,000,000."
+          maxLength={10}
           inputProps={
             {
               "data-type": "number",

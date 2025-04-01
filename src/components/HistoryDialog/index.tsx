@@ -20,7 +20,7 @@ const StyledDialog = styled(Dialog)({
     padding: "22px 24px 54px 24px",
     width: "567px !important",
     border: "2px solid #388DEE",
-    background: "#2E4D7B",
+    background: "#264370",
   },
 });
 
@@ -188,6 +188,7 @@ type EventItem = {
   color: string;
   icon: string | null;
   status: string;
+  StatusWrapper: React.FC<{ children: React.ReactNode }>;
   date: string;
   nameColor: string;
   name: string | null;
@@ -225,6 +226,10 @@ type Props<T extends string> = {
    */
   getTextColor: (status: T) => CSSProperties["color"];
   /**
+   * A function to determine if (and what) should wrap around the status display
+   */
+  getStatusWrapper?: (status: T) => React.FC<{ children: React.ReactNode }>;
+  /**
    * A function to call when the dialog is requested to close by an event,
    * e.g. Close button click, backdrop click, or escape key press
    */
@@ -244,6 +249,7 @@ const HistoryDialog = <T extends string>({
   open,
   showHeaders = true,
   getTextColor,
+  getStatusWrapper,
   onClose,
   ...rest
 }: Props<T>): JSX.Element => {
@@ -258,6 +264,17 @@ const HistoryDialog = <T extends string>({
     [getTextColor]
   );
 
+  const getWrapper = useCallback(
+    (status: T): React.FC<{ children: React.ReactNode }> => {
+      if (typeof getStatusWrapper === "function") {
+        return getStatusWrapper(status);
+      }
+
+      return ({ children }) => <span>{children}</span>;
+    },
+    [getStatusWrapper]
+  );
+
   const events = useMemo<EventItem[]>(() => {
     const result: EventItem[] = [];
     const sorted = SortHistory(history);
@@ -269,6 +286,7 @@ const HistoryDialog = <T extends string>({
         color: getColor(status),
         icon: index === 0 && iconMap[status] ? iconMap[status] : null,
         status: status || "",
+        StatusWrapper: getWrapper(status),
         date: dateTime,
         name: "userName" in others ? others.userName : null,
         nameColor: index === 0 ? getColor(status) : "#97B5CE",
@@ -276,7 +294,7 @@ const HistoryDialog = <T extends string>({
     });
 
     return result;
-  }, [history, iconMap, getColor]);
+  }, [history, iconMap, getColor, getWrapper]);
 
   const eventHasNames: boolean = useMemo<boolean>(
     () => events.some((event) => event.name !== null),
@@ -316,7 +334,7 @@ const HistoryDialog = <T extends string>({
             <Grid xs={1} />
           </StyledHeaderRow>
         )}
-        {events?.map(({ status, date, color, name, nameColor, icon }, index) => (
+        {events?.map(({ status, StatusWrapper, date, color, name, nameColor, icon }, index) => (
           <StyledEventRow
             container
             key={`history-event-${date}`}
@@ -333,13 +351,15 @@ const HistoryDialog = <T extends string>({
               </DotContainer>
             </Grid>
             <Grid xs={3}>
-              <StyledEventItem
-                color={color}
-                textAlign="left"
-                data-testid={`history-item-${index}-status`}
-              >
-                {status?.toUpperCase()}
-              </StyledEventItem>
+              <StatusWrapper>
+                <StyledEventItem
+                  color={color}
+                  textAlign="left"
+                  data-testid={`history-item-${index}-status`}
+                >
+                  {status?.toUpperCase()}
+                </StyledEventItem>
+              </StatusWrapper>
             </Grid>
             <Grid xs={3}>
               <StyledEventItem
@@ -356,7 +376,7 @@ const HistoryDialog = <T extends string>({
                   <TruncatedText
                     text={name}
                     maxCharacters={14}
-                    wrapperStyles={{
+                    wrapperSx={{
                       ...BaseItemTypographyStyles,
                       margin: "0 auto",
                       color: nameColor,

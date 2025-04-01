@@ -1,7 +1,13 @@
 import React, { FC, createContext, useCallback, useContext, useMemo, useState } from "react";
 import { ApolloError, ApolloQueryResult, useQuery } from "@apollo/client";
 import { cloneDeep, isEqual } from "lodash";
-import { GetSubmissionResp, GET_SUBMISSION, GetSubmissionInput } from "../../graphql";
+import {
+  GetSubmissionResp,
+  GET_SUBMISSION,
+  GetSubmissionInput,
+  SubmissionQCResultsResp,
+  SUBMISSION_QC_RESULTS,
+} from "../../graphql";
 import { compareNodeStats, Logger } from "../../utils";
 
 export type SubmissionCtxState = {
@@ -17,6 +23,14 @@ export type SubmissionCtxState = {
    * The error returned by the query
    */
   error: ApolloError | null;
+  /**
+   * The partial Validation Results data
+   */
+  qcData?: SubmissionQCResultsResp<true> | null;
+  /**
+   * The error returned by the Validation Results query
+   */
+  qcError?: ApolloError | null;
   /**
    * Initiates polling for the query at the specified interval
    */
@@ -114,6 +128,9 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     updateQuery,
   } = useQuery<GetSubmissionResp, GetSubmissionInput>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
+    variables: { id: _id },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
     onCompleted: (d) => {
       const isValidating =
         d?.getSubmission?.fileValidationStatus === "Validating" ||
@@ -126,18 +143,32 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
 
       if (!isValidating && !hasUploadingBatches && !isDeleting) {
         stopApolloPolling();
+        stopQCPolling();
         setIsPolling(false);
       } else {
         startApolloPolling(1000);
+        startQCPolling(1000);
         setIsPolling(true);
       }
     },
     onError: (e) => {
       Logger.error("Error fetching submission data", e);
     },
-    variables: { id: _id },
+  });
+
+  const {
+    data: qcData,
+    error: qcError,
+    startPolling: startQCPolling,
+    stopPolling: stopQCPolling,
+  } = useQuery<SubmissionQCResultsResp<true>>(SUBMISSION_QC_RESULTS, {
+    variables: { id: _id, partial: true },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+    onError: (err) => {
+      Logger.error("Error fetching submission validation results data", err);
+    },
   });
 
   const status: SubmissionCtxStatus = useMemo<SubmissionCtxStatus>(() => {
@@ -147,7 +178,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     if (isPolling) {
       return SubmissionCtxStatus.POLLING;
     }
-    if (loading) {
+    if (loading && !data) {
       return SubmissionCtxStatus.LOADING;
     }
 
@@ -174,30 +205,34 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
   const startPolling = useCallback(
     (interval: number) => {
       startApolloPolling(interval);
+      startQCPolling(interval);
       setIsPolling(true);
     },
-    [startApolloPolling]
+    [startApolloPolling, startQCPolling]
   );
 
   /**
-   * Wrapper function to stop polling for the submission
+   * Wrapper function to stop polling for the submission and QC results
    */
   const stopPolling = useCallback(() => {
     stopApolloPolling();
+    stopQCPolling();
     setIsPolling(false);
-  }, [stopApolloPolling]);
+  }, [stopApolloPolling, stopQCPolling]);
 
   const value: SubmissionCtxState = useMemo<SubmissionCtxState>(
     () => ({
       status,
       data: memoedData,
       error,
+      qcData,
+      qcError,
       startPolling,
       stopPolling,
       refetch,
       updateQuery,
     }),
-    [status, memoedData, error, startPolling, stopPolling, refetch, updateQuery]
+    [status, memoedData, error, startPolling, stopPolling, refetch, updateQuery, qcData, qcError]
   );
 
   return <MemoedProvider value={value}>{children}</MemoedProvider>;

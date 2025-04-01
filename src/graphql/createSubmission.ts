@@ -5,7 +5,6 @@ export const mutation = gql`
     $studyID: String!
     $dataCommons: String!
     $name: String!
-    $dbGaPID: String
     $intention: String!
     $dataType: String!
   ) {
@@ -13,7 +12,6 @@ export const mutation = gql`
       studyID: $studyID
       dataCommons: $dataCommons
       name: $name
-      dbGaPID: $dbGaPID
       intention: $intention
       dataType: $dataType
     ) {
@@ -28,7 +26,6 @@ export type Input = {
   studyID: string;
   dataCommons: string;
   name: string;
-  dbGaPID: string | null;
   intention: SubmissionIntention;
   dataType: SubmissionDataType;
 };

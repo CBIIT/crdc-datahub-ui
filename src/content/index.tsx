@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect } from "react";
 import { Dialog, styled } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import background from "../assets/loginPage/background.png";
+import background from "../assets/banner/login_banner.webp";
 import { useAuthContext } from "../components/Contexts/AuthContext";
 
 const LoginDialog = styled(Dialog)({
@@ -135,7 +135,7 @@ const Home: FC = () => {
           <Link
             id="loginDialogLinkToLogin"
             to="/login"
-            state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+            state={{ redirectState: dialogRedirectPath }}
             onClick={() => setShowRedirectDialog(false)}
           >
             <strong>log in</strong>
@@ -161,7 +161,7 @@ const Home: FC = () => {
             id="loginDialogLoginButton"
             className="loginDialogButton"
             to="/login"
-            state={{ redirectURLOnLoginSuccess: dialogRedirectPath }}
+            state={{ redirectState: dialogRedirectPath }}
             onClick={() => setShowRedirectDialog(false)}
           >
             <strong>Log In</strong>
@@ -185,7 +185,7 @@ const Home: FC = () => {
               id="loginPageLoginButton"
               className="loginPageLoginButton"
               to="/login"
-              state={{ redirectURLOnLoginSuccess: "/submissions" }}
+              state={{ redirectState: "/submissions" }}
             >
               <strong>Log In</strong>
             </Link>

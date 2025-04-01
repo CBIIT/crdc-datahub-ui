@@ -6,9 +6,9 @@ import {
   Box,
   Container,
   MenuItem,
-  OutlinedInput,
-  Select,
+  Popper,
   Stack,
+  TextField,
   Typography,
   styled,
 } from "@mui/material";
@@ -17,7 +17,7 @@ import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/organization.svg";
+import programIcon from "../../assets/icons/program_icon.svg";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import {
   CREATE_ORG,
@@ -28,16 +28,22 @@ import {
   GetOrgResp,
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesResp,
-  LIST_CURATORS,
-  ListCuratorsResp,
+  LIST_ACTIVE_DCPS,
+  ListActiveDCPsResp,
   EditOrgInput,
   CreateOrgInput,
   ListApprovedStudiesInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
-import { formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
 
 type Props = {
   /**
@@ -101,39 +107,36 @@ const StyledLabel = styled("span")({
 
 const BaseInputStyling = {
   width: "363px",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  color: "#083A50",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "18px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .MuiList-root": {
-    padding: 0,
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
 };
 
-const StyledTextField = styled(OutlinedInput)(BaseInputStyling);
+const StyledTextField = styled(BaseOutlinedInput)({
+  ...BaseInputStyling,
+  "& .MuiInputBase-inputMultiline": {
+    resize: "vertical",
+    minHeight: "44px",
+  },
+});
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
+const StyledAutocomplete = styled(BaseAutocomplete)(BaseInputStyling);
 
-const StyledSelect = styled(Select)(BaseInputStyling);
+const StyledPaper = styled(BasePaper)({
+  maxHeight: "300px",
+  "& .MuiAutocomplete-listbox": { width: "fit-content", minWidth: "100%", maxHeight: "unset" },
+  "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
+});
+
+const StyledPopper = styled(Popper)({
+  width: "463px !important",
+});
+
+const StyledTag = styled("div")({
+  position: "absolute",
+  paddingLeft: "12px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  maxWidth: "calc(100% - 24px)",
+  textOverflow: "ellipsis",
+});
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -173,7 +176,8 @@ const inactiveSubmissionStatus: SubmissionStatus[] = ["Completed"];
  * @returns {JSX.Element}
  */
 const OrganizationView: FC<Props> = ({ _id }: Props) => {
-  usePageTitle(`Organization ${!!_id && _id !== "new" ? _id : "Add"}`);
+  const isNew = _id && _id === "new";
+  usePageTitle(`${!isNew && _id ? "Edit" : "Add"} Program ${!isNew && _id ? _id : ""}`.trim());
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -184,7 +188,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-  const manageOrgPageUrl = `/organizations${lastSearchParams?.["/organizations"] ?? ""}`;
+  const [studyOptions, setStudyOptions] = useState<string[]>([]);
+
+  const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
   const assignedStudies: string[] = useMemo(() => {
     const activeStudies = {};
@@ -202,26 +208,27 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     return Object.keys(activeStudies) || [];
   }, [organization, dataSubmissions]);
 
-  const { handleSubmit, register, reset, control } = useForm<FormInput>();
-  const editableFields: (keyof FormInput)[] = ["name", "conciergeID", "studies", "status"];
+  const {
+    handleSubmit,
+    register,
+    reset,
+    watch,
+    formState: { errors },
+    control,
+  } = useForm<FormInput>();
+  const studiesField = watch("studies");
 
-  const { data: activeCurators } = useQuery<ListCuratorsResp>(LIST_CURATORS, {
+  const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: approvedStudies, refetch: refetchStudies } = useQuery<
-    ListApprovedStudiesResp,
-    ListApprovedStudiesInput
-  >(LIST_APPROVED_STUDIES, {
-    variables: {
-      // show all access types
-      controlledAccess: "All",
-      first: -1,
-      offset: 0,
-      orderBy: "studyName",
-      sortDirection: "asc",
-    },
+  const {
+    data: approvedStudies,
+    loading: approvedStudiesLoading,
+    refetch: refetchStudies,
+  } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(LIST_APPROVED_STUDIES, {
+    variables: { first: -1, orderBy: "studyName", sortDirection: "asc" },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
@@ -241,12 +248,50 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "no-cache",
   });
 
+  const formattedStudyMap = useMemo<Record<string, string>>(() => {
+    if (!approvedStudies?.listApprovedStudies?.studies) {
+      return {};
+    }
+
+    const studyIdMap = approvedStudies.listApprovedStudies.studies.reduce(
+      (acc, { _id, studyName, studyAbbreviation }) => ({
+        ...acc,
+        [_id]: formatFullStudyName(studyName, studyAbbreviation),
+      }),
+      {}
+    );
+
+    return studyIdMap;
+  }, [approvedStudies?.listApprovedStudies?.studies]);
+
+  const sortStudyOptions = () => {
+    const options = Object.keys(formattedStudyMap);
+
+    const selectedOptions =
+      studiesField
+        ?.filter((v) => options.includes(v))
+        ?.sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b])) || [];
+    const unselectedOptions = options
+      .filter((o) => !selectedOptions.includes(o))
+      .sort((a, b) => formattedStudyMap[a]?.localeCompare(formattedStudyMap?.[b]));
+
+    setStudyOptions([...selectedOptions, ...unselectedOptions]);
+  };
+
   /**
    * Updates the default form values after save or initial fetch
    *
    * @param data FormInput
    */
-  const setFormValues = (data: FormInput, fields = editableFields) => {
+  const setFormValues = (data: FormInput) => {
+    const fields: (keyof FormInput)[] = [
+      "name",
+      "abbreviation",
+      "description",
+      "conciergeID",
+      "studies",
+      "status",
+    ];
     const resetData = {};
 
     fields.forEach((field) => {
@@ -272,13 +317,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       setSaving(false);
 
       if (errors || !d?.createOrganization?._id) {
-        setError(errors || "Unable to create organization");
+        setError(errors || "Unable to create program");
         return;
       }
 
       setOrganization(null);
       setDataSubmissions(null);
-      enqueueSnackbar("This organization has been successfully added.", {
+      enqueueSnackbar("This program has been successfully added.", {
         variant: "default",
       });
       reset();
@@ -339,15 +384,14 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     if (_id === "new") {
       setOrganization(null);
       setDataSubmissions(null);
-      setFormValues(
-        {
-          name: "",
-          conciergeID: "",
-          studies: [],
-          status: "Active",
-        },
-        ["name", "conciergeID", "studies", "status"]
-      );
+      setFormValues({
+        name: "",
+        abbreviation: "",
+        description: "",
+        conciergeID: "",
+        studies: [],
+        status: "Active",
+      });
       return;
     }
 
@@ -357,7 +401,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       });
       if (error || !data?.getOrganization) {
         navigate(manageOrgPageUrl, {
-          state: { error: "Unable to fetch organization" },
+          state: { error: "Unable to fetch program" },
         });
         return;
       }
@@ -381,6 +425,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     })();
   }, [_id]);
 
+  useEffect(() => {
+    sortStudyOptions();
+  }, [formattedStudyMap, organization?.studies]);
+
   if (!organization && _id !== "new") {
     return <SuspenseLoader />;
   }
@@ -391,9 +439,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledProfileIcon>
-            <img src={profileIcon} alt="organization icon" />
+            <img src={programIcon} alt="program icon" />
           </StyledProfileIcon>
-
           <StyledContentStack
             direction="column"
             justifyContent="center"
@@ -402,7 +449,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
           >
             <StyledTitleBox>
               <StyledPageTitle variant="h1">
-                {_id !== "new" ? "Edit" : "Add"} Organization
+                {_id !== "new" ? "Edit" : "Add"} Program
               </StyledPageTitle>
             </StyledTitleBox>
 
@@ -415,48 +462,79 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
               <StyledField>
                 <StyledLabel id="organizationName">
-                  {_id !== "new" ? "Organization" : "Name"}
+                  Program <BaseAsterisk />
                 </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
-                  size="small"
-                  required
                   inputProps={{ "aria-labelledby": "organizationName" }}
+                  error={!!errors.name}
+                  required
+                />
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="abbreviationLabel">
+                  Abbreviation <BaseAsterisk />
+                </StyledLabel>
+                <Controller
+                  name="abbreviation"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <StyledTextField
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
+                      }}
+                      inputProps={{
+                        "aria-labelledby": "abbreviationLabel",
+                        maxLength: 100,
+                      }}
+                      placeholder="100 characters allowed"
+                      error={!!errors.abbreviation}
+                      required
+                    />
+                  )}
+                />
+              </StyledField>
+              <StyledField>
+                <StyledLabel id="descriptionLabel">Description</StyledLabel>
+                <StyledTextField
+                  {...register("description", { required: false })}
+                  inputProps={{
+                    "aria-labelledby": "descriptionLabel",
+                    maxLength: 500,
+                  }}
+                  error={!!errors.description}
+                  placeholder="500 characters allowed"
+                  rows={2}
+                  multiline
                 />
               </StyledField>
               <StyledField>
                 <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
-                <Stack
-                  direction="column"
-                  justifyContent="flex-start"
-                  alignItems="flex-start"
-                  spacing={1}
-                >
-                  <Controller
-                    name="conciergeID"
-                    control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <StyledSelect
-                        {...field}
-                        value={field.value || ""}
-                        MenuProps={{ disablePortal: true }}
-                        inputProps={{
-                          "aria-labelledby": "primaryContactLabel",
-                        }}
-                      >
-                        <MenuItem value={null}>{"<Not Set>"}</MenuItem>
-                        {activeCurators?.listActiveCurators?.map(
-                          ({ userID, firstName, lastName }) => (
-                            <MenuItem key={userID} value={userID}>
-                              {`${firstName} ${lastName}`.trim()}
-                            </MenuItem>
-                          )
-                        )}
-                      </StyledSelect>
-                    )}
-                  />
-                </Stack>
+                <Controller
+                  name="conciergeID"
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field }) => (
+                    <StyledSelect
+                      {...field}
+                      value={field.value || ""}
+                      MenuProps={{ disablePortal: true }}
+                      inputProps={{
+                        "aria-labelledby": "primaryContactLabel",
+                      }}
+                      error={!!errors.conciergeID}
+                    >
+                      <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                      {activeDCPs?.listActiveDCPs?.map(({ userID, firstName, lastName }) => (
+                        <MenuItem key={userID} value={userID}>
+                          {`${firstName} ${lastName}`.trim()}
+                        </MenuItem>
+                      ))}
+                    </StyledSelect>
+                  )}
+                />
               </StyledField>
               <StyledField>
                 <StyledLabel id="studiesLabel">Studies</StyledLabel>
@@ -465,26 +543,43 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   control={control}
                   rules={{ required: false }}
                   render={({ field }) => (
-                    <StyledSelect
+                    <StyledAutocomplete
                       {...field}
-                      value={field.value || []}
-                      MenuProps={{ disablePortal: true }}
-                      inputProps={{ "aria-labelledby": "studiesLabel" }}
-                      multiple
-                    >
-                      {approvedStudies?.listApprovedStudies?.studies?.map(
-                        ({ _id, studyName, studyAbbreviation }) => (
-                          <MenuItem key={_id} value={_id}>
-                            {formatFullStudyName(studyName, studyAbbreviation)}
-                          </MenuItem>
-                        )
+                      renderInput={({ inputProps, ...params }) => (
+                        <TextField
+                          {...params}
+                          placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
+                          inputProps={{ "aria-labelledby": "studiesLabel", ...inputProps }}
+                          onBlur={sortStudyOptions}
+                        />
                       )}
-                    </StyledSelect>
+                      renderTags={(value: string[], _, state) => {
+                        if (value?.length === 0 || state.focused) {
+                          return null;
+                        }
+
+                        if (value?.length === 1) {
+                          return <StyledTag>{formattedStudyMap[value[0]]}</StyledTag>;
+                        }
+
+                        return <StyledTag>{value?.length} studies selected</StyledTag>;
+                      }}
+                      options={studyOptions}
+                      getOptionLabel={(option: string) => formattedStudyMap[option]}
+                      onChange={(_, data: string[]) => field.onChange(data)}
+                      loading={approvedStudiesLoading}
+                      PaperComponent={StyledPaper}
+                      PopperComponent={StyledPopper}
+                      disableCloseOnSelect
+                      multiple
+                    />
                   )}
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="statusLabel">Status</StyledLabel>
+                <StyledLabel id="statusLabel">
+                  Status <BaseAsterisk />
+                </StyledLabel>
                 <Controller
                   name="status"
                   control={control}
@@ -496,6 +591,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       disabled={_id === "new"}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
+                      error={!!errors.status}
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Inactive">Inactive</MenuItem>
@@ -503,7 +599,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   )}
                 />
               </StyledField>
-
               <StyledButtonStack
                 direction="row"
                 justifyContent="center"

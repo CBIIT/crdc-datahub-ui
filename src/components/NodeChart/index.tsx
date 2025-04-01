@@ -78,7 +78,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
         <StyledPieChartLabel>
           <TruncatedText
             text={reformattedLabel}
-            wrapperStyles={{ margin: "0 auto" }}
+            wrapperSx={{ margin: "0 auto" }}
             maxCharacters={14}
           />
         </StyledPieChartLabel>

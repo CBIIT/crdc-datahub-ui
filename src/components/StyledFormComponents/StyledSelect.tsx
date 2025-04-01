@@ -12,6 +12,9 @@ const StyledSelect = styled(Select, {
     fontWeight: 400,
     opacity: 1,
   },
+  "& .Mui-disabled.MuiSelect-icon": {
+    opacity: props.theme.palette.action.disabledOpacity,
+  },
   // Dropdown
   "& .MuiPaper-root": {
     borderRadius: "8px",

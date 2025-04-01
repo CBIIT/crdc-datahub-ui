@@ -3,6 +3,7 @@ import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { Context, ContextState, Status as AuthStatus } from "../Contexts/AuthContext";
 import MetadataUpload from "./MetadataUpload";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
@@ -13,7 +14,7 @@ const baseSubmission: Omit<
   "_id" | "metadataValidationStatus" | "fileValidationStatus"
 > = {
   name: "",
-  submitterID: "",
+  submitterID: "current-user",
   submitterName: "",
   organization: null,
   dataCommons: "",
@@ -51,17 +52,18 @@ const baseContext: ContextState = {
 };
 
 const baseUser: Omit<User, "role"> = {
-  _id: "",
+  _id: "current-user",
   firstName: "",
   lastName: "",
   userStatus: "Active",
   IDP: "nih",
   email: "",
-  organization: null,
   studies: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",
+  permissions: ["data_submission:view", "data_submission:create"],
+  notifications: [],
 };
 
 const baseNewBatch: Omit<NewBatch, "files" | "fileCount"> = {
@@ -98,11 +100,13 @@ const TestParent: FC<ParentProps> = ({
   mocks = [],
   children,
 }: ParentProps) => (
-  <Context.Provider value={context}>
-    <MockedProvider mocks={mocks} showWarnings>
-      {children}
-    </MockedProvider>
-  </Context.Provider>
+  <MemoryRouter>
+    <Context.Provider value={context}>
+      <MockedProvider mocks={mocks} showWarnings>
+        {children}
+      </MockedProvider>
+    </Context.Provider>
+  </MemoryRouter>
 );
 
 describe("Accessibility", () => {
@@ -143,6 +147,36 @@ describe("Accessibility", () => {
     );
 
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should not have accessibility violations for the Model Version element", async () => {
+    const { getByTestId } = render(
+      <MetadataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "id-upload-button-text",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          dataCommons: "Test Data Common",
+          modelVersion: "1.9.3",
+        }}
+        onCreateBatch={jest.fn()}
+        onUpload={jest.fn()}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={[]}
+            context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("metadata-upload-model-version")).toBeInTheDocument();
+    expect(await axe(getByTestId("metadata-upload-model-version"))).toHaveNoViolations();
   });
 });
 
@@ -550,6 +584,64 @@ describe("Implementation Requirements", () => {
     jest.resetAllMocks();
   });
 
+  it("should render the Data Model version if it's provided", () => {
+    const { getByText, getByTestId } = render(
+      <MetadataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "id-upload-button-text",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+          dataCommons: "Test Data Common",
+          modelVersion: "1.9.3",
+        }}
+        onCreateBatch={jest.fn()}
+        onUpload={jest.fn()}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={[]}
+            context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(getByTestId("metadata-upload-model-version")).toBeInTheDocument();
+    expect(getByText(/Test Data Common Data Model/i)).toBeVisible();
+    expect(getByText(/v1.9.3/i)).toBeVisible();
+  });
+
+  it("should not render the Data Model version if it's not provided", () => {
+    const { queryByTestId } = render(
+      <MetadataUpload
+        submission={{
+          ...baseSubmission,
+          _id: "id-upload-button-text",
+          metadataValidationStatus: "New",
+          fileValidationStatus: "New",
+        }}
+        onCreateBatch={jest.fn()}
+        onUpload={jest.fn()}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={[]}
+            context={{ ...baseContext, user: { ...baseUser, role: "Submitter" } }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    expect(queryByTestId("metadata-upload-model-version")).not.toBeInTheDocument();
+  });
+
   it("should render the Upload with text 'Uploading...' when metadata is uploading", async () => {
     const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
@@ -711,20 +803,18 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-count")).toHaveTextContent(/No files selected/i);
   });
 
-  it.each<User["role"]>([
-    "Admin",
-    "Data Commons POC",
-    "Data Curator",
-    "Federal Lead",
-    "User",
-    "fake role" as User["role"],
-  ])("should not be enabled for the role '%s'", (role) => {
+  it("should not be enabled when user is missing the required permissions", async () => {
     const { getByTestId } = render(
-      <TestParent context={{ ...baseContext, user: { ...baseUser, role, _id: "not-owner" } }}>
+      <TestParent
+        context={{
+          ...baseContext,
+          user: { ...baseUser, _id: "not-owner", role: "Submitter", permissions: [] },
+        }}
+      >
         <MetadataUpload
           submission={{
             ...baseSubmission,
-            _id: `readonly-for-role-${role}`,
+            _id: `readonly-for-non-owner`,
             metadataValidationStatus: "Passed",
             fileValidationStatus: "Passed",
             submitterID: "random-id-owner",
@@ -738,44 +828,37 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
 
-  it.each<{ userId: string; submitterId: string; expected: boolean }>([
-    { userId: "owner-id", submitterId: "owner-id", expected: true },
-    { userId: "owner-id", submitterId: "but-i-am-not-the-owner", expected: false },
-  ])(
-    "should not be enabled for 'Submitter' if they are not the owner",
-    ({ userId, submitterId, expected }) => {
-      const { getByTestId } = render(
-        <TestParent
-          context={{
-            ...baseContext,
-            user: { ...baseUser, role: "Submitter", _id: userId },
+  it("should be enabled when user has the required permissions", async () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{
+          ...baseContext,
+          user: {
+            ...baseUser,
+            role: "Submitter",
+            _id: "test-user",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
+        }}
+      >
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "readonly-for-non-owner",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+            submitterID: "test-user",
           }}
-        >
-          <MetadataUpload
-            submission={{
-              ...baseSubmission,
-              _id: "readonly-for-non-owner",
-              metadataValidationStatus: "Passed",
-              fileValidationStatus: "Passed",
-              submitterID: submitterId,
-            }}
-            onCreateBatch={jest.fn()}
-            onUpload={jest.fn()}
-          />
-        </TestParent>
-      );
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
 
-      const uploadButton = getByTestId("metadata-upload-file-select-button");
+    const uploadButton = getByTestId("metadata-upload-file-select-button");
 
-      /* eslint-disable jest/no-conditional-expect */
-      if (expected === false) {
-        expect(uploadButton).toBeDisabled();
-      } else {
-        expect(uploadButton).toBeEnabled();
-      }
-      /* eslint-enable jest/no-conditional-expect */
-    }
-  );
+    expect(uploadButton).toBeEnabled();
+  });
 
   it("should disable the Choose Files button when readOnly is true", () => {
     const { getByTestId } = render(
@@ -797,12 +880,17 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-select-button")).toBeDisabled();
   });
 
-  it("should disable the 'Choose Files' and 'Upload' buttons when collaborator does not have 'Can Edit' permissions", () => {
+  it("should disable the 'Choose Files' and 'Upload' buttons when a non-submission owner user does not have create permissions and is not a collaborator", () => {
     const { getByTestId } = render(
       <TestParent
         context={{
           ...baseContext,
-          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+          user: {
+            ...baseUser,
+            _id: "other-user-2",
+            role: "Submitter",
+            permissions: ["data_submission:view"],
+          },
         }}
       >
         <MetadataUpload
@@ -814,10 +902,9 @@ describe("Implementation Requirements", () => {
             submitterID: "some-other-user",
             collaborators: [
               {
-                collaboratorID: "collaborator-user",
+                collaboratorID: "other-user",
                 collaboratorName: "",
-                Organization: null,
-                permission: "Can View",
+                permission: "Can Edit",
               },
             ],
           }}
@@ -831,12 +918,60 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
   });
 
-  it("should enable the 'Choose Files' and 'Upload' buttons when collaborator has 'Can Edit' permissions", () => {
+  it("should enable the 'Choose Files' and 'Upload' buttons when user is a collaborator without create permissions", () => {
     const { getByTestId } = render(
       <TestParent
         context={{
           ...baseContext,
-          user: { ...baseUser, _id: "collaborator-user", role: "Submitter" },
+          user: {
+            ...baseUser,
+            _id: "other-user",
+            role: "Submitter",
+            permissions: ["data_submission:view"],
+          },
+        }}
+      >
+        <MetadataUpload
+          submission={{
+            ...baseSubmission,
+            _id: "id-readonly-choose-files",
+            metadataValidationStatus: "Passed",
+            fileValidationStatus: "Passed",
+            submitterID: "some-other-user",
+            collaborators: [
+              {
+                collaboratorID: "other-user",
+                collaboratorName: "",
+                permission: "Can Edit",
+              },
+            ],
+          }}
+          onCreateBatch={jest.fn()}
+          onUpload={jest.fn()}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("metadata-upload-file-select-button")).toBeEnabled();
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeDisabled();
+
+    const file = new File(["unused-content"], "metadata.txt", { type: "text/plain" });
+    userEvent.upload(getByTestId("metadata-upload-file-input"), file);
+
+    expect(getByTestId("metadata-upload-file-upload-button")).toBeEnabled();
+  });
+
+  it("should enable the 'Choose Files' and 'Upload' buttons when when a collaborator has permissions", () => {
+    const { getByTestId } = render(
+      <TestParent
+        context={{
+          ...baseContext,
+          user: {
+            ...baseUser,
+            _id: "collaborator-user",
+            role: "Submitter",
+            permissions: ["data_submission:view", "data_submission:create"],
+          },
         }}
       >
         <MetadataUpload
@@ -850,7 +985,6 @@ describe("Implementation Requirements", () => {
               {
                 collaboratorID: "collaborator-user",
                 collaboratorName: "",
-                Organization: null,
                 permission: "Can Edit",
               },
             ],

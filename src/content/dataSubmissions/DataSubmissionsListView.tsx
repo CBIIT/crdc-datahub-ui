@@ -6,7 +6,7 @@ import { useSnackbar } from "notistack";
 import { useLazyQuery } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import PageBanner from "../../components/PageBanner";
-import { FormatDate } from "../../utils";
+import { FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
@@ -16,10 +16,12 @@ import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataSubmissionListFilters, {
+  defaultValues,
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
+import NavigatorLink from "../../components/DataSubmissions/NavigatorLink";
 
-type T = ListSubmissionsResp["listSubmissions"]["submissions"][0];
+type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -132,7 +134,7 @@ const columns: Column<T>[] = [
   },
   {
     label: "DM Version",
-    renderValue: (a) => a.modelVersion,
+    renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,
     sx: {
@@ -140,8 +142,8 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Organization",
-    renderValue: (a) => <TruncatedText text={a.organization.name} />,
+    label: "Program",
+    renderValue: (a) => <TruncatedText text={a.organization?.name ?? "NA"} />,
     fieldKey: "organization.name",
   },
   {
@@ -226,7 +228,6 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
-  // Only org owners/submitters with organizations assigned can create data submissions
 
   const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
     Column<T>
@@ -244,14 +245,7 @@ const ListingView: FC = () => {
   const [dataCommons, setDataCommons] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const tableRef = useRef<TableMethods>(null);
-  const filtersRef = useRef<FilterForm>({
-    organization: "All",
-    status: "All",
-    dataCommons: "All",
-    name: "",
-    dbGaPID: "",
-    submitterName: "All",
-  });
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
   const [listSubmissions, { refetch }] = useLazyQuery<ListSubmissionsResp, ListSubmissionsInput>(
     LIST_SUBMISSIONS,
@@ -282,7 +276,7 @@ const ListingView: FC = () => {
       const { data: d, error } = await listSubmissions({
         variables: {
           organization: organization ?? "All",
-          status: status ?? "All",
+          status,
           dataCommons: dc ?? "All",
           submitterName: submitterName ?? "All",
           name: name || undefined,
@@ -302,13 +296,14 @@ const ListingView: FC = () => {
       setData(d.listSubmissions.submissions);
       setOrganizations(
         d.listSubmissions.organizations
-          ?.filter((org) => !!org.name.trim())
-          ?.sort((a, b) => a.name?.localeCompare(b.name))
+          ?.filter((org) => !!org?.name?.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b?.name))
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
+      Logger.error("Error while fetching Data Submission list", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -330,13 +325,14 @@ const ListingView: FC = () => {
       setData(d.listSubmissions.submissions);
       setOrganizations(
         d.listSubmissions.organizations
-          ?.filter((org) => !!org.name.trim())
-          ?.sort((a, b) => a.name?.localeCompare(b.name))
+          ?.filter((org) => !!org?.name?.trim())
+          ?.sort((a, b) => a.name?.localeCompare(b?.name))
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
       setTotalData(d.listSubmissions.total);
     } catch (err) {
+      Logger.error("Error updating the Data Submission list", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -364,8 +360,6 @@ const ListingView: FC = () => {
         padding="57px 0 0 25px"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {/* NOTE For MVP-2: Organization Owners are just Users */}
-            {/* Create a submission only available to org owners and submitters that have organizations assigned */}
             <CreateDataSubmissionDialog onCreate={handleOnCreateSubmission} />
           </StyledBannerBody>
         }
@@ -398,7 +392,7 @@ const ListingView: FC = () => {
             defaultOrder="desc"
             disableUrlParams={false}
             position="bottom"
-            noContentText="There are no data submissions associated with your account"
+            noContentText="You either do not have the appropriate permissions to view data submissions, or there are no data submissions associated with your account."
             onFetchData={handleFetchData}
             containerProps={{
               sx: {

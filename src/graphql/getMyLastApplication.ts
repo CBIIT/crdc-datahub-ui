@@ -11,7 +11,15 @@ export const query = gql`
 
 export type Response = {
   getMyLastApplication: {
+    /**
+     * Unique identifier for the application
+     */
     _id: Application["_id"];
-    questionnaireData: string; // Cast to QuestionnaireData
+    /**
+     * A stringified JSON object containing the Questionnaire data
+     *
+     * @see {@link QuestionnaireData}
+     */
+    questionnaireData: string;
   };
 };

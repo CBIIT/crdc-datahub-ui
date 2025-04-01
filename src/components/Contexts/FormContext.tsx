@@ -8,7 +8,6 @@ import {
   REJECT_APP,
   INQUIRE_APP,
   REOPEN_APP,
-  REVIEW_APP,
   SAVE_APP,
   SUBMIT_APP,
   ApproveAppResp,
@@ -17,13 +16,13 @@ import {
   InquireAppResp,
   RejectAppResp,
   ReopenAppResp,
-  ReviewAppResp,
   SaveAppResp,
   SubmitAppResp,
   ApproveAppInput,
   SaveAppInput,
 } from "../../graphql";
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { Logger } from "../../utils";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -34,7 +33,6 @@ export type ContextState = {
   data: Application;
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
-  reviewForm?: () => Promise<string | boolean>;
   approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
@@ -118,12 +116,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const [reviewApp] = useMutation<ReviewAppResp>(REVIEW_APP, {
-    variables: { id },
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
   const [reopenApp] = useMutation<ReopenAppResp>(REOPEN_APP, {
     variables: { id },
     context: { clientName: "backend" },
@@ -163,7 +155,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       variables: {
         application: {
           _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
-          programName: data?.program?.name,
           studyName: data?.study?.name,
           studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
           questionnaireData: JSON.stringify(data),
@@ -171,6 +162,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           openAccess: data?.accessTypes?.includes("Open Access") || false,
           ORCID: data?.pi?.ORCID,
           PI: fullPIName,
+          programName: data?.program?.name,
+          programAbbreviation: data?.program?.abbreviation,
+          programDescription: data?.program?.description,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -178,11 +172,13 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     if (errors || !d?.saveApplication?.["_id"]) {
       const errorMessage = errors?.[0]?.message || "An unknown GraphQL Error occurred";
 
+      Logger.error("Unable to save application", errors);
       setState({
         ...newState,
         status: Status.ERROR,
         error: errorMessage,
       });
+
       return {
         status: "failed",
         errorMessage,
@@ -194,7 +190,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         ...newState.data,
         _id: d.saveApplication["_id"],
         applicant: d?.saveApplication?.applicant,
-        organization: d?.saveApplication?.organization,
       };
     }
 
@@ -309,32 +304,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     return res?.rejectApplication?.["_id"];
   };
 
-  // Updating form status from Submitted to In Review
-  const reviewForm = async () => {
-    setState((prevState) => ({ ...prevState, status: Status.LOADING }));
-
-    const { data: res, errors } = await reviewApp({
-      variables: {
-        _id: state?.data["_id"],
-      },
-    }).catch((e) => ({ data: null, errors: [e] }));
-
-    if (errors || !res?.reviewApplication?.["_id"]) {
-      setState((prevState) => ({ ...prevState, status: Status.ERROR }));
-      return false;
-    }
-
-    setState((prevState) => ({
-      ...prevState,
-      data: {
-        ...prevState?.data,
-        ...res?.reviewApplication,
-      },
-      status: Status.LOADED,
-    }));
-    return res?.reviewApplication?.["_id"];
-  };
-
   // Reopen a form when it has been rejected and they submit an updated form
   const reopenForm = async () => {
     setState((prevState) => ({ ...prevState, status: Status.LOADING }));
@@ -423,11 +392,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         };
       }
 
-      // TODO: Remove in 3.2.0
-      if (questionnaireData.pi) {
-        questionnaireData.pi.ORCID = "";
-      }
-
       setState({
         status: Status.LOADED,
         data: {
@@ -448,7 +412,6 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       approveForm,
       inquireForm,
       rejectForm,
-      reviewForm,
       reopenForm,
     }),
     [state]

@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -7,6 +7,7 @@ import {
   Container,
   FormControlLabel,
   FormGroup,
+  MenuItem,
   Stack,
   styled,
   Typography,
@@ -31,11 +32,15 @@ import {
   GET_APPROVED_STUDY,
   GetApprovedStudyInput,
   GetApprovedStudyResp,
+  LIST_ACTIVE_DCPS,
+  ListActiveDCPsResp,
   UPDATE_APPROVED_STUDY,
   UpdateApprovedStudyInput,
   UpdateApprovedStudyResp,
 } from "../../graphql";
 import SuspenseLoader from "../../components/SuspenseLoader";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -148,6 +153,9 @@ const StyledCheckbox = styled(Checkbox)({
   "& .MuiSvgIcon-root": {
     fontSize: "24px",
   },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+  },
 });
 
 const BaseInputStyling = {
@@ -155,6 +163,7 @@ const BaseInputStyling = {
 };
 
 const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
+const StyledSelect = styled(BaseSelect)(BaseInputStyling);
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -176,16 +185,29 @@ const StyledContentStack = styled(Stack)({
   marginLeft: "2px !important",
 });
 
+const StyledAlert = styled(Alert)({
+  marginBottom: "16px",
+  padding: "16px",
+  width: "100%",
+  maxWidth: "556px",
+});
+
 const StyledTitleBox = styled(Box)({
   marginTop: "-86px",
   marginBottom: "88px",
   width: "100%",
 });
 
+const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "visible" })<{
+  visible?: boolean;
+}>(({ visible = true }) => ({
+  display: visible ? undefined : "none",
+}));
+
 type FormInput = Pick<
   ApprovedStudy,
   "studyName" | "studyAbbreviation" | "PI" | "dbGaPID" | "ORCID" | "openAccess" | "controlledAccess"
->;
+> & { primaryContactID: string };
 
 type Props = {
   _id: string;
@@ -197,7 +219,15 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { handleSubmit, register, watch, control, reset, setValue } = useForm<FormInput>({
+  const {
+    handleSubmit,
+    register,
+    watch,
+    control,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<FormInput>({
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
@@ -206,6 +236,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       PI: "",
       dbGaPID: "",
       ORCID: "",
+      primaryContactID: "",
       openAccess: false,
       controlledAccess: false,
     },
@@ -214,6 +245,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState(null);
+  const [sameAsProgramPrimaryContact, setSameAsProgramPrimaryContact] = useState<boolean>(true);
+  const [approvedStudy, setApprovedStudy] = useState<ApprovedStudy>(null);
 
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
 
@@ -222,7 +255,36 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     {
       variables: { _id },
       skip: !_id || _id === "new",
-      onCompleted: (data) => resetForm({ ...data?.getApprovedStudy }),
+      onCompleted: (data) => {
+        setApprovedStudy({ ...data?.getApprovedStudy });
+        const {
+          primaryContact,
+          studyName,
+          studyAbbreviation,
+          PI,
+          dbGaPID,
+          ORCID,
+          openAccess,
+          controlledAccess,
+        } = data?.getApprovedStudy || {};
+
+        if (primaryContact?._id) {
+          setSameAsProgramPrimaryContact(false);
+        } else if (data?.getApprovedStudy?.programs?.length === 1) {
+          setSameAsProgramPrimaryContact(true);
+        }
+
+        resetForm({
+          studyName,
+          studyAbbreviation,
+          PI,
+          dbGaPID,
+          ORCID,
+          openAccess,
+          controlledAccess,
+          primaryContactID: primaryContact?._id,
+        });
+      },
       onError: (error) =>
         navigate(manageStudiesPageUrl, {
           state: { error: error?.message || "Unable to fetch study." },
@@ -231,6 +293,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       fetchPolicy: "no-cache",
     }
   );
+
+  const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const [updateApprovedStudy] = useMutation<UpdateApprovedStudyResp, UpdateApprovedStudyInput>(
     UPDATE_APPROVED_STUDY,
@@ -248,6 +315,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     }
   );
 
+  useEffect(() => {
+    if (approvedStudy?.programs?.length > 1 && sameAsProgramPrimaryContact) {
+      setSameAsProgramPrimaryContact(false);
+    }
+  }, [approvedStudy?.programs?.length, sameAsProgramPrimaryContact]);
+
   /**
    * Reset the form values, and preventing invalid
    * properties from being set
@@ -260,15 +333,17 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     dbGaPID,
     PI,
     ORCID,
+    primaryContactID,
   }: FormInput) => {
     reset({
-      studyName,
-      studyAbbreviation,
-      controlledAccess,
-      openAccess,
-      dbGaPID,
-      PI,
-      ORCID,
+      studyName: studyName || "",
+      studyAbbreviation: studyAbbreviation || "",
+      controlledAccess: controlledAccess || false,
+      openAccess: openAccess || false,
+      dbGaPID: dbGaPID || "",
+      PI: PI || "",
+      ORCID: ORCID || "",
+      primaryContactID: primaryContactID || "",
     });
   };
 
@@ -293,6 +368,9 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       ...data,
       name: data.studyName,
       acronym: data.studyAbbreviation,
+      primaryContactID: sameAsProgramPrimaryContact
+        ? undefined
+        : data.primaryContactID || undefined,
     };
 
     if (_id === "new") {
@@ -336,6 +414,21 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     setValue("ORCID", formattedValue);
   };
 
+  const handleOnSameAsProgramPCChange = (checked: boolean) => {
+    setSameAsProgramPrimaryContact(checked);
+
+    if (
+      checked &&
+      approvedStudy?.programs?.length === 1 &&
+      approvedStudy.programs[0]?.conciergeID
+    ) {
+      setValue("primaryContactID", approvedStudy.programs[0].conciergeID);
+      return;
+    }
+
+    setValue("primaryContactID", null);
+  };
+
   if (retrievingStudy) {
     return <SuspenseLoader data-testid="study-view-suspense-loader" />;
   }
@@ -363,17 +456,16 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
             <form onSubmit={handleSubmit(handlePreSubmit)} data-testid="study-form">
               {error && (
-                <Alert
-                  sx={{ mb: 2, p: 2, width: "100%" }}
-                  severity="error"
-                  data-testid="alert-error-message"
-                >
+                <StyledAlert severity="error" data-testid="alert-error-message">
                   {error || "An unknown API error occurred."}
-                </Alert>
+                </StyledAlert>
               )}
 
               <StyledField>
-                <StyledLabel id="studyNameLabel">Name</StyledLabel>
+                <StyledLabel id="studyNameLabel">
+                  Name
+                  <StyledAsterisk visible />
+                </StyledLabel>
                 <StyledTextField
                   {...register("studyName", { required: true, setValueAs: (val) => val?.trim() })}
                   size="small"
@@ -401,9 +493,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
               <StyledField>
                 <StyledAccessTypesLabel id="accessTypesLabel">
-                  Access Types{" "}
+                  <span>
+                    Access Types
+                    <StyledAsterisk visible />
+                  </span>
                   <StyledAccessTypesDescription>
-                    (Select all that apply):
+                    (Select all that apply)
                   </StyledAccessTypesDescription>
                 </StyledAccessTypesLabel>
                 <Stack direction="column">
@@ -466,7 +561,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 </Stack>
               </StyledField>
               <StyledField>
-                <StyledLabel id="dbGaPIDLabel">dbGaPID</StyledLabel>
+                <StyledLabel id="dbGaPIDLabel">
+                  dbGaPID
+                  <StyledAsterisk visible={isControlled} />
+                </StyledLabel>
                 <StyledTextField
                   {...register("dbGaPID", {
                     required: isControlled === true,
@@ -513,6 +611,86 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           "data-testid": "ORCID-input",
                         }}
                       />
+                    )}
+                  />
+                </Stack>
+              </StyledField>
+
+              <StyledField sx={{ alignItems: "flex-start" }}>
+                <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
+                  Primary Contact
+                </StyledLabel>
+                <Stack
+                  direction="column"
+                  justifyContent="flex-start"
+                  alignItems="flex-start"
+                  spacing={1}
+                >
+                  <StyledCheckboxFormGroup>
+                    <Tooltip
+                      title="Disabled due to this study is associated with multiple programs; manually assign a Primary Contact."
+                      placement="top"
+                      open={undefined}
+                      disableHoverListener={
+                        saving ||
+                        retrievingStudy ||
+                        !approvedStudy?.programs ||
+                        approvedStudy?.programs?.length <= 1
+                      }
+                    >
+                      <StyledFormControlLabel
+                        control={
+                          <StyledCheckbox
+                            checked={sameAsProgramPrimaryContact}
+                            onChange={(_, checked) => handleOnSameAsProgramPCChange(checked)}
+                            checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                            icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                            disabled={
+                              saving || retrievingStudy || approvedStudy?.programs?.length > 1
+                            }
+                            inputProps={
+                              { "data-testid": "sameAsProgramPrimaryContact-checkbox" } as unknown
+                            }
+                          />
+                        }
+                        label="Same as the Program Primary Contact"
+                      />
+                    </Tooltip>
+                  </StyledCheckboxFormGroup>
+                  <Controller
+                    name="primaryContactID"
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field }) => (
+                      <StyledSelect
+                        {...field}
+                        value={
+                          sameAsProgramPrimaryContact
+                            ? approvedStudy?.programs?.[0]?.conciergeID || ""
+                            : field.value || ""
+                        }
+                        MenuProps={{ disablePortal: true }}
+                        inputProps={{
+                          "aria-labelledby": "primaryContactLabel",
+                        }}
+                        data-testid="primaryContactID-select"
+                        error={!!errors.primaryContactID}
+                        disabled={sameAsProgramPrimaryContact}
+                      >
+                        {sameAsProgramPrimaryContact &&
+                        approvedStudy?.programs?.[0]?.conciergeID ? (
+                          <MenuItem value={approvedStudy.programs[0].conciergeID}>
+                            {`${approvedStudy?.programs?.[0]?.conciergeName}`.trim()}
+                          </MenuItem>
+                        ) : (
+                          <MenuItem value={null}>{"<Not Set>"}</MenuItem>
+                        )}
+                        {activeDCPs?.listActiveDCPs?.map((user) => (
+                          <MenuItem key={user?.userID} value={user?.userID}>
+                            {`${user?.firstName} ${user?.lastName}`.trim()}
+                          </MenuItem>
+                        ))}
+                      </StyledSelect>
                     )}
                   />
                 </Stack>

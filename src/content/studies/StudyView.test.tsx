@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { ApolloError } from "@apollo/client";
 import userEvent from "@testing-library/user-event";
@@ -12,6 +12,8 @@ import {
   CREATE_APPROVED_STUDY,
   GetApprovedStudyResp,
   GetApprovedStudyInput,
+  LIST_ACTIVE_DCPS,
+  ListActiveDCPsResp,
 } from "../../graphql";
 import StudyView from "./StudyView";
 
@@ -28,6 +30,33 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const listActiveDCPsMock: MockedResponse<ListActiveDCPsResp> = {
+  request: {
+    query: LIST_ACTIVE_DCPS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listActiveDCPs: [
+        {
+          userID: "dcp-1",
+          firstName: "John",
+          lastName: "Doe",
+          createdAt: "",
+          updateAt: "",
+        },
+        {
+          userID: "dcp-2",
+          firstName: "James",
+          lastName: "Smith",
+          createdAt: "",
+          updateAt: "",
+        },
+      ],
+    },
+  },
+};
+
 type ParentProps = {
   mocks?: MockedResponse[];
   initialEntries?: MemoryRouterProps["initialEntries"];
@@ -35,7 +64,7 @@ type ParentProps = {
 };
 
 const TestParent: FC<ParentProps> = ({
-  mocks = [],
+  mocks = [listActiveDCPsMock],
   initialEntries = ["/"],
   children,
 }: ParentProps) => (
@@ -75,8 +104,11 @@ describe("StudyView Component", () => {
         <StudyView _id="new" />
       </TestParent>
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
   });
 
   it("should set the page title 'Add Study'", async () => {
@@ -114,7 +146,7 @@ describe("StudyView Component", () => {
     };
 
     render(
-      <TestParent mocks={[getApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
         <StudyView _id="test-id" />
       </TestParent>
     );
@@ -148,7 +180,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[getApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
         <StudyView _id="test-id" />
       </TestParent>
     );
@@ -265,6 +297,7 @@ describe("StudyView Component", () => {
           controlledAccess: false,
           name: "Test Study Name",
           acronym: "TSN",
+          primaryContactID: "dcp-1",
         },
       },
       result: {
@@ -278,7 +311,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[createApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
@@ -289,6 +322,10 @@ describe("StudyView Component", () => {
     const dbGaPIDInput = getByTestId("dbGaPID-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
     const openAccessCheckbox = getByTestId("openAccess-checkbox");
+    const sameAsProgramPrimaryContactCheckbox = getByTestId("sameAsProgramPrimaryContact-checkbox");
+    const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
+      "button"
+    );
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
@@ -297,6 +334,29 @@ describe("StudyView Component", () => {
     userEvent.type(dbGaPIDInput, "db123456");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
     userEvent.click(openAccessCheckbox);
+    userEvent.click(sameAsProgramPrimaryContactCheckbox);
+    userEvent.click(primaryContactIDSelect);
+
+    await waitFor(() => {
+      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
+        "option",
+        {
+          hidden: true,
+        }
+      );
+      expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
+      expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
+      expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
+    });
+
+    userEvent.selectOptions(
+      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
+        hidden: true,
+      }),
+      "John Doe"
+    );
+
+    expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
     userEvent.click(saveButton);
 
@@ -325,6 +385,13 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
+            programs: [
+              {
+                _id: "program-1",
+                conciergeID: "primary-contact-1",
+                conciergeName: "John Doe",
+              },
+            ],
           },
         },
       },
@@ -357,7 +424,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[getApprovedStudyMock, updateApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );
@@ -395,13 +462,14 @@ describe("StudyView Component", () => {
           controlledAccess: false,
           name: "Test Study Name",
           acronym: "TSN",
+          primaryContactID: "dcp-1",
         },
       },
       error: new Error("Unable to create approved study."),
     };
 
     const { getByTestId, getByText } = render(
-      <TestParent mocks={[createApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
@@ -411,6 +479,10 @@ describe("StudyView Component", () => {
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
     const openAccessCheckbox = getByTestId("openAccess-checkbox");
+    const sameAsProgramPrimaryContactCheckbox = getByTestId("sameAsProgramPrimaryContact-checkbox");
+    const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
+      "button"
+    );
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
@@ -418,6 +490,29 @@ describe("StudyView Component", () => {
     userEvent.type(PIInput, "John Doe");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
     userEvent.click(openAccessCheckbox);
+    userEvent.click(sameAsProgramPrimaryContactCheckbox);
+    userEvent.click(primaryContactIDSelect);
+
+    await waitFor(() => {
+      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
+        "option",
+        {
+          hidden: true,
+        }
+      );
+      expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
+      expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
+      expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
+    });
+
+    userEvent.selectOptions(
+      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
+        hidden: true,
+      }),
+      "John Doe"
+    );
+
+    expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
     userEvent.click(saveButton);
 
@@ -444,6 +539,13 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
+            programs: [
+              {
+                _id: "program-1",
+                conciergeID: "primary-contact-1",
+                conciergeName: "John Doe",
+              },
+            ],
           },
         },
       },
@@ -469,7 +571,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId, findByText } = render(
-      <TestParent mocks={[getApprovedStudyMock, updateApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );
@@ -507,6 +609,7 @@ describe("StudyView Component", () => {
           controlledAccess: false,
           name: "Test Study Name",
           acronym: "",
+          primaryContactID: "dcp-1",
         },
       },
       result: {
@@ -521,7 +624,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[createApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
@@ -529,11 +632,38 @@ describe("StudyView Component", () => {
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
+    const sameAsProgramPrimaryContactCheckbox = getByTestId("sameAsProgramPrimaryContact-checkbox");
+    const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
+      "button"
+    );
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(PIInput, "John Doe");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
+    userEvent.click(sameAsProgramPrimaryContactCheckbox);
+    userEvent.click(primaryContactIDSelect);
+
+    await waitFor(() => {
+      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
+        "option",
+        {
+          hidden: true,
+        }
+      );
+      expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
+      expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
+      expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
+    });
+
+    userEvent.selectOptions(
+      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
+        hidden: true,
+      }),
+      "John Doe"
+    );
+
+    expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
     const openAccessCheckbox = getByTestId("openAccess-checkbox") as HTMLInputElement;
     userEvent.click(openAccessCheckbox);
@@ -566,7 +696,7 @@ describe("StudyView Component", () => {
     };
 
     render(
-      <TestParent mocks={[getApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );
@@ -602,7 +732,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[getApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );
@@ -642,13 +772,14 @@ describe("StudyView Component", () => {
           controlledAccess: false,
           name: "Test Study Name",
           acronym: "",
+          primaryContactID: "dcp-1",
         },
       },
       error: new ApolloError({ errorMessage: null }),
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[createApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
@@ -657,12 +788,39 @@ describe("StudyView Component", () => {
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
     const openAccessCheckbox = getByTestId("openAccess-checkbox") as HTMLInputElement;
+    const sameAsProgramPrimaryContactCheckbox = getByTestId("sameAsProgramPrimaryContact-checkbox");
+    const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
+      "button"
+    );
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(PIInput, "John Doe");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
+    userEvent.click(sameAsProgramPrimaryContactCheckbox);
     userEvent.click(openAccessCheckbox);
+    userEvent.click(primaryContactIDSelect);
+
+    await waitFor(() => {
+      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
+        "option",
+        {
+          hidden: true,
+        }
+      );
+      expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
+      expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
+      expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
+    });
+
+    userEvent.selectOptions(
+      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
+        hidden: true,
+      }),
+      "John Doe"
+    );
+
+    expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
     userEvent.click(saveButton);
 
@@ -691,6 +849,13 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
+            programs: [
+              {
+                _id: "program-1",
+                conciergeID: "primary-contact-1",
+                conciergeName: "John Doe",
+              },
+            ],
           },
         },
       },
@@ -716,7 +881,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[getApprovedStudyMock, updateApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );

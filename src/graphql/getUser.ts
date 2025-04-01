@@ -13,13 +13,13 @@ export const query = gql`
       createdAt
       updateAt
       dataCommons
-      studies
-      organization {
-        orgID
-        orgName
-        createdAt
-        updateAt
+      studies {
+        _id
+        studyName
+        studyAbbreviation
       }
+      permissions
+      notifications
     }
   }
 `;
@@ -29,5 +29,7 @@ export type Input = {
 };
 
 export type Response = {
-  getUser: User;
+  getUser: User & {
+    studies: Pick<ApprovedStudy, "_id" | "studyName" | "studyAbbreviation">[];
+  };
 };

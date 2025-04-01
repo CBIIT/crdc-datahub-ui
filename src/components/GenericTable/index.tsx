@@ -44,7 +44,10 @@ const StyledTableContainer = styled(TableContainer)({
   marginBottom: "25px",
   position: "relative",
   overflow: "hidden",
-  "& .MuiTableRow-root:nth-of-type(2n)": {
+  "& .MuiTableBody-root .MuiTableRow-root:nth-of-type(odd)": {
+    background: "#FFF",
+  },
+  "& .MuiTableBody-root .MuiTableRow-root:nth-of-type(even)": {
     background: "#E3EEF9",
   },
   "& .MuiTableCell-root:first-of-type": {
@@ -128,7 +131,7 @@ export type Props<T> = {
   tableProps?: TableProps;
   containerProps?: TableContainerProps;
   numRowsNoContent?: number;
-  AdditionalActions?: React.ReactNode;
+  AdditionalActions?: AdditionalActionsConfig;
   CustomTableHead?: React.ElementType<React.ComponentProps<typeof TableHead>>;
   CustomTableHeaderCell?: React.ElementType<React.ComponentProps<typeof TableCell>>;
   CustomTableBodyCell?: React.ElementType<React.ComponentProps<typeof TableCell>>;
@@ -457,6 +460,7 @@ const GenericTable = <T,>(
                       (typeof col.field === "string" ? col.field : null) ||
                       `column_${index}`
                     }`}
+                    component={col.label ? "th" : "td"}
                   >
                     {!col.sortDisabled ? (
                       <TableSortLabel

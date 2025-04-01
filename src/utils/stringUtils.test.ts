@@ -421,68 +421,53 @@ describe("isStringLengthBetween utility function", () => {
   });
 });
 
-describe("formatName utility function", () => {
-  it("should format full name as 'lastName, firstName' when both names are provided", () => {
-    expect(utils.formatName("John", "Doe")).toBe("Doe, John");
+describe("extractVersion", () => {
+  it('should extract "3.2" from "3.2.0-alpha-3"', () => {
+    const result = utils.extractVersion("3.2.0-alpha-3");
+    expect(result).toBe("3.2");
   });
 
-  it("should return lastName when firstName is missing", () => {
-    expect(utils.formatName(undefined, "Doe")).toBe("Doe");
-    expect(utils.formatName(null, "Doe")).toBe("Doe");
-    expect(utils.formatName("", "Doe")).toBe("Doe");
+  it('should extract "100.402" from "100.402.22-alpha-6"', () => {
+    const result = utils.extractVersion("100.402.22-alpha-6");
+    expect(result).toBe("100.402");
   });
 
-  it("should return firstName when lastName is missing", () => {
-    expect(utils.formatName("John", undefined)).toBe("John");
-    expect(utils.formatName("John", null)).toBe("John");
-    expect(utils.formatName("John", "")).toBe("John");
+  it("should extract only the first two numeric segments when extra periods exist", () => {
+    const result = utils.extractVersion("10.20.30.40");
+    expect(result).toBe("10.20");
   });
 
-  it("should return empty string when both firstName and lastName are missing", () => {
-    expect(utils.formatName(undefined, undefined)).toBe("");
-    expect(utils.formatName(null, null)).toBe("");
-    expect(utils.formatName("", "")).toBe("");
+  it("should return an empty string when no period is found", () => {
+    const version = "123";
+    const result = utils.extractVersion(version);
+    expect(result).toBe("");
   });
 
-  it("should trim whitespace from names", () => {
-    expect(utils.formatName("  John  ", "  Doe  ")).toBe("Doe, John");
-    expect(utils.formatName("  John  ", undefined)).toBe("John");
-    expect(utils.formatName(undefined, "  Doe  ")).toBe("Doe");
+  it("should return an empty string when the major part has no digits", () => {
+    const version = "alpha.123";
+    const result = utils.extractVersion(version);
+    expect(result).toBe("");
   });
 
-  it("should handle names with special characters", () => {
-    expect(utils.formatName("Jean-Luc", "Picard")).toBe("Picard, Jean-Luc");
-    expect(utils.formatName("Mary Jane", "Watson-Parker")).toBe("Watson-Parker, Mary Jane");
+  it("should return an empty string when the minor part has no digits", () => {
+    const version = "123.beta";
+    const result = utils.extractVersion(version);
+    expect(result).toBe("");
   });
 
-  it("should handle names with leading/trailing whitespace", () => {
-    expect(utils.formatName("  John", "Doe  ")).toBe("Doe, John");
+  it("should return an empty string when given an empty string", () => {
+    const result = utils.extractVersion("");
+    expect(result).toBe("");
   });
 
-  it("should handle names that are only whitespace", () => {
-    expect(utils.formatName("   ", "   ")).toBe("");
-    expect(utils.formatName("   ", "Doe")).toBe("Doe");
-    expect(utils.formatName("John", "   ")).toBe("John");
+  it("should return an empty string when string is missing digits", () => {
+    const result = utils.extractVersion(".");
+    expect(result).toBe("");
   });
 
-  it("should handle numeric strings as names", () => {
-    expect(utils.formatName("123", "456")).toBe("456, 123");
-  });
-
-  it("should handle names with unicode characters", () => {
-    expect(utils.formatName("Renée", "Élodie")).toBe("Élodie, Renée");
-  });
-
-  it("should handle names with apostrophes", () => {
-    expect(utils.formatName("O'Connor", "Shaun")).toBe("Shaun, O'Connor");
-  });
-
-  it("should handle null and undefined values gracefully", () => {
-    expect(utils.formatName(null, undefined)).toBe("");
-    expect(utils.formatName(undefined, null)).toBe("");
-  });
-
-  it("should handle non-string types when cast to string", () => {
-    expect(utils.formatName(123 as unknown as string, 456 as unknown as string)).toBe("");
+  it("should return an empty string when provided a non-string value", () => {
+    expect(utils.extractVersion(null)).toBe("");
+    expect(utils.extractVersion(undefined)).toBe("");
+    expect(utils.extractVersion(123 as unknown as string)).toBe("");
   });
 });

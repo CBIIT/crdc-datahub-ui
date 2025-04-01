@@ -1,13 +1,8 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep } from "lodash";
-import { styled } from "@mui/material";
+import { cloneDeep, merge } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
-import programOptions, {
-  NotApplicableProgram,
-  OptionalProgram,
-} from "../../../config/ProgramConfig";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
@@ -17,23 +12,20 @@ import Repository from "../../../components/Questionnaire/Repository";
 import {
   filterAlphaNumeric,
   findProgram,
+  Logger,
   mapObjectWithKey,
-  programToSelectOption,
   validateEmoji,
 } from "../../../utils";
 import AddRemoveButton from "../../../components/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import SwitchInput from "../../../components/Questionnaire/SwitchInput";
 import useFormMode from "../../../hooks/useFormMode";
 import FundingAgency from "../../../components/Questionnaire/FundingAgency";
 import SelectInput from "../../../components/Questionnaire/SelectInput";
 import SectionMetadata from "../../../config/SectionMetadata";
-
-const StyledProxyCheckbox = styled("input")({
-  display: "none !important",
-});
+import { useOrganizationListContext } from "../../../components/Contexts/OrganizationListContext";
+import { NotApplicableProgram, OtherProgram } from "../../../config/ProgramConfig";
 
 export type KeyedPublication = {
   key: string;
@@ -62,11 +54,11 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     status,
     data: { questionnaireData: data },
   } = useFormContext();
+  const { data: programs } = useOrganizationListContext();
   const { readOnlyInputs } = useFormMode();
   const { B: SectionBMetadata } = SectionMetadata;
 
-  const [program, setProgram] = useState<Program>(data.program);
-  const [programOption, setProgramOption] = useState<ProgramOption>(findProgram(data.program));
+  const [program, setProgram] = useState<ProgramInput>(null);
   const [study] = useState<Study>(data.study);
   const [publications, setPublications] = useState<KeyedPublication[]>(
     data.study?.publications?.map(mapObjectWithKey) || []
@@ -80,24 +72,20 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [fundings, setFundings] = useState<KeyedFunding[]>(
     data.study?.funding?.map(mapObjectWithKey) || []
   );
-  const [isDbGapRegistered, setIsdbGaPRegistered] = useState<boolean>(
-    data.study?.isDbGapRegistered
-  );
-  const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
 
+  const customProgramIds: string[] = [NotApplicableProgram._id, OtherProgram._id];
   const programKeyRef = useRef(new Date().getTime());
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
-  const {
-    nextButtonRef,
-    saveFormRef,
-    submitFormRef,
-    approveFormRef,
-    inquireFormRef,
-    rejectFormRef,
-    exportButtonRef,
-    getFormObjectRef,
-  } = refs;
+  const { getFormObjectRef } = refs;
+
+  useEffect(() => {
+    if (!programs?.length) {
+      return;
+    }
+
+    setProgram(findProgram(data?.program, programs));
+  }, [programs]);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -105,14 +93,11 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
 
     // Reset study if the data failed to load
     if (!formObject.study) {
       combinedData.study = InitialQuestionnaire.study;
-    }
-    if (!formObject?.study?.dbGaPPPHSNumber) {
-      combinedData.study.dbGaPPPHSNumber = "";
     }
 
     // Reset publications if the user has not entered any publications
@@ -123,6 +108,14 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     // Reset repositories if the user has not entered any repositories
     if (!formObject.study.repositories || formObject.study.repositories.length === 0) {
       combinedData.study.repositories = [];
+    }
+
+    // Reset planned publications if the user has not entered any planned publications
+    if (
+      !formObject.study.plannedPublications ||
+      formObject.study.plannedPublications.length === 0
+    ) {
+      combinedData.study.plannedPublications = [];
     }
 
     // Reset planned publications if the user has not entered any planned publications
@@ -147,53 +140,34 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const handleProgramChange = (value: string) => {
-    if (programOption?.name === value) {
+    if (program?._id === value) {
       return;
     }
 
-    const newProgram = findProgram({ name: value });
-    setProgramOption(newProgram);
+    const allProgramOptions = [NotApplicableProgram, ...programs, OtherProgram];
+    const newProgram = allProgramOptions.find((program) => program._id === value);
+    if (!newProgram?._id) {
+      Logger.error(`B.tsx: Unable to change program due to invalid ID.`);
+      return;
+    }
     programKeyRef.current = new Date().getTime();
 
-    // if not applicable, clear fields and set notApplicable property
-    if (newProgram?.name === NotApplicableProgram?.name) {
+    if (newProgram?._id === NotApplicableProgram._id || newProgram?._id === OtherProgram._id) {
       setProgram({
+        _id: newProgram._id,
         name: "",
         abbreviation: "",
         description: "",
-        notApplicable: true,
-        isCustom: false,
       });
       return;
     }
 
-    // if "Other", then clear all fields
-    if (newProgram?.name === OptionalProgram.name) {
-      setProgram({
-        name: "",
-        abbreviation: "",
-        description: "",
-        notApplicable: false,
-        isCustom: true,
-      });
-      return;
-    }
-
-    // otherwise, prefill data from programOptions
     setProgram({
+      _id: newProgram._id,
       name: newProgram?.name || "",
       abbreviation: newProgram?.abbreviation || "",
       description: newProgram?.description || "",
-      notApplicable: false,
-      isCustom: false,
     });
-  };
-
-  const handleIsDbGapRegisteredChange = (e, checked: boolean) => {
-    setIsdbGaPRegistered(checked);
-    if (!checked) {
-      setDbGaPPPHSNumber("");
-    }
   };
 
   /**
@@ -301,18 +275,26 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setFundings(fundings.filter((f) => f.key !== key));
   };
 
-  useEffect(() => {
-    if (!saveFormRef.current || !submitFormRef.current) {
-      return;
+  /**
+   *  Uses a form program to create a label
+   *
+   * @param program The form program that will be used to create the label
+   * @returns A label with the program name and abbreviation, if available. Otherwise an empty string.
+   */
+  const formatProgramLabel = (program: ProgramInput) => {
+    if (!program) {
+      return "";
+    }
+    if (customProgramIds.includes(program._id)) {
+      return program._id;
     }
 
-    nextButtonRef.current.style.display = "flex";
-    saveFormRef.current.style.display = "flex";
-    submitFormRef.current.style.display = "none";
-    approveFormRef.current.style.display = "none";
-    inquireFormRef.current.style.display = "none";
-    rejectFormRef.current.style.display = "none";
-    exportButtonRef.current.style.display = "none";
+    return `${program.name || ""}${
+      program.abbreviation ? ` (${program.abbreviation.toUpperCase()})` : ""
+    }`?.trim();
+  };
+
+  useEffect(() => {
     getFormObjectRef.current = getFormObject;
   }, [refs]);
 
@@ -320,9 +302,11 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
-  const readOnlyProgram = readOnlyInputs || !programOption?.editable;
-  const predefinedProgram =
-    programOption && !programOption.editable && !programOption.notApplicable;
+  const allProgramOptions = useMemo(
+    () => [NotApplicableProgram, ...programs, OtherProgram],
+    [NotApplicableProgram, OtherProgram, programs]
+  );
+  const readOnlyProgram = readOnlyInputs || program?._id !== OtherProgram._id;
 
   return (
     <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
@@ -334,8 +318,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <SelectInput
           id="section-b-program"
           label="Program"
-          options={programOptions?.map(programToSelectOption)}
-          value={programOption?.name}
+          name="program[_id]"
+          options={allProgramOptions.map((program) => ({
+            label: formatProgramLabel(program),
+            value: program._id,
+          }))}
+          value={program?._id}
           onChange={handleProgramChange}
           placeholder="Select a program"
           gridWidth={12}
@@ -348,7 +336,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-title"
           label="Program Title"
           name="program[name]"
-          value={predefinedProgram ? programOption?.name : program?.name}
+          value={program?.name}
           maxLength={100}
           placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
@@ -360,7 +348,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-abbreviation"
           label="Program Abbreviation"
           name="program[abbreviation]"
-          value={predefinedProgram ? programOption?.abbreviation : program?.abbreviation}
+          value={program?.abbreviation}
           filter={(input: string) => filterAlphaNumeric(input, "- ")}
           onChange={(e) => {
             e.target.value = e.target.value.toUpperCase();
@@ -376,7 +364,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-b-program-description"
           label="Program Description"
           name="program[description]"
-          value={predefinedProgram ? programOption?.description : program?.description}
+          value={program?.description}
           gridWidth={12}
           maxLength={500}
           placeholder="500 characters allowed"
@@ -385,28 +373,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           multiline
           resize
           required
-          readOnly={readOnlyProgram}
-        />
-        <StyledProxyCheckbox
-          value={program?.notApplicable?.toString()}
-          onChange={() => {}}
-          className="input"
-          name="program[notApplicable]"
-          type="checkbox"
-          data-type="boolean"
-          aria-labelledby="section-b-program"
-          checked
-          readOnly={readOnlyProgram}
-        />
-        <StyledProxyCheckbox
-          value={program?.isCustom?.toString()}
-          onChange={() => {}}
-          className="input"
-          name="program[isCustom]"
-          type="checkbox"
-          data-type="boolean"
-          aria-labelledby="section-b-program"
-          checked
           readOnly={readOnlyProgram}
         />
       </SectionGroup>
@@ -487,35 +453,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               readOnly={readOnlyInputs}
             />
           )}
-        />
-      </SectionGroup>
-
-      {/* dbGaP Registration section */}
-      <SectionGroup
-        title={SectionBMetadata.sections.DBGAP_REGISTRATION.title}
-        description={SectionBMetadata.sections.DBGAP_REGISTRATION.description}
-      >
-        <SwitchInput
-          id="section-b-dbGaP-registration"
-          label="Has your study been registered in dbGaP?"
-          name="study[isDbGapRegistered]"
-          required
-          value={isDbGapRegistered}
-          onChange={handleIsDbGapRegisteredChange}
-          isBoolean
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-b-if-yes-provide-dbgap-phs-number"
-          label="If yes, provide dbGaP PHS number with the version number"
-          name="study[dbGaPPPHSNumber]"
-          value={dbGaPPPHSNumber}
-          onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
-          maxLength={50}
-          placeholder={'Ex/ "phs002529.v1.p1". 50 characters allowed'}
-          gridWidth={12}
-          readOnly={readOnlyInputs || !isDbGapRegistered}
-          required={isDbGapRegistered}
         />
       </SectionGroup>
 

@@ -1,13 +1,12 @@
-import React, { useState, useRef } from "react";
 import { styled } from "@mui/material";
 import { Link } from "react-router-dom";
 import FooterData from "../../config/FooterConfig";
+import NewsletterForm from "./NewsletterForm";
 
-const FooterStyled = styled("footer")({
+const StyledFooter = styled("footer")({
   backgroundColor: "#1B496E",
   bottom: 0,
   width: "100%",
-  zIndex: 10,
   position: "relative",
 });
 
@@ -19,7 +18,7 @@ const FooterContainer = styled("div")({
   flexDirection: "column",
 });
 
-const FooterEmailSignupContainer = styled("form")({
+const StyledNewsletterForm = styled(NewsletterForm)({
   padding: "1rem 1rem 2rem 1rem",
   "& .signUpTitle": {
     fontFamily: "poppins",
@@ -246,122 +245,70 @@ const BottomFooter = styled("div")({
 });
 
 const FooterMobile = () => {
-  const [emailContent, setEmailContent] = useState("");
-  const emailForm = useRef<HTMLFormElement>(null);
-  const emailInput = useRef<HTMLInputElement>(null);
-
-  function validateEmail(email) {
-    const reg = /^[A-Za-z0-9]+([_.-][A-Za-z0-9]+)*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$/;
-    return reg.test(email);
-  }
-
-  const handleSubmit = (e) => {
-    emailForm.current.reportValidity();
-    if (!validateEmail(emailContent)) {
-      emailInput.current.setCustomValidity("Please enter valid email");
-      e.preventDefault();
-    } else {
-      emailInput.current.setCustomValidity("");
-      emailForm.current.submit();
-    }
-  };
-
-  const handleChange = (e) => {
-    setEmailContent(e.target.value);
-  };
   const handleDropdown = (param) => {
     document.getElementById(`${param}Dropdown`).classList.toggle("show");
     document.getElementById(`${param}Arrow`).classList.toggle("rotate");
   };
 
   return (
-    <>
-      <FooterStyled role="contentinfo">
-        <FooterContainer>
-          <FooterLinksContainer>
-            {FooterData.link_sections.map((linkItem) => {
-              const linkKey = `link_${linkItem.title}`;
-              return (
-                <div className="dropdown" key={linkKey}>
-                  <button type="button" onClick={() => handleDropdown(linkKey)} className="dropbtn">
-                    <svg
-                      id={`${linkKey}Arrow`}
-                      className="arrow"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
-                      />
-                    </svg>
-                    {linkItem.title}
-                  </button>
-                  <div id={`${linkKey}Dropdown`} className="dropdown-content">
-                    {linkItem.items.map((item) => {
-                      const itemKey = `item_${item.text}`;
-                      if (typeof item?.link !== "string") {
-                        return (
-                          <span className="footItemLink" key={itemKey}>
-                            {item.text}
-                          </span>
-                        );
-                      }
-
-                      return item.link.includes("http") ? (
-                        <a
-                          className="footItemLink"
-                          key={itemKey}
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+    <StyledFooter role="contentinfo" data-testid="mobile-footer">
+      <FooterContainer>
+        <FooterLinksContainer>
+          {FooterData.link_sections.map((linkItem) => {
+            const linkKey = `link_${linkItem.title}`;
+            return (
+              <div className="dropdown" key={linkKey} data-testid="dropdown-section-group">
+                <button type="button" onClick={() => handleDropdown(linkKey)} className="dropbtn">
+                  <svg
+                    id={`${linkKey}Arrow`}
+                    className="arrow"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                  >
+                    <path fill="currentColor" d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                  </svg>
+                  {linkItem.title}
+                </button>
+                <div
+                  id={`${linkKey}Dropdown`}
+                  className="dropdown-content"
+                  data-testid="dropdown-section-content"
+                >
+                  {linkItem.items.map((item) => {
+                    const itemKey = `item_${item.text}`;
+                    if (typeof item?.link !== "string") {
+                      return (
+                        <span className="footItemLink" key={itemKey}>
                           {item.text}
-                        </a>
-                      ) : (
-                        <Link className="footItemLink" key={itemKey} to={item.link}>
-                          {item.text}
-                        </Link>
+                        </span>
                       );
-                    })}
-                  </div>
+                    }
+
+                    return item.link.includes("http") ? (
+                      <a
+                        className="footItemLink"
+                        key={itemKey}
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {item.text}
+                      </a>
+                    ) : (
+                      <Link className="footItemLink" key={itemKey} to={item.link}>
+                        {item.text}
+                      </Link>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </FooterLinksContainer>
-          <FooterEmailSignupContainer
-            onSubmit={handleSubmit}
-            ref={emailForm}
-            action="https://public.govdelivery.com/accounts/USNIHNCI/subscribers/qualify"
-            method="post"
-            target="_blank"
-            id="signup"
-            noValidate
-          >
-            <input type="hidden" name="topic_id" id="topic_id" value="USNIHNCI_223" />
-            <div className="signUpTitle">Sign up for email updates</div>
-            <div className="enterTitle">
-              <label htmlFor="email">
-                Sign up for the newsletter
-                <input
-                  ref={emailInput}
-                  id="email"
-                  type="email"
-                  name="email"
-                  className="signUpInputBox"
-                  value={emailContent}
-                  onChange={(e) => handleChange(e)}
-                />
-              </label>
-            </div>
-            <button type="submit" className="signUpButton">
-              Sign up
-            </button>
-          </FooterEmailSignupContainer>
-        </FooterContainer>
-      </FooterStyled>
+              </div>
+            );
+          })}
+        </FooterLinksContainer>
+        <StyledNewsletterForm />
+      </FooterContainer>
       <BottomFooter>
         <div className="bottom-footer-container">
           <div id="bottom-footer-header">
@@ -429,7 +376,7 @@ const FooterMobile = () => {
           </div>
         </div>
       </BottomFooter>
-    </>
+    </StyledFooter>
   );
 };
 

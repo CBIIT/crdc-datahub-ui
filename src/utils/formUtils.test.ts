@@ -1,5 +1,4 @@
-import { InitialQuestionnaire } from "../config/InitialValues";
-import programOptions, { NotApplicableProgram, OptionalProgram } from "../config/ProgramConfig";
+import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
 import * as utils from "./formUtils";
 
 describe("filterNonNumeric cases", () => {
@@ -107,82 +106,70 @@ describe("mapObjectWithKey cases", () => {
   });
 });
 
-describe("findProgram cases", () => {
-  // This test assumes that there is no program named "test ABC 123 this should never exist" in programOptions
-  it("should default to the optional program when a non-existent program name is provided", () => {
-    const programInput = { name: "test ABC 123 this should never exist" };
-    const program = utils.findProgram(programInput);
-    expect(program).toEqual(OptionalProgram);
+describe("findProgram", () => {
+  const programOptions = [
+    { _id: "program1", name: "Program 1" },
+    { _id: "program2", name: "Program 2" },
+  ];
+
+  it("should return null if formProgram is null", () => {
+    expect(utils.findProgram(null, programOptions)).toBeNull();
   });
 
-  // This test assumes the provided program does not have a name, abbreviation, or description
-  it("should default to the optional program when the program contains name, abbreviation, and description that does not exist in programOptions", () => {
-    const programInput = { name: "this is a custom name" };
-    const program = utils.findProgram(programInput);
-
-    expect(program).toEqual(OptionalProgram);
+  it("should return null if programOptions is empty", () => {
+    expect(utils.findProgram({ _id: "test" }, [])).toBeNull();
   });
 
-  // This test checks the NotApplicableProgram scenario based on the findProgram function's behavior
-  it("should return NotApplicableProgram when program is marked as notApplicable", () => {
-    const programInput = { notApplicable: true, name: "DummyName" };
-    const program = utils.findProgram(programInput);
-
-    expect(program).toEqual(NotApplicableProgram);
-  });
-
-  it("should return NotApplicableProgram when program name matches NotApplicableProgram name", () => {
-    const programInput = { name: NotApplicableProgram.name };
-    const program = utils.findProgram(programInput);
-
-    expect(program).toEqual(NotApplicableProgram);
-  });
-
-  it("should return the correct program option when an existing program name is provided", () => {
-    const existingProgram = programOptions[0];
-    const programInput = { name: existingProgram.name };
-    const program = utils.findProgram(programInput);
-
-    expect(program).toEqual(existingProgram);
-  });
-
-  it("should return program with initial values if no program is provided", () => {
-    const program = utils.findProgram(null);
-
-    expect(program).toEqual(InitialQuestionnaire.program);
-  });
-});
-
-describe("programToSelectOption cases", () => {
-  it("should correctly format a program with abbreviation", () => {
-    const program = {
-      name: "Test Program",
-      abbreviation: "TP",
+  it("should return NotApplicableProgram for legacy notApplicable input", () => {
+    const formProgram: ProgramInput & { notApplicable: boolean } = {
+      _id: "",
+      name: "",
+      abbreviation: "",
+      description: "",
+      notApplicable: true,
     };
-    const selectOption = utils.programToSelectOption(program);
-
-    expect(selectOption.label).toEqual("Test Program (TP)");
-    expect(selectOption.value).toEqual("Test Program");
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(NotApplicableProgram);
   });
 
-  it("should correctly format a program without abbreviation", () => {
-    const program = {
-      name: "Test Program",
+  it("should return NotApplicableProgram when program _id matches", () => {
+    const formProgram: ProgramInput = {
+      _id: NotApplicableProgram._id,
+      name: "",
+      abbreviation: "",
+      description: "",
     };
-
-    const selectOption = utils.programToSelectOption(program);
-
-    expect(selectOption.label).toEqual("Test Program");
-    expect(selectOption.value).toEqual("Test Program");
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(NotApplicableProgram);
   });
 
-  it("should correctly format a program with empty name", () => {
-    const program = { name: "" };
+  it("should return null for empty formProgram without notApplicable", () => {
+    const formProgram: ProgramInput = {};
+    expect(utils.findProgram(formProgram, programOptions)).toBeNull();
+  });
 
-    const selectOption = utils.programToSelectOption(program);
+  it("should return an existing predefined program by _id", () => {
+    const formProgram: ProgramInput = { _id: "program1" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(programOptions[0]);
+  });
 
-    expect(selectOption.label).toEqual("");
-    expect(selectOption.value).toEqual("");
+  it("should return OtherProgram with formProgram content if no match is found", () => {
+    const formProgram: ProgramInput = { _id: "unknown", name: "Custom Program" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual({
+      ...formProgram,
+      _id: OtherProgram._id,
+    });
+  });
+
+  it("should return formProgram as-is if it matches OtherProgram", () => {
+    const formProgram: ProgramInput = { _id: OtherProgram._id, name: "Custom Program" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual(formProgram);
+  });
+
+  it("should include additional content from formProgram when returning OtherProgram", () => {
+    const formProgram: ProgramInput = { name: "Custom Program", description: "Custom Description" };
+    expect(utils.findProgram(formProgram, programOptions)).toEqual({
+      ...formProgram,
+      _id: OtherProgram._id,
+    });
   });
 });
 
@@ -445,78 +432,6 @@ describe("formatORCIDInput cases", () => {
   it("should return an empty string when the input is null or undefined", () => {
     expect(utils.formatORCIDInput(null)).toBe("");
     expect(utils.formatORCIDInput(undefined)).toBe("");
-  });
-});
-
-describe("renderStudySelectionValue cases", () => {
-  const baseStudy: ApprovedStudy = {
-    _id: "",
-    studyName: "",
-    studyAbbreviation: "",
-    dbGaPID: "",
-    controlledAccess: false,
-    originalOrg: "",
-    openAccess: false,
-    PI: "",
-    ORCID: "",
-    createdAt: "",
-  };
-
-  it("should return the fallback value if studyIds is not an array", () => {
-    const result = utils.formatStudySelectionValue(null, [baseStudy], "fallback");
-    expect(result).toBe("fallback");
-  });
-
-  it("should return the fallback value if approvedStudies is not an array", () => {
-    const result = utils.formatStudySelectionValue(["1"], null, "fallback");
-    expect(result).toBe("fallback");
-  });
-
-  it("should return the fallback value if studyIds is empty", () => {
-    const result = utils.formatStudySelectionValue([], [baseStudy], "fallback");
-    expect(result).toBe("fallback");
-  });
-
-  it("should return the fallback value if approvedStudies is empty", () => {
-    const result = utils.formatStudySelectionValue(["1"], [], "fallback");
-    expect(result).toBe("fallback");
-  });
-
-  it("should return the fallback value if no matching study is found", () => {
-    const studies = [
-      { _id: "1", studyName: "Study 1", studyAbbreviation: "S1" },
-      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
-    ] as ApprovedStudy[];
-
-    const result = utils.formatStudySelectionValue(["3"], studies, "fallback");
-    expect(result).toBe("fallback");
-  });
-
-  it("should sort the approved studies by name and return the first element", () => {
-    const studies = [
-      { _id: "3", studyName: "Study C", studyAbbreviation: "SA" }, // actual 3
-      { _id: "2", studyName: "Study A", studyAbbreviation: "SA" }, // actual 1
-      { _id: "1", studyName: "Study B", studyAbbreviation: "SB" }, // actual 2
-    ] as ApprovedStudy[];
-
-    const result = utils.formatStudySelectionValue(["3", "2"], studies, "fallback");
-    expect(result).toBe("Study A (SA)");
-  });
-
-  it("should filter out studies with formatted names", () => {
-    const studies = [
-      { _id: "1", studyName: "", studyAbbreviation: "" },
-      { _id: "2", studyName: "Study 2", studyAbbreviation: "S2" },
-      { _id: "3", studyName: "Study 3", studyAbbreviation: "S3" },
-    ] as ApprovedStudy[];
-
-    const result = utils.formatStudySelectionValue(["1", "2", "3"], studies, "fallback");
-    expect(result).toBe("Study 2 (S2)");
-  });
-
-  it("should use the default fallback value if none is provided", () => {
-    const result = utils.formatStudySelectionValue([], []);
-    expect(result).toBe("");
   });
 });
 

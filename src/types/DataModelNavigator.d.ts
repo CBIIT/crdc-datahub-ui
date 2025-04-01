@@ -67,11 +67,17 @@ type ModelAssetUrls = {
   loading_file: string;
   /**
    * The URL for the Data Model Navigator logo
+   * If this is empty, Model Navigator will utilize a fallback
    *
    * @see Related to {@link ManifestAssets} "model-navigator-logo"
    * @since 3.1.0
    */
   navigator_icon: string;
+  /**
+   * the URL to the Data Model Release Notes file
+   * If this is null, the Release Notes tab will not be displayed
+   */
+  changelog?: string;
 };
 
 type FacetSearchData = {
