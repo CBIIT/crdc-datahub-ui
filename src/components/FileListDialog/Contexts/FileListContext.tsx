@@ -6,6 +6,10 @@ export type FileListContextState = {
    */
   disabled: boolean;
   /**
+   * Boolean flag to indicate if actions should be hidden.
+   */
+  hidden: boolean;
+  /**
    * Callback handler when the Download button is clicked.
    */
   handleDownloadClick: (fileName: string) => Promise<void>;
@@ -17,6 +21,7 @@ export type FileListContextState = {
  */
 const FileListContext = React.createContext<FileListContextState>({
   disabled: false,
+  hidden: false,
   handleDownloadClick: async () => {},
 });
 

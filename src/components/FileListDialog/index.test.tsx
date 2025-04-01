@@ -455,4 +455,25 @@ describe("Implementation Requirements", () => {
       expect(global.open).toHaveBeenCalledTimes(1);
     });
   });
+
+  it.each<UploadType>(["data file", "mock-type" as UploadType])(
+    "should not render the download buttons for non-metadata batches",
+    (uploadType) => {
+      const batch: Batch = {
+        ...baseBatch,
+        type: uploadType,
+        fileCount: 1,
+        files: [{ ...baseBatchFileInfo, fileName: "datafile.zip", nodeType: "data file" }],
+      };
+
+      const { queryByTestId, queryAllByLabelText } = render(
+        <TestParent>
+          <Dialog open batch={batch} />
+        </TestParent>
+      );
+
+      expect(queryByTestId("download-all-button")).toBeNull(); // Download all button
+      expect(queryAllByLabelText(/Download/i).length).toBe(0); // Individual download buttons
+    }
+  );
 });

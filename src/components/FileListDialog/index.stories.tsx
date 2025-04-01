@@ -73,6 +73,9 @@ const successDownloadMock: MockedResponse<DownloadMetadataFileResp, DownloadMeta
   maxUsageCount: Infinity,
 };
 
+/**
+ * Default story for the FileListDialog component populated with data
+ */
 export const Populated: Story = {
   args: {
     ...meta.args,
@@ -126,6 +129,9 @@ const failedDownloadMock: MockedResponse<DownloadMetadataFileResp, DownloadMetad
   maxUsageCount: Infinity,
 };
 
+/**
+ * Simulates a state where the Download buttons are enabled but a API issue occurs
+ */
 export const DownloadFailure: Story = {
   args: {
     ...Populated.args,
@@ -142,6 +148,24 @@ export const DownloadFailure: Story = {
   },
 };
 
+/**
+ * Simulates a state where the Download buttons should be hidden
+ *
+ * e.g. a Data File batch
+ */
+export const HiddenDownload: Story = {
+  args: {
+    ...Populated.args,
+    batch: {
+      ...Populated.args.batch,
+      type: "data file",
+    },
+  },
+};
+
+/**
+ * Simulates a state where the batch has no files
+ */
 export const NoFiles: Story = {
   args: {
     ...meta.args,
