@@ -114,6 +114,7 @@ const StyledFileName = styled(Typography)({
 });
 
 const tableContainerSx: TableContainerProps["sx"] = {
+  backgroundColor: "#fff",
   "& .MuiTableHead-root .MuiTableCell-root:first-of-type": {
     paddingLeft: "26px",
     paddingY: "16px",
