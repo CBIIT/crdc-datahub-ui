@@ -155,6 +155,10 @@ const StyledButton = styled(LoadingButton)({
     backgroundColor: "#5C8FA7",
     color: "#FFFFFF",
   },
+  "&.Mui-disabled": {
+    color: "#FFFFFF",
+    opacity: 0.6,
+  },
 });
 
 const columns: Column<BatchFileInfo>[] = [
