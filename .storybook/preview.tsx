@@ -32,14 +32,18 @@ export const decorators: Decorator[] = [
     Provider: ThemeProvider,
     GlobalStyles: CssBaseline,
   }),
-  (Story) => (
-    <MemoryRouter>
-      <HelmetProvider>
-        <HelmetWrapper />
-        <Story />
-      </HelmetProvider>
-    </MemoryRouter>
-  ),
+  (Story, context) => {
+    const initialEntries = context.parameters.router?.initialEntries || [{ pathname: "/" }];
+
+    return (
+      <MemoryRouter initialEntries={initialEntries}>
+        <HelmetProvider>
+          <HelmetWrapper />
+          <Story />
+        </HelmetProvider>
+      </MemoryRouter>
+    );
+  },
 ];
 
 export default preview;
