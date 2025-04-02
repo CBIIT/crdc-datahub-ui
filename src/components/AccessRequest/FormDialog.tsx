@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Box, DialogProps, MenuItem, styled } from "@mui/material";
+import { Box, DialogProps, MenuItem, styled, TextField } from "@mui/material";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
@@ -19,13 +19,16 @@ import StyledSelect from "../StyledFormComponents/StyledSelect";
 import { useAuthContext } from "../Contexts/AuthContext";
 import {
   LIST_APPROVED_STUDIES,
+  LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsResp,
   REQUEST_ACCESS,
   RequestAccessInput,
   RequestAccessResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
+import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
 
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {
@@ -61,11 +64,7 @@ const StyledButton = styled(LoadingButton)({
   letterSpacing: "0.32px",
 });
 
-export type InputForm = {
-  role: UserRole;
-  studies: string[];
-  additionalInfo: string;
-};
+export type InputForm = RequestAccessInput;
 
 type Props = {
   onClose: () => void;
@@ -86,13 +85,14 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
   const { handleSubmit, register, control, formState } = useForm<InputForm>({
     defaultValues: {
       role: RoleOptions.includes(user.role) ? user.role : "Submitter",
+      institutionName: "",
       studies: [],
       additionalInfo: "",
     },
   });
   const { errors, isSubmitting } = formState;
 
-  const { data } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
+  const { data: listStudies } = useQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
     LIST_APPROVED_STUDIES,
     {
       variables: {
@@ -109,6 +109,15 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
     }
   );
 
+  const { data: listInstitutions } = useQuery<ListInstitutionsResp>(LIST_INSTITUTIONS, {
+    variables: {}, // TODO: only active ones, order ASC
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-first",
+    onError: (e) => {
+      Logger.error("Unable to retrieve institutions list.", e);
+    },
+  });
+
   const [requestAccess] = useMutation<RequestAccessResp, RequestAccessInput>(REQUEST_ACCESS, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -116,12 +125,14 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
 
   const onSubmit: SubmitHandler<InputForm> = async ({
     role,
+    institutionName,
     studies,
     additionalInfo,
   }: InputForm) => {
     const { data, errors } = await requestAccess({
       variables: {
         role,
+        institutionName,
         studies,
         additionalInfo,
       },
@@ -198,6 +209,38 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             </StyledHelperText>
           </Box>
           <Box>
+            <StyledLabel id="institution-input-label">
+              Institution
+              <StyledAsterisk />
+            </StyledLabel>
+            <Controller
+              name="institutionName"
+              control={control}
+              rules={{ required: "This field is required" }}
+              render={({ field }) => (
+                <StyledAutocomplete
+                  {...field}
+                  // TODO: Map to institution name
+                  options={listInstitutions?.listInstitutions || []}
+                  onChange={(_, data: string) => field.onChange(data.trim())}
+                  onInputChange={(_, data: string) => field.onChange(data.trim())}
+                  renderInput={({ inputProps, ...params }) => (
+                    <TextField
+                      {...params}
+                      inputProps={{ "aria-labelledby": "institution-input-label", ...inputProps }}
+                      placeholder="Enter your institution or select one from the list"
+                    />
+                  )}
+                  data-testid="access-request-institution-field"
+                  freeSolo
+                />
+              )}
+            />
+            <StyledHelperText data-testid="access-request-dialog-error-institution">
+              {errors?.institutionName?.message}
+            </StyledHelperText>
+          </Box>
+          <Box>
             <StyledLabel id="studies-input-label">
               Studies
               <StyledAsterisk />
@@ -218,7 +261,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   placeholderText="Select one or more studies from the list"
                   multiple
                 >
-                  {data?.listApprovedStudies?.studies?.map((study) => (
+                  {listStudies?.listApprovedStudies?.studies?.map((study) => (
                     <MenuItem
                       key={study._id}
                       value={study._id}

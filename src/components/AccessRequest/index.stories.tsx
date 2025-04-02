@@ -4,8 +4,10 @@ import { within } from "@storybook/testing-library";
 import Dialog from "./index";
 import {
   LIST_APPROVED_STUDIES,
+  LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsResp,
 } from "../../graphql";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import { Roles } from "../../config/AuthRoles";
@@ -66,6 +68,18 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
   variableMatcher: () => true,
 };
 
+// TODO: Add input type here
+const institutionsMock: MockedResponse<ListInstitutionsResp> = {
+  request: {
+    query: LIST_INSTITUTIONS,
+  },
+  result: {
+    data: {
+      listInstitutions: ["institution-1", "institution-2", "institution-3"],
+    },
+  },
+};
+
 export const Default: Story = {
   args: {
     role: "Submitter",
@@ -89,7 +103,7 @@ export const Default: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [studiesMock],
+      mocks: [studiesMock, institutionsMock],
     },
   },
   play: async ({ canvasElement }) => {
