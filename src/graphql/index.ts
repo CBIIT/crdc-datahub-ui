@@ -36,7 +36,10 @@ export { mutation as UPDATE_MY_USER } from "./updateMyUser";
 export type { Input as UpdateMyUserInput, Response as UpdateMyUserResp } from "./updateMyUser";
 
 export { query as LIST_INSTITUTIONS } from "./listInstitutions";
-export type { Response as ListInstitutionsResp } from "./listInstitutions";
+export type {
+  Input as ListInstitutionsInput,
+  Response as ListInstitutionsResp,
+} from "./listInstitutions";
 
 export { query as RETRIEVE_CDEs } from "./retrieveCDEs";
 export type { Response as RetrieveCDEsResp, Input as RetrieveCDEsInput } from "./retrieveCDEs";
