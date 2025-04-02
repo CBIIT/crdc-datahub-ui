@@ -20,7 +20,7 @@ const baseBatch: Batch = {
   type: "metadata",
   fileCount: 0,
   files: [],
-  status: "Uploading",
+  status: "Uploaded",
   errors: [],
   createdAt: "",
   updatedAt: "",
@@ -30,7 +30,7 @@ const baseBatchFileInfo: BatchFileInfo = {
   filePrefix: "",
   fileName: "",
   nodeType: "",
-  status: "New",
+  status: "Uploaded",
   errors: [],
   createdAt: "",
   updatedAt: "",
@@ -227,6 +227,47 @@ describe("Basic Functionality", () => {
 
     expect(getByTestId("download-all-button")).toBeDisabled();
   });
+
+  it.each<BatchStatus>(["Failed", "Uploading", "catch-all" as BatchStatus])(
+    "should disable the download all button when the batch is not 'Uploaded'",
+    async (status) => {
+      const batch: Batch = {
+        ...baseBatch,
+        status,
+        fileCount: 2,
+        files: [
+          { ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" },
+          { ...baseBatchFileInfo, fileName: "file2", nodeType: "sample" },
+        ],
+      };
+
+      const { getByTestId } = render(<Dialog open batch={batch} />, {
+        wrapper: ({ children }) => <TestParent>{children}</TestParent>,
+      });
+
+      expect(getByTestId("download-all-button")).toBeDisabled();
+    }
+  );
+
+  // NOTE: Currently, the batch can't be uploaded if any file is not uploaded successfully,
+  // but this is just future-proofing for any API changes
+  it.each<BatchFileInfo["status"]>(["Failed", "New", "catch-all" as BatchFileInfo["status"]])(
+    "should disable the individual download button when the status is not 'Uploaded'",
+    async (status) => {
+      const batch: Batch = {
+        ...baseBatch,
+        status: "Uploaded",
+        fileCount: 1,
+        files: [{ ...baseBatchFileInfo, status, fileName: "file1", nodeType: "participant" }],
+      };
+
+      const { getByLabelText } = render(<Dialog open batch={batch} />, {
+        wrapper: ({ children }) => <TestParent>{children}</TestParent>,
+      });
+
+      expect(getByLabelText(/Download/i)).toBeDisabled();
+    }
+  );
 });
 
 describe("Implementation Requirements", () => {

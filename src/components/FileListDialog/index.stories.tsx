@@ -50,7 +50,7 @@ const meta: Meta<CustomStoryProps> = {
   ],
   beforeEach: () => {
     window.open = fn(window.open).mockImplementation(
-      (url) =>
+      (_) =>
         ({
           close: () => {},
         }) as Window
@@ -154,11 +154,52 @@ export const DownloadFailure: Story = {
  * e.g. a Data File batch
  */
 export const HiddenDownload: Story = {
+  name: "Hidden Download (Data File)",
   args: {
     ...Populated.args,
     batch: {
       ...Populated.args.batch,
       type: "data file",
+    },
+  },
+};
+
+/**
+ * Simulates a state where the Download buttons are disabled due to the batch status
+ */
+export const DisabledDownloadAll: Story = {
+  name: "Disabled Download (All)",
+  args: {
+    ...Populated.args,
+    batch: {
+      ...Populated.args.batch,
+      status: "Failed",
+    },
+  },
+};
+
+/**
+ * Simulates a state where the a individual download is disabled due to the upload status
+ */
+export const DisabledDownloadIndividual: Story = {
+  name: "Disabled Download (Individual)",
+  args: {
+    ...Populated.args,
+    batch: {
+      ...Populated.args.batch,
+      files: [
+        {
+          ...mockFile,
+          status: "Failed",
+          nodeType: "genomic_info",
+          fileName: "genomic_info.tsv",
+        },
+        {
+          ...mockFile,
+          nodeType: "metadata",
+          fileName: "metadata.tsv",
+        },
+      ],
     },
   },
 };

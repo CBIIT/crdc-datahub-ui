@@ -183,13 +183,13 @@ const columns: Column<BatchFileInfo>[] = [
   {
     label: "",
     fieldKey: "download-action",
-    renderValue: ({ fileName }: BatchFileInfo) => (
+    renderValue: ({ fileName, status }: BatchFileInfo) => (
       <FileListContext.Consumer>
         {({ handleDownloadClick, hidden, disabled }) =>
           !hidden && (
             <StyledIconButton
               onClick={() => handleDownloadClick(fileName)}
-              disabled={disabled}
+              disabled={disabled || status !== "Uploaded"}
               aria-label={`Download ${fileName}`}
               data-testid={`download-${fileName}-button`}
             >
@@ -250,6 +250,11 @@ const FileListDialog: FC<FileListDialogProps> = ({
 
   const hiddenActions = useMemo<boolean>(() => batch?.type !== "metadata", [batch?.type]);
 
+  const disabledActions = useMemo<boolean>(
+    () => downloading || batch?.status !== "Uploaded" || !batch?.fileCount,
+    [downloading, batch?.status, batch?.fileCount]
+  );
+
   const handleCloseDialog = () => {
     setBatchFiles([]);
     setPrevBatchFilesFetch(null);
@@ -298,11 +303,11 @@ const FileListDialog: FC<FileListDialogProps> = ({
 
   const contextState = useMemo<FileListContextState>(
     () => ({
-      disabled: downloading,
+      disabled: disabledActions,
       hidden: hiddenActions,
       handleDownloadClick: (fileName: string) => handleDownload(fileName),
     }),
-    [downloading, hiddenActions, handleDownload]
+    [disabledActions, hiddenActions, handleDownload]
   );
 
   return (
@@ -335,7 +340,7 @@ const FileListDialog: FC<FileListDialogProps> = ({
           <StyledButton
             endIcon={<StyledDownloadIcon />}
             onClick={() => handleDownload()}
-            disabled={!batch?.fileCount}
+            disabled={disabledActions}
             loading={downloading}
             data-testid="download-all-button"
           >
