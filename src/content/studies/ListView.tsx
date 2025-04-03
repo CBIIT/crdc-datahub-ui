@@ -1,20 +1,20 @@
-import { ElementType, useRef, useState } from "react";
-import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
+import { ElementType, useEffect, useRef, useState } from "react";
+import { Alert, Box, Button, Container, Stack, styled } from "@mui/material";
+import { GridColDef } from "@mui/x-data-grid";
+import { GridInitialStateCommunity } from "@mui/x-data-grid/models/gridStateCommunity";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
-import GenericTable, { Column } from "../../components/GenericTable";
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
 import { FormatDate } from "../../utils";
-import { formatAccessTypes } from "../../utils/studyUtils";
-import ApprovedStudyFilters from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
-import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import GenericTableRework from "../../components/GenericTableRework";
+import ApprovedStudyFilters from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -38,31 +38,6 @@ const StyledBannerBody = styled(Stack)({
 const StyledContainer = styled(Container)({
   marginTop: "-180px",
   paddingBottom: "90px",
-});
-const StyledTableHead = styled(TableHead)({
-  background: "#083A50",
-});
-
-const StyledHeaderCell = styled(TableCell)({
-  fontWeight: 700,
-  fontSize: "14px",
-  color: "#fff !important",
-  "&.MuiTableCell-root": {
-    padding: "8px 16px",
-    color: "#fff !important",
-  },
-  "& .MuiSvgIcon-root,  & .MuiButtonBase-root": {
-    color: "#fff !important",
-  },
-});
-
-const StyledTableCell = styled(TableCell)({
-  fontSize: "14px",
-  color: "#083A50 !important",
-  textAlign: "left",
-  "&.MuiTableCell-root": {
-    padding: "8px 16px",
-  },
 });
 
 const StyledLink = styled(Link)({
@@ -100,76 +75,84 @@ type FilterForm = {
   accessType: AccessType;
 };
 
-const columns: Column<ApprovedStudy>[] = [
+const columns: GridColDef[] = [
   {
-    label: "Name",
-    renderValue: (a) => <TruncatedText text={a.studyName} />,
+    headerName: "Name",
     field: "studyName",
-    default: true,
+    flex: 1,
   },
   {
-    label: "Acronym",
-    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
+    headerName: "Acronym",
     field: "studyAbbreviation",
-    sx: {
-      width: "208px",
-    },
+    flex: 1,
   },
   {
-    label: "dbGaPID",
-    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={15} />,
+    headerName: "dbGaPID",
     field: "dbGaPID",
+    flex: 1,
   },
   {
-    label: "Access Type",
-    renderValue: (a) => formatAccessTypes(a.controlledAccess, a.openAccess),
-    fieldKey: "accessType",
-    sortDisabled: true,
-    sx: {
-      width: "140px",
-    },
+    headerName: "Access Type",
+    field: "accessType",
+    sortable: false,
+    flex: 1,
+    minWidth: 0,
   },
   {
-    label: "Principal Investigator",
-    renderValue: (a) => <TruncatedText text={a.PI} />,
+    headerName: "Principal Investigator",
     field: "PI",
+    flex: 1,
   },
   {
-    label: "ORCID",
-    renderValue: (a) => a.ORCID,
+    headerName: "ORCID",
     field: "ORCID",
+    flex: 1,
   },
   {
-    label: "Created Date",
-    renderValue: (a) =>
-      a.createdAt ? (
-        <StyledDateTooltip title={FormatDate(a.createdAt, "M/D/YYYY h:mm A")} placement="top">
-          <span>{FormatDate(a.createdAt, "M/D/YYYY")}</span>
+    headerName: "Created Date",
+    renderCell: (params) =>
+      params.value.createdAt ? (
+        <StyledDateTooltip
+          title={FormatDate(params.value.createdAt, "M/D/YYYY h:mm A")}
+          placement="top"
+        >
+          <span>{FormatDate(params.value.createdAt, "M/D/YYYY")}</span>
         </StyledDateTooltip>
       ) : (
         ""
       ),
     field: "createdAt",
+    flex: 1,
   },
   {
-    label: (
-      <Stack direction="row" justifyContent="center" alignItems="center">
-        Action
-      </Stack>
-    ),
-    renderValue: (a) => (
-      <StyledLink to={`/studies/${a?.["_id"]}`}>
+    field: "action",
+    headerName: "Action",
+    headerAlign: "center",
+    sortable: false,
+    width: 120,
+    renderCell: (params) => (
+      <StyledLink to={`/studies/${params?.id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
       </StyledLink>
     ),
-    sortDisabled: true,
-    sx: {
-      width: "100px",
-    },
   },
 ];
+
+const initialState: GridInitialStateCommunity = {
+  sorting: {
+    sortModel: [{ field: "studyName", sort: "asc" }],
+  },
+  pagination: {
+    paginationModel: { pageSize: 20, page: 0 },
+  },
+  filter: {
+    filterModel: {
+      items: [],
+    },
+  },
+};
 
 const ListView = () => {
   usePageTitle("Manage Studies");
@@ -178,15 +161,17 @@ const ListView = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [data, setData] = useState<ApprovedStudy[]>([]);
+  const [rows, setRows] = useState([]);
   const [count, setCount] = useState<number>(0);
+  const [paginationModel, setPaginationModel] = useState(initialState.pagination.paginationModel);
+  const [filterModel, setFilterModel] = useState(initialState.filter.filterModel);
+  const [sortModel, setSortModel] = useState(initialState.sorting.sortModel);
+
   const filtersRef = useRef<FilterForm>({
     study: "",
     dbGaPID: "",
     accessType: "All",
   });
-
-  const tableRef = useRef<TableMethods>(null);
 
   const [listSubmissions] = useLazyQuery<ListApprovedStudiesResp, ListApprovedStudiesInput>(
     LIST_APPROVED_STUDIES,
@@ -196,50 +181,70 @@ const ListView = () => {
     }
   );
 
-  const handleFetchData = async (fetchListing: FetchListing<ApprovedStudy>, force: boolean) => {
-    const { first, offset, sortDirection, orderBy } = fetchListing || {};
-
-    if (!filtersRef.current) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const { data: d, error } = await listSubmissions({
-        variables: {
-          first,
-          offset,
-          sortDirection,
-          orderBy,
-          dbGaPID: filtersRef.current.dbGaPID,
-          controlledAccess: filtersRef.current.accessType,
-          study: filtersRef.current.study,
+  const handleOnFiltersChange = (newFilters: FilterForm) => {
+    filtersRef.current = newFilters;
+    setFilterModel({
+      items: [
+        {
+          field: "study",
+          value: newFilters.study,
+          operator: "",
         },
-        context: { clientName: "backend" },
-        fetchPolicy: "no-cache",
-      });
-      if (error || !d?.listApprovedStudies) {
-        throw new Error("Unable to retrieve List Approved Studies results.");
+        {
+          field: "dbGaPID",
+          value: newFilters.dbGaPID,
+          operator: "",
+        },
+        {
+          field: "accessType",
+          value: newFilters.accessType,
+          operator: "",
+        },
+      ],
+    });
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const offset = paginationModel.page * paginationModel.pageSize;
+        const first = paginationModel.pageSize;
+
+        let orderBy = null;
+        let sortDirection = null;
+        if (sortModel.length > 0) {
+          orderBy = sortModel[0].field;
+          sortDirection = sortModel[0].sort;
+        }
+
+        const { data: d, error } = await listSubmissions({
+          variables: {
+            first,
+            offset,
+            orderBy,
+            sortDirection,
+            dbGaPID: filtersRef.current.dbGaPID,
+            controlledAccess: filtersRef.current.accessType,
+            study: filtersRef.current.study,
+          },
+          context: { clientName: "backend" },
+          fetchPolicy: "no-cache",
+        });
+        if (error || !d?.listApprovedStudies) {
+          throw new Error("Unable to retrieve List Approved Studies results.");
+        }
+
+        setRows(d.listApprovedStudies.studies);
+        setCount(d.listApprovedStudies.total);
+      } catch (err) {
+        setError(true);
+      } finally {
+        setLoading(false);
       }
-
-      setData(d.listApprovedStudies.studies);
-      setCount(d.listApprovedStudies.total);
-    } catch (err) {
-      setError(true);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const setTablePage = (page: number) => {
-    tableRef.current?.setPage(page, true);
-  };
-
-  const handleOnFiltersChange = (data: FilterForm) => {
-    filtersRef.current = data;
-    setTablePage(0);
-  };
+    fetchData();
+  }, [paginationModel, sortModel, filterModel, listSubmissions]);
 
   return (
     <Box data-testid="list-studies-container">
@@ -267,21 +272,19 @@ const ListView = () => {
       <StyledContainer maxWidth="xl">
         <ApprovedStudyFilters onChange={handleOnFiltersChange} />
 
-        <GenericTable
-          ref={tableRef}
+        <GenericTableRework
           columns={columns}
-          data={data || []}
-          total={count || 0}
+          rows={rows}
+          rowCount={count}
+          initialState={initialState}
           loading={loading}
-          disableUrlParams={false}
-          defaultRowsPerPage={20}
-          defaultOrder="asc"
-          setItemKey={(item, idx) => `${idx}_${item._id}`}
-          onFetchData={handleFetchData}
-          containerProps={{ sx: { marginBottom: "8px", borderColor: "#083A50" } }}
-          CustomTableHead={StyledTableHead}
-          CustomTableHeaderCell={StyledHeaderCell}
-          CustomTableBodyCell={StyledTableCell}
+          pagination
+          sortingMode="server"
+          filterMode="server"
+          paginationMode="server"
+          onPaginationModelChange={setPaginationModel}
+          onSortModelChange={setSortModel}
+          onFilterModelChange={setFilterModel}
         />
       </StyledContainer>
     </Box>
