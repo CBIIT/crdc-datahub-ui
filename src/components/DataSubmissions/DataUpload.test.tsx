@@ -71,6 +71,7 @@ const baseUser: Omit<User, "permissions"> = {
   email: "",
   studies: null,
   dataCommons: null,
+  dataCommonsDisplayNames: null,
   createdAt: "",
   updateAt: "",
   notifications: [],

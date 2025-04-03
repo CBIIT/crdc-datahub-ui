@@ -48,6 +48,7 @@ const TestParent: FC<ParentProps> = ({
         IDP: "login.gov",
         email: "test@example.com",
         dataCommons: [],
+        dataCommonsDisplayNames: [],
         createdAt: "",
         updateAt: "",
         studies: null,
