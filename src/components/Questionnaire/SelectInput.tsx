@@ -238,6 +238,7 @@ const SelectInput: FC<Props> = ({
           {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </StyledFormLabel>
         <StyledSelect
+          variant="outlined"
           size="small"
           value={val}
           onChange={(e) => onChangeWrapper(e.target.value)}

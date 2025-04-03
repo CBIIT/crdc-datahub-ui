@@ -1,11 +1,6 @@
 import { AriaAttributes, FC } from "react";
-import {
-  Pagination,
-  PaginationItem,
-  PaginationRenderItemParams,
-  TablePaginationProps,
-  styled,
-} from "@mui/material";
+import { Pagination, PaginationItem, PaginationRenderItemParams, styled } from "@mui/material";
+import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions";
 
 const StyledPagination = styled(Pagination)({
   marginLeft: "23px",
@@ -58,7 +53,7 @@ export type CustomPaginationActionsProps = {
    * Any additional aria attributes to be passed to the component.
    */
   ariaProps?: AriaAttributes;
-} & TablePaginationProps;
+} & TablePaginationActionsProps;
 
 const PaginationActions: FC<CustomPaginationActionsProps> = ({
   count,
