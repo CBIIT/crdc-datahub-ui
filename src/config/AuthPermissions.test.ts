@@ -29,6 +29,7 @@ const baseApplication: Application = {
 const baseSubmission: Submission = {
   _id: "submission-1",
   dataCommons: "commons-1",
+  dataCommonsDisplayName: "commons-1",
   studyID: "study-1",
   submitterID: "owner-123",
   collaborators: [],

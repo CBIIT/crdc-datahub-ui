@@ -32,6 +32,7 @@ const mockSubmission: Submission = {
   updatedAt: "2021-01-02T00:00:00Z",
   status: "In Progress",
   dataCommons: "",
+  dataCommonsDisplayName: "",
   modelVersion: "",
   studyID: "",
   studyAbbreviation: "",
