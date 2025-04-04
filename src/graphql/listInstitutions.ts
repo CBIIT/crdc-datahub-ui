@@ -8,6 +8,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
     $orderBy: String
     $sortDirection: String
     $status: String
+    $name: String
   ) {
     listInstitutions(
       first: $first
@@ -15,11 +16,15 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       orderBy: $orderBy
       sortDirection: $sortDirection
       status: $status
+      name: $name
     ) {
-      _id
-      name
-      status
-      submitterCount
+      total
+      institutions {
+        _id
+        name
+        status
+        submitterCount
+      }
     }
   }
 `;
@@ -29,7 +34,8 @@ export type Input = {
   offset?: number;
   orderBy?: string;
   sortDirection?: Order;
-  status: Institution["status"];
+  status?: Institution["status"];
+  name?: Institution["name"];
 };
 
 export type Response = {
