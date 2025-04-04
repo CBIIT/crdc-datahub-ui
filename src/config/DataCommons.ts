@@ -237,11 +237,11 @@ const DataCommons: DataCommon[] = [
       pageTitle: "GC Data Model",
       pdfConfig: {
         fileType: "pdf",
-        prefix: "CDS_",
-        downloadPrefix: "CDS_",
-        fileTransferManifestName: "CDS_",
+        prefix: "GC_",
+        downloadPrefix: "GC_",
+        fileTransferManifestName: "GC_",
         iconSrc: logo,
-        footnote: "https://hub.datacommons.cancer.gov/model-navigator/CDS",
+        footnote: "https://hub.datacommons.cancer.gov/model-navigator/GC",
         landscape: true,
       },
       facetFilterSearchData: [
