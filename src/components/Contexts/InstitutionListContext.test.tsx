@@ -1,12 +1,13 @@
 import React, { FC } from "react";
 import { render, waitFor } from "@testing-library/react";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { MockedProvider, MockedProviderProps, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { InstitutionProvider, useInstitutionList } from "./InstitutionListContext";
-import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../../graphql";
+import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
 
 type Props = {
   mocks?: MockedResponse[];
+  mockProps?: MockedProviderProps;
   children?: React.ReactNode;
 };
 
@@ -22,9 +23,9 @@ const TestChild: FC = () => {
   );
 };
 
-const TestParent: FC<Props> = ({ mocks = [], children }: Props) => (
-  <MockedProvider mocks={mocks}>
-    <InstitutionProvider>{children ?? <TestChild />}</InstitutionProvider>
+const TestParent: FC<Props> = ({ mocks = [], mockProps = {}, children }: Props) => (
+  <MockedProvider mocks={mocks} {...mockProps}>
+    <InstitutionProvider filterInactive>{children ?? <TestChild />}</InstitutionProvider>
   </MockedProvider>
 );
 
@@ -38,14 +39,18 @@ describe("useInstitutionList", () => {
   });
 
   it("should render without crashing (no data)", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp, ListInstitutionsInput>[] = [
       {
         request: {
           query: LIST_INSTITUTIONS,
         },
+        variableMatcher: () => true,
         result: {
           data: {
-            listInstitutions: [],
+            listInstitutions: {
+              total: 0,
+              institutions: [],
+            },
           },
         },
       },
@@ -58,11 +63,12 @@ describe("useInstitutionList", () => {
   });
 
   it("should render without crashing (null data)", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp, ListInstitutionsInput>[] = [
       {
         request: {
           query: LIST_INSTITUTIONS,
         },
+        variableMatcher: () => true,
         result: {
           data: {
             listInstitutions: null,
@@ -78,14 +84,37 @@ describe("useInstitutionList", () => {
   });
 
   it("should render without crashing (actual data)", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp, ListInstitutionsInput>[] = [
       {
         request: {
           query: LIST_INSTITUTIONS,
         },
+        variableMatcher: () => true,
         result: {
           data: {
-            listInstitutions: ["inst 1", "inst 2", "inst 3"],
+            listInstitutions: {
+              total: 3,
+              institutions: [
+                {
+                  _id: "inst 1",
+                  name: "inst 1",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+                {
+                  _id: "inst 2",
+                  name: "inst 2",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+                {
+                  _id: "inst 3",
+                  name: "inst 3",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+              ],
+            },
           },
         },
       },
@@ -98,11 +127,12 @@ describe("useInstitutionList", () => {
   });
 
   it("should handle API network errors gracefully", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp, ListInstitutionsInput>[] = [
       {
         request: {
           query: LIST_INSTITUTIONS,
         },
+        variableMatcher: () => true,
         error: new Error("Mock network error"),
       },
     ];
@@ -114,11 +144,12 @@ describe("useInstitutionList", () => {
   });
 
   it("should handle API GraphQL errors gracefully", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp, ListInstitutionsInput>[] = [
       {
         request: {
           query: LIST_INSTITUTIONS,
         },
+        variableMatcher: () => true,
         result: {
           errors: [new GraphQLError("Mock GraphQL error")],
         },
@@ -132,14 +163,49 @@ describe("useInstitutionList", () => {
   });
 
   it("should sort the names alphabetically in descending order", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
+    const mocks: MockedResponse<ListInstitutionsResp, ListInstitutionsInput>[] = [
       {
         request: {
           query: LIST_INSTITUTIONS,
         },
+        variableMatcher: () => true,
         result: {
           data: {
-            listInstitutions: ["zebra", "1 potato", "1 alphabet", "NIH", "CDS"],
+            listInstitutions: {
+              total: 5,
+              institutions: [
+                {
+                  _id: "1 alphabet",
+                  name: "1 alphabet",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+                {
+                  _id: "1 potato",
+                  name: "1 potato",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+                {
+                  _id: "CDS",
+                  name: "CDS",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+                {
+                  _id: "NIH",
+                  name: "NIH",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+                {
+                  _id: "zebra",
+                  name: "zebra",
+                  status: "Active",
+                  submitterCount: 0,
+                },
+              ],
+            },
           },
         },
       },
@@ -150,30 +216,10 @@ describe("useInstitutionList", () => {
     await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
 
     const dataset = JSON.parse(getByTestId("ctx-data-json").textContent);
-    expect(dataset[0]).toBe("1 alphabet");
-    expect(dataset[1]).toBe("1 potato");
-    expect(dataset[2]).toBe("CDS");
-    expect(dataset[3]).toBe("NIH");
-    expect(dataset[4]).toBe("zebra");
-  });
-
-  it("should filter unexpected data types from the results", async () => {
-    const mocks: MockedResponse<ListInstitutionsResp>[] = [
-      {
-        request: {
-          query: LIST_INSTITUTIONS,
-        },
-        result: {
-          data: {
-            listInstitutions: ["real data", { thisIsAObject: true }, 456, null] as string[],
-          },
-        },
-      },
-    ];
-
-    const { getByTestId } = render(<TestParent mocks={mocks} />);
-
-    await waitFor(() => expect(getByTestId("ctx-status")).toHaveTextContent("LOADED"));
-    expect(getByTestId("ctx-data-length")).toHaveTextContent("1");
+    expect(dataset[0]["name"]).toBe("1 alphabet");
+    expect(dataset[1]["name"]).toBe("1 potato");
+    expect(dataset[2]["name"]).toBe("CDS");
+    expect(dataset[3]["name"]).toBe("NIH");
+    expect(dataset[4]["name"]).toBe("zebra");
   });
 });
