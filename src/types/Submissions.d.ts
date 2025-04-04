@@ -5,6 +5,7 @@ type Submission = {
   submitterName: string; // <first name> <last name>
   organization: Pick<Organization, "_id" | "name">; // Organization
   dataCommons: string;
+  dataCommonsDisplayName: string;
   modelVersion: string;
   studyID: string;
   studyAbbreviation: string;

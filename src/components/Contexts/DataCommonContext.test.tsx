@@ -24,7 +24,7 @@ type Props = {
 };
 
 const TestParent: FC<Props> = ({ dc, children }: Props) => (
-  <DataCommonProvider DataCommon={dc}>{children ?? <TestChild />}</DataCommonProvider>
+  <DataCommonProvider displayName={dc}>{children ?? <TestChild />}</DataCommonProvider>
 );
 
 jest.mock("../../utils", () => ({

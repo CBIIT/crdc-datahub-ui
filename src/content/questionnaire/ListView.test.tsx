@@ -41,6 +41,7 @@ const baseUser: Omit<User, "role" | "permissions"> = {
   IDP: "nih",
   email: "",
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   createdAt: "",
   updateAt: "",
   studies: null,
