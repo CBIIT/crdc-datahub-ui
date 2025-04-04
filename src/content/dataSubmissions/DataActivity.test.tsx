@@ -9,43 +9,7 @@ import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import * as SubmissionCtx from "../../components/Contexts/SubmissionContext";
 import { SubmissionCtxStatus } from "../../components/Contexts/SubmissionContext";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
-
-// NOTE: We omit all properties that the component specifically depends on
-const baseSubmission: Omit<Submission, "_id"> = {
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { generateBaseSubmission } from "../../testUtils/utils";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -70,8 +34,8 @@ describe("General", () => {
       status: SubmissionCtxStatus.LOADING,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "",
-          ...baseSubmission,
         },
         submissionStats: {
           stats: [],
@@ -117,8 +81,8 @@ describe("General", () => {
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "simulated-network-error",
-          ...baseSubmission,
         },
         submissionStats: null,
         batchStatusList: null,
@@ -153,8 +117,8 @@ describe("General", () => {
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "simulated-graphql-error",
-          ...baseSubmission,
         },
         submissionStats: null,
         batchStatusList: null,
@@ -211,8 +175,8 @@ describe("Table", () => {
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "",
-          ...baseSubmission,
         },
         submissionStats: {
           stats: [],
@@ -266,8 +230,8 @@ describe("Table", () => {
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "refetching-submission-test",
-          ...baseSubmission,
         },
         submissionStats: {
           stats: [],
@@ -320,8 +284,8 @@ describe("Table", () => {
       status: SubmissionCtxStatus.POLLING,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "refetching-submission-test",
-          ...baseSubmission,
         },
         submissionStats: {
           stats: [],
@@ -373,8 +337,8 @@ describe("Table", () => {
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(["_id"]),
           _id: "",
-          ...baseSubmission,
         },
         submissionStats: {
           stats: [],

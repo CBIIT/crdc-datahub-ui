@@ -23,44 +23,7 @@ import {
 } from "../../components/Contexts/SubmissionContext";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import CrossValidation from "./CrossValidation";
-
-// NOTE: We omit all properties that the component specifically depends on
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { generateBaseSubmission } from "../../testUtils/utils";
 
 const baseCrossValidationResult: CrossValidationResult = {
   submissionID: "",
@@ -129,7 +92,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
       status: SubmissionCtxStatus.LOADED,
       data: {
         getSubmission: {
-          ...baseSubmission,
+          ...generateBaseSubmission(),
           ...submission,
         },
         batchStatusList: {

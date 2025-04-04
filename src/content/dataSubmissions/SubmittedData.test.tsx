@@ -25,6 +25,7 @@ import {
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../../components/Contexts/AuthContext";
+import { generateBaseSubmission } from "../../testUtils/utils";
 
 const baseUser: User = {
   _id: "current-user",
@@ -74,12 +75,13 @@ const TestParent: FC<ParentProps> = ({
       isPolling: false,
       data: {
         getSubmission: {
+          ...generateBaseSubmission(),
           _id: submissionId,
           name: submissionName,
           submitterID,
           collaborators,
           deletingData,
-        } as Submission,
+        },
         submissionStats: {
           stats: [],
         },
