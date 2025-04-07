@@ -4,9 +4,11 @@ import { MockedProvider } from "@apollo/client/testing";
 import { HelmetProvider } from "react-helmet-async";
 import { MemoryRouter } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import { SnackbarProvider } from "notistack";
 import { withThemeFromJSXProvider } from "@storybook/addon-themes";
 import theme from "../src/theme";
 import { HelmetWrapper } from "../src/layouts";
+import StyledNotistackAlerts from "../src/components/StyledNotistackAlerts";
 
 const preview: Preview = {
   parameters: {
@@ -40,6 +42,22 @@ export const decorators: Decorator[] = [
       </HelmetProvider>
     </MemoryRouter>
   ),
+  (Story) => (
+    <SnackbarProvider
+      maxSnack={3}
+      autoHideDuration={10000}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      Components={{
+        default: StyledNotistackAlerts,
+        error: StyledNotistackAlerts,
+        success: StyledNotistackAlerts,
+      }}
+      hideIconVariant
+      preventDuplicate
+    >
+      <Story />
+    </SnackbarProvider>
+  )
 ];
 
 export default preview;
