@@ -23,9 +23,17 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   it("should render 'All' when the studies prop contains a study with `_id` of 'All'", () => {
-    const { getByText } = render(<StudyList studies={[{ _id: "All", studyName: "All" }]} />);
+    const { getByText } = render(
+      <StudyList
+        studies={[
+          { _id: "All", studyName: "All" },
+          { _id: "mock-study", studyName: "Should Not Be Visible" },
+        ]}
+      />
+    );
 
     expect(getByText("All")).toBeInTheDocument();
+    expect(() => getByText("Should Not Be Visible")).toThrow();
   });
 
   it("should render 'None.' when the studies prop is an empty array", () => {
