@@ -27,14 +27,14 @@ const InstitutionController: FC = () => {
   }
 
   if (!institutionId) {
-    return (
-      <MemoizedProvider>
-        <ListView _id={institutionId} />
-      </MemoizedProvider>
-    );
+    return <ListView />;
   }
 
-  return <InstitutionView />;
+  return (
+    <MemoizedProvider>
+      <InstitutionView _id={institutionId} />
+    </MemoizedProvider>
+  );
 };
 
 export default InstitutionController;
