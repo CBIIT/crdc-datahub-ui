@@ -201,9 +201,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const ALL_STUDIES_OPTION = "All";
   const manageUsersPageUrl = `/users${lastSearchParams?.["/users"] ?? ""}`;
   const isSelf = _id === currentUser._id;
-  const [user, setUser] = useState<User | null>(
-    isSelf && viewType === "profile" ? { ...currentUser } : null
-  );
+
+  const [user, setUser] = useState<User | null>();
   const [saving, setSaving] = useState<boolean>(false);
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
 
@@ -636,7 +635,13 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                   )}
                 </StyledField>
                 {VisibleFieldState.includes(fieldset.permissions) &&
-                  VisibleFieldState.includes(fieldset.notifications) && <PermissionPanel />}
+                VisibleFieldState.includes(fieldset.notifications) ? (
+                  <PermissionPanel
+                    readOnly={
+                      fieldset.permissions === "DISABLED" || fieldset.notifications === "DISABLED"
+                    }
+                  />
+                ) : null}
                 <StyledButtonStack
                   direction="row"
                   justifyContent="center"
