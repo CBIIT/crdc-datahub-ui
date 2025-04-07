@@ -34,7 +34,7 @@ export type Input = {
   offset?: number;
   orderBy?: string;
   sortDirection?: Order;
-  status?: Institution["status"];
+  status?: Institution["status"] | "All";
   name?: Institution["name"];
 };
 

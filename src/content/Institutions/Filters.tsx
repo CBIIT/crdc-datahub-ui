@@ -36,7 +36,7 @@ const initialTouchedFields: TouchedState = {
 
 export type FilterForm = {
   name: Institution["name"];
-  status: Institution["status"];
+  status: Institution["status"] | "All";
 };
 
 type FilterFormKey = keyof FilterForm;
