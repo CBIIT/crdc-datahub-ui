@@ -1,0 +1,95 @@
+export const baseApplication: Application = {
+  _id: "",
+  status: "New",
+  createdAt: "",
+  updatedAt: "",
+  submittedDate: "",
+  history: [],
+  ORCID: "",
+  applicant: {
+    applicantID: "",
+    applicantName: "",
+    applicantEmail: "",
+  },
+  PI: "",
+  controlledAccess: false,
+  openAccess: false,
+  studyAbbreviation: "",
+  questionnaireData: {
+    sections: [],
+    pi: {
+      firstName: "",
+      lastName: "",
+      position: "",
+      email: "",
+      ORCID: "",
+      institution: "",
+      address: "",
+    },
+    piAsPrimaryContact: false,
+    primaryContact: {
+      position: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      institution: "",
+    },
+    additionalContacts: [],
+    program: null,
+    study: {
+      name: "",
+      abbreviation: "",
+      description: "",
+      publications: [],
+      plannedPublications: [],
+      repositories: [],
+      funding: [],
+      isDbGapRegistered: false,
+      dbGaPPPHSNumber: "",
+    },
+    accessTypes: [],
+    targetedSubmissionDate: "",
+    targetedReleaseDate: "",
+    timeConstraints: [],
+    cancerTypes: [],
+    otherCancerTypes: "",
+    otherCancerTypesEnabled: false,
+    preCancerTypes: "",
+    numberOfParticipants: 0,
+    species: [],
+    otherSpeciesEnabled: false,
+    otherSpeciesOfSubjects: "",
+    cellLines: false,
+    modelSystems: false,
+    imagingDataDeIdentified: false,
+    dataDeIdentified: false,
+    dataTypes: [],
+    otherDataTypes: "",
+    clinicalData: {
+      dataTypes: [],
+      otherDataTypes: "",
+      futureDataTypes: false,
+    },
+    files: [],
+    submitterComment: "",
+  },
+  conditional: false,
+  pendingConditions: [],
+  programName: "",
+  programAbbreviation: "",
+  programDescription: "",
+  version: "",
+};
+
+/**
+ *  Creates a new Application object with default values, allowing for field overrides
+ *
+ * @see {@link baseApplication}
+ * @param {Partial<Application>} [overrides={}] - An object containing properties to override the default values
+ * @returns {Application} A new Application object with default propety values applied as well as any overridden properties
+ */
+export const createApplication = (overrides: Partial<Application> = {}): Application => ({
+  ...baseApplication,
+  ...overrides,
+});
