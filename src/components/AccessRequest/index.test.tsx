@@ -14,6 +14,7 @@ import {
   LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsInput,
   ListInstitutionsResp,
 } from "../../graphql";
 
@@ -46,13 +47,17 @@ const mockListApprovedStudies: MockedResponse<ListApprovedStudiesResp, ListAppro
   variableMatcher: () => true,
 };
 
-const emptyInstitutionsMock: MockedResponse<ListInstitutionsResp> = {
+const emptyInstitutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
   request: {
     query: LIST_INSTITUTIONS,
   },
+  variableMatcher: () => true,
   result: {
     data: {
-      listInstitutions: [],
+      listInstitutions: {
+        total: 0,
+        institutions: [],
+      },
     },
   },
 };

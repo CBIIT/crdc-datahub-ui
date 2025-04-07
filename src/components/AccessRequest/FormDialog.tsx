@@ -22,6 +22,7 @@ import {
   LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsInput,
   ListInstitutionsResp,
   REQUEST_ACCESS,
   RequestAccessInput,
@@ -109,33 +110,30 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
     }
   );
 
-  const { data: listInstitutions } = useQuery<ListInstitutionsResp>(LIST_INSTITUTIONS, {
-    variables: {}, // TODO: only active ones, order ASC
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-first",
-    onError: (e) => {
-      Logger.error("Unable to retrieve institutions list.", e);
-    },
-  });
+  const { data: listInstitutions } = useQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: {
+        first: -1,
+        orderBy: "name",
+        sortDirection: "asc",
+      },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => {
+        Logger.error("Unable to retrieve institutions list.", e);
+      },
+    }
+  );
 
   const [requestAccess] = useMutation<RequestAccessResp, RequestAccessInput>(REQUEST_ACCESS, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const onSubmit: SubmitHandler<InputForm> = async ({
-    role,
-    institutionName,
-    studies,
-    additionalInfo,
-  }: InputForm) => {
+  const onSubmit: SubmitHandler<InputForm> = async (input: InputForm) => {
     const { data, errors } = await requestAccess({
-      variables: {
-        role,
-        institutionName,
-        studies,
-        additionalInfo,
-      },
+      variables: input,
     }).catch((e) => ({
       data: null,
       errors: e,
@@ -220,8 +218,9 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
               render={({ field }) => (
                 <StyledAutocomplete
                   {...field}
-                  // TODO: Map to institution name
-                  options={listInstitutions?.listInstitutions || []}
+                  options={
+                    listInstitutions?.listInstitutions.institutions?.map((i) => i.name) || []
+                  }
                   onChange={(_, data: string) => field.onChange(data.trim())}
                   onInputChange={(_, data: string) => field.onChange(data.trim())}
                   renderInput={({ inputProps, ...params }) => (

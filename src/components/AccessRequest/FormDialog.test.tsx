@@ -13,6 +13,7 @@ import {
   LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsInput,
   ListInstitutionsResp,
   REQUEST_ACCESS,
   RequestAccessInput,
@@ -79,26 +80,51 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
   variableMatcher: () => true,
 };
 
-// TODO: Add input type here
-const institutionsMock: MockedResponse<ListInstitutionsResp> = {
+const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
   request: {
     query: LIST_INSTITUTIONS,
   },
+  variableMatcher: () => true,
   result: {
     data: {
-      listInstitutions: ["institution-1", "institution-2", "institution-3"],
+      listInstitutions: {
+        total: 3,
+        institutions: [
+          {
+            _id: "institution-1",
+            name: "Institution 1",
+            status: "Active",
+            submitterCount: 0,
+          },
+          {
+            _id: "institution-2",
+            name: "Institution 2",
+            status: "Active",
+            submitterCount: 5,
+          },
+          {
+            _id: "institution-3",
+            name: "Institution 3",
+            status: "Active",
+            submitterCount: 2,
+          },
+        ],
+      },
     },
   },
 };
 
-// TODO: Add input type here
-const emptyInstitutionsMock: MockedResponse<ListInstitutionsResp> = {
+const emptyInstitutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
   request: {
     query: LIST_INSTITUTIONS,
   },
+  variableMatcher: () => true,
   result: {
     data: {
-      listInstitutions: [],
+      listInstitutions: {
+        total: 0, // No institutions found
+        institutions: [], // Return an empty array for institutions
+      },
     },
   },
 };
@@ -142,23 +168,21 @@ const MockParent: FC<MockParentProps> = ({ mocks, user = mockUser, children }) =
   );
 };
 
-describe("Accessibility", () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
+// describe("Accessibility", () => {
+//   beforeEach(() => {
+//     jest.resetAllMocks();
+//   });
 
-  // it("should have no violations", async () => {
-  //   const mockOnClose = jest.fn();
+//   it("should have no violations", async () => {
+//     const { container } = render(<FormDialog open onClose={jest.fn()} />, {
+//       wrapper: ({ children }) => (
+//         <MockParent mocks={[emptyStudiesMock, emptyInstitutionsMock]}>{children}</MockParent>
+//       ),
+//     });
 
-  //   const { container } = render(<FormDialog open onClose={mockOnClose} />, {
-  //     wrapper: ({ children }) => (
-  //       <MockParent mocks={[emptyStudiesMock, emptyInstitutionsMock]}>{children}</MockParent>
-  //     ),
-  //   });
-
-  //   expect(await axe(container)).toHaveNoViolations();
-  // });
-});
+//     expect(await axe(container)).toHaveNoViolations();
+//   });
+// });
 
 describe("Basic Functionality", () => {
   beforeEach(() => {

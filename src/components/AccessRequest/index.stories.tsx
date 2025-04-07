@@ -7,6 +7,7 @@ import {
   LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsInput,
   ListInstitutionsResp,
 } from "../../graphql";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
@@ -68,14 +69,36 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
   variableMatcher: () => true,
 };
 
-// TODO: Add input type here
-const institutionsMock: MockedResponse<ListInstitutionsResp> = {
+const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
   request: {
     query: LIST_INSTITUTIONS,
   },
+  variableMatcher: () => true,
   result: {
     data: {
-      listInstitutions: ["institution-1", "institution-2", "institution-3"],
+      listInstitutions: {
+        total: 3,
+        institutions: [
+          {
+            _id: "institution-1",
+            name: "Institution 1",
+            status: "Active",
+            submitterCount: 0,
+          },
+          {
+            _id: "institution-2",
+            name: "Institution 2",
+            status: "Active",
+            submitterCount: 5,
+          },
+          {
+            _id: "institution-3",
+            name: "Institution 3",
+            status: "Active",
+            submitterCount: 2,
+          },
+        ],
+      },
     },
   },
 };
