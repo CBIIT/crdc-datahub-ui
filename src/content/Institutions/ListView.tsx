@@ -9,6 +9,7 @@ import PageBannerBody from "../../components/PageBanner/PageBannerBody";
 import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
 import TruncatedText from "../../components/TruncatedText";
+import Filters, { FilterForm } from "./Filters";
 
 const StyledContainer = styled(Container)({
   marginTop: "-180px",
@@ -69,18 +70,23 @@ const StyledActionButton = styled(Button)(
 const columns: Column<Institution>[] = [
   {
     label: "Name",
-    renderValue: (a) => <TruncatedText text={a.name} />,
+    renderValue: (a) => <TruncatedText text={a.name} maxCharacters={60} />,
     field: "name",
+    default: true,
   },
   {
     label: "Submitter Count",
-    renderValue: (a) => <TruncatedText text={a.submitterCount?.toString()} />,
+    renderValue: (a) =>
+      Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.submitterCount || 0),
     field: "submitterCount",
   },
   {
     label: "Status",
     renderValue: (a) => <TruncatedText text={a.status} />,
     field: "status",
+    sx: {
+      width: "100px",
+    },
   },
   {
     label: (
@@ -89,7 +95,7 @@ const columns: Column<Institution>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <StyledLink to={`/studies/${a?.["_id"]}`}>
+      <StyledLink to={`/institution/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
@@ -102,25 +108,16 @@ const columns: Column<Institution>[] = [
   },
 ];
 
-type FilterForm = {
-  status: Institution["status"];
-  name: string;
-};
-
-type Props = {
-  _id: string;
-};
-
-const ListView = ({ _id }: Props) => {
+const ListView = () => {
   usePageTitle("Manage Institutions");
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [, setError] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<Institution[]>([]);
   const [count, setCount] = useState<number>(0);
 
   const filtersRef = useRef<FilterForm>({
-    status: "Active",
+    status: "All",
     name: "",
   });
   const tableRef = useRef<TableMethods>(null);
@@ -168,9 +165,18 @@ const ListView = ({ _id }: Props) => {
     }
   };
 
+  const handleOnFiltersChange = (data: FilterForm) => {
+    filtersRef.current = data;
+    setTablePage(0);
+  };
+
+  const setTablePage = (page: number) => {
+    tableRef.current?.setPage(page, true);
+  };
+
   return (
     <Box data-testid="list-institutions-container">
-      <FormAlert error="An error occurred while loading the data." />
+      <FormAlert error={error ? "An error occurred while loading the data." : null} />
 
       <PageBanner
         title="Manage Institutions"
@@ -180,6 +186,8 @@ const ListView = ({ _id }: Props) => {
       />
 
       <StyledContainer maxWidth="xl">
+        <Filters onChange={handleOnFiltersChange} />
+
         <GenericTable
           ref={tableRef}
           columns={columns}
