@@ -160,7 +160,7 @@ export type {
   Response as UpdateModelVersionResp,
 } from "./updateSubmissionModelVersion";
 
-export { mutation as DOWNLOAD_METADATA_FILE } from "./downloadMetadataFile";
+export { query as DOWNLOAD_METADATA_FILE } from "./downloadMetadataFile";
 export type {
   Input as DownloadMetadataFileInput,
   Response as DownloadMetadataFileResp,

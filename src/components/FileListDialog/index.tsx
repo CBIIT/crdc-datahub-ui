@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { useMutation } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon.svg";
@@ -139,6 +139,10 @@ const tableContainerSx: TableContainerProps["sx"] = {
 
 const StyledIconButton = styled(IconButton)({
   padding: "0px",
+  color: "#083A50",
+  "& svg": {
+    height: "18px",
+  },
 });
 
 const StyledDownloadIcon = styled(DownloadIcon)({
@@ -152,6 +156,8 @@ const StyledButton = styled(LoadingButton)({
   fontSize: "12px",
   fontWeight: 500,
   borderRadius: "6px",
+  paddingTop: "3px",
+  paddingBottom: "3px",
   "&:hover": {
     backgroundColor: "#5C8FA7",
     color: "#FFFFFF",
@@ -159,6 +165,13 @@ const StyledButton = styled(LoadingButton)({
   "&.Mui-disabled": {
     color: "#FFFFFF",
     opacity: 0.6,
+  },
+  "& .MuiButton-endIcon": {
+    marginLeft: "4px",
+    marginRight: "-2px",
+  },
+  "& .MuiButton-endIcon svg": {
+    height: "16px",
   },
 });
 
@@ -235,7 +248,7 @@ const FileListDialog: FC<FileListDialogProps> = ({
   const [prevBatchFilesFetch, setPrevBatchFilesFetch] = useState<FetchListing<BatchFileInfo>>(null);
   const [downloading, setDownloading] = useState<boolean>(false);
 
-  const [downloadFile] = useMutation<DownloadMetadataFileResp, DownloadMetadataFileInput>(
+  const [downloadFile] = useLazyQuery<DownloadMetadataFileResp, DownloadMetadataFileInput>(
     DOWNLOAD_METADATA_FILE,
     {
       context: { clientName: "backend" },
@@ -334,7 +347,7 @@ const FileListDialog: FC<FileListDialogProps> = ({
         Uploaded on {FormatDate(batch?.createdAt, "M/D/YYYY [at] hh:mm A")}
       </StyledSubtitle>
 
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <StyledNumberOfFiles>{formattedCount}</StyledNumberOfFiles>
         {!hiddenActions && (
           <StyledButton

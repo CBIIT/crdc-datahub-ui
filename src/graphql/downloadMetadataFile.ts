@@ -1,11 +1,9 @@
 import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const mutation: TypedDocumentNode<Response, Input> = gql`
-  mutation downloadMetadataFile($batchID: string!, $fileName: String) {
-    downloadMetadataFile(batchID: $batchID, fileName: $fileName) {
-      downloadMetadataFile
-    }
+export const query: TypedDocumentNode<Response, Input> = gql`
+  query downloadMetadataFile($batchID: String!, $fileName: String) {
+    downloadMetadataFile(batchID: $batchID, fileName: $fileName)
   }
 `;
 
