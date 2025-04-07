@@ -3,7 +3,7 @@ import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import CustomDialog from "../../components/Shared/Dialog";
+import CustomDialog from "../../components/GenericDialog";
 import { ReleaseInfo } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
