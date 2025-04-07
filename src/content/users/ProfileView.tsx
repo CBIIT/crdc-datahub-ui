@@ -52,6 +52,7 @@ import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
 import AccessRequest from "../../components/AccessRequest";
 import PermissionPanel from "../../components/PermissionPanel";
+import StudyList from "../../components/StudyList";
 
 type Props = {
   _id: User["_id"];
@@ -573,7 +574,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         />
                       )}
                     />
-                  ) : null}
+                  ) : (
+                    <StudyList studies={user.studies || []} />
+                  )}
                 </StyledField>
                 <StyledField visible={fieldset.dataCommons !== "HIDDEN"}>
                   <StyledLabel id="userDataCommons">
