@@ -67,6 +67,8 @@ const useProfileFields = (
   if (isSelf && viewType === "profile") {
     fields.firstName = "UNLOCKED";
     fields.lastName = "UNLOCKED";
+    fields.permissions = "DISABLED";
+    fields.notifications = "DISABLED";
   }
 
   // Editable for user with permission to Manage Users

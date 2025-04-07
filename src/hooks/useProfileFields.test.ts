@@ -143,7 +143,7 @@ describe("Profile View", () => {
     "Data Commons Personnel",
     "fake role" as UserRole,
   ])(
-    "should return HIDDEN for the permissions and notifications panel on the profile page for role %s",
+    "should return DISABLED for the permissions and notifications panel on the profile page for role %s",
     (role) => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
@@ -152,8 +152,8 @@ describe("Profile View", () => {
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
-      expect(result.current.permissions).toBe("HIDDEN");
-      expect(result.current.notifications).toBe("HIDDEN");
+      expect(result.current.permissions).toBe("DISABLED");
+      expect(result.current.notifications).toBe("DISABLED");
     }
   );
 

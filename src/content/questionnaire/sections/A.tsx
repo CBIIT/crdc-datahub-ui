@@ -194,7 +194,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Institution"
           name="pi[institution]"
           value={pi?.institution || ""}
-          options={institutionList}
+          options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0}
           required
@@ -295,7 +295,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               label="Institution"
               name="primaryContact[institution]"
               value={primaryContact?.institution || ""}
-              options={institutionList}
+              options={institutionList?.map((i) => i.name)}
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
               validate={(v: string) => v?.trim()?.length > 0}
