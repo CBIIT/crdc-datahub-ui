@@ -14,7 +14,7 @@ describe("Accessibility", () => {
         { _id: "mock-2", studyName: "mock-2 " },
       ],
     ],
-    ["ALL study", [{ _id: "ALL", studyName: "ALL" }]],
+    ["ALL study", [{ _id: "All", studyName: "All" }]],
   ])("should have no violations (%s)", async (_, studies) => {
     const { container } = render(<StudyList studies={studies} />);
     expect(await axe(container)).toHaveNoViolations();
