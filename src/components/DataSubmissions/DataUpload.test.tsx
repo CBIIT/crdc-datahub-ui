@@ -12,6 +12,7 @@ import {
 } from "../Contexts/AuthContext";
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { DataUpload } from "./DataUpload";
+import { createSubmission, createUser } from "../../utils/testUtils";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
@@ -24,57 +25,6 @@ jest.mock("../../utils", () => ({
   ...jest.requireActual("../../utils"),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
-
-const baseSubmission: Omit<Submission, "_id"> = {
-  name: "",
-  submitterID: "current-user",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  createdAt: "",
-  updatedAt: "",
-  crossSubmissionStatus: null,
-  otherSubmissions: null,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseUser: Omit<User, "permissions"> = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This base role allows for all actions
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: null,
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -93,7 +43,7 @@ const TestParent: FC<ParentProps> = ({
     () => ({
       status: AuthStatus.LOADED,
       isLoggedIn: true,
-      user: { ...baseUser, role, permissions },
+      user: createUser({ _id: "current-user", role, permissions }),
     }),
     [role]
   );
@@ -111,7 +61,9 @@ describe("Accessibility", () => {
   it("should have no violations", async () => {
     const { container } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "accessibility-base" }} />
+        <DataUpload
+          submission={createSubmission({ _id: "accessibility-base", submitterID: "current-user" })}
+        />
       </TestParent>
     );
 
@@ -123,7 +75,12 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
+        <DataUpload
+          submission={createSubmission({
+            _id: "smoke-test-id",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -133,7 +90,9 @@ describe("Basic Functionality", () => {
   it("should render the CLI version with tooltip and opens CLI dialog", async () => {
     const { getByTestId, getByRole, queryByRole } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
+        <DataUpload
+          submission={createSubmission({ _id: "smoke-test-id", submitterID: "current-user" })}
+        />
       </TestParent>
     );
 
@@ -181,7 +140,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "network-error-handling" }} />
+        <DataUpload
+          submission={createSubmission({
+            _id: "network-error-handling",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -218,7 +182,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "graphql-error-handling" }} />
+        <DataUpload
+          submission={createSubmission({
+            _id: "graphql-error-handling",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -244,11 +213,11 @@ describe("Basic Functionality", () => {
     const { getByTestId, findAllByRole, queryByRole } = render(
       <TestParent mocks={[]}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "hide-config-dialog-on-close",
             dataType: "Metadata and Data Files",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -272,10 +241,10 @@ describe("Basic Functionality", () => {
     const { getByTestId, findAllByRole, queryByRole } = render(
       <TestParent mocks={[]}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "hide-cli-dialog-on-close",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -300,7 +269,12 @@ describe("Implementation Requirements", () => {
   it("should have the Uploader CLI download dialog button", async () => {
     const { getByText, getByTestId } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
+        <DataUpload
+          submission={createSubmission({
+            _id: "cli-download-link-id",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -322,11 +296,11 @@ describe("Implementation Requirements", () => {
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "config-download-link-id",
             dataType: "Metadata and Data Files",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -339,11 +313,11 @@ describe("Implementation Requirements", () => {
   it("should enable the Uploader CLI download button when user has required permissions", async () => {
     const { getByTestId } = render(
       <DataUpload
-        submission={{
-          ...baseSubmission,
+        submission={createSubmission({
           _id: "config-download-role-check",
           dataType: "Metadata and Data Files", // NOTE: Required for the button to show
-        }}
+          submitterID: "current-user",
+        })}
       />,
       {
         wrapper: (p) => (
@@ -358,11 +332,11 @@ describe("Implementation Requirements", () => {
   it("should disable the Uploader CLI download button when user is missing required permissions", async () => {
     const { getByTestId } = render(
       <DataUpload
-        submission={{
-          ...baseSubmission,
+        submission={createSubmission({
           _id: "config-download-role-check",
           dataType: "Metadata and Data Files", // NOTE: Required for the button to show
-        }}
+          submitterID: "current-user",
+        })}
       />,
       { wrapper: (p) => <TestParent {...p} permissions={[]} /> }
     );
@@ -373,8 +347,7 @@ describe("Implementation Requirements", () => {
   it("should enable the Uploader CLI download button when user is a collaborator", async () => {
     const { getByTestId } = render(
       <DataUpload
-        submission={{
-          ...baseSubmission,
+        submission={createSubmission({
           _id: "config-download-check",
           dataType: "Metadata and Data Files", // NOTE: Required for the button to show
           submitterID: "some-other-user",
@@ -385,7 +358,7 @@ describe("Implementation Requirements", () => {
               permission: "Can Edit",
             },
           ],
-        }}
+        })}
       />,
       { wrapper: (p) => <TestParent {...p} role="Submitter" /> }
     );
@@ -399,11 +372,11 @@ describe("Implementation Requirements", () => {
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "config-download-link-id",
             dataType: "Metadata Only",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -436,7 +409,12 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "cli-download-on-click" }} />
+        <DataUpload
+          submission={createSubmission({
+            _id: "cli-download-on-click",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -489,7 +467,13 @@ describe("Implementation Requirements", () => {
 
       const { getByTestId, getByText } = render(
         <TestParent mocks={mocks}>
-          <DataUpload submission={{ ...baseSubmission, _id: "safe-filename-test", name: input }} />
+          <DataUpload
+            submission={createSubmission({
+              _id: "safe-filename-test",
+              name: input,
+              submitterID: "current-user",
+            })}
+          />
         </TestParent>
       );
 

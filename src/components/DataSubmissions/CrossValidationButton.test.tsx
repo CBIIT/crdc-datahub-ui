@@ -20,43 +20,7 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
-
-// NOTE: We omit all properties that the component specifically depends on
-const baseSubmission: Omit<
-  Submission,
-  "_id" | "status" | "crossSubmissionStatus" | "otherSubmissions"
-> = {
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  metadataValidationStatus: "Passed",
-  fileValidationStatus: "Passed",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { createSubmission, createUser } from "../../utils/testUtils";
 
 const baseAuthCtx: AuthCtxState = {
   status: AuthStatus.LOADED,
@@ -72,21 +36,6 @@ const baseSubmissionCtx: SubmissionCtxState = {
   stopPolling: jest.fn(),
   refetch: jest.fn(),
   updateQuery: jest.fn(),
-};
-
-const baseUser: Omit<User, "role"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view", "data_submission:review"],
-  notifications: [],
 };
 
 type ParentProps = {
@@ -114,10 +63,17 @@ const TestParent: FC<ParentProps> = ({
 describe("Accessibility", () => {
   it("should not have accessibility violations", async () => {
     const { container } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "example-sub-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -125,7 +81,7 @@ describe("Accessibility", () => {
               "In Progress": [],
               Submitted: ["submitted-id"],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -135,10 +91,17 @@ describe("Accessibility", () => {
 
   it("should not have accessibility violations (disabled)", async () => {
     const { container, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "example-sub-id",
             status: "Submitted",
             crossSubmissionStatus: null,
@@ -147,7 +110,7 @@ describe("Accessibility", () => {
               // NOTE: this is needed otherwise the button won't render
               Submitted: ["submitted-id"],
             }),
-          }}
+          })}
           disabled
         />
       </TestParent>
@@ -165,15 +128,22 @@ describe("Basic Functionality", () => {
 
   it("should render without crashing", () => {
     render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "smoke-test-id",
             status: null,
             otherSubmissions: null,
             crossSubmissionStatus: null,
-          }}
+          })}
         />
       </TestParent>
     );
@@ -209,11 +179,16 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
       >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: submissionID,
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -222,7 +197,7 @@ describe("Basic Functionality", () => {
               Submitted: ["submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -258,11 +233,16 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
       >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: submissionID,
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -271,7 +251,7 @@ describe("Basic Functionality", () => {
               Submitted: ["submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -303,11 +283,16 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
       >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: submissionID,
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -316,7 +301,7 @@ describe("Basic Functionality", () => {
               Submitted: ["submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -339,10 +324,17 @@ describe("Implementation Requirements", () => {
 
   it("should be named 'Cross Validate'", () => {
     const { getByText } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "example-sub-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -351,7 +343,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -361,10 +353,17 @@ describe("Implementation Requirements", () => {
 
   it("should render as disabled with text 'Validating...' when the submission is validating", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "Validating",
@@ -373,7 +372,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -383,8 +382,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should update back to the default text when the submission is no longer validating", () => {
-    const submission: Submission = {
-      ...baseSubmission,
+    const submission: Submission = createSubmission({
       _id: "validating-test-id",
       status: "Submitted",
       crossSubmissionStatus: "Validating",
@@ -393,10 +391,18 @@ describe("Implementation Requirements", () => {
         Submitted: ["submitted-id"],
         Released: [],
       }),
-    };
+    });
 
     const { getByTestId, rerender } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton submission={submission} />
       </TestParent>
     );
@@ -405,7 +411,15 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("cross-validate-button")).toHaveTextContent("Validating...");
 
     rerender(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
           submission={{
             ...submission,
@@ -421,10 +435,17 @@ describe("Implementation Requirements", () => {
 
   it("should be enabled only if there are other related Submitted submissions", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -433,7 +454,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id", "another-submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -444,10 +465,17 @@ describe("Implementation Requirements", () => {
 
   it("should be enabled only if there are other related Released submissions", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -456,7 +484,7 @@ describe("Implementation Requirements", () => {
               Submitted: [],
               Released: ["submitted-id", "another-submitted-id"],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -467,10 +495,17 @@ describe("Implementation Requirements", () => {
 
   it("should be HIDDEN if there are no other related Submitted submissions", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "validating-test-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -479,7 +514,7 @@ describe("Implementation Requirements", () => {
               Submitted: [], // NOTE: This disables the button
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -491,10 +526,17 @@ describe("Implementation Requirements", () => {
     "should not be disabled based on the crossSubmissionStatus (checking '%s')",
     (status) => {
       const { getByTestId } = render(
-        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+        <TestParent
+          authCtxState={{
+            ...baseAuthCtx,
+            user: createUser({
+              role: "Admin",
+              permissions: ["data_submission:view", "data_submission:review"],
+            }),
+          }}
+        >
           <CrossValidationButton
-            submission={{
-              ...baseSubmission,
+            submission={createSubmission({
               _id: `not-disabled-assertion-${status}-id`,
               status: "Submitted",
               crossSubmissionStatus: status,
@@ -503,7 +545,7 @@ describe("Implementation Requirements", () => {
                 Submitted: ["submitted-id", "another-submitted-id"],
                 Released: ["submitted-id", "another-submitted-id"],
               }),
-            }}
+            })}
           />
         </TestParent>
       );
@@ -518,16 +560,14 @@ describe("Implementation Requirements", () => {
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: {
-            ...baseUser,
+          user: createUser({
             role: "Admin",
             permissions: ["data_submission:view", "data_submission:review"],
-          },
+          }),
         }}
       >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             status: "Submitted",
             _id: `render-role-test-id`,
             crossSubmissionStatus: null,
@@ -536,7 +576,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id", "another-submitted-id"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -547,11 +587,16 @@ describe("Implementation Requirements", () => {
   it("should never render for user without the required permissions while other Submissions are present", () => {
     const { getByTestId } = render(
       <TestParent
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin", permissions: [] } }}
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: [],
+          }),
+        }}
       >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: `role-test-id`,
             status: "Submitted",
             crossSubmissionStatus: null,
@@ -561,7 +606,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["submitted-id", "another-submitted-id"],
               Released: ["x", "y", "z"],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -571,10 +616,17 @@ describe("Implementation Requirements", () => {
 
   it("should only be enabled for the Submission status of 'Submitted'", () => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: "render-status-test-Submitted-id",
             status: "Submitted",
             crossSubmissionStatus: "New",
@@ -583,7 +635,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["this-enables-the-button"],
               Released: [],
             }),
-          }}
+          })}
         />
       </TestParent>
     );
@@ -602,10 +654,17 @@ describe("Implementation Requirements", () => {
     "fake status" as Submission["status"],
   ])("should never be visible for the Submission status of '%s'", (status) => {
     const { getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({
+            role: "Admin",
+            permissions: ["data_submission:view", "data_submission:review"],
+          }),
+        }}
+      >
         <CrossValidationButton
-          submission={{
-            ...baseSubmission,
+          submission={createSubmission({
             _id: `render-status-test-${status}-id`,
             status,
             crossSubmissionStatus: "New",
@@ -614,7 +673,7 @@ describe("Implementation Requirements", () => {
               Submitted: ["this-enables-the-button"],
               Released: ["also-would-enable-the-button"],
             }),
-          }}
+          })}
         />
       </TestParent>
     );

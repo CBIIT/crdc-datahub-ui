@@ -17,27 +17,12 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+import { createUser } from "../../utils/testUtils";
 
 const baseAuthCtx: AuthContextState = {
   status: AuthContextStatus.LOADED,
   isLoggedIn: false,
   user: null,
-};
-
-const baseUser: User = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: null,
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view"],
-  notifications: [],
 };
 
 const baseSubmissionCtx: SubmissionCtxState = {
@@ -71,7 +56,7 @@ const BaseComponent: FC<Props> = ({
     () => ({
       ...baseAuthCtx,
       isLoggedIn: true,
-      user: { ...baseUser, role },
+      user: createUser({ role, permissions: ["data_submission:view"] }),
     }),
     [role]
   );

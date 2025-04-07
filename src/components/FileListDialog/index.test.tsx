@@ -5,29 +5,7 @@ import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import Dialog from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
-
-const baseBatch: Batch = {
-  _id: "",
-  displayID: 0,
-  submissionID: "",
-  type: "metadata",
-  fileCount: 0,
-  files: [],
-  status: "Uploading",
-  errors: [],
-  createdAt: "",
-  updatedAt: "",
-};
-
-const baseBatchFileInfo: BatchFileInfo = {
-  filePrefix: "",
-  fileName: "",
-  nodeType: "",
-  status: "New",
-  errors: [],
-  createdAt: "",
-  updatedAt: "",
-};
+import { createBatch, createBatchFileInfo } from "../../utils/testUtils";
 
 type ParentProps = {
   children: React.ReactNode;
@@ -43,7 +21,7 @@ describe("Accessibility", () => {
   it("should have no violations (no files)", async () => {
     const { container } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} />
+        <Dialog open batch={createBatch()} />
       </TestParent>
     );
 
@@ -55,15 +33,14 @@ describe("Accessibility", () => {
       <TestParent>
         <Dialog
           open
-          batch={{
-            ...baseBatch,
+          batch={createBatch({
             fileCount: 3,
             files: [
-              { ...baseBatchFileInfo, fileName: "file1" },
-              { ...baseBatchFileInfo, fileName: "file2" },
-              { ...baseBatchFileInfo, fileName: "file3" },
+              createBatchFileInfo({ fileName: "file1" }),
+              createBatchFileInfo({ fileName: "file2" }),
+              createBatchFileInfo({ fileName: "file3" }),
             ],
-          }}
+          })}
         />
       </TestParent>
     );
@@ -76,7 +53,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} />
+        <Dialog open batch={createBatch()} />
       </TestParent>
     );
 
@@ -87,7 +64,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} onClose={mockOnClose} />
+        <Dialog open batch={createBatch()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -104,7 +81,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} onClose={mockOnClose} />
+        <Dialog open batch={createBatch()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -121,7 +98,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} onClose={mockOnClose} />
+        <Dialog open batch={createBatch()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -137,7 +114,7 @@ describe("Basic Functionality", () => {
   it("should handle the 'onClose' prop being undefined", async () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} />
+        <Dialog open batch={createBatch()} />
       </TestParent>
     );
 
@@ -149,7 +126,7 @@ describe("Implementation Requirements", () => {
   it("should indicate the batch displayID in the dialog title", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={{ ...baseBatch, displayID: 123 }} />
+        <Dialog open batch={createBatch({ displayID: 123 })} />
       </TestParent>
     );
 
@@ -159,7 +136,7 @@ describe("Implementation Requirements", () => {
   it("should format the batch createdAt date in the dialog subtitle", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={{ ...baseBatch, createdAt: "2024-06-26T18:11:57.484Z" }} />
+        <Dialog open batch={createBatch({ createdAt: "2024-06-26T18:11:57.484Z" })} />
       </TestParent>
     );
 
@@ -173,15 +150,14 @@ describe("Implementation Requirements", () => {
       <TestParent>
         <Dialog
           open
-          batch={{
-            ...baseBatch,
+          batch={createBatch({
             fileCount: 3,
             files: [
-              { ...baseBatchFileInfo, fileName: "file1" },
-              { ...baseBatchFileInfo, fileName: "file2" },
-              { ...baseBatchFileInfo, fileName: "file3" },
+              createBatchFileInfo({ fileName: "file1" }),
+              createBatchFileInfo({ fileName: "file2" }),
+              createBatchFileInfo({ fileName: "file3" }),
             ],
-          }}
+          })}
         />
       </TestParent>
     );
@@ -215,7 +191,7 @@ describe("Implementation Requirements", () => {
   it("should render the placeholder text when there are no files", () => {
     const { getByText } = render(
       <TestParent>
-        <Dialog open batch={{ ...baseBatch, files: [], fileCount: 0 }} />
+        <Dialog open batch={createBatch({ files: [], fileCount: 0 })} />
       </TestParent>
     );
 

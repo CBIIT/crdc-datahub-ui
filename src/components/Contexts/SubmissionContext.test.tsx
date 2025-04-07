@@ -10,6 +10,7 @@ import {
   SUBMISSION_QC_RESULTS,
   SubmissionQCResultsResp,
 } from "../../graphql";
+import { baseSubmission } from "../../utils/testUtils";
 
 const mockStartPolling = jest.fn();
 const mockStopPolling = jest.fn();
@@ -25,43 +26,6 @@ jest.mock("@apollo/client", () => {
     }),
   };
 });
-
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  deletingData: false,
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  collaborators: [],
-  dataFileSize: null,
-};
 
 const TestChild: FC = () => {
   const { status } = useSubmissionContext();

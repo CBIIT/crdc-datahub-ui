@@ -18,51 +18,7 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
-
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "Error",
-  fileValidationStatus: "Error",
-  crossSubmissionStatus: "Error",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  createdAt: "",
-  updatedAt: "",
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseBatch = {
-  _id: "",
-  displayID: 0,
-  createdAt: "",
-  updatedAt: "",
-  __typename: "Batch",
-};
+import { createBatch, createSubmission } from "../../utils/testUtils";
 
 type ParentProps = {
   submissionId?: string;
@@ -75,10 +31,9 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
     () => ({
       status: SubmissionCtxStatus.LOADED,
       data: {
-        getSubmission: {
-          ...baseSubmission,
+        getSubmission: createSubmission({
           _id: submissionId,
-        },
+        }),
         batchStatusList: {
           batches: null,
         },
@@ -315,10 +270,10 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 4,
             batches: [
-              { ...baseBatch, displayID: 4, _id: "batch-4" },
-              { ...baseBatch, displayID: 3, _id: "batch-3" },
-              { ...baseBatch, displayID: 1, _id: "batch-1" },
-              { ...baseBatch, displayID: 2, _id: "batch-2" },
+              createBatch({ displayID: 4, _id: "batch-4", __typename: "Batch" } as Partial<Batch>),
+              createBatch({ displayID: 3, _id: "batch-3", __typename: "Batch" } as Partial<Batch>),
+              createBatch({ displayID: 1, _id: "batch-1", __typename: "Batch" } as Partial<Batch>),
+              createBatch({ displayID: 2, _id: "batch-2", __typename: "Batch" } as Partial<Batch>),
             ],
           },
           batchStatusList: {
@@ -550,8 +505,8 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 2,
             batches: [
-              { ...baseBatch, displayID: 4, _id: "batch-4" },
-              { ...baseBatch, displayID: 1, _id: "batch-1" },
+              createBatch({ displayID: 4, _id: "batch-4", __typename: "Batch" } as Partial<Batch>),
+              createBatch({ displayID: 1, _id: "batch-1", __typename: "Batch" } as Partial<Batch>),
             ],
           },
           batchStatusList: {

@@ -15,58 +15,8 @@ import {
   SubmissionCtxStatus,
   SubmissionContext,
 } from "../Contexts/SubmissionContext";
-
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseCrossValidationResult: CrossValidationResult = {
-  submissionID: "",
-  type: "",
-  validationType: "metadata",
-  batchID: "",
-  displayID: 0,
-  submittedID: "",
-  severity: "Error",
-  uploadedDate: "",
-  validatedDate: "",
-  conflictingSubmission: "",
-  errors: [],
-  warnings: [],
-};
+import { createSubmission } from "../../utils/testUtils";
+import { createCrossValidationResult } from "../../utils/testUtils/factories";
 
 type ParentProps = {
   submission?: Partial<Submission>;
@@ -79,10 +29,9 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
     () => ({
       status: SubmissionCtxStatus.LOADED,
       data: {
-        getSubmission: {
-          ...baseSubmission,
+        getSubmission: createSubmission({
           ...submission,
-        },
+        }),
         batchStatusList: {
           batches: [],
         },
@@ -229,11 +178,7 @@ describe("ExportCrossValidationButton cases", () => {
           data: {
             submissionCrossValidationResults: {
               total: 1,
-              results: [
-                {
-                  ...baseCrossValidationResult,
-                },
-              ],
+              results: [createCrossValidationResult()],
             },
           },
         },
@@ -245,7 +190,7 @@ describe("ExportCrossValidationButton cases", () => {
 
       const { getByTestId } = render(<ExportCrossValidationButton fields={fields} />, {
         wrapper: ({ children }) => (
-          <TestParent mocks={[mock]} submission={{ ...baseSubmission, name }}>
+          <TestParent mocks={[mock]} submission={{ name }}>
             {children}
           </TestParent>
         ),
@@ -321,27 +266,24 @@ describe("ExportCrossValidationButton cases", () => {
           submissionCrossValidationResults: {
             total: 3,
             results: [
-              {
-                ...baseCrossValidationResult,
+              createCrossValidationResult({
                 errors: qcErrors,
                 warnings: qcWarnings,
                 submissionID,
                 displayID: 1,
-              },
-              {
-                ...baseCrossValidationResult,
+              }),
+              createCrossValidationResult({
                 errors: qcErrors,
                 warnings: qcWarnings,
                 submissionID,
                 displayID: 2,
-              },
-              {
-                ...baseCrossValidationResult,
+              }),
+              createCrossValidationResult({
                 errors: qcErrors,
                 warnings: qcWarnings,
                 submissionID,
                 displayID: 3,
-              },
+              }),
             ],
           },
         },

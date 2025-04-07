@@ -12,6 +12,7 @@ import {
   Status as AuthContextStatus,
 } from "../Contexts/AuthContext";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
+import { createUser } from "../../utils/testUtils";
 
 const mockWriteText = jest.fn();
 Object.assign(navigator, {
@@ -24,21 +25,6 @@ const baseAuthCtx: AuthContextState = {
   status: AuthContextStatus.LOADED,
   isLoggedIn: false,
   user: null,
-};
-
-const baseUser: Omit<User, "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: null,
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
 };
 
 type ParentProps = {
@@ -58,7 +44,7 @@ const TestParent: FC<ParentProps> = ({
     () => ({
       ...baseAuthCtx,
       isLoggedIn: true,
-      user: { ...baseUser, role, permissions },
+      user: createUser({ role, permissions }),
     }),
     [role]
   );

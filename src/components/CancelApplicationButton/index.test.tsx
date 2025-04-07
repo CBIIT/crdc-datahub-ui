@@ -18,52 +18,12 @@ import {
   RestoreAppResp,
 } from "../../graphql";
 import Button from "./index";
+import { baseApplication, createApplication, createUser } from "../../utils/testUtils";
 
 const baseAuthCtx: AuthContextState = {
   status: AuthContextStatus.LOADED,
   isLoggedIn: false,
   user: null,
-};
-
-const baseUser: User = {
-  _id: "base-user-123",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: [],
-  notifications: [],
-};
-
-const baseApp: Omit<Application, "questionnaireData"> = {
-  _id: "",
-  status: "New",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
-  history: [],
-  ORCID: "",
-  applicant: {
-    applicantID: "applicant-123",
-    applicantName: "",
-    applicantEmail: "",
-  },
-  PI: "",
-  controlledAccess: false,
-  openAccess: false,
-  studyAbbreviation: "",
-  conditional: false,
-  pendingConditions: [],
-  programName: "",
-  programAbbreviation: "",
-  programDescription: "",
-  version: "",
 };
 
 type TestParentProps = {
@@ -76,7 +36,7 @@ const TestParent: React.FC<TestParentProps> = ({ mocks = [], user = {}, children
   const authCtxValue = useMemo<AuthContextState>(
     () => ({
       ...baseAuthCtx,
-      user: { ...baseUser, ...user },
+      user: createUser({ ...user }),
     }),
     [user]
   );
@@ -92,16 +52,15 @@ describe("Accessibility", () => {
   it("should have no violations for the component (cancel)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -116,16 +75,15 @@ describe("Accessibility", () => {
   it("should have no violations for the component (restore)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -140,17 +98,16 @@ describe("Accessibility", () => {
   it("should have no violations for the component (cancel disabled)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
         disabled
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -166,17 +123,16 @@ describe("Accessibility", () => {
   it("should have no violations for the component (restore disabled)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
         disabled
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -214,17 +170,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -266,17 +221,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -324,17 +278,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -383,18 +336,17 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
         onCancel={onCancel}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -433,17 +385,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -485,17 +436,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -543,17 +493,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -602,18 +551,17 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
         onCancel={onCancel}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -646,16 +594,15 @@ describe("Implementation Requirements", () => {
   it("should have a tooltip present on the Cancel button", async () => {
     const { getByTestId, findByRole } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -679,16 +626,15 @@ describe("Implementation Requirements", () => {
   it("should have a tooltip present on the Restore button", async () => {
     const { getByTestId, findByRole } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -712,16 +658,15 @@ describe("Implementation Requirements", () => {
   it("should dismiss the dialog when the 'Cancel' dialog button is clicked", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -746,15 +691,14 @@ describe("Implementation Requirements", () => {
   it("should not be rendered when the user is missing the required permissions", async () => {
     const { queryByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent user={{ ...baseUser, _id: "owner", permissions: [] }}>{children}</TestParent>
+          <TestParent user={createUser({ _id: "owner", permissions: [] })}>{children}</TestParent>
         ),
       }
     );
@@ -769,16 +713,15 @@ describe("Implementation Requirements", () => {
     (status) => {
       const { getByTestId } = render(
         <Button
-          application={{
-            ...baseApp,
+          application={createApplication({
             status,
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: { ...baseApplication.applicant, applicantID: "owner" },
+          })}
         />,
         {
           wrapper: ({ children }) => (
             <TestParent
-              user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+              user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
             >
               {children}
             </TestParent>
@@ -798,16 +741,15 @@ describe("Implementation Requirements", () => {
     (status) => {
       const { getByTestId } = render(
         <Button
-          application={{
-            ...baseApp,
+          application={createApplication({
             status,
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: { ...baseApplication.applicant, applicantID: "owner" },
+          })}
         />,
         {
           wrapper: ({ children }) => (
             <TestParent
-              user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+              user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
             >
               {children}
             </TestParent>
@@ -823,16 +765,15 @@ describe("Implementation Requirements", () => {
   it("should render tailored dialog content for the 'Restore' variant from Canceled", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -854,16 +795,15 @@ describe("Implementation Requirements", () => {
   it("should render tailored dialog content for the 'Restore' variant from Deleted", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "Deleted",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -885,16 +825,15 @@ describe("Implementation Requirements", () => {
   it("should render tailored dialog content for the 'Cancel' variant", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -916,17 +855,16 @@ describe("Implementation Requirements", () => {
   it("should render the Study Abbreviation in the dialog description", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "New",
           studyAbbreviation: "TEST",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -945,17 +883,16 @@ describe("Implementation Requirements", () => {
   it("should fallback to 'NA' for the Study Abbreviation in the dialog description", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           status: "New",
           studyAbbreviation: "",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>
@@ -991,18 +928,17 @@ describe("Implementation Requirements", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={createApplication({
           _id: "mock-id-cancel-reason",
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: { ...baseApplication.applicant, applicantID: "owner" },
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={createUser({ _id: "owner", permissions: ["submission_request:cancel"] })}
           >
             {children}
           </TestParent>

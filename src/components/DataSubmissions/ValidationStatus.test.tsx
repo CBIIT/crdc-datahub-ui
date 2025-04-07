@@ -8,59 +8,38 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
-
-const BaseSubmission: Omit<
-  Submission,
-  "validationStarted" | "validationEnded" | "validationType" | "validationScope"
-> = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  archived: false,
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { baseSubmission } from "../../utils/testUtils";
 
 type TestParentProps = {
   submission: Pick<
     Submission,
     "validationStarted" | "validationEnded" | "validationType" | "validationScope"
   >;
+  emptySubmission?: boolean;
   children: React.ReactNode;
 };
 
-const TestParent: React.FC<TestParentProps> = ({ submission, children }) => {
+const TestParent: React.FC<TestParentProps> = ({
+  submission,
+  emptySubmission = false,
+  children,
+}) => {
   const value = useMemo<SubmissionCtxState>(
     () => ({
       status: SubmissionCtxStatus.LOADED,
       error: null,
       isPolling: false,
       data: {
-        getSubmission: { ...BaseSubmission, ...submission },
+        getSubmission: emptySubmission
+          ? null
+          : {
+              ...baseSubmission,
+              validationStarted: undefined,
+              validationEnded: undefined,
+              validationType: undefined,
+              validationScope: undefined,
+              ...submission,
+            },
         submissionStats: {
           stats: [],
         },
@@ -117,7 +96,7 @@ describe("Basic Functionality", () => {
 
   it("should not crash if the submission is null", async () => {
     const { container } = render(
-      <TestParent submission={null}>
+      <TestParent submission={null} emptySubmission>
         <ValidationStatus />
       </TestParent>
     );

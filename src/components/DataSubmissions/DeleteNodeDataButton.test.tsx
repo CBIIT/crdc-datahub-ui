@@ -16,64 +16,12 @@ import {
 } from "../Contexts/AuthContext";
 import Button from "./DeleteNodeDataButton";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
-
-const BaseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { createSubmission, createUser } from "../../utils/testUtils";
 
 const baseAuthCtx: AuthContextState = {
   status: AuthContextStatus.LOADED,
   isLoggedIn: false,
   user: null,
-};
-
-const baseUser: User = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This role has access to the delete button by default
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
-  notifications: [],
 };
 
 type TestParentProps = {
@@ -86,7 +34,7 @@ type TestParentProps = {
 const TestParent: React.FC<TestParentProps> = ({
   mocks = [],
   submission = {},
-  user = {},
+  user = { permissions: ["data_submission:view", "data_submission:create"] },
   children,
 }) => {
   const submissionCtxValue = useMemo<SubmissionCtxState>(
@@ -95,7 +43,7 @@ const TestParent: React.FC<TestParentProps> = ({
       error: null,
       isPolling: false,
       data: {
-        getSubmission: { ...BaseSubmission, ...submission },
+        getSubmission: createSubmission({ ...submission }),
         submissionStats: {
           stats: [],
         },
@@ -108,7 +56,9 @@ const TestParent: React.FC<TestParentProps> = ({
   const authCtxValue = useMemo<AuthContextState>(
     () => ({
       ...baseAuthCtx,
-      user: { ...baseUser, ...user },
+      user: createUser({
+        ...user,
+      }),
     }),
     [user]
   );

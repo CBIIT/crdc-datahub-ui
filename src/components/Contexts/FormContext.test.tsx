@@ -17,96 +17,7 @@ import {
   RejectAppResp,
   ReopenAppResp,
 } from "../../graphql";
-
-const baseApplication: Omit<Application, "questionnaireData"> = {
-  _id: "",
-  status: "New",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
-  history: [],
-  controlledAccess: false,
-  openAccess: false,
-  ORCID: "",
-  PI: "",
-  applicant: {
-    applicantID: "",
-    applicantName: "",
-    applicantEmail: "",
-  },
-  programName: "",
-  studyAbbreviation: "",
-  conditional: false,
-  pendingConditions: [],
-  programAbbreviation: "",
-  programDescription: "",
-  version: "",
-};
-
-const baseQuestionnaireData: QuestionnaireData = {
-  sections: [],
-  pi: {
-    firstName: "",
-    lastName: "",
-    position: "",
-    email: "",
-    ORCID: "",
-    institution: "",
-    address: "",
-  },
-  piAsPrimaryContact: false,
-  primaryContact: {
-    position: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    institution: "",
-  },
-  additionalContacts: [],
-  program: {
-    _id: "",
-    name: "",
-    abbreviation: "",
-    description: "",
-  },
-  study: {
-    name: "",
-    abbreviation: "",
-    description: "",
-    publications: [],
-    plannedPublications: [],
-    repositories: [],
-    funding: [],
-    isDbGapRegistered: false,
-    dbGaPPPHSNumber: "",
-  },
-  accessTypes: [],
-  targetedSubmissionDate: "",
-  targetedReleaseDate: "",
-  timeConstraints: [],
-  cancerTypes: [],
-  otherCancerTypes: "",
-  otherCancerTypesEnabled: false,
-  preCancerTypes: "",
-  numberOfParticipants: 0,
-  species: [],
-  otherSpeciesEnabled: false,
-  otherSpeciesOfSubjects: "",
-  cellLines: false,
-  modelSystems: false,
-  imagingDataDeIdentified: false,
-  dataDeIdentified: false,
-  dataTypes: [],
-  otherDataTypes: "",
-  clinicalData: {
-    dataTypes: [],
-    otherDataTypes: "",
-    futureDataTypes: false,
-  },
-  files: [],
-  submitterComment: "",
-};
+import { baseApplication } from "../../utils/testUtils";
 
 type Props = {
   appId: string;
@@ -414,7 +325,7 @@ describe("approveForm Tests", () => {
         getApplication: {
           ...baseApplication,
           questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
+            ...baseApplication.questionnaireData,
             sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
           }),
         },
@@ -480,27 +391,27 @@ describe("approveForm Tests", () => {
           getApplication: {
             ...baseApplication,
             questionnaireData: JSON.stringify({
-              ...baseQuestionnaireData,
+              ...baseApplication.questionnaireData,
               sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
               pi: {
-                ...baseQuestionnaireData.pi,
+                ...baseApplication.questionnaireData.pi,
                 institution: "PI-INST-NAME",
               },
               primaryContact: {
-                ...baseQuestionnaireData.primaryContact,
+                ...baseApplication.questionnaireData.primaryContact,
                 institution: "PC-INST-NAME",
               },
               additionalContacts: [
                 {
-                  ...baseQuestionnaireData.primaryContact,
+                  ...baseApplication.questionnaireData.primaryContact,
                   institution: "AC-INST-NAME-0",
                 },
                 {
-                  ...baseQuestionnaireData.primaryContact,
+                  ...baseApplication.questionnaireData.primaryContact,
                   institution: "AC-INST-NAME-1",
                 },
                 {
-                  ...baseQuestionnaireData.primaryContact,
+                  ...baseApplication.questionnaireData.primaryContact,
                   institution: "AC-INST-NAME-2",
                 },
               ],
@@ -633,7 +544,7 @@ describe("inquireForm Tests", () => {
         getApplication: {
           ...baseApplication,
           questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
+            ...baseApplication.questionnaireData,
             sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
           }),
         },
@@ -748,7 +659,7 @@ describe("rejectForm Tests", () => {
         getApplication: {
           ...baseApplication,
           questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
+            ...baseApplication.questionnaireData,
             sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
           }),
         },
@@ -863,7 +774,7 @@ describe("reopenForm Tests", () => {
         getApplication: {
           ...baseApplication,
           questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
+            ...baseApplication.questionnaireData,
             sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
           }),
         },

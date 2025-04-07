@@ -16,64 +16,16 @@ import {
 } from "../Contexts/SubmissionContext";
 import MetadataUpload from "./MetadataUpload";
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
-
-// NOTE: We omit any properties that are explicitly used within component logic
-const baseSubmission: Omit<
-  Submission,
-  "_id" | "metadataValidationStatus" | "fileValidationStatus"
-> = {
-  name: "",
-  submitterID: "current-user",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  status: "New",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { createBatch, createSubmission, createUser } from "../../utils/testUtils";
 
 const baseAuthCtx: AuthCtxState = {
   status: AuthStatus.LOADED,
   isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: Omit<User, "role"> = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
-  notifications: [],
+  user: createUser({
+    _id: "current-user",
+    role: "Submitter",
+    permissions: ["data_submission:view", "data_submission:create"],
+  }),
 };
 
 const baseNewBatch: Omit<NewBatch, "files" | "fileCount"> = {
@@ -86,36 +38,27 @@ const baseNewBatch: Omit<NewBatch, "files" | "fileCount"> = {
   updatedAt: "",
 };
 
-const baseBatch: Batch = {
-  _id: "",
-  displayID: 0,
-  submissionID: "",
-  type: "metadata",
-  fileCount: 0,
-  files: [],
-  status: "Uploading",
-  errors: [],
-  createdAt: "",
-  updatedAt: "",
-};
-
 type ParentProps = {
   mocks?: MockedResponse[];
   authCtx?: AuthCtxState;
-  submission?: Submission;
+  submission?: Partial<Submission>;
   children: React.ReactNode;
 };
 
 const TestParent: FC<ParentProps> = ({
   authCtx = baseAuthCtx,
-  submission = null,
+  submission = {
+    submitterID: "current-user",
+    metadataValidationStatus: undefined,
+    fileValidationStatus: undefined,
+  },
   mocks = [],
   children,
 }: ParentProps) => {
   const submissionCtx = useMemo<SubmissionCtxState>(
     () => ({
       data: {
-        getSubmission: submission,
+        getSubmission: createSubmission(submission),
         submissionStats: null,
         batchStatusList: null,
       },
@@ -142,12 +85,11 @@ describe("Accessibility", () => {
   it("should not have accessibility violations", async () => {
     const { container } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "example-accessibility-enabled-id",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -160,12 +102,11 @@ describe("Accessibility", () => {
   it("should not have accessibility violations (disabled)", async () => {
     const { container } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "example-accessibility-disabled-id",
           metadataValidationStatus: null, // NOTE: these properties disable the component
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload
@@ -186,14 +127,14 @@ describe("Accessibility", () => {
         wrapper: ({ children }) => (
           <TestParent
             mocks={[]}
-            authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
             submission={{
-              ...baseSubmission,
               _id: "id-upload-button-text",
               metadataValidationStatus: "New",
               fileValidationStatus: "New",
               dataCommons: "Test Data Common",
               modelVersion: "1.9.3",
+              submitterID: "current-user",
             }}
           >
             {children}
@@ -211,12 +152,12 @@ describe("MetadataUpload Tooltip", () => {
   it("should display tooltip on hover with correct text", async () => {
     const { findByRole, getByLabelText } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-onCreateBatch-callback",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -253,7 +194,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={null}
       >
         <MetadataUpload onCreateBatch={null} onUpload={null} readOnly />
@@ -264,12 +205,12 @@ describe("Basic Functionality", () => {
   it("should show an alert when navigating away WITH selected files", () => {
     const { getByTestId } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-navigation-alert",
           metadataValidationStatus: null,
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -288,12 +229,12 @@ describe("Basic Functionality", () => {
   it("should not show an alert when navigating away WITHOUT selected files", () => {
     render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-no-navigation-alert",
           metadataValidationStatus: null,
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -331,7 +272,7 @@ describe("Basic Functionality", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            updateBatch: { ...baseBatch },
+            updateBatch: createBatch(),
           },
         },
       },
@@ -340,12 +281,12 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-onCreateBatch-callback",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={onCreateBatchMock} onUpload={jest.fn()} />
@@ -387,7 +328,7 @@ describe("Basic Functionality", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            updateBatch: { ...baseBatch },
+            updateBatch: createBatch(),
           },
         },
       },
@@ -396,12 +337,12 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-onUpload-callback-pass",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
@@ -435,15 +376,14 @@ describe("Basic Functionality", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            updateBatch: {
-              ...baseBatch,
+            updateBatch: createBatch({
               fileCount: 1,
               files: [
                 {
                   fileName: "metadata.txt",
                 },
               ],
-            } as Batch,
+            } as Batch),
           },
         },
       },
@@ -452,12 +392,12 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-onUpload-callback-fail",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
@@ -504,12 +444,12 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-onUpload-callback-fail-batch",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
@@ -555,7 +495,7 @@ describe("Basic Functionality", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            updateBatch: { ...baseBatch },
+            updateBatch: createBatch(),
           },
         },
       },
@@ -564,12 +504,12 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-onUpload-callback-fail-create",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
@@ -603,14 +543,14 @@ describe("Implementation Requirements", () => {
         wrapper: ({ children }) => (
           <TestParent
             mocks={[]}
-            authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
             submission={{
-              ...baseSubmission,
               _id: "id-upload-button-text",
               metadataValidationStatus: "New",
               fileValidationStatus: "New",
               dataCommons: "Test Data Common",
               modelVersion: "1.9.3",
+              submitterID: "current-user",
             }}
           >
             {children}
@@ -631,12 +571,12 @@ describe("Implementation Requirements", () => {
         wrapper: ({ children }) => (
           <TestParent
             mocks={[]}
-            authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+            authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
             submission={{
-              ...baseSubmission,
               _id: "id-upload-button-text",
               metadataValidationStatus: "New",
               fileValidationStatus: "New",
+              submitterID: "current-user",
             }}
           >
             {children}
@@ -672,10 +612,9 @@ describe("Implementation Requirements", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            updateBatch: {
-              ...baseBatch,
+            updateBatch: createBatch({
               status: "Uploaded",
-            },
+            }),
           },
         },
       },
@@ -684,12 +623,12 @@ describe("Implementation Requirements", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-upload-button-text",
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -710,12 +649,12 @@ describe("Implementation Requirements", () => {
   it("should show the total count of valid files selected", async () => {
     const { getByTestId } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-file-count-test",
           metadataValidationStatus: null,
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -732,12 +671,12 @@ describe("Implementation Requirements", () => {
   it("should reset the selected files if the user uploads no files after selecting some", async () => {
     const { getByTestId } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-file-count-test",
           metadataValidationStatus: null,
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -758,12 +697,12 @@ describe("Implementation Requirements", () => {
   ])("should accept '$ext' extension for metadata files", async ({ ext, type }) => {
     const { getByTestId } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-approved-file-exts",
           metadataValidationStatus: null,
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -783,12 +722,12 @@ describe("Implementation Requirements", () => {
   ])("should not accept '$ext' extension for metadata files", async ({ ext, type }) => {
     const { getByTestId } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-blacklisted-file-exts",
           metadataValidationStatus: null,
           fileValidationStatus: null,
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
@@ -807,10 +746,9 @@ describe("Implementation Requirements", () => {
       <TestParent
         authCtx={{
           ...baseAuthCtx,
-          user: { ...baseUser, _id: "not-owner", role: "Submitter", permissions: [] },
+          user: { ...baseAuthCtx.user, _id: "not-owner", role: "Submitter", permissions: [] },
         }}
         submission={{
-          ...baseSubmission,
           _id: `readonly-for-non-owner`,
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",
@@ -830,14 +768,13 @@ describe("Implementation Requirements", () => {
         authCtx={{
           ...baseAuthCtx,
           user: {
-            ...baseUser,
+            ...baseAuthCtx.user,
             role: "Submitter",
             _id: "test-user",
             permissions: ["data_submission:view", "data_submission:create"],
           },
         }}
         submission={{
-          ...baseSubmission,
           _id: "readonly-for-non-owner",
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",
@@ -856,12 +793,12 @@ describe("Implementation Requirements", () => {
   it("should disable the Choose Files button when readOnly is true", () => {
     const { getByTestId } = render(
       <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+        authCtx={{ ...baseAuthCtx, user: { ...baseAuthCtx.user, role: "Submitter" } }}
         submission={{
-          ...baseSubmission,
           _id: "id-readonly-choose-files",
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",
+          submitterID: "current-user",
         }}
       >
         <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} readOnly />
@@ -877,14 +814,13 @@ describe("Implementation Requirements", () => {
         authCtx={{
           ...baseAuthCtx,
           user: {
-            ...baseUser,
+            ...baseAuthCtx.user,
             _id: "other-user-2",
             role: "Submitter",
             permissions: ["data_submission:view"],
           },
         }}
         submission={{
-          ...baseSubmission,
           _id: "id-readonly-choose-files",
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",
@@ -912,14 +848,13 @@ describe("Implementation Requirements", () => {
         authCtx={{
           ...baseAuthCtx,
           user: {
-            ...baseUser,
+            ...baseAuthCtx.user,
             _id: "other-user",
             role: "Submitter",
             permissions: ["data_submission:view"],
           },
         }}
         submission={{
-          ...baseSubmission,
           _id: "id-readonly-choose-files",
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",
@@ -952,14 +887,13 @@ describe("Implementation Requirements", () => {
         authCtx={{
           ...baseAuthCtx,
           user: {
-            ...baseUser,
+            ...baseAuthCtx.user,
             _id: "collaborator-user",
             role: "Submitter",
             permissions: ["data_submission:view", "data_submission:create"],
           },
         }}
         submission={{
-          ...baseSubmission,
           _id: "id-readonly-choose-files",
           metadataValidationStatus: "Passed",
           fileValidationStatus: "Passed",

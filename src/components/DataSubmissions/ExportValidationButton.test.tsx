@@ -13,6 +13,8 @@ import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   AggregatedSubmissionQCResultsResp,
 } from "../../graphql";
+import { createQCResult, createSubmission } from "../../utils/testUtils";
+import { createAggregatedQCResult } from "../../utils/testUtils/factories/aggregatedQCResultFactory";
 
 const mockDownloadBlob = jest.fn();
 
@@ -32,63 +34,6 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   </MockedProvider>
 );
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "Error",
-  fileValidationStatus: "Error",
-  crossSubmissionStatus: "Error",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseQCResult: Omit<QCResult, "submissionID"> = {
-  batchID: "",
-  type: "",
-  validationType: "metadata",
-  severity: "Error",
-  displayID: 0,
-  submittedID: "",
-  uploadedDate: "",
-  validatedDate: "",
-  errors: [],
-  warnings: [],
-};
-
-const baseAggregatedQCResult: AggregatedQCResult = {
-  code: "ERROR-001",
-  title: "Fake Aggregated Error",
-  severity: "Error",
-  count: 25,
-};
-
 describe("ExportValidationButton (Expanded View) tests", () => {
   afterEach(() => {
     jest.resetAllMocks();
@@ -98,7 +43,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
     const { container } = render(
       <TestParent mocks={[]}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: "example-sub-id" }}
+          submission={createSubmission({ _id: "example-sub-id" })}
           fields={{}}
         />
       </TestParent>
@@ -111,7 +56,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
     const { getByTestId, findByRole } = render(
       <TestParent mocks={[]}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: "test-tooltip-id" }}
+          submission={createSubmission({ _id: "test-tooltip-id" })}
           fields={{}}
         />
       </TestParent>
@@ -150,7 +95,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
             data: {
               submissionQCResults: {
                 total: 1,
-                results: [{ ...baseQCResult, submissionID }],
+                results: [createQCResult({ submissionID })],
               },
             },
           };
@@ -160,7 +105,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton submission={createSubmission({ _id: submissionID })} fields={{}} />
       </TestParent>
     );
 
@@ -205,8 +150,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
               submissionQCResults: {
                 total: 1,
                 results: [
-                  {
-                    ...baseQCResult,
+                  createQCResult({
                     submissionID: "example-dynamic-filename-id",
                     errors: [
                       {
@@ -215,7 +159,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
                         description: "Error 01 description",
                       },
                     ],
-                  },
+                  }),
                 ],
               },
             },
@@ -230,11 +174,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
       const { getByTestId } = render(
         <TestParent mocks={mocks}>
           <ExportValidationButton
-            submission={{
-              ...baseSubmission,
+            submission={createSubmission({
               _id: "example-dynamic-filename-id",
               name: original,
-            }}
+            })}
             fields={fields}
           />
         </TestParent>
@@ -285,7 +228,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton submission={createSubmission({ _id: submissionID })} fields={{}} />
       </TestParent>
     );
 
@@ -331,27 +274,24 @@ describe("ExportValidationButton (Expanded View) tests", () => {
             submissionQCResults: {
               total: 3,
               results: [
-                {
-                  ...baseQCResult,
+                createQCResult({
                   errors: qcErrors,
                   warnings: qcWarnings,
                   submissionID,
                   displayID: 1,
-                },
-                {
-                  ...baseQCResult,
+                }),
+                createQCResult({
                   errors: qcErrors,
                   warnings: qcWarnings,
                   submissionID,
                   displayID: 2,
-                },
-                {
-                  ...baseQCResult,
+                }),
+                createQCResult({
                   errors: qcErrors,
                   warnings: qcWarnings,
                   submissionID,
                   displayID: 3,
-                },
+                }),
               ],
             },
           },
@@ -369,7 +309,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
+          submission={createSubmission({ _id: submissionID })}
           fields={fields}
         />
       </TestParent>
@@ -406,7 +346,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton submission={createSubmission({ _id: submissionID })} fields={{}} />
       </TestParent>
     );
 
@@ -446,7 +386,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton submission={createSubmission({ _id: submissionID })} fields={{}} />
       </TestParent>
     );
 
@@ -495,7 +435,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton submission={createSubmission({ _id: submissionID })} fields={{}} />
       </TestParent>
     );
 
@@ -540,8 +480,8 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
               aggregatedSubmissionQCResults: {
                 total: 2,
                 results: [
-                  { ...baseAggregatedQCResult, code: "E001" },
-                  { ...baseAggregatedQCResult, code: "W002" },
+                  createAggregatedQCResult({ code: "E001" }),
+                  createAggregatedQCResult({ code: "W002" }),
                 ],
               },
             },
@@ -553,7 +493,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={createSubmission({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />
@@ -596,7 +536,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={createSubmission({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />
@@ -634,8 +574,8 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
             aggregatedSubmissionQCResults: {
               total: 2,
               results: [
-                { ...baseAggregatedQCResult, title: "Duplicate Errors" },
-                { ...baseAggregatedQCResult, code: "WARN-999" },
+                createAggregatedQCResult({ title: "Duplicate Errors" }),
+                createAggregatedQCResult({ code: "WARN-999" }),
               ],
             },
           },
@@ -652,7 +592,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID, name: "my aggregator" }}
+          submission={createSubmission({ _id: aggregatorID, name: "my aggregator" })}
           fields={fields}
           isAggregated
         />
@@ -693,7 +633,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={createSubmission({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />
@@ -734,7 +674,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={createSubmission({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />

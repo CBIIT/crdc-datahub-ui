@@ -5,6 +5,7 @@ import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import SubmittedDataFilters from "./SubmittedDataFilters";
 import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
+import { createSubmissionStatistic } from "../../utils/testUtils";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -22,15 +23,6 @@ describe("SubmittedDataFilters cases", () => {
     jest.clearAllTimers();
     jest.useRealTimers();
   });
-
-  const baseStatistic: SubmissionStatistic = {
-    nodeName: "",
-    total: 0,
-    new: 0,
-    passed: 0,
-    warning: 0,
-    error: 0,
-  };
 
   it("should not have accessibility violations", async () => {
     const { container } = render(
@@ -84,9 +76,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "N-3", total: 1 },
-                { ...baseStatistic, nodeName: "N-1", total: 3 },
-                { ...baseStatistic, nodeName: "N-2", total: 2 },
+                createSubmissionStatistic({ nodeName: "N-3", total: 1 }),
+                createSubmissionStatistic({ nodeName: "N-1", total: 3 }),
+                createSubmissionStatistic({ nodeName: "N-2", total: 2 }),
               ],
             },
           },
@@ -134,9 +126,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "SECOND", total: 3 },
-                { ...baseStatistic, nodeName: "THIRD", total: 999 },
-                { ...baseStatistic, nodeName: "FIRST", total: 1 },
+                createSubmissionStatistic({ nodeName: "SECOND", total: 3 }),
+                createSubmissionStatistic({ nodeName: "THIRD", total: 999 }),
+                createSubmissionStatistic({ nodeName: "FIRST", total: 1 }),
               ],
             },
           },
@@ -168,9 +160,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "Participant", total: 3 },
-                { ...baseStatistic, nodeName: "Data File", total: 2 },
-                { ...baseStatistic, nodeName: "Sample", total: 1 },
+                createSubmissionStatistic({ nodeName: "Participant", total: 3 }),
+                createSubmissionStatistic({ nodeName: "Data File", total: 2 }),
+                createSubmissionStatistic({ nodeName: "Sample", total: 1 }),
               ],
             },
           },
@@ -207,9 +199,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "NODE_NAME", total: 1 },
-                { ...baseStatistic, nodeName: "Upper_Case", total: 1 },
-                { ...baseStatistic, nodeName: "lower_case", total: 1 },
+                createSubmissionStatistic({ nodeName: "NODE_NAME", total: 1 }),
+                createSubmissionStatistic({ nodeName: "Upper_Case", total: 1 }),
+                createSubmissionStatistic({ nodeName: "lower_case", total: 1 }),
               ],
             },
           },
@@ -246,9 +238,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                createSubmissionStatistic({ nodeName: "enrollment", total: 3 }),
+                createSubmissionStatistic({ nodeName: "sample", total: 2 }),
+                createSubmissionStatistic({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -293,9 +285,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                createSubmissionStatistic({ nodeName: "enrollment", total: 3 }),
+                createSubmissionStatistic({ nodeName: "sample", total: 2 }),
+                createSubmissionStatistic({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -337,9 +329,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                createSubmissionStatistic({ nodeName: "enrollment", total: 3 }),
+                createSubmissionStatistic({ nodeName: "sample", total: 2 }),
+                createSubmissionStatistic({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -386,9 +378,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                createSubmissionStatistic({ nodeName: "enrollment", total: 3 }),
+                createSubmissionStatistic({ nodeName: "sample", total: 2 }),
+                createSubmissionStatistic({ nodeName: "study", total: 1 }),
               ],
             },
           },

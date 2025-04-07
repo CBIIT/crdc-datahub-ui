@@ -2,21 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import StudyTooltip from "./StudyTooltip";
-
-const baseStudy: ApprovedStudy = {
-  _id: "",
-  originalOrg: "",
-  studyName: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  controlledAccess: false,
-  openAccess: false,
-  PI: "",
-  ORCID: "",
-  primaryContact: null,
-  programs: [],
-  createdAt: "",
-};
+import { createApprovedStudy } from "../../../utils/testUtils";
 
 describe("Accessibility", () => {
   it("should not have any violations (no studies)", async () => {
@@ -38,8 +24,8 @@ describe("Accessibility", () => {
       <StudyTooltip
         _id="accessibility-test"
         studies={[
-          { ...baseStudy, studyName: "Study Name", studyAbbreviation: "SN" },
-          { ...baseStudy, studyName: "Study Name 2", studyAbbreviation: "SN2" },
+          createApprovedStudy({ studyName: "Study Name", studyAbbreviation: "SN" }),
+          createApprovedStudy({ studyName: "Study Name 2", studyAbbreviation: "SN2" }),
         ]}
       />
     );
@@ -59,7 +45,7 @@ describe("Basic Functionality", () => {
     const { getByTestId, getByRole, queryByRole } = render(
       <StudyTooltip
         _id="basic-test"
-        studies={[{ ...baseStudy, studyName: "Study Name", studyAbbreviation: "SN" }]}
+        studies={[createApprovedStudy({ studyName: "Study Name", studyAbbreviation: "SN" })]}
       />
     );
 
@@ -83,10 +69,10 @@ describe("Implementation Requirements", () => {
       <StudyTooltip
         _id="implementation-test"
         studies={[
-          { ...baseStudy, studyName: "Study Name", studyAbbreviation: "SN" },
-          { ...baseStudy, studyName: "Study Name 2", studyAbbreviation: "SN2" },
-          { ...baseStudy, studyName: "Study Name 3", studyAbbreviation: "SN3" },
-          { ...baseStudy, studyName: "Study Name 4", studyAbbreviation: "SN4" },
+          createApprovedStudy({ studyName: "Study Name", studyAbbreviation: "SN" }),
+          createApprovedStudy({ studyName: "Study Name 2", studyAbbreviation: "SN2" }),
+          createApprovedStudy({ studyName: "Study Name 3", studyAbbreviation: "SN3" }),
+          createApprovedStudy({ studyName: "Study Name 4", studyAbbreviation: "SN4" }),
         ]}
       />
     );
@@ -96,10 +82,10 @@ describe("Implementation Requirements", () => {
 
   it("should contain the full list of studies in the tooltip", async () => {
     const studies = [
-      { ...baseStudy, studyName: "Study Name", studyAbbreviation: "SN" },
-      { ...baseStudy, studyName: "Study Name 2", studyAbbreviation: "SN2" },
-      { ...baseStudy, studyName: "Study Name 3", studyAbbreviation: "SN3" },
-      { ...baseStudy, studyName: "Study Name 4", studyAbbreviation: "SN4" },
+      createApprovedStudy({ studyName: "Study Name", studyAbbreviation: "SN" }),
+      createApprovedStudy({ studyName: "Study Name 2", studyAbbreviation: "SN2" }),
+      createApprovedStudy({ studyName: "Study Name 3", studyAbbreviation: "SN3" }),
+      createApprovedStudy({ studyName: "Study Name 4", studyAbbreviation: "SN4" }),
     ];
 
     const { getByTestId, getByRole } = render(

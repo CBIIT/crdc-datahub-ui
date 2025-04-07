@@ -18,6 +18,7 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import { createUser } from "../../utils/testUtils";
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
@@ -67,21 +68,6 @@ const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
   },
 ];
 
-const baseUser: Omit<User, "role"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  dataCommons: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:create"],
-  notifications: [],
-};
-
 const baseAuthCtx: AuthCtxState = {
   status: AuthStatus.LOADED,
   isLoggedIn: false,
@@ -115,7 +101,12 @@ describe("Basic Functionality", () => {
 
   it("renders dialog and form inputs correctly", async () => {
     const { getByText, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({ role: "Submitter", permissions: ["data_submission:create"] }),
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -147,7 +138,11 @@ describe("Basic Functionality", () => {
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+          user: createUser({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: ["data_submission:create"],
+          }),
         }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -210,7 +205,11 @@ describe("Basic Functionality", () => {
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+          user: createUser({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: ["data_submission:create"],
+          }),
         }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -266,7 +265,11 @@ describe("Basic Functionality", () => {
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+          user: createUser({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: ["data_submission:create"],
+          }),
         }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -331,7 +334,11 @@ describe("Basic Functionality", () => {
         mocks={mocks}
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+          user: createUser({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: ["data_submission:create"],
+          }),
         }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -413,7 +420,11 @@ describe("Basic Functionality", () => {
         mocks={mocks}
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+          user: createUser({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: ["data_submission:create"],
+          }),
         }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -476,7 +487,11 @@ describe("Basic Functionality", () => {
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
+          user: createUser({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: ["data_submission:create"],
+          }),
         }}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
@@ -523,7 +538,12 @@ describe("Basic Functionality", () => {
 
   it("sets dataType to 'Metadata and Data Files' when intention is 'New/Update'", async () => {
     const { getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({ role: "Submitter", permissions: ["data_submission:create"] }),
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -554,7 +574,12 @@ describe("Basic Functionality", () => {
 
   it("sets dataType to 'Metadata Only' when intention is 'Delete'", async () => {
     const { getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({ role: "Submitter", permissions: ["data_submission:create"] }),
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -585,7 +610,12 @@ describe("Basic Functionality", () => {
 
   it("sets studyID to an empty string when not provided", async () => {
     const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({ role: "Submitter", permissions: ["data_submission:create"] }),
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -609,7 +639,12 @@ describe("Basic Functionality", () => {
 
   it("sets name to an empty string when not provided", async () => {
     const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({ role: "Submitter", permissions: ["data_submission:create"] }),
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -635,7 +670,12 @@ describe("Basic Functionality", () => {
 
   it("closes the dialog when the close button is clicked", async () => {
     const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={{
+          ...baseAuthCtx,
+          user: createUser({ role: "Submitter", permissions: ["data_submission:create"] }),
+        }}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -672,7 +712,11 @@ describe("Basic Functionality", () => {
           <TestParent
             authCtxState={{
               ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: baseStudies },
+              user: createUser({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: ["data_submission:create"],
+              }),
             }}
             {...p}
           />
@@ -743,7 +787,11 @@ describe("Implementation Requirements", () => {
             mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+              user: createUser({
+                role: "Submitter",
+                studies: ApprovedStudyNoDbGaPID,
+                permissions: ["data_submission:create"],
+              }),
             }}
             {...p}
           />
@@ -798,7 +846,11 @@ describe("Implementation Requirements", () => {
             mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+              user: createUser({
+                role: "Submitter",
+                studies: ApprovedStudyNoDbGaPID,
+                permissions: ["data_submission:create"],
+              }),
             }}
             {...p}
           />
@@ -871,7 +923,11 @@ describe("Implementation Requirements", () => {
             mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+              user: createUser({
+                role: "Submitter",
+                studies: ApprovedStudyNoDbGaPID,
+                permissions: ["data_submission:create"],
+              }),
             }}
             {...p}
           />
@@ -939,7 +995,11 @@ describe("Implementation Requirements", () => {
             mocks={[]}
             authCtxState={{
               ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+              user: createUser({
+                role: "Submitter",
+                studies: ApprovedStudyNoDbGaPID,
+                permissions: ["data_submission:create"],
+              }),
             }}
             {...p}
           />
@@ -1024,7 +1084,10 @@ describe("Implementation Requirements", () => {
         wrapper: (p) => (
           <TestParent
             mocks={[listApprovedStudiesMock]}
-            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+            authCtxState={{
+              ...baseAuthCtx,
+              user: createUser({ role, permissions: ["data_submission:create"] }),
+            }}
             {...p}
           />
         ),
@@ -1072,8 +1135,7 @@ describe("Implementation Requirements", () => {
           mocks={[listApprovedStudiesMock]}
           authCtxState={{
             ...baseAuthCtx,
-            user: {
-              ...baseUser,
+            user: createUser({
               role: "Federal Lead",
               studies: [
                 {
@@ -1084,7 +1146,8 @@ describe("Implementation Requirements", () => {
                   controlledAccess: false,
                 },
               ],
-            },
+              permissions: ["data_submission:create"],
+            }),
           }}
           {...p}
         />
