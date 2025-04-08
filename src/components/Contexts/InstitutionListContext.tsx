@@ -78,7 +78,7 @@ export const InstitutionProvider: FC<ProviderProps> = ({
     LIST_INSTITUTIONS,
     {
       variables: {
-        status: filterInactive ? "Active" : "Inactive",
+        status: filterInactive ? "Active" : undefined,
         first: -1,
         orderBy: "name",
         sortDirection: "asc",
