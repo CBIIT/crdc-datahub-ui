@@ -98,13 +98,10 @@ export const InstitutionProvider: FC<ProviderProps> = ({
       return;
     }
 
-    const sortedData = [...data.listInstitutions.institutions].filter(
-      (v) => !!v?.name && typeof v?.name === "string"
-    );
     setState({
       status: InstitutionCtxStatus.LOADED,
       total: data.listInstitutions.total,
-      data: sortedData,
+      data: data.listInstitutions.institutions,
     });
   }, [loading, error, data]);
 
