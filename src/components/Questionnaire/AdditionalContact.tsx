@@ -89,7 +89,7 @@ const AdditionalContact: FC<Props> = ({
           label="Institution"
           name={`additionalContacts[${index}][institution]`}
           value={institution || ""}
-          options={institutionList}
+          options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0}
           required
