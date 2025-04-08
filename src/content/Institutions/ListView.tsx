@@ -9,7 +9,7 @@ import PageBannerBody from "../../components/PageBanner/PageBannerBody";
 import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
 import TruncatedText from "../../components/TruncatedText";
-import Filters, { FilterForm } from "./Filters";
+import InstitutionListFilters, { FilterForm } from "../../components/InstitutionListFilters";
 
 const StyledContainer = styled(Container)({
   marginTop: "-180px",
@@ -186,7 +186,7 @@ const ListView = () => {
       />
 
       <StyledContainer maxWidth="xl">
-        <Filters onChange={handleOnFiltersChange} />
+        <InstitutionListFilters onChange={handleOnFiltersChange} />
 
         <GenericTable
           ref={tableRef}

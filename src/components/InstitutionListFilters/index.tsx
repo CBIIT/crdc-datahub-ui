@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Box, FormControl, MenuItem, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import StyledOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
-import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 const StyledFilterContainer = styled(Box)({
   display: "flex",
@@ -46,7 +46,7 @@ type Props = {
   onChange?: (data: FilterForm) => void;
 };
 
-const Filters = ({ onChange }: Props) => {
+const InstitutionListFilters = ({ onChange }: Props) => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { watch, register, control, setValue, getValues } = useForm<FilterForm>({
     defaultValues: {
@@ -145,7 +145,7 @@ const Filters = ({ onChange }: Props) => {
               {...field}
               value={field.value}
               MenuProps={{ disablePortal: true }}
-              inputProps={{ id: "status-filter" }}
+              inputProps={{ id: "status-filter", "data-testid": "status-select-input" }}
               data-testid="status-select"
               onChange={(e) => {
                 field.onChange(e);
@@ -169,4 +169,4 @@ const Filters = ({ onChange }: Props) => {
   );
 };
 
-export default Filters;
+export default InstitutionListFilters;
