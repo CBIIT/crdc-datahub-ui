@@ -1,10 +1,17 @@
 import { DataCommons } from "./DataCommons";
 
-// NOTE: We're asserting that the DataCommons array is sorted alphabetically by name
-// at the static configuration level. This requirement is dictated by CRDCDH-1235.
-it("should be sorted alphabetically", () => {
-  const sortedDataCommons = [...DataCommons].sort((a, b) =>
-    a.displayName.localeCompare(b.displayName)
-  );
-  expect(DataCommons).toEqual(sortedDataCommons);
+describe("Data Commons Display Order", () => {
+  // Sorted alphabetically with two exceptions:
+  // GC (CDS) should always be first, and Test MDF Model should always be last
+  // Per requirements from CRDCDH-1235 superseded by CRDCDH-2609
+  it("should be sorted as GC, CCDI, CTDC, ICDC, Test MDF Model, Hidden Model", () => {
+    expect(DataCommons.map((dc) => dc.displayName)).toEqual([
+      "GC",
+      "CCDI",
+      "CTDC",
+      "ICDC",
+      "Test MDF",
+      "Hidden Model",
+    ]);
+  });
 });
