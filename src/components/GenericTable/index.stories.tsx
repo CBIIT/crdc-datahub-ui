@@ -14,6 +14,11 @@ const meta: Meta<typeof GenericTable> = {
         <Story />
       </SearchParamsProvider>
     ),
+    (Story) => (
+      <div style={{ background: "#f2f2f2" }}>
+        <Story />
+      </div>
+    ),
   ],
   tags: ["autodocs"],
 } satisfies Meta<typeof GenericTable>;
@@ -62,6 +67,9 @@ export const Table: Story = {
   },
 };
 
+/**
+ * Renders the table as empty with no data.
+ */
 export const NoData: Story = {
   args: {
     columns: exampleColumns,
@@ -71,6 +79,9 @@ export const NoData: Story = {
   },
 };
 
+/**
+ * Renders the table in a loading state
+ */
 export const Loading: Story = {
   args: {
     columns: exampleColumns,
@@ -78,5 +89,34 @@ export const Loading: Story = {
     total: 0,
     numRowsNoContent: 4,
     loading: true,
+  },
+};
+
+/**
+ * Renders the table with pagination centered.
+ */
+export const PaginationAlignment: Story = {
+  args: {
+    ...Table.args,
+    paginationPlacement: "center",
+  },
+};
+
+/**
+ * Control the position of the pagination controls in the table.
+ */
+export const PaginationPositions: Story = {
+  args: {
+    ...Table.args,
+    position: "both",
+  },
+  argTypes: {
+    position: {
+      control: {
+        type: "select",
+        options: ["top", "bottom", "both"],
+      },
+      description: "Position of the pagination controls in the table.",
+    },
   },
 };
