@@ -17,7 +17,7 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
       status: $userStatus
       role: $role
       studies: $studies
-      institution: $institution
+      institutionID: $institution
       dataCommons: $dataCommons
       permissions: $permissions
       notifications: $notifications

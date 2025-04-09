@@ -48,6 +48,7 @@ const baseUser: User = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [],
   createdAt: "",
   updateAt: "",

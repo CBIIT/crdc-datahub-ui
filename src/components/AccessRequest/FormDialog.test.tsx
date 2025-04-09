@@ -86,6 +86,7 @@ const mockUser: User = {
   role: "User",
   dataCommons: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   updateAt: "",

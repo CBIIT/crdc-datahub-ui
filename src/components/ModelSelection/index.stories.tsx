@@ -144,6 +144,7 @@ const baseUser: Omit<User, "role" | "permissions"> = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [baseSubmission.dataCommons],
   createdAt: "",
   updateAt: "",

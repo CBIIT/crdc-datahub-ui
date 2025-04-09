@@ -1,6 +1,6 @@
 import { useAuthContext } from "../components/Contexts/AuthContext";
 import { hasPermission } from "../config/AuthPermissions";
-import { RequiresStudiesAssigned } from "../config/AuthRoles";
+import { RequiresInstitutionAssigned, RequiresStudiesAssigned } from "../config/AuthRoles";
 
 /**
  * Constrains the fields that this hook supports generating states for
@@ -12,6 +12,7 @@ type EditableFields = Extends<
   | "role"
   | "userStatus"
   | "studies"
+  | "institution"
   | "dataCommons"
   | "permissions"
   | "notifications"
@@ -59,6 +60,7 @@ const useProfileFields = (
     userStatus: "READ_ONLY",
     dataCommons: "HIDDEN",
     studies: "HIDDEN",
+    institution: "HIDDEN",
     permissions: "HIDDEN",
     notifications: "HIDDEN",
   };
@@ -72,6 +74,11 @@ const useProfileFields = (
 
     // If the profile requires studies, show a textual representation of the studies field
     fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "READ_ONLY" : "HIDDEN";
+
+    // If the profile requires institution, show a textual representation of the institution field
+    fields.institution = RequiresInstitutionAssigned.includes(profileOf?.role)
+      ? "READ_ONLY"
+      : "HIDDEN";
   }
 
   // Editable for user with permission to Manage Users
@@ -81,8 +88,11 @@ const useProfileFields = (
     fields.permissions = "UNLOCKED";
     fields.notifications = "UNLOCKED";
 
-    // Editable for Admin viewing certain roles, otherwise hidden (even for a user viewing their own profile)
+    // Editable for users with manage permission
     fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";
+    fields.institution = RequiresInstitutionAssigned.includes(profileOf?.role)
+      ? "UNLOCKED"
+      : "HIDDEN";
   }
 
   // Only applies to Data Commons Personnel

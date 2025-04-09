@@ -12,6 +12,7 @@ describe("getFormMode tests based on provided requirements", () => {
     createdAt: "2023-05-01T09:23:30Z",
     updateAt: "2023-05-02T09:23:30Z",
     studies: null,
+    institution: null,
     dataCommons: [],
     permissions: [],
     notifications: [],

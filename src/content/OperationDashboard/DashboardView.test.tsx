@@ -20,6 +20,7 @@ const baseUser: Omit<User, "role" | "permissions"> = {
   createdAt: "",
   updateAt: "",
   studies: null,
+  institution: null,
   notifications: [],
 };
 

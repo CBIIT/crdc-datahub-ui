@@ -20,6 +20,7 @@ const BaseUser: User = {
   email: "",
   dataCommons: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   permissions: [],

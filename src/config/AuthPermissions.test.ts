@@ -73,6 +73,7 @@ const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User =
   email: "alice@example.com",
   dataCommons: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   updateAt: "",

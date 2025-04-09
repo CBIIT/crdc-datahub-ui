@@ -35,13 +35,6 @@ const TestParent: FC<ParentProps> = ({
       user: {
         _id: "user1",
         role: userRole,
-        organization: {
-          orgID: "Org1",
-          orgName: "Organization 1",
-          status: "Active",
-          createdAt: "",
-          updateAt: "",
-        },
         firstName: "Test",
         lastName: "User",
         userStatus: "Active",
@@ -51,6 +44,7 @@ const TestParent: FC<ParentProps> = ({
         createdAt: "",
         updateAt: "",
         studies: null,
+        institution: null,
         permissions: ["data_submission:create"],
         notifications: [],
       },
