@@ -28,7 +28,7 @@ type Props = {
 
 const PageBannerBody = ({ label, to }: Props) => (
   <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-    <StyledButton component={Link} to={to}>
+    <StyledButton component={Link} to={to} data-testid="page-banner-body-link">
       {label}
     </StyledButton>
   </StyledBannerBody>
