@@ -1,11 +1,13 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const mutation = gql`
+export const mutation: TypedDocumentNode<Response, Input> = gql`
   mutation editUser(
     $userID: ID!
     $userStatus: String
     $role: String
     $studies: [String]
+    $institution: String
     $dataCommons: [String]
     $permissions: [String]
     $notifications: [String]
@@ -15,6 +17,7 @@ export const mutation = gql`
       status: $userStatus
       role: $role
       studies: $studies
+      institution: $institution
       dataCommons: $dataCommons
       permissions: $permissions
       notifications: $notifications
@@ -28,6 +31,10 @@ export const mutation = gql`
         studyAbbreviation
         dbGaPID
         controlledAccess
+      }
+      institution {
+        _id
+        name
       }
       permissions
       notifications
@@ -44,10 +51,17 @@ export type Input = {
    * An array of studyIDs to assign to the user
    */
   studies: string[];
+  /**
+   * The `_id` of the institution to assign to the user
+   */
+  institution: string;
 } & Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications">;
 
 export type Response = {
-  editUser: Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications"> & {
+  editUser: Pick<
+    User,
+    "userStatus" | "role" | "dataCommons" | "permissions" | "notifications" | "institution"
+  > & {
     studies: Pick<
       ApprovedStudy,
       "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"

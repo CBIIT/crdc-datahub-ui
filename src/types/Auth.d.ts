@@ -33,6 +33,13 @@ type User = {
    */
   studies: Partial<ApprovedStudy>[] | null;
   /**
+   * The institution the user is associated with.
+   * Null if the user is not associated with an institution.
+   *
+   * @see {@link Institution} for available fields
+   */
+  institution: Pick<Institution, "_id" | "name"> | null;
+  /**
    * The SSO IDP used to login
    */
   IDP: "nih" | "login.gov";
