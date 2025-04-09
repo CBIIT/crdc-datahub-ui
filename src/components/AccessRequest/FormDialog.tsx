@@ -215,7 +215,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             <Controller
               name="institutionName"
               control={control}
-              rules={{ required: "This field is required" }}
+              rules={{ required: "This field is required", maxLength: 100 }}
               render={({ field }) => (
                 <StyledAutocomplete
                   {...field}
@@ -227,8 +227,12 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                   renderInput={({ inputProps, ...params }) => (
                     <TextField
                       {...params}
-                      inputProps={{ "aria-labelledby": "institution-input-label", ...inputProps }}
-                      placeholder="Enter your institution or select one from the list"
+                      inputProps={{
+                        "aria-labelledby": "institution-input-label",
+                        maxLength: 100,
+                        ...inputProps,
+                      }}
+                      placeholder="100 characters allowed"
                     />
                   )}
                   data-testid="access-request-institution-field"

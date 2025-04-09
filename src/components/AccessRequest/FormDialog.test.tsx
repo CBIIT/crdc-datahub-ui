@@ -460,6 +460,18 @@ describe("Implementation Requirements", () => {
     jest.clearAllMocks();
   });
 
+  it("should have the placeholder '100 characters allowed' for the institution field", () => {
+    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[emptyStudiesMock, emptyInstitutionsMock]}>{children}</MockParent>
+      ),
+    });
+
+    expect(
+      within(getByTestId("access-request-institution-field")).getByRole("combobox")
+    ).toHaveAttribute("placeholder", "100 characters allowed");
+  });
+
   it("should trim whitespace from the text fields before submitting", async () => {
     const mockMatcher = jest.fn().mockImplementation(() => true);
     const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
@@ -571,6 +583,58 @@ describe("Implementation Requirements", () => {
         institutionName: "mock-value",
         studies: ["study-1"],
         additionalInfo: "x".repeat(200),
+      });
+    });
+  });
+
+  it("should limit 'Institution' to 100 characters", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
+      request: {
+        query: REQUEST_ACCESS,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          requestAccess: {
+            success: true,
+            message: "Mock success",
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[institutionsMock, studiesMock, submitMock]}>{children}</MockParent>
+      ),
+    });
+
+    userEvent.type(getByTestId("access-request-institution-field"), "x".repeat(150));
+
+    const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
+    userEvent.click(studiesSelect);
+
+    await waitFor(() => {
+      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
+        "listbox",
+        {
+          hidden: true,
+        }
+      );
+      expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("studies-Study-1"));
+
+    userEvent.click(getByTestId("access-request-dialog-submit-button"));
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalledWith({
+        role: expect.any(String),
+        institutionName: "x".repeat(100), // Value is limited to 100 characters
+        studies: ["study-1"],
+        additionalInfo: "",
       });
     });
   });
