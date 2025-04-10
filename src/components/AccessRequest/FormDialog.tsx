@@ -17,13 +17,11 @@ import StyledBodyText from "../StyledDialogComponents/StyledBodyText";
 import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import { useAuthContext } from "../Contexts/AuthContext";
+import { useInstitutionList } from "../Contexts/InstitutionListContext";
 import {
   LIST_APPROVED_STUDIES,
-  LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
-  ListInstitutionsInput,
-  ListInstitutionsResp,
   REQUEST_ACCESS,
   RequestAccessInput,
   RequestAccessResp,
@@ -82,6 +80,7 @@ const RoleOptions: UserRole[] = ["Submitter"];
 const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { data: listInstitutions } = useInstitutionList();
 
   const { handleSubmit, register, control, formState } = useForm<InputForm>({
     defaultValues: {
@@ -106,23 +105,6 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
         enqueueSnackbar("Unable to retrieve approved studies list.", {
           variant: "error",
         });
-      },
-    }
-  );
-
-  const { data: listInstitutions } = useQuery<ListInstitutionsResp, ListInstitutionsInput>(
-    LIST_INSTITUTIONS,
-    {
-      variables: {
-        first: -1,
-        orderBy: "name",
-        sortDirection: "asc",
-        status: "Active",
-      },
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-first",
-      onError: (e) => {
-        Logger.error("Unable to retrieve institutions list.", e);
       },
     }
   );
@@ -219,9 +201,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
               render={({ field }) => (
                 <StyledAutocomplete
                   {...field}
-                  options={
-                    listInstitutions?.listInstitutions.institutions?.map((i) => i.name) || []
-                  }
+                  options={listInstitutions?.map((i) => i.name) || []}
                   onChange={(_, data: string) => field.onChange(data.trim())}
                   onInputChange={(_, data: string) => field.onChange(data.trim())}
                   renderInput={({ inputProps, ...params }) => (
