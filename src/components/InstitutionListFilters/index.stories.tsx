@@ -16,7 +16,7 @@ const meta: Meta<typeof InstitutionListFilters> = {
     ),
   ],
   args: {
-    onChange: () => fn(),
+    onChange: fn(),
   },
 };
 
