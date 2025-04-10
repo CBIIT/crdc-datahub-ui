@@ -545,7 +545,6 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                 <StyledField visible={fieldset.institution !== "HIDDEN"}>
                   <StyledLabel id="userInstitution">
                     Institution
-                    {/* TODO: Required? */}
                     <StyledAsterisk visible={VisibleFieldState.includes(fieldset.institution)} />
                   </StyledLabel>
                   {VisibleFieldState.includes(fieldset.institution) ? (
