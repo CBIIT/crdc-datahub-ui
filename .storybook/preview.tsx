@@ -1,13 +1,11 @@
 import React from "react";
 import type { Decorator, Preview } from "@storybook/react";
 import { MockedProvider } from "@apollo/client/testing";
-import { HelmetProvider } from "react-helmet-async";
 import { MemoryRouter } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { SnackbarProvider } from "notistack";
 import { withThemeFromJSXProvider } from "@storybook/addon-themes";
 import theme from "../src/theme";
-import { HelmetWrapper } from "../src/layouts";
 import StyledNotistackAlerts from "../src/components/StyledNotistackAlerts";
 
 const preview: Preview = {
@@ -36,10 +34,7 @@ export const decorators: Decorator[] = [
   }),
   (Story) => (
     <MemoryRouter>
-      <HelmetProvider>
-        <HelmetWrapper />
-        <Story />
-      </HelmetProvider>
+      <Story />
     </MemoryRouter>
   ),
   (Story) => (
@@ -57,7 +52,7 @@ export const decorators: Decorator[] = [
     >
       <Story />
     </SnackbarProvider>
-  )
+  ),
 ];
 
 export default preview;
