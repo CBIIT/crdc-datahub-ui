@@ -1,4 +1,4 @@
-FROM node:22.13.1-alpine3.21 AS build
+FROM node:22.14.0-alpine3.21 AS build
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ RUN NODE_OPTIONS="--max-old-space-size=4096" npm ci
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
-FROM nginx:1.25.4-alpine3.18-slim as fnl_base_image
+FROM nginx:1.27.4-alpine3.21-slim as fnl_base_image
 
 COPY --from=build /usr/src/app/build /usr/share/nginx/html
 COPY --from=build /usr/src/app/conf/inject.template.js /usr/share/nginx/html/inject.template.js

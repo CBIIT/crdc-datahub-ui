@@ -78,7 +78,7 @@ export const InstitutionProvider: FC<ProviderProps> = ({
     LIST_INSTITUTIONS,
     {
       variables: {
-        status: filterInactive ? "Active" : "Inactive",
+        status: filterInactive ? "Active" : undefined,
         first: -1,
         orderBy: "name",
         sortDirection: "asc",
@@ -98,13 +98,10 @@ export const InstitutionProvider: FC<ProviderProps> = ({
       return;
     }
 
-    const sortedData = [...data.listInstitutions.institutions].filter(
-      (v) => !!v?.name && typeof v?.name === "string"
-    );
     setState({
       status: InstitutionCtxStatus.LOADED,
       total: data.listInstitutions.total,
-      data: sortedData,
+      data: data.listInstitutions.institutions,
     });
   }, [loading, error, data]);
 
