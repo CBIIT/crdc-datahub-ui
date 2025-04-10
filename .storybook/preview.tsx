@@ -32,11 +32,15 @@ export const decorators: Decorator[] = [
     Provider: ThemeProvider,
     GlobalStyles: CssBaseline,
   }),
-  (Story) => (
-    <MemoryRouter>
-      <Story />
-    </MemoryRouter>
-  ),
+  (Story, context) => {
+    const initialEntries = context.parameters.router?.initialEntries || [{ pathname: "/" }];
+
+    return (
+      <MemoryRouter initialEntries={initialEntries}>
+        <Story />
+      </MemoryRouter>
+    );
+  },
   (Story) => (
     <SnackbarProvider
       maxSnack={3}
