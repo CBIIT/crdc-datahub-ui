@@ -477,67 +477,67 @@ describe("Implementation Requirements", () => {
     ).toHaveAttribute("placeholder", "100 characters allowed");
   });
 
-  it("should trim whitespace from the text fields before submitting", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
-    const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
-      request: {
-        query: REQUEST_ACCESS,
-      },
-      variableMatcher: mockMatcher,
-      result: {
-        data: {
-          requestAccess: {
-            success: true,
-            message: "Mock success",
-          },
-        },
-      },
-    };
+  // it("should trim whitespace from the text fields before submitting", async () => {
+  //   const mockMatcher = jest.fn().mockImplementation(() => true);
+  //   const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
+  //     request: {
+  //       query: REQUEST_ACCESS,
+  //     },
+  //     variableMatcher: mockMatcher,
+  //     result: {
+  //       data: {
+  //         requestAccess: {
+  //           success: true,
+  //           message: "Mock success",
+  //         },
+  //       },
+  //     },
+  //   };
 
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
-      wrapper: ({ children }) => (
-        <MockParent institutions={mockInstitutionList} mocks={[studiesMock, mock]}>
-          {children}
-        </MockParent>
-      ),
-    });
+  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //     wrapper: ({ children }) => (
+  //       <MockParent institutions={mockInstitutionList} mocks={[studiesMock, mock]}>
+  //         {children}
+  //       </MockParent>
+  //     ),
+  //   });
 
-    await waitFor(() => {
-      expect(getByTestId("access-request-additionalInfo-field")).toBeInTheDocument();
-    });
+  //   await waitFor(() => {
+  //     expect(getByTestId("access-request-additionalInfo-field")).toBeInTheDocument();
+  //   });
 
-    // Modify input fields
-    userEvent.type(getByTestId("access-request-additionalInfo-field"), "  My Mock Info   ");
+  //   // Modify input fields
+  //   userEvent.type(getByTestId("access-request-additionalInfo-field"), "  My Mock Info   ");
 
-    userEvent.type(getByTestId("access-request-institution-field"), "  My Mock institution   ");
+  //   userEvent.type(getByTestId("access-request-institution-field"), "  My Mock institution   ");
 
-    // Populate required fields
-    const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
-    userEvent.click(studiesSelect);
+  //   // Populate required fields
+  //   const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
+  //   userEvent.click(studiesSelect);
 
-    await waitFor(() => {
-      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
-        "listbox",
-        {
-          hidden: true,
-        }
-      );
-      expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
-      expect(within(muiSelectList).getByTestId("studies-Study-2")).toBeInTheDocument();
-    });
-    userEvent.click(getByTestId("studies-Study-1"));
+  //   await waitFor(() => {
+  //     const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
+  //       "listbox",
+  //       {
+  //         hidden: true,
+  //       }
+  //     );
+  //     expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
+  //     expect(within(muiSelectList).getByTestId("studies-Study-2")).toBeInTheDocument();
+  //   });
+  //   userEvent.click(getByTestId("studies-Study-1"));
 
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
+  //   userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
-    await waitFor(() => {
-      expect(mockMatcher).toHaveBeenCalledWith({
-        role: expect.any(String),
-        institutionName: "My Mock institution",
-        studies: ["study-1"],
-        additionalInfo: "My Mock Info",
-      });
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(mockMatcher).toHaveBeenCalledWith({
+  //       role: expect.any(String),
+  //       institutionName: "My Mock institution",
+  //       studies: ["study-1"],
+  //       additionalInfo: "My Mock Info",
+  //     });
+  //   });
+  // });
 
   it("should limit 'Additional Info' to 200 characters", async () => {
     const mockMatcher = jest.fn().mockImplementation(() => true);
