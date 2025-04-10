@@ -4,6 +4,12 @@ import { styled, Typography } from "@mui/material";
 import { formatFullStudyName } from "../../utils";
 import Tooltip from "../Tooltip";
 
+const StyledContainerTypography = styled(Typography)<{ component: React.ElementType }>({
+  wordWrap: "break-word",
+  maxWidth: "100%",
+  fontSize: "inherit",
+});
+
 const StyledList = styled("ul")({
   paddingInlineStart: 16,
   marginBlockStart: 6,
@@ -72,7 +78,7 @@ const StudyList: FC<StudyListProps> = ({ studies }: StudyListProps) => {
   }
 
   return (
-    <span>
+    <StyledContainerTypography component="span">
       {studies[0].studyAbbreviation || studies[0].studyName}
       {studies.length > 1 && (
         <>
@@ -90,7 +96,7 @@ const StudyList: FC<StudyListProps> = ({ studies }: StudyListProps) => {
           </Tooltip>
         </>
       )}
-    </span>
+    </StyledContainerTypography>
   );
 };
 
