@@ -18,6 +18,7 @@ const ModelNavigator = LazyLoader(lazy(() => import("./content/ModelNavigator/Co
 const ReleaseNotes = LazyLoader(lazy(() => import("./content/ReleaseNotes/Controller")));
 const Organizations = LazyLoader(lazy(() => import("./content/organizations/Controller")));
 const Studies = LazyLoader(lazy(() => import("./content/studies/Controller")));
+const Institutions = LazyLoader(lazy(() => import("./content/Institutions/Controller")));
 const Status404 = LazyLoader(lazy(() => import("./content/status/Page404")));
 const OperationDashboard = LazyLoader(
   lazy(() => import("./content/OperationDashboard/Controller"))
@@ -121,6 +122,26 @@ const routes: RouteObject[] = [
             component={<Studies />}
             redirectPath="/studies"
             redirectName="Studies Management"
+          />
+        ),
+      },
+      {
+        path: "/institutions",
+        element: (
+          <RequireAuth
+            component={<Institutions />}
+            redirectPath="/institutions"
+            redirectName="Institution Management"
+          />
+        ),
+      },
+      {
+        path: "/institution/:institutionId?",
+        element: (
+          <RequireAuth
+            component={<Institutions />}
+            redirectPath="/institutions"
+            redirectName="Institution Management"
           />
         ),
       },

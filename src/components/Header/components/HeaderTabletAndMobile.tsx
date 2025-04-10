@@ -181,6 +181,13 @@ const Header = () => {
       permissions: ["program:manage"],
     },
     {
+      name: "Manage Institutions",
+      link: "/institutions",
+      id: "navbar-dropdown-item-institution-manage",
+      className: "navMobileSubItem",
+      permissions: ["institution:manage"],
+    },
+    {
       name: "Manage Users",
       link: "/users",
       id: "navbar-dropdown-item-user-manage",

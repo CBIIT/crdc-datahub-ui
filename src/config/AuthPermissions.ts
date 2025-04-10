@@ -48,6 +48,10 @@ type Permissions = {
     dataType: null;
     action: "manage";
   };
+  institution: {
+    dataType: null;
+    action: "manage";
+  };
 };
 
 export const PERMISSION_MAP = {
@@ -199,6 +203,9 @@ export const PERMISSION_MAP = {
     manage: NO_CONDITIONS,
   },
   study: {
+    manage: NO_CONDITIONS,
+  },
+  institution: {
     manage: NO_CONDITIONS,
   },
 } as const satisfies PermissionMap;
