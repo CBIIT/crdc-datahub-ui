@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query getUser($userID: ID!) {
     getUser(userID: $userID) {
       _id
@@ -13,6 +14,7 @@ export const query = gql`
       createdAt
       updateAt
       dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName

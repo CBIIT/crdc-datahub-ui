@@ -116,8 +116,8 @@ const columns: Column<T>[] = [
   },
   {
     label: "Data Commons",
-    renderValue: (a) => a.dataCommons,
-    field: "dataCommons",
+    renderValue: (a) => a.dataCommonsDisplayName,
+    field: "dataCommonsDisplayName",
     hideable: true,
     sx: {
       width: "94px",
@@ -243,6 +243,7 @@ const ListingView: FC = () => {
   const [organizations, setOrganizations] = useState<Pick<Organization, "_id" | "name">[]>([]);
   const [submitterNames, setSubmitterNames] = useState<string[]>([]);
   const [dataCommons, setDataCommons] = useState<string[]>([]);
+  const [dataCommonsDisplayNames, setDataCommonsDisplayNames] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>({ ...defaultValues });
@@ -301,6 +302,9 @@ const ListingView: FC = () => {
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
+      setDataCommonsDisplayNames(
+        d.listSubmissions.dataCommonsDisplayNames?.filter((dc) => !!dc.trim())
+      );
       setTotalData(d.listSubmissions.total);
     } catch (err) {
       Logger.error("Error while fetching Data Submission list", err);
@@ -330,6 +334,9 @@ const ListingView: FC = () => {
       );
       setSubmitterNames(d.listSubmissions.submitterNames?.filter((sn) => !!sn.trim()));
       setDataCommons(d.listSubmissions.dataCommons?.filter((dc) => !!dc.trim()));
+      setDataCommonsDisplayNames(
+        d.listSubmissions.dataCommonsDisplayNames?.filter((dc) => !!dc.trim())
+      );
       setTotalData(d.listSubmissions.total);
     } catch (err) {
       Logger.error("Error updating the Data Submission list", err);
@@ -377,6 +384,7 @@ const ListingView: FC = () => {
             organizations={organizations}
             submitterNames={submitterNames}
             dataCommons={dataCommons}
+            dataCommonsDisplayNames={dataCommonsDisplayNames}
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={setColumnVisibilityModel}
             onChange={handleOnFiltersChange}

@@ -29,6 +29,7 @@ const baseApplication: Application = {
 const baseSubmission: Submission = {
   _id: "submission-1",
   dataCommons: "commons-1",
+  dataCommonsDisplayName: "commons-1",
   studyID: "study-1",
   submitterID: "owner-123",
   collaborators: [],
@@ -71,6 +72,7 @@ const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User =
   lastName: "Smith",
   email: "alice@example.com",
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   studies: [],
   IDP: "nih",
   userStatus: "Active",
