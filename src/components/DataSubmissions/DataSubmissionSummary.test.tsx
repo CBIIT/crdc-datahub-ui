@@ -34,6 +34,7 @@ const baseUser: User = {
   email: "",
   studies: null,
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   createdAt: "",
   updateAt: "",
   permissions: ["data_submission:view"],
@@ -130,6 +131,7 @@ describe("Basic Functionality", () => {
       ],
       studyAbbreviation: "AAAAAAAAAAAAAAAAA",
       dataCommons: "Test Commons AAAAAA",
+      dataCommonsDisplayName: "A Display Name of TC AAAAAA",
       organization: {
         _id: "",
         name: "Test Program AAAAAA",
@@ -159,7 +161,7 @@ describe("Basic Functionality", () => {
     expect(getByText("Test Intention AAAAAA")).toBeVisible(); // Not truncated
     expect(getByText("Submitter Test A...")).toBeVisible();
     expect(getByText("AAAAAAAAAAAAAAAA...")).toBeVisible();
-    expect(getByText("Test Commons AAAAAA")).toBeVisible(); // Not truncated
+    expect(getByText("A Display Name of TC AAAAAA")).toBeVisible(); // Not truncated
     expect(getByText("Test Program AAA...")).toBeVisible();
     expect(getByText("Test Concierge A...")).toBeVisible();
 

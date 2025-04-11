@@ -46,7 +46,7 @@ const meta: Meta<CustomStoryProps> = {
 
       return (
         <ErrorBoundary key={`${context.args.tier}-${context.args.model}-${context.args.version}`}>
-          <DataCommonProvider DataCommon={context.args.model}>
+          <DataCommonProvider displayName={context.args.model}>
             <Story />
           </DataCommonProvider>
         </ErrorBoundary>

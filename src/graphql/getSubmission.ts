@@ -12,6 +12,7 @@ export const query = gql`
         name
       }
       dataCommons
+      dataCommonsDisplayName
       modelVersion
       studyID
       studyAbbreviation

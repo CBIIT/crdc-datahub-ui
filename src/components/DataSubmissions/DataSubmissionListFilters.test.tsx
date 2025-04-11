@@ -48,6 +48,7 @@ const TestParent: FC<ParentProps> = ({
         IDP: "login.gov",
         email: "test@example.com",
         dataCommons: [],
+        dataCommonsDisplayNames: [],
         createdAt: "",
         updateAt: "",
         studies: null,
@@ -105,6 +106,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -125,6 +127,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -155,6 +158,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -183,6 +187,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -221,6 +226,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -246,6 +252,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -360,6 +367,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -388,6 +396,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -424,6 +433,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -454,6 +464,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -490,6 +501,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -528,6 +540,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -570,6 +583,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -614,6 +628,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -658,6 +673,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -689,6 +705,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -732,6 +749,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -765,6 +783,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={[]} // Empty dataCommons
+          dataCommonsDisplayNames={[]}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -809,6 +828,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={["DataCommon1", "DataCommon2"]} // Non-empty dataCommons
+          dataCommonsDisplayNames={["DataCommon1", "DataCommon2"]}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -853,6 +873,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={[]} // Empty submitterNames
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -891,6 +912,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={["Submitter1", "Submitter2"]} // Non-empty submitterNames
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -935,6 +957,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={[]}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -969,6 +992,7 @@ describe("DataSubmissionListFilters Component", () => {
           organizations={organizations}
           submitterNames={submitterNames}
           dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommons}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
           onChange={mockOnChange}
@@ -997,6 +1021,57 @@ describe("DataSubmissionListFilters Component", () => {
       expect(mockOnChange).toHaveBeenCalledWith(
         expect.objectContaining({
           organization: "Org1",
+        })
+      );
+    });
+  });
+
+  it("should use the dataCommonsDisplayName visually for the dataCommons select", async () => {
+    const mockOnChange = jest.fn();
+    const mockOnColumnVisibilityModelChange = jest.fn();
+
+    const dataCommons = ["DataCommon1", "DataCommon2"];
+    const dataCommonsDisplayNames = ["Display Name 1", "Display Name 2"];
+
+    const { getByTestId, getByText, getByRole } = render(
+      <TestParent>
+        <DataSubmissionListFilters
+          columns={columns}
+          organizations={organizations}
+          submitterNames={submitterNames}
+          dataCommons={dataCommons}
+          dataCommonsDisplayNames={dataCommonsDisplayNames}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={mockOnColumnVisibilityModelChange}
+          onChange={mockOnChange}
+        />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("data-commons-select-input")).toHaveValue("All");
+    });
+
+    const dataCommonsSelect = within(getByTestId("data-commons-select")).getByRole("button");
+    userEvent.click(dataCommonsSelect);
+
+    const dataCommonsList = within(getByRole("listbox", { hidden: true }));
+
+    await waitFor(() => {
+      expect(dataCommonsList.getByText("Display Name 1")).toBeInTheDocument();
+      expect(dataCommonsList.getByText("Display Name 2")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByText("Display Name 1"));
+
+    await waitFor(() => {
+      expect(getByTestId("data-commons-select-input")).toHaveValue("DataCommon1");
+    });
+
+    await waitFor(() => {
+      expect(mockOnChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dataCommons: "DataCommon1",
         })
       );
     });
