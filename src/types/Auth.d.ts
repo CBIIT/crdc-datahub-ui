@@ -26,12 +26,25 @@ type User = {
    */
   dataCommons: string[];
   /**
+   * List of display names for the data commons that the user has access to
+   *
+   * @note {@link User.dataCommons}[idx] corresponds to {@link User.dataCommonsDisplayNames}[idx].
+   */
+  dataCommonsDisplayNames: string[];
+  /**
    * List of ApprovedStudies that the user has access to
    *
    * @note Not all APIs populate this field fully, refer to the GraphQL query for available fields
    * @see {@link ApprovedStudy} for available fields
    */
   studies: Partial<ApprovedStudy>[] | null;
+  /**
+   * The institution the user is associated with.
+   * Null if the user is not associated with an institution.
+   *
+   * @see {@link Institution} for available fields
+   */
+  institution: Pick<Institution, "_id" | "name"> | null;
   /**
    * The SSO IDP used to login
    */

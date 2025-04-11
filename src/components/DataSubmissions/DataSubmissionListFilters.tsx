@@ -118,6 +118,7 @@ type Props = {
   organizations: Pick<Organization, "_id" | "name">[];
   submitterNames: string[];
   dataCommons: string[];
+  dataCommonsDisplayNames: string[];
   columnVisibilityModel: ColumnVisibilityModel;
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
   onChange?: (data: FilterForm) => void;
@@ -128,6 +129,7 @@ const DataSubmissionListFilters = ({
   organizations,
   submitterNames,
   dataCommons,
+  dataCommonsDisplayNames,
   columnVisibilityModel,
   onColumnVisibilityModelChange,
   onChange,
@@ -459,9 +461,9 @@ const DataSubmissionListFilters = ({
                     <MenuItem value="All" data-testid="data-commons-option-All">
                       All
                     </MenuItem>
-                    {dataCommons?.map((dc) => (
+                    {dataCommons?.map((dc, index) => (
                       <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
-                        {dc}
+                        {dataCommonsDisplayNames?.[index]}
                       </MenuItem>
                     ))}
                   </StyledSelect>

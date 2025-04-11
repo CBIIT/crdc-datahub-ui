@@ -1,14 +1,20 @@
 type DataCommon = {
   /**
-   * The user-friendly name of the Data Common.
+   * The unique identifier for the Data Common.
    *
-   * Note:
-   * - This should appear in `DataModelManifest` as the key.
-   * - If this does not exist there, an error will be thrown.
+   * @note This value should be appear in the models repository as the key for the
+   * configuration in the manifest file.
    *
-   * @example "CDS"
+   * If not present, an error will be thrown when trying to load Model Navigator.
+   *
+   * @todo Rename this to `_id` in the future to align with other identifiers in the system.
+   * @see {@link DataCommon.displayName} for the human-readable name.
    */
   name: string;
+  /**
+   * The display name for the Data Common. This must be used visually in the UI.
+   */
+  displayName: string;
   /**
    * The Data Common assets.
    *

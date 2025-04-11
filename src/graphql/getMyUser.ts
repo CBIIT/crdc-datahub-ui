@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response> = gql`
   query getMyUser {
     getMyUser {
       _id
@@ -11,12 +12,17 @@ export const query = gql`
       IDP
       email
       dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName
         studyAbbreviation
         dbGaPID
         controlledAccess
+      }
+      institution {
+        _id
+        name
       }
       permissions
       notifications

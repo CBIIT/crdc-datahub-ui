@@ -102,7 +102,7 @@ const InstitutionListFilters = ({ onChange }: Props) => {
       newSearchParams.delete("status");
     }
 
-    if (nameFilter && nameFilter.length >= 0) {
+    if (nameFilter) {
       newSearchParams.set("name", nameFilter);
     } else {
       newSearchParams.delete("name");

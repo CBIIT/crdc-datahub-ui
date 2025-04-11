@@ -15,7 +15,9 @@ const TestParent: React.FC<TestParentProps> = ({ children }) => (
 describe("Accessibility", () => {
   it("should not have any violations", async () => {
     const { container, getByTestId } = render(
-      <NavigatorLink submission={{ status: "New", dataCommons: "test", modelVersion: "1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status: "New", dataCommonsDisplayName: "test", modelVersion: "1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -27,7 +29,9 @@ describe("Accessibility", () => {
 
   it("should not have any violations when disabled", async () => {
     const { container, getByTestId } = render(
-      <NavigatorLink submission={{ status: "Canceled", dataCommons: "", modelVersion: "" }} />, // Disabled by invalid status and empty props
+      <NavigatorLink
+        submission={{ status: "Canceled", dataCommonsDisplayName: "", modelVersion: "" }}
+      />, // Disabled by invalid status and empty props
       {
         wrapper: TestParent,
       }
@@ -41,7 +45,9 @@ describe("Accessibility", () => {
 describe("Basic Functionality", () => {
   it("should prepend a 'v' to the version if it is missing", () => {
     const { getByText } = render(
-      <NavigatorLink submission={{ status: "New", dataCommons: "test", modelVersion: "1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status: "New", dataCommonsDisplayName: "test", modelVersion: "1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -52,7 +58,9 @@ describe("Basic Functionality", () => {
 
   it("should not prepend a 'v' to the version if it is present already", () => {
     const { getByText } = render(
-      <NavigatorLink submission={{ status: "New", dataCommons: "test", modelVersion: "v1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status: "New", dataCommonsDisplayName: "test", modelVersion: "v1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -71,7 +79,9 @@ describe("Basic Functionality", () => {
 
   it("should not generate a link with invalid dependent props", () => {
     const { getByTestId, rerender } = render(
-      <NavigatorLink submission={{ status: "New", dataCommons: "", modelVersion: "1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status: "New", dataCommonsDisplayName: "", modelVersion: "1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -81,7 +91,7 @@ describe("Basic Functionality", () => {
 
     rerender(
       <NavigatorLink
-        submission={{ status: "In Progress", dataCommons: "valid", modelVersion: "" }}
+        submission={{ status: "In Progress", dataCommonsDisplayName: "valid", modelVersion: "" }}
       />
     );
 
@@ -92,7 +102,9 @@ describe("Basic Functionality", () => {
 describe("Implementation Requirements", () => {
   it("should render a hyperlink with the correct href", () => {
     const { getByTestId } = render(
-      <NavigatorLink submission={{ status: "New", dataCommons: "test", modelVersion: "1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status: "New", dataCommonsDisplayName: "test", modelVersion: "1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -103,7 +115,9 @@ describe("Implementation Requirements", () => {
 
   it("should render a hyperlink with a target of '_blank'", () => {
     const { getByTestId } = render(
-      <NavigatorLink submission={{ status: "New", dataCommons: "test", modelVersion: "1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status: "New", dataCommonsDisplayName: "test", modelVersion: "1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -122,7 +136,9 @@ describe("Implementation Requirements", () => {
     "Rejected",
   ])("should be enabled when the status is %s", (status) => {
     const { getByTestId } = render(
-      <NavigatorLink submission={{ status, dataCommons: "test", modelVersion: "1.0.0" }} />,
+      <NavigatorLink
+        submission={{ status, dataCommonsDisplayName: "test", modelVersion: "1.0.0" }}
+      />,
       {
         wrapper: TestParent,
       }
@@ -135,7 +151,9 @@ describe("Implementation Requirements", () => {
     "should be disabled when the status is %s",
     (status) => {
       const { getByTestId } = render(
-        <NavigatorLink submission={{ status, dataCommons: "test", modelVersion: "1.0.0" }} />,
+        <NavigatorLink
+          submission={{ status, dataCommonsDisplayName: "test", modelVersion: "1.0.0" }}
+        />,
         {
           wrapper: TestParent,
         }

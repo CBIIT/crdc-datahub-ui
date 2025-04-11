@@ -24,7 +24,7 @@ type Props = {
 };
 
 const TestParent: FC<Props> = ({ dc, children }: Props) => (
-  <DataCommonProvider DataCommon={dc}>{children ?? <TestChild />}</DataCommonProvider>
+  <DataCommonProvider displayName={dc}>{children ?? <TestChild />}</DataCommonProvider>
 );
 
 jest.mock("../../utils", () => ({
@@ -70,7 +70,7 @@ describe("DataCommonContext > DataCommonProvider Tests", () => {
   });
 
   it("should set a error state if the manifest cannot be fetched", async () => {
-    const { getByTestId } = render(<TestParent dc={DataCommons?.[0].name} />);
+    const { getByTestId } = render(<TestParent dc={DataCommons?.[0].displayName} />);
     await waitFor(() => expect(getByTestId("status")).toHaveTextContent(DCStatus.ERROR));
     expect(getByTestId("error-message")).toHaveTextContent(
       `Unable to fetch manifest for ${DataCommons?.[0].name}`

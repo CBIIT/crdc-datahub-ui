@@ -18,6 +18,11 @@ export const Roles: UserRole[] = [
 export const RequiresStudiesAssigned: UserRole[] = ["Submitter", "Federal Lead"];
 
 /**
+ * A set of roles that must have an institution assigned.
+ */
+export const RequiresInstitutionAssigned: UserRole[] = ["Submitter"];
+
+/**
  * A set of roles that are allowed to delete other users' submission requests.
  */
 export const CanDeleteOtherSubmissionRequests: UserRole[] = [

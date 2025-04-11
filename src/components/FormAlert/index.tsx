@@ -11,6 +11,13 @@ type Props = {
   error?: string;
 };
 
+/**
+ * Displays an alert with an error message if a location state alert exists or
+ * an error prop is provided
+ *
+ * @param {Props} props
+ * @returns {JSX.Element | null} The error alert or null if no error is present
+ */
 const FormAlert = ({ error }: Props) => {
   const { state } = useLocation();
 
