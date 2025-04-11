@@ -4,8 +4,11 @@ import { within } from "@storybook/testing-library";
 import Dialog from "./index";
 import {
   LIST_APPROVED_STUDIES,
+  LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
 } from "../../graphql";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import { Roles } from "../../config/AuthRoles";
@@ -66,6 +69,40 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
   variableMatcher: () => true,
 };
 
+const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
+  request: {
+    query: LIST_INSTITUTIONS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listInstitutions: {
+        total: 3,
+        institutions: [
+          {
+            _id: "institution-1",
+            name: "Institution 1",
+            status: "Active",
+            submitterCount: 0,
+          },
+          {
+            _id: "institution-2",
+            name: "Institution 2",
+            status: "Active",
+            submitterCount: 5,
+          },
+          {
+            _id: "institution-3",
+            name: "Institution 3",
+            status: "Active",
+            submitterCount: 2,
+          },
+        ],
+      },
+    },
+  },
+};
+
 export const Default: Story = {
   args: {
     role: "Submitter",
@@ -89,7 +126,7 @@ export const Default: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [studiesMock],
+      mocks: [studiesMock, institutionsMock],
     },
   },
   play: async ({ canvasElement }) => {
