@@ -25,6 +25,7 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
       userStatus
       role
       dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName
@@ -60,7 +61,13 @@ export type Input = {
 export type Response = {
   editUser: Pick<
     User,
-    "userStatus" | "role" | "dataCommons" | "permissions" | "notifications" | "institution"
+    | "userStatus"
+    | "role"
+    | "dataCommons"
+    | "dataCommonsDisplayNames"
+    | "permissions"
+    | "notifications"
+    | "institution"
   > & {
     studies: Pick<
       ApprovedStudy,

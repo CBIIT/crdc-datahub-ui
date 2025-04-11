@@ -649,14 +649,14 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                         >
                           {DataCommons.map((dc) => (
                             <MenuItem key={dc.name} value={dc.name}>
-                              {dc.name}
+                              {dc.displayName}
                             </MenuItem>
                           ))}
                         </StyledSelect>
                       )}
                     />
                   ) : (
-                    user.dataCommons?.join(", ")
+                    user.dataCommonsDisplayNames?.join(", ")
                   )}
                 </StyledField>
                 <StyledField>

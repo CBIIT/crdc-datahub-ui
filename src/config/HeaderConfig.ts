@@ -61,8 +61,8 @@ export const HeaderLinks: NavBarItem[] = [
 export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
   "Model Navigator": DataCommons.map((dc) => ({
     id: `model-navigator-${dc.name}`,
-    name: `${dc.name}${dc.name.indexOf("Model") === -1 ? " Model" : ""}`,
-    link: `/model-navigator/${dc.name}/latest`,
+    name: `${dc.displayName}${dc.displayName.indexOf("Model") === -1 ? " Model" : ""}`,
+    link: `/model-navigator/${dc.displayName}/latest`,
     className: "navMobileSubItem",
   })),
 

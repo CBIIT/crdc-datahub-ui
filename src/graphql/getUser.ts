@@ -14,6 +14,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       createdAt
       updateAt
       dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName

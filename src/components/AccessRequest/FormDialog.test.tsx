@@ -85,6 +85,7 @@ const mockUser: User = {
   email: "",
   role: "User",
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   studies: [],
   institution: null,
   IDP: "nih",

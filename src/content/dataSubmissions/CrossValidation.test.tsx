@@ -32,6 +32,7 @@ const baseSubmission: Submission = {
   submitterName: "",
   organization: null,
   dataCommons: "",
+  dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
   dbGaPID: "",

@@ -14,6 +14,7 @@ describe("getFormMode tests based on provided requirements", () => {
     studies: null,
     institution: null,
     dataCommons: [],
+    dataCommonsDisplayNames: [],
     permissions: [],
     notifications: [],
   };

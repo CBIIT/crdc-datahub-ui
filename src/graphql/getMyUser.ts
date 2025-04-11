@@ -12,6 +12,7 @@ export const query: TypedDocumentNode<Response> = gql`
       IDP
       email
       dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName

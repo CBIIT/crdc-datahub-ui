@@ -26,6 +26,12 @@ type User = {
    */
   dataCommons: string[];
   /**
+   * List of display names for the data commons that the user has access to
+   *
+   * @note {@link User.dataCommons}[idx] corresponds to {@link User.dataCommonsDisplayNames}[idx].
+   */
+  dataCommonsDisplayNames: string[];
+  /**
    * List of ApprovedStudies that the user has access to
    *
    * @note Not all APIs populate this field fully, refer to the GraphQL query for available fields

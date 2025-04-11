@@ -35,6 +35,7 @@ const baseSubmission: Omit<Submission, "status"> = {
   submitterName: "",
   organization: null,
   dataCommons: "MOCK-DC",
+  dataCommonsDisplayName: "Mock Data Common",
   modelVersion: "",
   studyAbbreviation: "",
   dbGaPID: "",
@@ -64,7 +65,7 @@ const baseSubmission: Omit<Submission, "status"> = {
   dataFileSize: null,
 };
 
-const baseUser: Omit<User, "role" | "permissions" | "dataCommons"> = {
+const baseUser: Omit<User, "role" | "permissions" | "dataCommons" | "dataCommonsDisplayNames"> = {
   _id: "current-user",
   firstName: "",
   lastName: "",
@@ -132,6 +133,7 @@ describe("Accessibility", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}
@@ -153,6 +155,7 @@ describe("Accessibility", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}
@@ -205,6 +208,7 @@ describe("Basic Functionality", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}
@@ -251,6 +255,7 @@ describe("Basic Functionality", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}
@@ -304,6 +309,7 @@ describe("Basic Functionality", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}
@@ -345,6 +351,7 @@ describe("Implementation Requirements", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}
@@ -375,6 +382,7 @@ describe("Implementation Requirements", () => {
           role: "Data Commons Personnel",
           permissions: [],
           dataCommons: [baseSubmission.dataCommons],
+          dataCommonsDisplayNames: [baseSubmission.dataCommons],
         }}
       >
         <ModelSelection />
@@ -391,6 +399,7 @@ describe("Implementation Requirements", () => {
           role: "Data Commons Personnel",
           permissions: ["data_submission:review"],
           dataCommons: [baseSubmission.dataCommons],
+          dataCommonsDisplayNames: [baseSubmission.dataCommons],
         }}
       >
         <ModelSelection />
@@ -412,6 +421,7 @@ describe("Implementation Requirements", () => {
             permissions: ["data_submission:review"],
             // NOTE: Technically other roles don't have DC assigned, but this is required to test this scenario
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           <ModelSelection />
@@ -428,6 +438,7 @@ describe("Implementation Requirements", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           <ModelSelection />
@@ -447,6 +458,7 @@ describe("Implementation Requirements", () => {
           role: "Data Commons Personnel",
           permissions: ["data_submission:review"],
           dataCommons: ["A fake data commons that is not definitely not MOCK-DC"],
+          dataCommonsDisplayNames: [baseSubmission.dataCommons],
         }}
       >
         <ModelSelection />
@@ -463,6 +475,7 @@ describe("Implementation Requirements", () => {
           role: "Data Commons Personnel",
           permissions: ["data_submission:review"],
           dataCommons: ["a different dc"], // Change to the same data commons
+          dataCommonsDisplayNames: ["a different dc"],
         }}
       >
         <ModelSelection />
@@ -491,6 +504,7 @@ describe("Implementation Requirements", () => {
               role: "Data Commons Personnel",
               permissions: ["data_submission:review"],
               dataCommons: [baseSubmission.dataCommons],
+              dataCommonsDisplayNames: [baseSubmission.dataCommons],
             }}
           >
             {children}
@@ -533,6 +547,7 @@ describe("Implementation Requirements", () => {
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
             dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
           }}
         >
           {children}

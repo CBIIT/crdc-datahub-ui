@@ -37,6 +37,7 @@ const baseUser: Omit<User, "permissions"> = {
   studies: null,
   institution: null,
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   createdAt: "",
   updateAt: "",
   notifications: [],

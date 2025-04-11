@@ -6,7 +6,7 @@ export type NavigatorLinkProps = {
    * The Data Submission object to generate the link for.
    * At minimum, this object should contain the status, dataCommons, and modelVersion fields.
    */
-  submission: Submission | Pick<Submission, "status" | "dataCommons" | "modelVersion">;
+  submission: Submission | Pick<Submission, "status" | "dataCommonsDisplayName" | "modelVersion">;
 };
 
 /**
@@ -23,7 +23,7 @@ const DISABLED_STATES: SubmissionStatus[] = ["Canceled", "Deleted"];
  * @returns The NavigatorLink component
  */
 const NavigatorLink: FC<NavigatorLinkProps> = ({ submission }) => {
-  const { status, dataCommons, modelVersion } = submission || {};
+  const { status, dataCommonsDisplayName, modelVersion } = submission || {};
 
   const formattedVersion = useMemo<string>(() => {
     if (!modelVersion || typeof modelVersion !== "string") {
@@ -36,13 +36,13 @@ const NavigatorLink: FC<NavigatorLinkProps> = ({ submission }) => {
     return `v${modelVersion}`;
   }, [modelVersion]);
 
-  if (!status || !dataCommons || !modelVersion || DISABLED_STATES.includes(status)) {
+  if (!status || !dataCommonsDisplayName || !modelVersion || DISABLED_STATES.includes(status)) {
     return <span data-testid="navigator-link-disabled">{formattedVersion}</span>;
   }
 
   return (
     <Link
-      to={`/model-navigator/${dataCommons}/${modelVersion}`}
+      to={`/model-navigator/${dataCommonsDisplayName}/${modelVersion}`}
       target="_blank"
       data-testid="navigator-link"
     >
@@ -55,6 +55,6 @@ export default memo<NavigatorLinkProps>(
   NavigatorLink,
   (prev, next) =>
     prev?.submission?.status === next?.submission?.status &&
-    prev?.submission?.dataCommons === next?.submission?.dataCommons &&
+    prev?.submission?.dataCommonsDisplayName === next?.submission?.dataCommonsDisplayName &&
     prev?.submission?.modelVersion === next?.submission?.modelVersion
 );
