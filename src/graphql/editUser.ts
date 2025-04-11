@@ -7,6 +7,7 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
     $userStatus: String
     $role: String
     $studies: [String]
+    $institution: String
     $dataCommons: [String]
     $permissions: [String]
     $notifications: [String]
@@ -16,6 +17,7 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
       status: $userStatus
       role: $role
       studies: $studies
+      institutionID: $institution
       dataCommons: $dataCommons
       permissions: $permissions
       notifications: $notifications
@@ -30,6 +32,10 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
         studyAbbreviation
         dbGaPID
         controlledAccess
+      }
+      institution {
+        _id
+        name
       }
       permissions
       notifications
@@ -46,6 +52,10 @@ export type Input = {
    * An array of studyIDs to assign to the user
    */
   studies: string[];
+  /**
+   * The `_id` of the institution to assign to the user
+   */
+  institution: string;
 } & Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications">;
 
 export type Response = {
@@ -57,6 +67,7 @@ export type Response = {
     | "dataCommonsDisplayNames"
     | "permissions"
     | "notifications"
+    | "institution"
   > & {
     studies: Pick<
       ApprovedStudy,

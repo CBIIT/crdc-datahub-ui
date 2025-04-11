@@ -26,6 +26,7 @@ const mockUser: Omit<User, "role" | "permissions"> = {
   dataCommons: [],
   dataCommonsDisplayNames: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   updateAt: "",

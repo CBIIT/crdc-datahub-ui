@@ -75,6 +75,7 @@ const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User =
   dataCommons: [],
   dataCommonsDisplayNames: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   updateAt: "",

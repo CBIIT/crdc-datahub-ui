@@ -51,3 +51,25 @@ export const None: Story = {
     studies: [],
   },
 };
+
+/**
+ * A scenario where a long study name needs to be wrapped
+ * in order to fit within the parent container.
+ */
+export const WordWrap: Story = {
+  args: {
+    studies: [
+      { _id: "long-study", studyName: "A".repeat(100) },
+      { _id: "study-1", studyName: "Study One" },
+      { _id: "study-2", studyName: "Study Two", studyAbbreviation: "ST2-ABBR" },
+      { _id: "study-3", studyName: "Study Three" },
+    ],
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: "300px" }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
