@@ -31,7 +31,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         _id
         name
         submitterName
-        dataCommons
+        dataCommonsDisplayName
         organization {
           name
         }
@@ -52,6 +52,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       }
       submitterNames
       dataCommons
+      dataCommonsDisplayNames
     }
   }
 `;
@@ -77,7 +78,7 @@ export type Response = {
       | "_id"
       | "name"
       | "submitterName"
-      | "dataCommons"
+      | "dataCommonsDisplayName"
       | "organization"
       | "studyAbbreviation"
       | "dbGaPID"
@@ -93,5 +94,6 @@ export type Response = {
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];
+    dataCommonsDisplayNames: string[];
   };
 };

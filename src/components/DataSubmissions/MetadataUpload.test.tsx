@@ -18,6 +18,7 @@ const baseSubmission: Omit<
   submitterName: "",
   organization: null,
   dataCommons: "",
+  dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
   dbGaPID: "",
@@ -60,6 +61,7 @@ const baseUser: Omit<User, "role"> = {
   email: "",
   studies: null,
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   createdAt: "",
   updateAt: "",
   permissions: ["data_submission:view", "data_submission:create"],
@@ -158,6 +160,7 @@ describe("Accessibility", () => {
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
           dataCommons: "Test Data Common",
+          dataCommonsDisplayName: "Display Name of TDC",
           modelVersion: "1.9.3",
         }}
         onCreateBatch={jest.fn()}
@@ -593,6 +596,7 @@ describe("Implementation Requirements", () => {
           metadataValidationStatus: "New",
           fileValidationStatus: "New",
           dataCommons: "Test Data Common",
+          dataCommonsDisplayName: "Display Name of TDC",
           modelVersion: "1.9.3",
         }}
         onCreateBatch={jest.fn()}
@@ -611,7 +615,7 @@ describe("Implementation Requirements", () => {
     );
 
     expect(getByTestId("metadata-upload-model-version")).toBeInTheDocument();
-    expect(getByText(/Test Data Common Data Model/i)).toBeVisible();
+    expect(getByText(/Display Name of TDC Data Model/i)).toBeVisible();
     expect(getByText(/v1.9.3/i)).toBeVisible();
   });
 

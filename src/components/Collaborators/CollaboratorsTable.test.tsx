@@ -39,6 +39,7 @@ const mockUser: User = {
   firstName: "John",
   lastName: "Doe",
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   studies: [],
   IDP: "nih",
   userStatus: "Active",

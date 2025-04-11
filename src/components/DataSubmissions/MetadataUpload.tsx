@@ -334,14 +334,15 @@ const MetadataUpload = ({ submission, readOnly, onCreateBatch, onUpload }: Props
           open={undefined}
           disableHoverListener={false}
         />
-        {submission?.dataCommons && submission?.modelVersion && (
+        {submission?.dataCommonsDisplayName && submission?.modelVersion && (
           <StyledModelVersionText data-testid="metadata-upload-model-version">
-            {submission.dataCommons} Data Model: <NavigatorLink submission={submission} />
+            {submission.dataCommonsDisplayName} Data Model:{" "}
+            <NavigatorLink submission={submission} />
           </StyledModelVersionText>
         )}
       </Stack>
     ),
-    [submission?.dataCommons, submission?.modelVersion]
+    [submission?.dataCommonsDisplayName, submission?.modelVersion]
   );
 
   return (

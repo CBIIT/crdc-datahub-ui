@@ -36,6 +36,7 @@ const baseUser: User = {
   email: "",
   studies: null,
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   createdAt: "",
   updateAt: "",
   permissions: ["data_submission:create"],

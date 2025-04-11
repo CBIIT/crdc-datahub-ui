@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const mutation = gql`
+export const mutation: TypedDocumentNode<Response, Input> = gql`
   mutation editUser(
     $userID: ID!
     $userStatus: String
@@ -22,6 +23,7 @@ export const mutation = gql`
       userStatus
       role
       dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName
@@ -47,7 +49,15 @@ export type Input = {
 } & Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications">;
 
 export type Response = {
-  editUser: Pick<User, "userStatus" | "role" | "dataCommons" | "permissions" | "notifications"> & {
+  editUser: Pick<
+    User,
+    | "userStatus"
+    | "role"
+    | "dataCommons"
+    | "dataCommonsDisplayNames"
+    | "permissions"
+    | "notifications"
+  > & {
     studies: Pick<
       ApprovedStudy,
       "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
