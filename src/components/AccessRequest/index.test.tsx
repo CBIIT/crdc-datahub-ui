@@ -11,8 +11,11 @@ import {
 import AccessRequest from "./index";
 import {
   LIST_APPROVED_STUDIES,
+  LIST_INSTITUTIONS,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
 } from "../../graphql";
 
 const mockUser: Omit<User, "role" | "permissions"> = {
@@ -43,6 +46,21 @@ const mockListApprovedStudies: MockedResponse<ListApprovedStudiesResp, ListAppro
     },
   },
   variableMatcher: () => true,
+};
+
+const emptyInstitutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
+  request: {
+    query: LIST_INSTITUTIONS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listInstitutions: {
+        total: 0,
+        institutions: [],
+      },
+    },
+  },
 };
 
 type MockParentProps = {
@@ -85,7 +103,7 @@ describe("Basic Functionality", () => {
       wrapper: (p) => (
         <MockParent
           {...p}
-          mocks={[mockListApprovedStudies]}
+          mocks={[emptyInstitutionsMock, mockListApprovedStudies]}
           role="User"
           permissions={["access:request"]}
         />
