@@ -25,10 +25,10 @@ export type ProfileFields = Record<EditableFields, FieldState>;
 /**
  * Represents the state of a field on the "User Profile" or "Edit User" page
  *
- * - `HIDDEN` means the field is not visible to the user at all
- * - `DISABLED` means the field is visible but not editable
- * - `UNLOCKED` means the field is visible and editable
- * - `READ_ONLY` means the field is rendered as text only
+ * - `HIDDEN` – Not visible to the user at all
+ * - `DISABLED` – Visible but not editable (locked)
+ * - `UNLOCKED` – Visible and editable
+ * - `READ_ONLY` – Rendered as text only
  */
 export type FieldState = "HIDDEN" | "DISABLED" | "UNLOCKED" | "READ_ONLY";
 
@@ -69,6 +69,9 @@ const useProfileFields = (
     fields.lastName = "UNLOCKED";
     fields.permissions = "DISABLED";
     fields.notifications = "DISABLED";
+
+    // If the profile requires studies, show a textual representation of the studies field
+    fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "READ_ONLY" : "HIDDEN";
   }
 
   // Editable for user with permission to Manage Users

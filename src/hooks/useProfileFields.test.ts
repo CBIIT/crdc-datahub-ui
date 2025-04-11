@@ -119,22 +119,33 @@ describe("Profile View", () => {
     expect(result.current.userStatus).toBe("READ_ONLY");
   });
 
-  it.each<UserRole>([
-    "User",
-    "Submitter",
-    "Federal Lead",
-    "Data Commons Personnel",
-    "fake role" as UserRole,
-  ])("should return HIDDEN for the studies field on the profile page for role %s", (role) => {
-    const user = { _id: "User-A", role } as User;
-    const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
+  it.each<UserRole>(["User", "Data Commons Personnel", "Admin", "fake role" as UserRole])(
+    "should return HIDDEN for the studies field on the profile page for role %s",
+    (role) => {
+      const user = { _id: "User-A", role } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
-    const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+      const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
-    expect(result.current.studies).toBe("HIDDEN");
-  });
+      expect(result.current.studies).toBe("HIDDEN");
+    }
+  );
+
+  it.each<UserRole>(["Submitter", "Federal Lead"])(
+    "should return READ_ONLY for the studies field on the profile page for role %s",
+    (role) => {
+      const user = { _id: "User-A", role } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
+
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+
+      expect(result.current.studies).toBe("READ_ONLY");
+    }
+  );
 
   it.each<UserRole>([
     "User",
