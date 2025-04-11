@@ -447,7 +447,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   >
                     {DataCommons.map((dc) => (
                       <MenuItem key={dc.name} value={dc.name}>
-                        {dc.name}
+                        {dc.displayName}
                       </MenuItem>
                     ))}
                   </StyledSelect>

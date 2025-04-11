@@ -19,6 +19,7 @@ const BaseSubmission: Omit<
   submitterName: "",
   organization: undefined,
   dataCommons: "",
+  dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
   dbGaPID: "",
