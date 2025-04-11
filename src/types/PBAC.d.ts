@@ -18,6 +18,7 @@ type AccessPermissions = "access:request";
 type UserPermissions = "user:manage";
 type ProgramPermissions = "program:manage";
 type StudyPermissions = "study:manage";
+type InstitutionPermissions = "institution:manage";
 
 type AuthPermissions =
   | SubmissionRequestPermissions
@@ -26,7 +27,8 @@ type AuthPermissions =
   | AccessPermissions
   | UserPermissions
   | ProgramPermissions
-  | StudyPermissions;
+  | StudyPermissions
+  | InstitutionPermissions;
 
 type SubmissionRequestNotifications =
   | "submission_request:submitted"

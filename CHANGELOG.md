@@ -4,6 +4,20 @@
 
 N/A
 
+## 3.2.1 (Released 04/09/2025)
+
+#### CDS Rebranding
+
+- The CDS Data Commons has been rebranded from **"CDS"** to **"General Commons"** across the user interface and supporting documentation.
+
+
+#### Bug Fixes
+
+- **CLI Upload Permissions for Collaborators**\
+  Resolved an issue where users added as collaborators on a Data Submission were unable to upload files using the CLI uploader tool. Collaborators now have the correct permissions to perform CLI uploads.
+- **Incorrect Email Notifications on Submission Release**\
+  Fixed an issue where email notifications sent upon data submission release were incorrectly sent to unrelated submitters. Notifications are now properly limited to the original submitter and designated collaborators only.
+
 ## 3.2.0 (Released 03/28/2025)
 
 #### Submission Request Enhancements

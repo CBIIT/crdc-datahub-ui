@@ -1,4 +1,4 @@
-import React, { FC, createContext, useContext, useEffect, useState } from "react";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { DataCommons } from "../../config/DataCommons";
 import { fetchManifest } from "../../utils";
 
@@ -71,22 +71,36 @@ export const useDataCommonContext = (): ContextState => {
 };
 
 type ProviderProps = {
-  DataCommon: DataCommon["name"];
+  /**
+   * The display name of the Data Common to populate the context with.
+   *
+   * This must match one of the entries in the `DataCommons` configuration.
+   *
+   * @see {@link DataCommons} for the list of available Data Commons.
+   */
+  displayName: DataCommon["displayName"];
+  /**
+   * The children to render within the context provider.
+   */
   children: React.ReactNode;
 };
 
 /**
  * Creates a Data Common context provider
  *
- * @see useDataCommonContext
- * @param {ProviderProps} props
- * @returns {JSX.Element} Context provider
+ * @see {@link useDataCommonContext} for consuming the context.
+ * @returns The DataCommonProvider component
  */
-export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children }: ProviderProps) => {
+export const DataCommonProvider: FC<ProviderProps> = ({ displayName, children }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  const dataCommon = useMemo<DataCommon | null>(
+    () => DataCommons.find((dc) => dc.displayName === displayName) ?? null,
+    [displayName]
+  );
+
   useEffect(() => {
-    if (!DataCommon || DataCommons.find((dc) => dc.name === DataCommon) === undefined) {
+    if (!dataCommon || !dataCommon?.name) {
       setState({
         status: Status.ERROR,
         DataCommon: null,
@@ -99,11 +113,11 @@ export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children }: 
 
     (async () => {
       const manifest = await fetchManifest().catch(() => null);
-      if (!manifest?.[DataCommon]) {
+      if (!manifest?.[dataCommon.name]) {
         setState({
           status: Status.ERROR,
           DataCommon: null,
-          error: new Error(`Unable to fetch manifest for ${DataCommon}`),
+          error: new Error(`Unable to fetch manifest for ${dataCommon.name}.`),
         });
         return;
       }
@@ -111,13 +125,13 @@ export const DataCommonProvider: FC<ProviderProps> = ({ DataCommon, children }: 
       setState({
         status: Status.LOADED,
         DataCommon: {
-          ...DataCommons.find((dc) => dc.name === DataCommon),
-          assets: { ...manifest[DataCommon] },
+          ...dataCommon,
+          assets: { ...manifest[dataCommon.name] },
         },
         error: null,
       });
     })();
-  }, [DataCommon]);
+  }, [dataCommon]);
 
   return <Context.Provider value={state}>{children}</Context.Provider>;
 };
