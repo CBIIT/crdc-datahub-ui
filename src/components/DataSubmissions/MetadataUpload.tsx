@@ -345,9 +345,10 @@ const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
           open={undefined}
           disableHoverListener={false}
         />
-        {getSubmission?.dataCommons && getSubmission?.modelVersion && (
+        {getSubmission?.dataCommonsDisplayName && getSubmission?.modelVersion && (
           <StyledModelVersionText data-testid="metadata-upload-model-version">
-            {getSubmission.dataCommons} Data Model: <NavigatorLink submission={getSubmission} />
+            {getSubmission.dataCommonsDisplayName} Data Model:{" "}
+            <NavigatorLink submission={getSubmission} />
           </StyledModelVersionText>
         )}
         <ModelSelection />

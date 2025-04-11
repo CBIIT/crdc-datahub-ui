@@ -76,6 +76,7 @@ const baseUser: Omit<User, "role"> = {
   email: "",
   studies: null,
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   createdAt: "",
   updateAt: "",
   permissions: ["data_submission:create"],

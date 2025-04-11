@@ -19,6 +19,7 @@ const BaseUser: User = {
   role: "User",
   email: "",
   dataCommons: [],
+  dataCommonsDisplayNames: [],
   studies: [],
   IDP: "nih",
   userStatus: "Active",
