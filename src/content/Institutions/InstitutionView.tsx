@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
-import { GraphQLError } from "graphql";
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import programIcon from "../../assets/icons/program_icon.svg";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -145,6 +144,7 @@ const InstitutionView = ({ _id }: Props) => {
       },
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
+      onError: (error) => onError([error], "Unable to retrieve Institution."),
     }
   );
 
@@ -154,6 +154,11 @@ const InstitutionView = ({ _id }: Props) => {
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
       errorPolicy: "all",
+      onError: (error) => {
+        if (error.networkError) {
+          onError([error], "Unable to create a new Institution.");
+        }
+      },
     }
   );
 
@@ -163,10 +168,15 @@ const InstitutionView = ({ _id }: Props) => {
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
       errorPolicy: "all",
+      onError: (error) => {
+        if (error.networkError) {
+          onError([error], "Unable to save changes.");
+        }
+      },
     }
   );
 
-  const onError = (errors: readonly GraphQLError[], message: string) => {
+  const onError = <T extends { message: string }>(errors: readonly T[], message: string) => {
     if (!errors?.length) {
       return;
     }
@@ -267,6 +277,7 @@ const InstitutionView = ({ _id }: Props) => {
                       MenuProps={{ disablePortal: true }}
                       error={!!errors.status}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
+                      data-testid="status-select"
                     >
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Inactive">Inactive</MenuItem>
