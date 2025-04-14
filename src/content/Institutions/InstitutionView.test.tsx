@@ -209,7 +209,7 @@ describe("InstitutionView Component", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Institution updated successfully.", {
-        variant: "default",
+        variant: "success",
       });
       expect(mockNavigate).toHaveBeenCalledWith("/institutions");
     });
