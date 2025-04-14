@@ -176,8 +176,8 @@ describe("InstitutionView Component", () => {
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("Institution created successfully.", {
-        variant: "default",
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Institution added successfully.", {
+        variant: "success",
       });
       expect(mockNavigate).toHaveBeenCalledWith("/institutions");
     });

@@ -194,7 +194,7 @@ const InstitutionView = ({ _id }: Props) => {
       return;
     }
 
-    enqueueSnackbar("Institution created successfully.", { variant: "default" });
+    enqueueSnackbar("Institution added successfully.", { variant: "success" });
   };
 
   const handleUpdateInstitution = async ({ name, status }: FormInput) => {
@@ -205,7 +205,7 @@ const InstitutionView = ({ _id }: Props) => {
       return;
     }
 
-    enqueueSnackbar("Institution updated successfully.", { variant: "default" });
+    enqueueSnackbar("Institution updated successfully.", { variant: "success" });
     reset({ ...d.updateInstitution });
   };
 
