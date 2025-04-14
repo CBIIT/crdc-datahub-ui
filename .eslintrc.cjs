@@ -109,6 +109,17 @@ const config = {
         optionalDependencies: false,
       },
     ],
+    "import/order": [
+      "error",
+      {
+        groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
+        alphabetize: {
+          order: "asc",
+          caseInsensitive: true,
+        },
+        "newlines-between": "always",
+      },
+    ],
 
     /* jest and testing-library rules */
     "testing-library/prefer-screen-queries": "off",
