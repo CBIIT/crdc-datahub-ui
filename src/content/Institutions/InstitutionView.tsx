@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import programIcon from "../../assets/icons/program_icon.svg";
+import institutionIcon from "../../assets/icons/institutions_icon.svg";
 import usePageTitle from "../../hooks/usePageTitle";
 import StyledAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
@@ -225,7 +225,7 @@ const InstitutionView = ({ _id }: Props) => {
       <StyledContainer maxWidth="lg">
         <Stack direction="row" justifyContent="center" alignItems="flex-start" spacing={2}>
           <StyledIcon>
-            <img src={programIcon} alt="Institution icon" />
+            <img src={institutionIcon} alt="Institution icon" />
           </StyledIcon>
 
           <StyledContentStack
