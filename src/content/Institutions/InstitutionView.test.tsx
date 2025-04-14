@@ -176,7 +176,7 @@ describe("InstitutionView Component", () => {
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("This study has been successfully added.", {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Institution created successfully.", {
         variant: "default",
       });
       expect(mockNavigate).toHaveBeenCalledWith("/institutions");
@@ -208,7 +208,7 @@ describe("InstitutionView Component", () => {
     userEvent.click(getByTestId("save-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("All changes have been saved.", {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Institution updated successfully.", {
         variant: "default",
       });
       expect(mockNavigate).toHaveBeenCalledWith("/institutions");
