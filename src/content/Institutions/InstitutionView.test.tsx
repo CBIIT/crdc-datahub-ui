@@ -190,14 +190,17 @@ describe("InstitutionView Component", () => {
     const saveButton = getByTestId("save-button");
 
     userEvent.type(nameInput, "New Institution");
+
+    expect(mockNavigate).not.toHaveBeenCalled();
     userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Institution added successfully.", {
         variant: "success",
       });
-      expect(mockNavigate).toHaveBeenCalledWith("/institutions");
     });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/institutions");
   });
 
   it("updates an existing institution successfully", async () => {
@@ -222,14 +225,16 @@ describe("InstitutionView Component", () => {
     const listbox = within(getByTestId("status-select")).getByRole("listbox", { hidden: true });
     userEvent.click(within(listbox).getByText("Inactive"));
 
+    expect(mockNavigate).not.toHaveBeenCalled();
     userEvent.click(getByTestId("save-button"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith("Institution updated successfully.", {
         variant: "success",
       });
-      expect(mockNavigate).toHaveBeenCalledWith("/institutions");
     });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/institutions");
   });
 
   it("navigates back to manage institutions page when cancel button is clicked", () => {
@@ -239,8 +244,11 @@ describe("InstitutionView Component", () => {
       </TestParent>
     );
 
+    expect(mockNavigate).not.toHaveBeenCalled();
+
     const cancelButton = getByTestId("cancel-button");
     userEvent.click(cancelButton);
+
     expect(mockNavigate).toHaveBeenCalledWith("/institutions");
   });
 
@@ -255,6 +263,8 @@ describe("InstitutionView Component", () => {
     const saveButton = getByTestId("save-button");
 
     userEvent.type(nameInput, "New Institution");
+
+    expect(mockNavigate).not.toHaveBeenCalled();
     userEvent.click(saveButton);
 
     await waitFor(() => {
@@ -264,8 +274,9 @@ describe("InstitutionView Component", () => {
           variant: "error",
         }
       );
-      expect(mockNavigate).toHaveBeenCalledWith("/institutions");
     });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/institutions");
   });
 
   it("handles API errors gracefully when updating an existing institution", async () => {
@@ -290,6 +301,7 @@ describe("InstitutionView Component", () => {
     const listbox = within(getByTestId("status-select")).getByRole("listbox", { hidden: true });
     userEvent.click(within(listbox).getByText("Inactive"));
 
+    expect(mockNavigate).not.toHaveBeenCalled();
     userEvent.click(getByTestId("save-button"));
 
     await waitFor(() => {
@@ -297,8 +309,9 @@ describe("InstitutionView Component", () => {
         "There was a problem while updating the Institution.",
         { variant: "error" }
       );
-      expect(mockNavigate).toHaveBeenCalledWith("/institutions");
     });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/institutions");
   });
 
   it("should show a loading spinner while retrieving the institution", async () => {
