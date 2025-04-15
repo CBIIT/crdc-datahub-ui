@@ -7,7 +7,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import InstitutionView from "./InstitutionView";
 import {
   GET_INSTITUTION,
-  CREATE_INSTITUION,
+  CREATE_INSTITUTION,
   UPDATE_INSTITUTION,
   GetInstitutionResp,
   GetInstitutionInput,
@@ -66,7 +66,7 @@ const getInstitutionLoadingMock: MockedResponse<GetInstitutionResp, GetInstituti
 
 const createInstitutionMock: MockedResponse<CreateInstitutionResp, CreateInstitutionInput> = {
   request: {
-    query: CREATE_INSTITUION,
+    query: CREATE_INSTITUTION,
     variables: { name: "New Institution", status: "Active" },
   },
   result: {
@@ -96,7 +96,7 @@ const updateInstitutionMock: MockedResponse<UpdateInstitutionResp, UpdateInstitu
 
 const createInstitutionErrorMock: MockedResponse<CreateInstitutionResp, CreateInstitutionInput> = {
   request: {
-    query: CREATE_INSTITUION,
+    query: CREATE_INSTITUTION,
     variables: { name: "New Institution", status: "Active" },
   },
   error: new Error("There was a problem while creating a new Institution."),

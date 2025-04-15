@@ -238,7 +238,7 @@ export type {
   Response as GetInstitutionResp,
 } from "./getInstitution";
 
-export { mutation as CREATE_INSTITUION } from "./createInstitution";
+export { mutation as CREATE_INSTITUTION } from "./createInstitution";
 export type {
   Input as CreateInstitutionInput,
   Response as CreateInstitutionResp,

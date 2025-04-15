@@ -13,7 +13,7 @@ import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutli
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import {
-  CREATE_INSTITUION,
+  CREATE_INSTITUTION,
   CreateInstitutionInput,
   CreateInstitutionResp,
   GET_INSTITUTION,
@@ -150,7 +150,7 @@ const InstitutionView = ({ _id }: Props) => {
   );
 
   const [createInstitution] = useMutation<CreateInstitutionResp, CreateInstitutionInput>(
-    CREATE_INSTITUION,
+    CREATE_INSTITUTION,
     {
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
