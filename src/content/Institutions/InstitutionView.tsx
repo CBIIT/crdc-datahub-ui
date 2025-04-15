@@ -24,6 +24,7 @@ import {
   UpdateInstitutionResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
+import SuspenseLoader from "../../components/SuspenseLoader";
 
 const StyledBanner = styled("div")({
   background: `url(${bannerSvg})`,
@@ -218,6 +219,10 @@ const InstitutionView = ({ _id }: Props) => {
     setSaving(false);
     navigate(manageInstitutionsPageUrl);
   };
+
+  if (retrievingInstitution) {
+    return <SuspenseLoader data-testid="institution-view-suspense-loader" />;
+  }
 
   return (
     <Box>

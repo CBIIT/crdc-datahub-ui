@@ -47,6 +47,23 @@ const getInstitutionMock: MockedResponse<GetInstitutionResp, GetInstitutionInput
   },
 };
 
+const getInstitutionLoadingMock: MockedResponse<GetInstitutionResp, GetInstitutionInput> = {
+  request: {
+    query: GET_INSTITUTION,
+    variables: { _id: "institution-1" },
+  },
+  result: {
+    data: {
+      getInstitution: {
+        _id: "inst-1",
+        name: "Test Institution",
+        status: "Active",
+      },
+    },
+  },
+  delay: 1000,
+};
+
 const createInstitutionMock: MockedResponse<CreateInstitutionResp, CreateInstitutionInput> = {
   request: {
     query: CREATE_INSTITUION,
@@ -281,6 +298,18 @@ describe("InstitutionView Component", () => {
         { variant: "error" }
       );
       expect(mockNavigate).toHaveBeenCalledWith("/institutions");
+    });
+  });
+
+  it("should show a loading spinner while retrieving the institution", async () => {
+    const { getByTestId } = render(
+      <TestParent mocks={[getInstitutionLoadingMock]}>
+        <InstitutionView _id="institution-1" />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("institution-view-suspense-loader")).toBeInTheDocument();
     });
   });
 });
