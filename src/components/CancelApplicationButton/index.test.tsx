@@ -197,8 +197,14 @@ describe("Basic Functionality", () => {
     jest.resetAllMocks();
   });
 
-  it("should render without crashing", () => {
-    expect(() => render(<Button application={null} />, { wrapper: TestParent })).not.toThrow();
+  it("should render without crashing", async () => {
+    const { queryByTestId } = render(<Button application={null} />, {
+      wrapper: TestParent,
+    });
+
+    await waitFor(() => {
+      expect(queryByTestId("cancel-restore-application-button")).not.toBeInTheDocument();
+    });
   });
 
   it("should show a snackbar when the cancel operation fails (GraphQL Error)", async () => {
@@ -241,8 +247,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -293,8 +304,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -351,8 +367,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -411,8 +432,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -460,8 +486,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -512,8 +543,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -570,8 +606,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -630,8 +671,13 @@ describe("Basic Functionality", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "mock reason");
 
-    // Click dialog confirm button
+    // Click dialog confirm button once it is enabled
     const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
     userEvent.click(button);
 
     await waitFor(() => {
@@ -712,7 +758,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should dismiss the dialog when the 'Cancel' dialog button is clicked", async () => {
-    const { getByRole, getByTestId } = render(
+    const { findByRole, getByRole, getByTestId } = render(
       <Button
         application={{
           ...baseApp,
@@ -733,7 +779,7 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByTestId("cancel-restore-application-button"));
 
-    const dialog = getByRole("dialog");
+    const dialog = await findByRole("dialog");
     expect(dialog).toBeInTheDocument();
 
     const button = await within(dialog).findByRole("button", { name: /cancel/i });
@@ -761,7 +807,9 @@ describe("Implementation Requirements", () => {
       }
     );
 
-    expect(queryByTestId("cancel-restore-application-button")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(queryByTestId("cancel-restore-application-button")).not.toBeInTheDocument();
+    });
   });
 
   // NOTE: This is just a sanity check against component logic, and does not
@@ -1022,7 +1070,9 @@ describe("Implementation Requirements", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
     userEvent.type(input, "this is a mock reason xyz 123");
 
-    expect(button).toBeEnabled();
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
 
     userEvent.click(button);
 
@@ -1031,6 +1081,78 @@ describe("Implementation Requirements", () => {
         _id: "mock-id-cancel-reason",
         comment: "this is a mock reason xyz 123",
       });
+    });
+  });
+
+  it.each<{ scenario: string; status: ApplicationStatus }>([
+    { scenario: "Cancel", status: "New" },
+    { scenario: "Restore", status: "Canceled" },
+  ])("should limit the reason field to 500 characters ($scenario Action)", async ({ status }) => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mocks: MockedResponse[] = [
+      {
+        request: {
+          query: CANCEL_APP,
+        },
+        variableMatcher: mockMatcher,
+        result: {
+          data: null,
+        },
+      },
+      {
+        request: {
+          query: RESTORE_APP,
+        },
+        variableMatcher: mockMatcher,
+        result: {
+          data: null,
+        },
+      },
+    ];
+
+    const { getByRole, getByTestId, findByRole } = render(
+      <Button
+        application={{
+          ...baseApp,
+          status,
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <TestParent
+            mocks={mocks}
+            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          >
+            {children}
+          </TestParent>
+        ),
+      }
+    );
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-restore-application-button"));
+
+    await findByRole("dialog");
+
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    expect(button).toBeDisabled();
+
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+
+    userEvent.type(input, "X".repeat(550));
+
+    // NOTE: the button is still enabled because of the maxLength on the input field
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
+    userEvent.click(button);
+
+    expect(mockMatcher).toHaveBeenCalledWith({
+      _id: expect.any(String),
+      comment: "X".repeat(500),
     });
   });
 });

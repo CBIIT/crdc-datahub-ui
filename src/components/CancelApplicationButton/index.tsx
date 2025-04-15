@@ -69,9 +69,13 @@ type Props = {
 
 const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { register, watch } = useForm<FormFields>({ mode: "onBlur" });
   const { user } = useAuthContext();
   const formId = useId();
+  const {
+    register,
+    watch,
+    formState: { isValid },
+  } = useForm<FormFields>({ mode: "onBlur" });
 
   const { _id, status } = application || {};
 
@@ -113,9 +117,9 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
   const comment = watch("comment");
   const confirmButtonProps = useMemo<ButtonProps>(
     () => ({
-      disabled: !watch("comment")?.trim()?.length,
+      disabled: !isValid || loading,
     }),
-    [comment?.length]
+    [isValid, loading]
   );
 
   const onClickIcon = async () => {
@@ -211,9 +215,11 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
                 placeholder="500 characters allowed"
                 required
                 multiline
+                inputProps={{ maxLength: 500 }}
                 {...register("comment", {
                   required: true,
                   maxLength: 500,
+                  minLength: 1,
                   setValueAs: (v) => v?.trim(),
                 })}
               />
