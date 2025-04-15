@@ -35,12 +35,6 @@ export type { Response as GetAppResp } from "./getApplication";
 export { mutation as UPDATE_MY_USER } from "./updateMyUser";
 export type { Input as UpdateMyUserInput, Response as UpdateMyUserResp } from "./updateMyUser";
 
-export { query as LIST_INSTITUTIONS } from "./listInstitutions";
-export type {
-  Input as ListInstitutionsInput,
-  Response as ListInstitutionsResp,
-} from "./listInstitutions";
-
 export { query as RETRIEVE_CDEs } from "./retrieveCDEs";
 export type { Response as RetrieveCDEsResp, Input as RetrieveCDEsInput } from "./retrieveCDEs";
 
@@ -230,6 +224,31 @@ export type {
 
 export { mutation as CREATE_ORG } from "./createOrganization";
 export type { Input as CreateOrgInput, Response as CreateOrgResp } from "./createOrganization";
+
+// Institutions
+export { query as LIST_INSTITUTIONS } from "./listInstitutions";
+export type {
+  Input as ListInstitutionsInput,
+  Response as ListInstitutionsResp,
+} from "./listInstitutions";
+
+export { query as GET_INSTITUTION } from "./getInstitution";
+export type {
+  Input as GetInstitutionInput,
+  Response as GetInstitutionResp,
+} from "./getInstitution";
+
+export { mutation as CREATE_INSTITUTION } from "./createInstitution";
+export type {
+  Input as CreateInstitutionInput,
+  Response as CreateInstitutionResp,
+} from "./createInstitution";
+
+export { mutation as UPDATE_INSTITUTION } from "./updateInstitution";
+export type {
+  Input as UpdateInstitutionInput,
+  Response as UpdateInstitutionResp,
+} from "./updateInstitution";
 
 // Misc.
 export { mutation as GRANT_TOKEN } from "./grantToken";

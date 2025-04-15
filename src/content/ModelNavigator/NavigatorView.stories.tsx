@@ -18,8 +18,8 @@ const meta: Meta<CustomStoryProps> = {
   argTypes: {
     model: {
       control: "select",
-      description: "The model to display",
-      options: DataCommons.map((model) => model.name),
+      description: "The display name of the Data Model to display",
+      options: DataCommons.map((model) => model.displayName),
     },
     version: {
       control: "text",
@@ -60,7 +60,7 @@ type Story = StoryObj<typeof meta>;
 
 export const ModelNavigator: Story = {
   args: {
-    model: "CDS",
+    model: "GC",
     version: "latest",
     tier: "dev",
   },
