@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Box, Container, MenuItem, Stack, styled, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useNavigate } from "react-router-dom";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
@@ -210,7 +210,7 @@ const InstitutionView = ({ _id }: Props) => {
     reset({ ...d.updateInstitution });
   };
 
-  const onSubmit = async (data: FormInput) => {
+  const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
     setSaving(true);
 
     const action = isNew ? handleCreateInstitution : handleUpdateInstitution;
