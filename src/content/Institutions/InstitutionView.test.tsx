@@ -276,7 +276,7 @@ describe("InstitutionView Component", () => {
       );
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith("/institutions");
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it("handles API errors gracefully when updating an existing institution", async () => {
@@ -311,7 +311,7 @@ describe("InstitutionView Component", () => {
       );
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith("/institutions");
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it("should show a loading spinner while retrieving the institution", async () => {

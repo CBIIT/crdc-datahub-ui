@@ -187,37 +187,42 @@ const InstitutionView = ({ _id }: Props) => {
     enqueueSnackbar(flatErrors, { variant: "error" });
   };
 
-  const handleCreateInstitution = async ({ name, status }: FormInput) => {
+  const handleCreateInstitution = async ({ name, status }: FormInput): Promise<boolean> => {
     const { data: d, errors } = await createInstitution({ variables: { name, status } });
 
     if (errors || !d?.createInstitution?._id) {
       onError(errors, "Unable to create a new Institution.");
-      return;
+      return false;
     }
 
     enqueueSnackbar("Institution added successfully.", { variant: "success" });
+    return true;
   };
 
-  const handleUpdateInstitution = async ({ name, status }: FormInput) => {
+  const handleUpdateInstitution = async ({ name, status }: FormInput): Promise<boolean> => {
     const { data: d, errors } = await updateInstitution({ variables: { _id, name, status } });
 
     if (errors || !d?.updateInstitution?._id) {
       onError(errors, "Unable to save changes.");
-      return;
+      return false;
     }
 
     enqueueSnackbar("Institution updated successfully.", { variant: "success" });
     reset({ ...d.updateInstitution });
+    return true;
   };
 
   const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
     setSaving(true);
 
     const action = isNew ? handleCreateInstitution : handleUpdateInstitution;
-    await action(data);
+    const success = await action(data);
 
     setSaving(false);
-    navigate(manageInstitutionsPageUrl);
+
+    if (success) {
+      navigate(manageInstitutionsPageUrl);
+    }
   };
 
   if (retrievingInstitution) {
