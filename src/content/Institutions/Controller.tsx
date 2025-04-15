@@ -1,13 +1,10 @@
-import { FC, memo } from "react";
+import { FC } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
-import { InstitutionProvider } from "../../components/Contexts/InstitutionListContext";
 import ListView from "./ListView";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { hasPermission } from "../../config/AuthPermissions";
 import InstitutionView from "./InstitutionView";
-
-const MemoizedProvider = memo(InstitutionProvider);
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -30,11 +27,7 @@ const InstitutionController: FC = () => {
     return <ListView />;
   }
 
-  return (
-    <MemoizedProvider>
-      <InstitutionView _id={institutionId} />
-    </MemoizedProvider>
-  );
+  return <InstitutionView _id={institutionId} />;
 };
 
 export default InstitutionController;
