@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Box, FormControl, MenuItem, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
@@ -91,7 +91,7 @@ const InstitutionListFilters = ({ onChange }: Props) => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
       handleFormChange(getValues());
     }
-  }, [searchParams?.toString()]);
+  }, [searchParams?.get("name"), searchParams?.get("status")]);
 
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -111,7 +111,7 @@ const InstitutionListFilters = ({ onChange }: Props) => {
     if (newSearchParams.toString() !== searchParams.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [nameFilter, statusFilter, searchParams, setSearchParams]);
+  }, [nameFilter, statusFilter]);
 
   const handleFilterChange = (field: keyof FilterForm) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
@@ -169,4 +169,4 @@ const InstitutionListFilters = ({ onChange }: Props) => {
   );
 };
 
-export default InstitutionListFilters;
+export default memo(InstitutionListFilters);
