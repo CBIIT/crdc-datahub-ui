@@ -51,7 +51,7 @@ export const useColumnVisibility = <C>({
     columns.reduce<ColumnVisibilityModel>((adjustedModel, column) => {
       const key = getColumnKey(column);
       const isHideable = column.hideable !== false;
-      adjustedModel[key] = isHideable ? model[key] ?? !column.defaultHidden : true;
+      adjustedModel[key] = isHideable ? model?.[key] ?? !column.defaultHidden : true;
       return adjustedModel;
     }, {});
 
