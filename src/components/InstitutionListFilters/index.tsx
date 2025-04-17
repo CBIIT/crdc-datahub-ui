@@ -94,6 +94,9 @@ const InstitutionListFilters = ({ onChange }: Props) => {
   }, [searchParams?.get("name"), searchParams?.get("status")]);
 
   useEffect(() => {
+    if (!touchedFilters.name && !touchedFilters.status) {
+      return;
+    }
     const newSearchParams = new URLSearchParams(searchParams);
 
     if (statusFilter && statusFilter !== "All") {
@@ -108,10 +111,10 @@ const InstitutionListFilters = ({ onChange }: Props) => {
       newSearchParams.delete("name");
     }
 
-    if (newSearchParams.toString() !== searchParams.toString()) {
+    if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [nameFilter, statusFilter]);
+  }, [nameFilter, statusFilter, touchedFilters]);
 
   const handleFilterChange = (field: keyof FilterForm) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
