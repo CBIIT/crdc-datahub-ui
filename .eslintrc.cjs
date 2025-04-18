@@ -12,6 +12,7 @@ const config = {
     "react-app",
     "react-app/jest",
     "plugin:storybook/recommended",
+    "plugin:compat/recommended",
   ],
   globals: {
     window: true,
@@ -26,13 +27,16 @@ const config = {
     project: "./tsconfig.json",
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "jsx-a11y", "prettier"],
+  plugins: ["react", "@typescript-eslint", "jsx-a11y", "prettier", "compat"],
   settings: {
     react: {
       pragma: "React",
       fragment: "Fragment",
       version: "detect",
     },
+  },
+  env: {
+    browser: true,
   },
   root: true,
   rules: {
@@ -115,6 +119,8 @@ const config = {
     "testing-library/no-wait-for-multiple-assertions": "off",
     "testing-library/no-node-access": "off",
     "testing-library/no-container": "off",
+
+    "compat/compat": "error",
   },
 };
 
