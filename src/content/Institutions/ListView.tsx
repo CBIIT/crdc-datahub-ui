@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
 import { useLazyQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
+import { isEqual } from "lodash";
 import usePageTitle from "../../hooks/usePageTitle";
 import FormAlert from "../../components/FormAlert";
 import PageBanner from "../../components/PageBanner";
@@ -166,6 +167,10 @@ const ListView = () => {
   };
 
   const handleOnFiltersChange = (data: FilterForm) => {
+    if (isEqual(data, filtersRef.current)) {
+      return;
+    }
+
     filtersRef.current = data;
     setTablePage(0);
   };
