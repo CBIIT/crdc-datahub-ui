@@ -22,6 +22,7 @@ describe("fetchManifest cases", () => {
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
         "release-notes": "release-notes.md",
+        "model-navigator-config": null,
         versions: [],
       },
     };
@@ -41,6 +42,7 @@ describe("fetchManifest cases", () => {
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
         "release-notes": "release-notes.md",
+        "model-navigator-config": null,
         versions: [],
       },
     };
@@ -63,6 +65,7 @@ describe("fetchManifest cases", () => {
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
         "release-notes": "release-notes.md",
+        "model-navigator-config": null,
         versions: [],
       },
     };
@@ -373,35 +376,29 @@ describe("buildBaseFilterContainers tests", () => {
   });
 
   it("should return an empty object if facetFilterSearchData is not an array or is an empty array", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: null,
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: null,
+    } as ModelNavigatorConfig;
 
     const result = utils.buildBaseFilterContainers(dc);
     expect(result).toEqual({});
 
-    const dc2: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc2: ModelNavigatorConfig = {
+      facetFilterSearchData: [],
+    } as ModelNavigatorConfig;
 
     const result2 = utils.buildBaseFilterContainers(dc2);
     expect(result2).toEqual({});
   });
 
   it("should build filter containers correctly", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [
-          { datafield: "field1" },
-          { datafield: "field2" },
-          { datafield: null },
-        ] as FacetSearchData[],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: [
+        { datafield: "field1" },
+        { datafield: "field2" },
+        { datafield: null },
+      ] as FacetSearchData[],
+    } as ModelNavigatorConfig;
 
     const result = utils.buildBaseFilterContainers(dc);
     expect(result).toEqual({
@@ -422,35 +419,29 @@ describe("buildFilterOptionsList tests", () => {
   });
 
   it("should return an empty array if facetFilterSearchData is not an array or is an empty array", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: null,
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: null,
+    } as ModelNavigatorConfig;
 
     const result = utils.buildFilterOptionsList(dc);
     expect(result).toEqual([]);
 
-    const dc2: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc2: ModelNavigatorConfig = {
+      facetFilterSearchData: [],
+    } as ModelNavigatorConfig;
 
     const result2 = utils.buildFilterOptionsList(dc2);
     expect(result2).toEqual([]);
   });
 
   it("should build filter options list correctly", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [
-          { checkboxItems: [{ name: "Item 1" }, { name: "Item 2" }] },
-          { checkboxItems: [{ name: "Item 3" }, { name: "Item 4" }] },
-          { checkboxItems: null },
-        ] as FacetSearchData[],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: [
+        { checkboxItems: [{ name: "Item 1" }, { name: "Item 2" }] },
+        { checkboxItems: [{ name: "Item 3" }, { name: "Item 4" }] },
+        { checkboxItems: null },
+      ] as FacetSearchData[],
+    } as ModelNavigatorConfig;
 
     const result = utils.buildFilterOptionsList(dc);
     expect(result).toEqual(["item 1", "item 2", "item 3", "item 4"]);
