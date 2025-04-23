@@ -23,7 +23,9 @@ export const shouldEnableSubmit = (
   }
 
   // Check for potential Admin override
-  const canAdminOverride = hasPermission(user, "data_submission", "admin_submit", submission);
+  const canAdminOverride = hasPermission(user, "data_submission", "admin_submit", {
+    data: submission,
+  });
   if (canAdminOverride) {
     const adminOverrideResult = shouldAllowAdminOverride(submission, qcResults);
     if (adminOverrideResult.enabled) {

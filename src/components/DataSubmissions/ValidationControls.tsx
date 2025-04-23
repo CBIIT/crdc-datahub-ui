@@ -83,16 +83,16 @@ const ValidateMap: Partial<
   Record<Submission["status"], (user: User, submission: Submission) => boolean>
 > = {
   "In Progress": (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "create", submission) ||
-    hasPermission(user, "data_submission", "review", submission),
+    hasPermission(user, "data_submission", "create", { data: submission }) ||
+    hasPermission(user, "data_submission", "review", { data: submission }),
   Withdrawn: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "create", submission) ||
-    hasPermission(user, "data_submission", "review", submission),
+    hasPermission(user, "data_submission", "create", { data: submission }) ||
+    hasPermission(user, "data_submission", "review", { data: submission }),
   Rejected: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "create", submission) ||
-    hasPermission(user, "data_submission", "review", submission),
+    hasPermission(user, "data_submission", "create", { data: submission }) ||
+    hasPermission(user, "data_submission", "review", { data: submission }),
   Submitted: (user: User, submission: Submission) =>
-    hasPermission(user, "data_submission", "review", submission),
+    hasPermission(user, "data_submission", "review", { data: submission }),
 };
 
 const CustomTooltip = (props: TooltipProps) => (

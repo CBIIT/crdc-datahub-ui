@@ -105,42 +105,42 @@ type ActionKey =
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", submission),
+      hasPermission(user, "data_submission", "create", { data: submission }),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   AdminSubmit: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "admin_submit", submission),
+      hasPermission(user, "data_submission", "admin_submit", { data: submission }),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "review", submission),
+      hasPermission(user, "data_submission", "review", { data: submission }),
     statuses: ["Submitted"],
   },
   Withdraw: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", submission),
+      hasPermission(user, "data_submission", "create", { data: submission }),
     statuses: ["Submitted"],
   },
   SubmittedReject: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "review", submission),
+      hasPermission(user, "data_submission", "review", { data: submission }),
     statuses: ["Submitted"],
   },
   ReleasedReject: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "confirm", submission),
+      hasPermission(user, "data_submission", "confirm", { data: submission }),
     statuses: ["Released"],
   },
   Complete: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "confirm", submission),
+      hasPermission(user, "data_submission", "confirm", { data: submission }),
     statuses: ["Released"],
   },
   Cancel: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "cancel", submission),
+      hasPermission(user, "data_submission", "cancel", { data: submission }),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };

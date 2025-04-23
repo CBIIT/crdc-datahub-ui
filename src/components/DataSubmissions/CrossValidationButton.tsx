@@ -116,7 +116,7 @@ export const CrossValidationButton: FC<Props> = ({ submission, ...props }) => {
   }, [crossSubmissionStatus]);
 
   if (
-    !hasPermission(user, "data_submission", "review", submission) ||
+    !hasPermission(user, "data_submission", "review", { data: submission }) ||
     !hasOtherSubmissions ||
     status !== "Submitted"
   ) {

@@ -115,7 +115,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
     const reviewSection = newSections.find((s) => s.id === "review");
     if (reviewSection) {
       const meetsReviewCriteria = formMode === "View Only" || formMode === "Review";
-      const canSeeSubmitButton = hasPermission(user, "submission_request", "submit", data);
+      const canSeeSubmitButton = hasPermission(user, "submission_request", "submit", { data });
       const showReviewTitle = meetsReviewCriteria && !canSeeSubmitButton;
 
       const reviewUnlocked = completedSections === sectionKeys.length - 1;

@@ -137,7 +137,7 @@ const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const uploadMetadataInputRef = useRef<HTMLInputElement>(null);
-  const canUpload = hasPermission(user, "data_submission", "create", getSubmission);
+  const canUpload = hasPermission(user, "data_submission", "create", { data: getSubmission });
   const acceptedExtensions = [".tsv", ".txt"];
 
   const [createBatch] = useMutation<CreateBatchResp, CreateBatchInput>(CREATE_BATCH, {

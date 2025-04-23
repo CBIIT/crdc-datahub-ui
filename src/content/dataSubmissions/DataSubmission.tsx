@@ -175,7 +175,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   );
   const crossValidationVisible: boolean = useMemo<boolean>(
     () =>
-      hasPermission(user, "data_submission", "review", data?.getSubmission) &&
+      hasPermission(user, "data_submission", "review", { data: data?.getSubmission }) &&
       data?.getSubmission?.crossSubmissionStatus !== null,
     [user, data?.getSubmission]
   );
