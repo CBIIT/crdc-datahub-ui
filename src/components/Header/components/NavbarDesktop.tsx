@@ -401,7 +401,7 @@ const NavBar = () => {
 
   const checkPermissions = (permissions: AuthPermissions[]) => {
     if (!permissions?.length) {
-      return false;
+      return true; // No permissions required
     }
 
     return permissions.every((permission) => {
