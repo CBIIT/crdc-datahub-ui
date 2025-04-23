@@ -143,15 +143,26 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       return [0, []];
     }
 
+    // Clean up the value keys by only keeping the entity:action, ignoring any extensions
+    const permissionValueKeys = uniq(
+      permissionsValue
+        .map((p) => p.split(":", 2).join(":"))
+        .filter((key) => {
+          const [entity, action] = key.split(":");
+          return !!entity && !!action;
+        })
+    );
     const clonedPermissions = cloneDeep(defaults.permissions);
-    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue?.includes(p._id));
+    const checkedPermissions = clonedPermissions?.filter(
+      (p) => permissionValueKeys?.includes(p._id)
+    );
     const inheritedPermissions = uniq(flatMap(checkedPermissions, (p) => p.inherited || []));
 
     const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
       ...p,
       // NOTE: Inherited permissions are explicitly checked here to handle the initial loading state
       // when the permission may not have been checked yet.
-      checked: permissionsValue?.includes(p._id) || inheritedPermissions.includes(p._id),
+      checked: permissionValueKeys?.includes(p._id) || inheritedPermissions.includes(p._id),
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
 
@@ -174,9 +185,18 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       return [0, []];
     }
 
+    // Clean up the value keys by only keeping the entity:action, ignoring any extensions
+    const notificationsValueKeys = uniq(
+      notificationsValue
+        .map((p) => p.split(":", 2).join(":"))
+        .filter((key) => {
+          const [entity, action] = key.split(":");
+          return !!entity && !!action;
+        })
+    );
     const clonedNotifications = cloneDeep(defaults.notifications);
     const checkedNotifications = clonedNotifications?.filter(
-      (p) => notificationsValue?.includes(p._id)
+      (p) => notificationsValueKeys?.includes(p._id)
     );
     const inheritedNotifications = uniq(flatMap(checkedNotifications, (p) => p.inherited || []));
 
@@ -185,7 +205,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
         ...n,
         // NOTE: Inherited notifications are explicitly checked here to handle the initial loading state
         // when the notification may not have been checked yet.
-        checked: notificationsValue?.includes(n._id) || inheritedNotifications.includes(n._id),
+        checked: notificationsValueKeys?.includes(n._id) || inheritedNotifications.includes(n._id),
         disabled: n.disabled || inheritedNotifications.includes(n._id),
       })
     );
