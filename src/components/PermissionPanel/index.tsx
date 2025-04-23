@@ -22,7 +22,12 @@ import {
   RetrievePBACDefaultsInput,
   RETRIEVE_PBAC_DEFAULTS,
 } from "../../graphql";
-import { ColumnizedPBACGroups, columnizePBACGroups, Logger } from "../../utils";
+import {
+  cleanPermissionKeys,
+  ColumnizedPBACGroups,
+  columnizePBACGroups,
+  Logger,
+} from "../../utils";
 
 const StyledBox = styled(Box)({
   width: "957px",
@@ -144,14 +149,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
     }
 
     // Clean up the value keys by only keeping the entity:action, ignoring any extensions
-    const permissionValueKeys = uniq(
-      permissionsValue
-        .map((p) => p.split(":", 2).join(":"))
-        .filter((key) => {
-          const [entity, action] = key.split(":");
-          return !!entity && !!action;
-        })
-    );
+    const permissionValueKeys = cleanPermissionKeys(permissionsValue);
     const clonedPermissions = cloneDeep(defaults.permissions);
     const checkedPermissions = clonedPermissions?.filter(
       (p) => permissionValueKeys?.includes(p._id)
@@ -186,14 +184,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
     }
 
     // Clean up the value keys by only keeping the entity:action, ignoring any extensions
-    const notificationsValueKeys = uniq(
-      notificationsValue
-        .map((p) => p.split(":", 2).join(":"))
-        .filter((key) => {
-          const [entity, action] = key.split(":");
-          return !!entity && !!action;
-        })
-    );
+    const notificationsValueKeys = cleanPermissionKeys(notificationsValue);
     const clonedNotifications = cloneDeep(defaults.notifications);
     const checkedNotifications = clonedNotifications?.filter(
       (p) => notificationsValueKeys?.includes(p._id)
@@ -217,13 +208,14 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   }, [data, notificationsValue]);
 
   const handlePermissionChange = (_id: AuthPermissions) => {
-    if (permissionsValue.includes(_id)) {
+    const permissionValueKeys = cleanPermissionKeys(permissionsValue) as AuthPermissions[];
+    if (permissionValueKeys.includes(_id)) {
       setValue(
         "permissions",
-        permissionsValue.filter((p) => p !== _id)
+        permissionValueKeys.filter((p) => p !== _id)
       );
     } else {
-      setValue("permissions", [...permissionsValue, _id]);
+      setValue("permissions", [...permissionValueKeys, _id]);
     }
   };
 
@@ -258,18 +250,19 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       return;
     }
 
+    const permissionValueKeys = cleanPermissionKeys(permissionsValue) as AuthPermissions[];
     const checkedPermissions = data?.retrievePBACDefaults
       ?.find((pbac) => pbac.role === selectedRole)
-      ?.permissions?.filter((p) => permissionsValue.includes(p._id));
+      ?.permissions?.filter((p) => permissionValueKeys.includes(p._id));
 
     // Find any inherited permissions that are not already checked and add them to the new value
     const uncheckedInheritedPermissions =
       uniq(flatMap(checkedPermissions, (p) => p.inherited || [])).filter(
-        (p) => !permissionsValue.includes(p)
+        (p) => !permissionValueKeys.includes(p)
       ) || [];
 
     if (uncheckedInheritedPermissions.length) {
-      setValue("permissions", [...permissionsValue, ...uncheckedInheritedPermissions]);
+      setValue("permissions", [...permissionValueKeys, ...uncheckedInheritedPermissions]);
     }
   }, [permissionsValue]);
 

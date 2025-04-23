@@ -42,7 +42,7 @@ import {
   UpdateMyUserInput,
   UpdateMyUserResp,
 } from "../../graphql";
-import { formatFullStudyName, formatIDP, Logger } from "../../utils";
+import { cleanPermissionKeys, formatFullStudyName, formatIDP, Logger } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
@@ -312,8 +312,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           studies: fieldset.studies !== "HIDDEN" ? data.studies : null,
           institution: fieldset.institution !== "HIDDEN" ? data.institution : null,
           dataCommons: fieldset.dataCommons !== "HIDDEN" ? data.dataCommons : null,
-          permissions: data.permissions,
-          notifications: data.notifications,
+          permissions: cleanPermissionKeys(data.permissions) as AuthPermissions[],
+          notifications: cleanPermissionKeys(data.notifications) as AuthNotifications[],
         },
       }).catch((e) => ({ errors: e?.message, data: null }));
       setSaving(false);

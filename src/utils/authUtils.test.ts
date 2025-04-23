@@ -36,3 +36,23 @@ describe("checkPermissionKey", () => {
     expect(utils.checkPermissionKey({} as User, "foo:bar")).toBe(false);
   });
 });
+
+describe("cleanPermissionKeys", () => {
+  it("removes extra segments and deduplicates permission keys", () => {
+    const raw = [
+      "study:manage",
+      "study:create",
+      "study:create:scope:value",
+      "user:view:role:admin",
+      "study:manage",
+    ];
+    const result = utils.cleanPermissionKeys(raw);
+    expect(result).toEqual(["study:manage", "study:create", "user:view"]);
+  });
+
+  it("filters out malformed permission strings", () => {
+    const raw = ["bad", "", "foo:", ":bar", "entity:action", "entity:action:extra"];
+    const result = utils.cleanPermissionKeys(raw);
+    expect(result).toEqual(["entity:action"]);
+  });
+});
