@@ -17,7 +17,7 @@ type ScopeOption = {
   role: UserRole;
 };
 
-type Entity = keyof Permissions;
+export type Entity = keyof Permissions;
 type ScopeKey = keyof ScopeOption;
 type NonNullUnion = Exclude<ScopeOption[ScopeKey], null>;
 type ScopeSelector = "all" | "none";
@@ -49,7 +49,7 @@ type PermissionMap = {
   }>;
 };
 
-type Permissions = {
+export type Permissions = {
   access: {
     dataType: null;
     action: "request";
