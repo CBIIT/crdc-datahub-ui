@@ -25,6 +25,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         status
         conciergeName
         studies {
+          _id
           studyName
           studyAbbreviation
         }
@@ -58,7 +59,7 @@ export type Response = {
         | "createdAt"
         | "updateAt"
       > & {
-        studies: Pick<Organization["studies"][number], "studyName" | "studyAbbreviation">[];
+        studies: Pick<Organization["studies"][number], "_id" | "studyName" | "studyAbbreviation">[];
       }
     >;
   };
