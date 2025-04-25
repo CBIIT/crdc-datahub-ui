@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import { styled } from "@mui/material";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
@@ -19,9 +19,10 @@ type LayoutProps = {
 
 const Layout: FC<LayoutProps> = ({ children }) => (
   <SearchParamsProvider>
+    <ScrollRestoration />
     <Header />
-    <OverlayWindow />
     <StyledWrapper>
+      <OverlayWindow />
       {children || <Outlet />}
       <ScrollButton />
     </StyledWrapper>

@@ -141,6 +141,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
             data-testid={`progress-bar-section-${idx}`}
             aria-disabled={disabled || false}
             data-selected={selected || false}
+            preventScrollReset
           >
             <Stack direction="row" alignItems="center" justifyContent="center">
               <StyledAvatar>
