@@ -16,4 +16,3 @@ export * from "./envUtils";
 export * from "./logger";
 export * from "./fetchUtils";
 export * from "./dashboardUtils";
-export * from "./authUtils";

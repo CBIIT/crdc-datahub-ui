@@ -1,4 +1,4 @@
-import { getUserPermissionExtensions, getUserPermissionKey } from "../utils/authUtils";
+import { getUserPermissionExtensions, getUserPermissionKey } from "../utils/profileUtils";
 import {
   Roles as ALL_ROLES,
   CanDeleteOtherSubmissionRequests,
