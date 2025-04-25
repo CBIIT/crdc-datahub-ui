@@ -21,12 +21,14 @@ import {
   Status as OrgStatus,
 } from "../../components/Contexts/OrganizationListContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import StudyTooltip from "../../components/AdminPortal/Organizations/StudyTooltip";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { sortData } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import { ListOrgsResp } from "../../graphql";
+import TruncatedText from "../../components/TruncatedText";
+import StudyList from "../../components/StudyList";
 
-type T = Partial<Organization>;
+type T = ListOrgsResp["listPrograms"]["programs"][number];
 
 type FilterForm = {
   organization: string;
@@ -167,37 +169,31 @@ const initialTouchedFields: TouchedState = {
 const columns: Column<T>[] = [
   {
     label: "Name",
-    renderValue: (a) => a.name,
+    renderValue: (a) => <TruncatedText text={a.name} maxCharacters={30} />,
     comparator: (a, b) => a.name.localeCompare(b.name),
     field: "name",
     default: true,
     sx: {
-      width: "25%",
+      width: "356px",
     },
   },
   {
     label: "Primary Contact",
-    renderValue: (a) => a.conciergeName,
+    renderValue: (a) => <TruncatedText text={a.conciergeName} maxCharacters={15} />,
     comparator: (a, b) => (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
     field: "conciergeName",
     sx: {
-      width: "20%",
+      width: "290px",
     },
   },
   {
     label: "Studies",
-    renderValue: ({ _id, studies }) => {
+    renderValue: ({ studies }) => {
       if (!studies || studies?.length < 1) {
         return "";
       }
 
-      return (
-        <>
-          {studies[0].studyAbbreviation || studies[0].studyName}
-          {studies.length > 1 && " and "}
-          {studies.length > 1 && <StudyTooltip _id={_id} studies={studies} />}
-        </>
-      );
+      return <StudyList studies={studies} />;
     },
     field: "studies",
     sortDisabled: true,
@@ -208,15 +204,11 @@ const columns: Column<T>[] = [
     comparator: (a, b) => (a?.status || "").localeCompare(b?.status || ""),
     field: "status",
     sx: {
-      width: "10%",
+      width: "100px",
     },
   },
   {
-    label: (
-      <Stack direction="row" justifyContent="center" alignItems="center">
-        Action
-      </Stack>
-    ),
+    label: "Action",
     renderValue: (a) => (
       <Link to={`/programs/${a?.["_id"]}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
@@ -246,7 +238,7 @@ const ListingView: FC = () => {
     defaultValues: {
       organization: "",
       study: "",
-      status: "All",
+      status: "Active",
     },
   });
 
@@ -345,9 +337,9 @@ const ListingView: FC = () => {
     } else {
       newSearchParams.delete("study");
     }
-    if (statusFilter && statusFilter !== "All") {
+    if (statusFilter && statusFilter !== "Active") {
       newSearchParams.set("status", statusFilter);
-    } else if (statusFilter === "All") {
+    } else if (statusFilter === "Active") {
       newSearchParams.delete("status");
     }
 
