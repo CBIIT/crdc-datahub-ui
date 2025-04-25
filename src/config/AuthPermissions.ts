@@ -247,7 +247,7 @@ export const hasPermission = <Resource extends keyof Permissions>(
 
   // If no conditions need to be checked, just check if user has permission key
   if (onlyKey || permission === NO_CONDITIONS) {
-    return !!userPermissionKey;
+    return Boolean(userPermissionKey);
   }
 
   // If permission not defined, then deny permission
