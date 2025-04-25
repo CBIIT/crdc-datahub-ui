@@ -10,7 +10,7 @@ import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
-import { Entity, hasPermission, Permissions } from "../../../config/AuthPermissions";
+import { hasPermission, Permissions } from "../../../config/AuthPermissions";
 
 const HeaderBanner = styled("div")({
   width: "100%",
@@ -220,10 +220,10 @@ const Header = () => {
         return false;
       }
 
-      const entity = entityRaw as Entity;
-      const action = actionRaw as Permissions[Entity]["action"];
+      const entity = entityRaw as keyof Permissions;
+      const action = actionRaw as Permissions[keyof Permissions]["action"];
 
-      return hasPermission(user, entity, action, { onlyKey: true });
+      return hasPermission(user, entity, action, null, true);
     });
   };
 
