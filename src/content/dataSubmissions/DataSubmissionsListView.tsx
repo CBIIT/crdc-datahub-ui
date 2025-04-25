@@ -133,7 +133,7 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "DM Version",
+    label: "Model Version",
     renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,

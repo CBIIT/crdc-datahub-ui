@@ -414,7 +414,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
       saveResult.id !== data?.["_id"]
     ) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
-      navigate(`/submission-request/${saveResult.id}/${activeSection}`, { replace: true });
+      navigate(`/submission-request/${saveResult.id}/${activeSection}`, {
+        replace: true,
+        preventScrollReset: true,
+      });
     }
 
     if (saveResult?.status === "success") {
@@ -572,7 +575,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (status === FormStatus.SAVING || !prevSection) {
       return;
     }
-    navigate(prevSection);
+    navigate(prevSection, { preventScrollReset: true });
   };
 
   const handleNextClick = () => {
@@ -582,7 +585,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (isSectionD && !allSectionsComplete) {
       return;
     }
-    navigate(nextSection);
+    navigate(nextSection, { preventScrollReset: true });
   };
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
