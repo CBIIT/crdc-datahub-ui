@@ -115,8 +115,8 @@ describe("Basic Permissions", () => {
 
   it("should check only the permission key if the onlyKey param is set to true", () => {
     const user = createUser("Submitter", ["dashboard:view"]);
-    expect(hasPermission(user, "dashboard", "view", { data: null, onlyKey: true })).toBe(true);
-    expect(hasPermission(user, "access", "request", { data: null, onlyKey: true })).toBe(false);
+    expect(hasPermission(user, "dashboard", "view", null, true)).toBe(true);
+    expect(hasPermission(user, "access", "request", null, true)).toBe(false);
   });
 });
 
@@ -158,7 +158,7 @@ describe("submission_request:submit Permission", () => {
       const user = createUser("Admin", ["submission_request:submit"]);
       const application: Application = { ...baseApplication, status };
 
-      expect(hasPermission(user, "submission_request", "submit", { data: application })).toBe(true);
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
     }
   );
 
@@ -166,7 +166,7 @@ describe("submission_request:submit Permission", () => {
     const user = createUser("Submitter", ["submission_request:submit"]);
     const application: Application = { ...baseApplication, status };
 
-    expect(hasPermission(user, "submission_request", "submit", { data: application })).toBe(false);
+    expect(hasPermission(user, "submission_request", "submit", application)).toBe(false);
   });
 
   it("should return false if application is missing or undefined", () => {
@@ -186,7 +186,7 @@ describe("submission_request:submit Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: "user-1" },
       };
 
-      expect(hasPermission(user, "submission_request", "submit", { data: application })).toBe(true);
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
     }
   );
 
@@ -200,9 +200,7 @@ describe("submission_request:submit Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: "some-other-user" },
       };
 
-      expect(hasPermission(user, "submission_request", "submit", { data: application })).toBe(
-        false
-      );
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(false);
     }
   );
 
@@ -216,7 +214,7 @@ describe("submission_request:submit Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: "some-other-user" },
       };
 
-      expect(hasPermission(user, "submission_request", "submit", { data: application })).toBe(true);
+      expect(hasPermission(user, "submission_request", "submit", application)).toBe(true);
     }
   );
 
@@ -224,7 +222,7 @@ describe("submission_request:submit Permission", () => {
     const user = createUser("Admin", []);
     const application: Application = { ...baseApplication, status: "In Progress" };
 
-    expect(hasPermission(user, "submission_request", "submit", { data: application })).toBe(false);
+    expect(hasPermission(user, "submission_request", "submit", application)).toBe(false);
   });
 });
 
@@ -233,9 +231,7 @@ describe("submission_request:review Permission", () => {
     "should allow role %s with no conditions except the permission key",
     (role) => {
       const user = createUser(role, ["submission_request:review"]);
-      expect(hasPermission(user, "submission_request", "review", { data: baseApplication })).toBe(
-        true
-      );
+      expect(hasPermission(user, "submission_request", "review", baseApplication)).toBe(true);
     }
   );
 });
@@ -257,9 +253,7 @@ describe("submission_request:cancel Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status,
       };
-      expect(hasPermission(user, "submission_request", "cancel", { data: application1 })).toBe(
-        true
-      );
+      expect(hasPermission(user, "submission_request", "cancel", application1)).toBe(true);
     }
   );
 
@@ -272,16 +266,14 @@ describe("submission_request:cancel Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status: "Canceled",
       };
-      expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(true);
+      expect(hasPermission(user, "submission_request", "cancel", application)).toBe(true);
 
       const application2: Application = {
         ...baseApplication,
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status: "Deleted",
       };
-      expect(hasPermission(user, "submission_request", "cancel", { data: application2 })).toBe(
-        true
-      );
+      expect(hasPermission(user, "submission_request", "cancel", application2)).toBe(true);
     }
   );
 
@@ -302,9 +294,7 @@ describe("submission_request:cancel Permission", () => {
         const user = createUser(role, ["submission_request:cancel"]);
         const application: Application = { ...baseApplication, status };
 
-        expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(
-          true
-        );
+        expect(hasPermission(user, "submission_request", "cancel", application)).toBe(true);
       });
     }
   );
@@ -329,9 +319,7 @@ describe("submission_request:cancel Permission", () => {
           status,
         };
 
-        expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(
-          false
-        );
+        expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
       });
     }
   );
@@ -346,9 +334,7 @@ describe("submission_request:cancel Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: user._id },
         status,
       };
-      expect(hasPermission(user, "submission_request", "cancel", { data: application1 })).toBe(
-        false
-      );
+      expect(hasPermission(user, "submission_request", "cancel", application1)).toBe(false);
 
       // Submitter
       const submitter = createUser("Submitter", ["submission_request:cancel"]);
@@ -357,9 +343,7 @@ describe("submission_request:cancel Permission", () => {
         applicant: { ...baseApplication.applicant, applicantID: submitter._id },
         status,
       };
-      expect(hasPermission(submitter, "submission_request", "cancel", { data: application2 })).toBe(
-        false
-      );
+      expect(hasPermission(submitter, "submission_request", "cancel", application2)).toBe(false);
     }
   );
 
@@ -372,9 +356,7 @@ describe("submission_request:cancel Permission", () => {
         status: "In Progress",
         applicant: { ...baseApplication.applicant, applicantID: "other-user" },
       };
-      expect(hasPermission(user, "submission_request", "cancel", { data: application1 })).toBe(
-        false
-      );
+      expect(hasPermission(user, "submission_request", "cancel", application1)).toBe(false);
     }
   );
 
@@ -383,9 +365,7 @@ describe("submission_request:cancel Permission", () => {
     (role) => {
       const user = createUser(role, []);
       const application: Application = { ...baseApplication, status: "In Progress" };
-      expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(
-        false
-      );
+      expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
     }
   );
 
@@ -396,7 +376,7 @@ describe("submission_request:cancel Permission", () => {
       applicant: { ...baseApplication.applicant, applicantID: "not-the-owner" }, // They are NOT the owner
       status: "In Progress", // Anyone can cancel in this status
     };
-    expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(false);
+    expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
   });
 
   it("should not allow an unknown role to cancel in a constrained status", () => {
@@ -406,7 +386,7 @@ describe("submission_request:cancel Permission", () => {
       applicant: { ...baseApplication.applicant, applicantID: user._id }, // They ARE the owner
       status: "Submitted", // Low level users cannot cancel in this status
     };
-    expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(false);
+    expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
   });
 
   it("should not allow a user to cancel an application in an unknown status", () => {
@@ -416,7 +396,7 @@ describe("submission_request:cancel Permission", () => {
       applicant: { ...baseApplication.applicant, applicantID: user._id }, // They ARE the owner
       status: "UnknownStatus" as ApplicationStatus,
     };
-    expect(hasPermission(user, "submission_request", "cancel", { data: application })).toBe(false);
+    expect(hasPermission(user, "submission_request", "cancel", application)).toBe(false);
   });
 });
 
@@ -440,38 +420,36 @@ describe("data_submission:create Permission", () => {
         },
       ],
     };
-    expect(hasPermission(user, "data_submission", "create", { data: submission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "create", submission)).toBe(true);
   });
 
   it("should allow a submitter who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Submitter", ["data_submission:create"]);
     user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "create", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
   it("should allow a 'Federal Lead' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Federal Lead", ["data_submission:create"]);
     user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "create", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
   it("should allow a 'Data Commons Personnel' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:create"]);
     user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "create", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
   it("should allow 'Admin' who is the submission owner WITH 'data_submission:create' key", () => {
     const user = createUser("Admin", ["data_submission:create"]);
     user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "create", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(true);
   });
 
   it("should deny if user doesn't meet any condition", () => {
     const user = createUser("User", []);
-    expect(hasPermission(user, "data_submission", "create", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "create", createSubmission)).toBe(false);
   });
 
   it("should return false if submission is missing or undefined", () => {
@@ -492,31 +470,29 @@ describe("data_submission:review Permission", () => {
   it("should allow a 'Federal Lead' with 'data_submission:review' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:review"]);
     user.studies = [{ _id: "study-3" }];
-    expect(hasPermission(user, "data_submission", "review", { data: reviewSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(true);
   });
 
   it("should allow a 'Federal Lead' with 'data_submission:review' key if they have the 'All' study", () => {
     const user = createUser("Federal Lead", ["data_submission:review"]);
     user.studies = [{ _id: "All" }];
-    expect(hasPermission(user, "data_submission", "review", { data: reviewSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(true);
   });
 
   it("should allow 'Data Commons Personnel' with 'data_submission:review' key if they have the matching dataCommons", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:review"]);
     user.dataCommons = ["commons-3"];
-    expect(hasPermission(user, "data_submission", "review", { data: reviewSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(true);
   });
 
   it("should allow 'Admin' with 'data_submission:review' key", () => {
     const user = createUser("Admin", ["data_submission:review"]);
-    expect(hasPermission(user, "data_submission", "review", { data: reviewSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(true);
   });
 
   it("should deny if user doesn't meet any condition", () => {
     const user = createUser("Submitter", ["data_submission:review"]);
-    expect(hasPermission(user, "data_submission", "review", { data: reviewSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "review", reviewSubmission)).toBe(false);
   });
 
   it("should return false if submission is missing or undefined", () => {
@@ -537,39 +513,39 @@ describe("data_submission:admin_submit Permission", () => {
   it("should allow a 'Federal Lead' with 'data_submission:admin_submit' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:admin_submit"]);
     user.studies = [{ _id: "study-4" }];
-    expect(
-      hasPermission(user, "data_submission", "admin_submit", { data: adminSubmitSubmission })
-    ).toBe(true);
+    expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
+      true
+    );
   });
 
   it("should allow a 'Federal Lead' with 'data_submission:admin_submit' key if they have the 'All' study", () => {
     const user = createUser("Federal Lead", ["data_submission:admin_submit"]);
     user.studies = [{ _id: "All" }];
-    expect(
-      hasPermission(user, "data_submission", "admin_submit", { data: adminSubmitSubmission })
-    ).toBe(true);
+    expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
+      true
+    );
   });
 
   it("should allow 'Data Commons Personnel' with 'data_submission:admin_submit' key if they have the matching dataCommons", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:admin_submit"]);
     user.dataCommons = ["commons-4"];
-    expect(
-      hasPermission(user, "data_submission", "admin_submit", { data: adminSubmitSubmission })
-    ).toBe(true);
+    expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
+      true
+    );
   });
 
   it("should allow 'Admin' with 'data_submission:admin_submit' key", () => {
     const user = createUser("Admin", ["data_submission:admin_submit"]);
-    expect(
-      hasPermission(user, "data_submission", "admin_submit", { data: adminSubmitSubmission })
-    ).toBe(true);
+    expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
+      true
+    );
   });
 
   it("should deny if user doesn't meet any condition", () => {
     const user = createUser("User", []);
-    expect(
-      hasPermission(user, "data_submission", "admin_submit", { data: adminSubmitSubmission })
-    ).toBe(false);
+    expect(hasPermission(user, "data_submission", "admin_submit", adminSubmitSubmission)).toBe(
+      false
+    );
   });
 
   it("should return false if submission is missing or undefined", () => {
@@ -590,39 +566,29 @@ describe("data_submission:confirm Permission", () => {
   it("should allow a 'Federal Lead' with 'data_submission:confirm' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:confirm"]);
     user.studies = [{ _id: "study-5" }];
-    expect(hasPermission(user, "data_submission", "confirm", { data: confirmSubmission })).toBe(
-      true
-    );
+    expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(true);
   });
 
   it("should allow a 'Federal Lead' with 'data_submission:confirm' key if they have the 'All' study", () => {
     const user = createUser("Federal Lead", ["data_submission:confirm"]);
     user.studies = [{ _id: "All" }];
-    expect(hasPermission(user, "data_submission", "confirm", { data: confirmSubmission })).toBe(
-      true
-    );
+    expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(true);
   });
 
   it("should allow 'Data Commons Personnel' with 'data_submission:confirm' key if they have the matching dataCommons", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:confirm"]);
     user.dataCommons = ["commons-5"];
-    expect(hasPermission(user, "data_submission", "confirm", { data: confirmSubmission })).toBe(
-      true
-    );
+    expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(true);
   });
 
   it("should allow 'Admin' with 'data_submission:confirm' key", () => {
     const user = createUser("Admin", ["data_submission:confirm"]);
-    expect(hasPermission(user, "data_submission", "confirm", { data: confirmSubmission })).toBe(
-      true
-    );
+    expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(true);
   });
 
   it("should deny if user doesn't meet any condition", () => {
     const user = createUser("Submitter", ["data_submission:confirm"]);
-    expect(hasPermission(user, "data_submission", "confirm", { data: confirmSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "confirm", confirmSubmission)).toBe(false);
   });
 
   it("should return false if submission is missing or undefined", () => {
@@ -648,97 +614,81 @@ describe("data_submission:cancel Permission", () => {
         { collaboratorID: user._id, collaboratorName: "Test Collaborator", permission: null },
       ],
     };
-    expect(hasPermission(user, "data_submission", "cancel", { data: submission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "cancel", submission)).toBe(true);
   });
 
   it("should allow a 'Federal Lead' with 'data_submission:cancel' key if they have the matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:cancel"]);
     user.studies = [{ _id: "study-1" }];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
   });
 
   it("should allow a 'Federal Lead' with 'data_submission:cancel' key if they have the 'All' study", () => {
     const user = createUser("Federal Lead", ["data_submission:cancel"]);
     user.studies = [{ _id: "All" }];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
   });
 
   it("should deny a 'Federal Lead' with 'data_submission:cancel' key if they do not have a matching study", () => {
     const user = createUser("Federal Lead", ["data_submission:cancel"]);
     user.studies = [{ _id: "study-2" }];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should deny a 'Federal Lead' without the 'data_submission:cancel' key even if they have a matching study", () => {
     const user = createUser("Federal Lead", []);
     user.studies = [{ _id: "study-1" }];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should allow 'Data Commons Personnel' with 'data_submission:cancel' key if they have the matching dataCommons", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:cancel"]);
     user.dataCommons = ["commons-1"];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
   });
 
   it("should deny 'Data Commons Personnel' with 'data_submission:cancel' key if they do not have a matching dataCommons", () => {
     const user = createUser("Data Commons Personnel", ["data_submission:cancel"]);
     user.dataCommons = ["commons-2"];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should deny 'Data Commons Personnel' without the 'data_submission:cancel' key even if they have matching dataCommons", () => {
     const user = createUser("Data Commons Personnel", []);
     user.dataCommons = ["commons-1"];
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should allow 'Admin' with 'data_submission:cancel' key", () => {
     const user = createUser("Admin", ["data_submission:cancel"]);
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
   });
 
   it("should deny 'Admin' without the 'data_submission:cancel' key", () => {
     const user = createUser("Admin", []);
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should allow a 'Submitter' with 'data_submission:cancel' key if they are the submission owner", () => {
     const user = createUser("Submitter", ["data_submission:cancel"]);
     user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(true);
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(true);
   });
 
   it("should deny a 'Submitter' with 'data_submission:cancel' key if they are not the submission owner", () => {
     const user = createUser("Submitter", ["data_submission:cancel"]);
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should deny a 'Submitter' without the 'data_submission:cancel' key even if they are the submission owner", () => {
     const user = createUser("Submitter", []);
     user._id = "owner-123";
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it("should deny permission for 'User' role even if they have the permission key", () => {
     const user = createUser("User", ["data_submission:cancel"]);
-    expect(hasPermission(user, "data_submission", "cancel", { data: createSubmission })).toBe(
-      false
-    );
+    expect(hasPermission(user, "data_submission", "cancel", createSubmission)).toBe(false);
   });
 
   it.each([undefined, null])("should return false if submission is %p", (submissionData) => {

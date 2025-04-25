@@ -33,7 +33,7 @@ export const getDefaultValidationType = (
 
   if (
     status === "Submitted" &&
-    hasPermission(user, "data_submission", "review", { data: dataSubmission }) &&
+    hasPermission(user, "data_submission", "review", dataSubmission) &&
     metadataValidationStatus &&
     fileValidationStatus
   ) {
@@ -62,10 +62,7 @@ export const getDefaultValidationTarget = (
 ): ValidationTarget => {
   const { status } = dataSubmission || {};
 
-  if (
-    status === "Submitted" &&
-    hasPermission(user, "data_submission", "review", { data: dataSubmission })
-  ) {
+  if (status === "Submitted" && hasPermission(user, "data_submission", "review", dataSubmission)) {
     return "All";
   }
 

@@ -139,7 +139,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
 
     return (
       <StyledDownloadButton
-        disabled={!hasPermission(user, "data_submission", "create", { data: submission })}
+        disabled={!hasPermission(user, "data_submission", "create", submission)}
         onClick={() => setConfigDialogOpen(true)}
         variant="contained"
         color="info"

@@ -531,7 +531,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleSubmitForm = () => {
-    if (!hasPermission(user, "submission_request", "submit", { data })) {
+    if (!hasPermission(user, "submission_request", "submit", data)) {
       Logger.error("Invalid request to submit Submission Request form.");
       return;
     }
@@ -707,7 +707,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
               )}
 
               {activeSection === "REVIEW" &&
-                hasPermission(user, "submission_request", "submit", { data }) && (
+                hasPermission(user, "submission_request", "submit", data) && (
                   <StyledExtendedLoadingButton
                     id="submission-form-submit-button"
                     variant="contained"

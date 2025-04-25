@@ -137,7 +137,7 @@ const DeleteNodeDataButton = ({ nodeType, selectedItems, disabled, onDelete, ...
     }
   };
 
-  if (!hasPermission(user, "data_submission", "create", { data: data?.getSubmission })) {
+  if (!hasPermission(user, "data_submission", "create", data?.getSubmission)) {
     return null;
   }
 

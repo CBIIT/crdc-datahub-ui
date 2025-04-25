@@ -164,7 +164,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     }
   }, [isRestoreAction, comment, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
 
-  if (!hasPermission(user, "submission_request", "cancel", { data: application })) {
+  if (!hasPermission(user, "submission_request", "cancel", application)) {
     return null;
   }
 

@@ -1,4 +1,4 @@
-import { checkPermissionKey } from "../utils/authUtils";
+import { getUserPermissionExtensions, getUserPermissionKey } from "../utils/authUtils";
 import {
   Roles as ALL_ROLES,
   CanDeleteOtherSubmissionRequests,
@@ -10,38 +10,9 @@ import {
  */
 const NO_CONDITIONS = "NO CONDITIONS";
 
-type ScopeOption = {
-  own: null;
-  study: ApprovedStudy;
-  DC: null;
-  role: UserRole;
-};
-
-export type Entity = keyof Permissions;
-type ScopeKey = keyof ScopeOption;
-type NonNullUnion = Exclude<ScopeOption[ScopeKey], null>;
-type ScopeSelector = "all" | "none";
-
-type PermissionNone<S> = S extends "none" ? { scope: "none"; scopeValues: null } : never;
-type PermissionAll<S> = S extends "all" ? { scope: "all"; scopeValues: NonNullUnion[] } : never;
-type PermissionArray<S> = S extends readonly ScopeKey[]
-  ? { scope: S; scopeValues: Array<Exclude<ScopeOption[S[number]], null>> }
-  : never;
-
-type PermissionOpts<S extends ScopeSelector | ScopeKey[] = ScopeSelector | ScopeKey[]> =
-  | PermissionNone<S>
-  | PermissionAll<S>
-  | PermissionArray<S>;
-
 type PermissionCheck<Key extends keyof Permissions> =
   | typeof NO_CONDITIONS
-  | ((user: User, data: Permissions[Key]["dataType"], config: PermissionConfig) => boolean);
-
-type PermissionConfig<S extends ScopeSelector | ScopeKey[] = ScopeSelector | ScopeKey[]> = {
-  data?: Permissions[keyof Permissions]["dataType"];
-  onlyKey?: boolean;
-  opts?: PermissionOpts<S>;
-};
+  | ((user: User, data: Permissions[Key]["dataType"], extensions: string[][]) => boolean);
 
 type PermissionMap = {
   [Key in keyof Permissions]: Partial<{
@@ -91,7 +62,7 @@ export const PERMISSION_MAP = {
     submit: (user, application) => {
       const { role } = user;
       const isFormOwner = application?.applicant?.applicantID === user?._id;
-      const hasPermissionKey = checkPermissionKey(user, "submission_request:submit");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "submission_request:submit"));
       const submitStatuses: ApplicationStatus[] = ["In Progress", "Inquired"];
 
       if (!submitStatuses?.includes(application?.status)) {
@@ -106,7 +77,7 @@ export const PERMISSION_MAP = {
     },
     review: NO_CONDITIONS,
     cancel: (user, application) => {
-      const hasPermissionKey = checkPermissionKey(user, "submission_request:cancel");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "submission_request:cancel"));
       if (!hasPermissionKey) {
         return false;
       }
@@ -137,7 +108,7 @@ export const PERMISSION_MAP = {
   data_submission: {
     view: NO_CONDITIONS,
     create: (user, submission) => {
-      const hasPermissionKey = checkPermissionKey(user, "data_submission:create");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:create"));
       const isSubmissionOwner = submission?.submitterID === user?._id;
       const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
 
@@ -152,7 +123,7 @@ export const PERMISSION_MAP = {
     },
     review: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = checkPermissionKey(user, "data_submission:review");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:review"));
 
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
@@ -168,7 +139,7 @@ export const PERMISSION_MAP = {
     },
     admin_submit: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = checkPermissionKey(user, "data_submission:admin_submit");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:admin_submit"));
 
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
@@ -184,7 +155,7 @@ export const PERMISSION_MAP = {
     },
     confirm: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = checkPermissionKey(user, "data_submission:confirm");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:confirm"));
 
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
@@ -200,7 +171,7 @@ export const PERMISSION_MAP = {
     },
     cancel: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = checkPermissionKey(user, "data_submission:cancel");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:cancel"));
       const isSubmissionOwner = submission?.submitterID === user?._id;
       const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
 
@@ -243,52 +214,40 @@ export const PERMISSION_MAP = {
 /**
  * Determines if a user has the necessary permission to perform a specific action on a resource.
  *
- * @template E - A key of `Permissions` for the target resource.
- * @template A - An action from `Permissions[E]["action"]`.
- * @param {User} user - The user attempting the action.
- * @param {E} entity - The resource name (e.g. `"submission_request"`).
- * @param {A} action - The specific action to check (e.g. `"create"`, `"submit"`).
- * @param {PermissionConfig<S>} [config]
- *   Optional configuration:
- *   - `data` (`Permissions[E]["dataType"]`): payload for dynamic checks.
- *   - `onlyKey` (`boolean`): if true, skip all logic except the permission key.
- *   - `opts` (`PermissionOpts<S>`): scope filters (`scope` + `scopeValues`).
- * @returns {boolean} `true` if the user is authorized; otherwise `false`.
+ * @template Resource - A key of the `Permissions` type representing the resource to check.
+ * @param {User} user - The user object, which contains the user's role and permissions.
+ * @param {Resource} resource - The resource on which the action is being performed.
+ * @param {Permissions[Resource]["action"]} action - The action to check permission for.
+ * @param {Permissions[Resource]["dataType"]} [data] - Optional additional data needed for dynamic permission checks.
+ * @param {boolean} onlyKey - Optional flag for checking ONLY if the user has the permission key.
+ * @returns {boolean} - `true` if the user has permission, otherwise `false`.
  *
  * @example
- * // Key-only check:
- * hasPermission(user, "submission_request", "create", { onlyKey: true });
+ * // Basic permission check without additional data
+ * const canCreate = hasPermission(user, "submission_request", "create");
  *
  * @example
- * // Data + scope check:
- * hasPermission(user, "data_submission", "create", {
- *   data: submission,
- *   opts: { scope: ["role"], scopeValues: ["Submitter", "Admin"] },
- * });
-
+ * // Permission check with additional data
+ * const canSubmit = hasPermission(user, "submission_request", "submit", applicationData);
  */
-export const hasPermission = <
-  E extends Entity,
-  A extends Permissions[E]["action"],
-  S extends ScopeSelector | ScopeKey[] = ScopeSelector | ScopeKey[],
->(
+export const hasPermission = <Resource extends keyof Permissions>(
   user: User,
-  entity: E,
-  action: A,
-  config?: PermissionConfig<S>
+  resource: Resource,
+  action: Permissions[Resource]["action"],
+  data?: Permissions[Resource]["dataType"],
+  onlyKey?: boolean
 ): boolean => {
   if (!user?.role) {
     return false;
   }
 
-  const { data = null, onlyKey = false } = config || {};
-
-  const permission = (PERMISSION_MAP as PermissionMap)?.[entity]?.[action];
-  const permissionKey = `${entity}:${action}`;
+  const permission = (PERMISSION_MAP as PermissionMap)?.[resource]?.[action];
+  const rawPermissionKey = `${resource}:${action}`;
+  const userPermissionKey = getUserPermissionKey(user, rawPermissionKey);
 
   // If no conditions need to be checked, just check if user has permission key
   if (onlyKey || permission === NO_CONDITIONS) {
-    return checkPermissionKey(user, permissionKey);
+    return !!userPermissionKey;
   }
 
   // If permission not defined, then deny permission
@@ -296,6 +255,9 @@ export const hasPermission = <
     return false;
   }
 
+  // Parse all additional permission extensions and group them together
+  const extensions = getUserPermissionExtensions(userPermissionKey);
+
   // Check conditions
-  return !!data && permission(user, data, config);
+  return !!data && permission(user, data, extensions);
 };

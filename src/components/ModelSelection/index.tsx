@@ -71,7 +71,7 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
 
   const canSeeButton = useMemo<boolean>(
     () =>
-      hasPermission(user, "data_submission", "review", { data: getSubmission, onlyKey: true }) &&
+      hasPermission(user, "data_submission", "review", getSubmission, true) &&
       ENABLED_STATUSES.includes(status) &&
       user?.dataCommons?.includes(dataCommons) &&
       user?.role === "Data Commons Personnel",

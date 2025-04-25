@@ -105,42 +105,42 @@ type ActionKey =
 const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", { data: submission }),
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   AdminSubmit: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "admin_submit", { data: submission }),
+      hasPermission(user, "data_submission", "admin_submit", submission),
     statuses: ["In Progress", "Withdrawn", "Rejected"],
   },
   Release: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "review", { data: submission }),
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   Withdraw: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "create", { data: submission }),
+      hasPermission(user, "data_submission", "create", submission),
     statuses: ["Submitted"],
   },
   SubmittedReject: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "review", { data: submission }),
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   ReleasedReject: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "confirm", { data: submission }),
+      hasPermission(user, "data_submission", "confirm", submission),
     statuses: ["Released"],
   },
   Complete: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "confirm", { data: submission }),
+      hasPermission(user, "data_submission", "confirm", submission),
     statuses: ["Released"],
   },
   Cancel: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "cancel", { data: submission }),
+      hasPermission(user, "data_submission", "cancel", submission),
     statuses: ["New", "In Progress", "Rejected"],
   },
 };

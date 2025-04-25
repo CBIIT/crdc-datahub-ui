@@ -574,7 +574,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
         </StyledDialogActions>
       </CreateSubmissionDialog>
 
-      {hasPermission(user, "data_submission", "create", { data: null, onlyKey: true }) && (
+      {hasPermission(user, "data_submission", "create", null, true) && (
         <StyledTooltipWrapper alignItems="center" justifyContent="flex-end">
           <StyledButton
             type="button"
