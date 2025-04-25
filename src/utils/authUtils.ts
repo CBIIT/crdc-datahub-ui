@@ -47,7 +47,7 @@ export const getUserPermissionExtensions = (
 ): string[][] => {
   const rawExtensions = permission?.split(":");
 
-  if (rawExtensions?.length <= startAt) {
+  if (!rawExtensions || rawExtensions?.length <= startAt) {
     return [];
   }
 
