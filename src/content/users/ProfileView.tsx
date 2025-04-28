@@ -39,8 +39,11 @@ import {
   ListInstitutionsInput,
   ListInstitutionsResp,
   UPDATE_MY_USER,
+  USER_IS_PRIMARY_CONTACT,
   UpdateMyUserInput,
   UpdateMyUserResp,
+  UserIsPrimaryContactInput,
+  UserIsPrimaryContactResp,
 } from "../../graphql";
 import { formatFullStudyName, formatIDP, Logger } from "../../utils";
 import { DataCommons } from "../../config/DataCommons";
@@ -56,9 +59,16 @@ import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileField
 import AccessRequest from "../../components/AccessRequest";
 import PermissionPanel from "../../components/PermissionPanel";
 import StudyList from "../../components/StudyList";
+import DeleteDialog from "../../components/DeleteDialog";
 
 type Props = {
+  /**
+   * The ID of the user to view or edit
+   */
   _id: User["_id"];
+  /**
+   * The type of view to render, either "users" for the Edit User view or "profile" for the User Profile view
+   */
   viewType: "users" | "profile";
 };
 
@@ -209,6 +219,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   const [user, setUser] = useState<User | null>();
   const [saving, setSaving] = useState<boolean>(false);
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
 
   const { handleSubmit, register, reset, watch, setValue, control } = methods;
   const roleField = watch("role");
@@ -224,6 +235,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
     return true;
   }, [user, _id, currentUser, viewType]);
+
+  const requiresRoleChangeConfirm: boolean = useMemo<boolean>(() => {
+    // User was previously a Data Commons Personnel and is not anymore
+    if (
+      viewType === "users" &&
+      user?.role === "Data Commons Personnel" &&
+      roleField !== "Data Commons Personnel"
+    ) {
+      return true;
+    }
+
+    return false;
+  }, [roleField, user]);
 
   const [getUser] = useLazyQuery<GetUserResp, GetUserInput>(GET_USER, {
     context: { clientName: "backend" },
@@ -260,6 +284,19 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     }
   );
 
+  const { data: isPrimaryContact } = useQuery<UserIsPrimaryContactResp, UserIsPrimaryContactInput>(
+    USER_IS_PRIMARY_CONTACT,
+    {
+      variables: { userID: _id },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+      skip: user?.role !== "Data Commons Personnel",
+      onError: (error) => {
+        Logger.error("ProfileView: Error checking primary contact status", error);
+      },
+    }
+  );
+
   const formattedStudyMap = useMemo<Record<string, string>>(() => {
     if (!approvedStudies?.listApprovedStudies?.studies) {
       return {};
@@ -279,6 +316,15 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
 
     return studyIdMap;
   }, [approvedStudies?.listApprovedStudies?.studies, roleField]);
+
+  const onPreSubmit: SubmitHandler<FormInput> = (data: FormInput) => {
+    if (requiresRoleChangeConfirm && isPrimaryContact?.userIsPrimaryContact) {
+      setConfirmDialogOpen(true);
+      return;
+    }
+
+    onSubmit(data);
+  };
 
   const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
     setSaving(true);
@@ -460,7 +506,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
               <StyledHeaderText variant="h2">{user.email}</StyledHeaderText>
             </StyledHeader>
             <FormProvider {...methods}>
-              <StyledForm onSubmit={handleSubmit(onSubmit)}>
+              <StyledForm onSubmit={handleSubmit(onPreSubmit)}>
                 <StyledField>
                   <StyledLabel>Account Type</StyledLabel>
                   {formatIDP(user.IDP)}
@@ -725,6 +771,21 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
           </StyledContentStack>
         </Stack>
       </StyledContainer>
+      <DeleteDialog
+        open={confirmDialogOpen}
+        header="Warning: Role Change"
+        headerProps={{ color: "#C25700 !important" }}
+        description={
+          <>
+            This user is currently assigned as a Data Concierge for one or more programs or studies.
+            Removing the <b>Data Commons Personnel</b> role will result in these entities no longer
+            having a Data Concierge. Do you want to proceed?
+          </>
+        }
+        onConfirm={handleSubmit(onSubmit)}
+        confirmText="Confirm"
+        onClose={() => setConfirmDialogOpen(false)}
+      />
     </>
   );
 };
