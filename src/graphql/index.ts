@@ -187,7 +187,7 @@ export type {
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
-export type { Response as ListOrgsResp } from "./listOrganizations";
+export type { Input as ListOrgsInput, Response as ListOrgsResp } from "./listOrganizations";
 
 export { query as GET_ORG } from "./getOrganization";
 export type { Response as GetOrgResp } from "./getOrganization";
