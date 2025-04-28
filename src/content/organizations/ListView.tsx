@@ -1,4 +1,4 @@
-import React, { ElementType, FC, useEffect, useRef, useState } from "react";
+import { ElementType, FC, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -6,8 +6,6 @@ import {
   Container,
   FormControl,
   MenuItem,
-  OutlinedInput,
-  Select,
   Stack,
   TableCell,
   TableHead,
@@ -15,6 +13,7 @@ import {
 } from "@mui/material";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
+import type { ListOrgsResp } from "../../graphql";
 import PageBanner from "../../components/PageBanner";
 import {
   useOrganizationListContext,
@@ -24,9 +23,10 @@ import usePageTitle from "../../hooks/usePageTitle";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { sortData } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { ListOrgsResp } from "../../graphql";
 import TruncatedText from "../../components/TruncatedText";
 import StudyList from "../../components/StudyList";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import StyledTextField from "../../components/StyledFormComponents/StyledOutlinedInput";
 
 type T = ListOrgsResp["listPrograms"]["programs"][number];
 
@@ -45,7 +45,6 @@ const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
   fontWeight: 700,
   fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   letterSpacing: "2%",
   lineHeight: "20.14px",
   borderRadius: "8px",
@@ -81,41 +80,6 @@ const StyledInlineLabel = styled("label")({
   padding: "0 10px",
   fontWeight: "700",
 });
-
-const baseTextFieldStyles = {
-  borderRadius: "8px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
-};
-
-const StyledTextField = styled(OutlinedInput)(baseTextFieldStyles);
-const StyledSelect = styled(Select)(baseTextFieldStyles);
 
 const StyledHeaderCell = styled(TableCell)({
   fontWeight: 700,
@@ -224,11 +188,11 @@ const columns: Column<T>[] = [
 ];
 
 /**
- * View for the list of Programs
+ * A view for the list of Programs.
  *
- * @returns {JSX.Element}
+ * @returns The ListView component
  */
-const ListingView: FC = () => {
+const ListView: FC = () => {
   usePageTitle("Manage Programs");
 
   const { state } = useLocation();
@@ -450,4 +414,4 @@ const ListingView: FC = () => {
   );
 };
 
-export default ListingView;
+export default ListView;
