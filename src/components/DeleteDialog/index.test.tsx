@@ -128,6 +128,27 @@ describe("Basic Functionality", () => {
 
     expect(getByTestId("delete-dialog-confirm-button")).toBeDisabled();
   });
+
+  it("should forward the header props to the header element", () => {
+    const mockOnHeaderClick = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent>
+        <Dialog
+          open
+          onConfirm={jest.fn}
+          onClose={jest.fn}
+          headerProps={{ className: "xyz-custom-prop", onClick: mockOnHeaderClick }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("delete-dialog-header")).toHaveClass("xyz-custom-prop");
+
+    userEvent.click(getByTestId("delete-dialog-header"));
+
+    expect(mockOnHeaderClick).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("Implementation Requirements", () => {
