@@ -524,6 +524,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                           {...field}
                           size="small"
                           onChange={(e) => handleRoleChange(field, e?.target?.value as UserRole)}
+                          disabled={fieldset.role === "DISABLED"}
                           MenuProps={{ disablePortal: true }}
                           inputProps={{ "aria-labelledby": "userRoleLabel" }}
                         >

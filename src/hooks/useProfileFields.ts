@@ -102,6 +102,18 @@ const useProfileFields = (
     fields.dataCommons = "HIDDEN";
   }
 
+  if (profileOf?.role === "Federal Lead" && user?.role === "Federal Lead") {
+    fields.role = "DISABLED";
+    fields.userStatus = "UNLOCKED";
+    fields.permissions = "UNLOCKED";
+    fields.notifications = "UNLOCKED";
+
+    fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";
+    fields.institution = RequiresInstitutionAssigned.includes(profileOf?.role)
+      ? "UNLOCKED"
+      : "HIDDEN";
+  }
+
   return fields;
 };
 
