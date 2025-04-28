@@ -265,7 +265,8 @@ const ListingView: FC = () => {
 
     if (
       roleFilter &&
-      ((user?.role === "Federal Lead" && roleFilter !== "Federal Lead") || roleFilter !== "All")
+      ((user?.role === "Federal Lead" && roleFilter !== "Federal Lead") ||
+        (user?.role !== "Federal Lead" && roleFilter !== "All"))
     ) {
       newSearchParams.set("role", roleFilter);
     } else if (
@@ -283,7 +284,7 @@ const ListingView: FC = () => {
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [roleFilter, statusFilter, touchedFilters]);
+  }, [user?.role, roleFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
