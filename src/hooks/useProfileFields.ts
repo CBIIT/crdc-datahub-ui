@@ -107,11 +107,6 @@ const useProfileFields = (
     fields.userStatus = "UNLOCKED";
     fields.permissions = "UNLOCKED";
     fields.notifications = "UNLOCKED";
-
-    fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "UNLOCKED" : "HIDDEN";
-    fields.institution = RequiresInstitutionAssigned.includes(profileOf?.role)
-      ? "UNLOCKED"
-      : "HIDDEN";
   }
 
   return fields;

@@ -150,7 +150,24 @@ describe("Profile View", () => {
     }
   );
 
-  it.each<UserRole>(["Submitter", "Federal Lead"])(
+  it.each<UserRole>(["Federal Lead"])(
+    "should return UNLOCKED for all fields except role on the profile page for role %s modifying a Federal Lead",
+    (role) => {
+      const user = { _id: "User-A", role } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
+
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+
+      expect(result.current.role).toBe("DISABLED");
+      expect(result.current.userStatus).toBe("UNLOCKED");
+      expect(result.current.permissions).toBe("UNLOCKED");
+      expect(result.current.notifications).toBe("UNLOCKED");
+    }
+  );
+
+  it.each<UserRole>(["Submitter"])(
     "should return READ_ONLY for the studies field on the profile page for role %s",
     (role) => {
       const user = { _id: "User-A", role } as User;
@@ -192,13 +209,7 @@ describe("Profile View", () => {
     }
   );
 
-  it.each<UserRole>([
-    "User",
-    "Submitter",
-    "Federal Lead",
-    "Data Commons Personnel",
-    "fake role" as UserRole,
-  ])(
+  it.each<UserRole>(["User", "Submitter", "Data Commons Personnel", "fake role" as UserRole])(
     "should return DISABLED for the permissions and notifications panel on the profile page for role %s",
     (role) => {
       const user = { _id: "User-A", role } as User;
