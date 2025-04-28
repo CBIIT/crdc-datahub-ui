@@ -284,7 +284,7 @@ const ListingView: FC = () => {
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [user?.role, roleFilter, statusFilter, touchedFilters]);
+  }, [roleFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
