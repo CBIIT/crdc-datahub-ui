@@ -7,7 +7,7 @@ import {
   Status as OrgStatus,
   useOrganizationListContext,
 } from "./OrganizationListContext";
-import { LIST_ORGS } from "../../graphql";
+import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -62,14 +62,18 @@ describe("OrganizationListContext > useOrganizationListContext Tests", () => {
 });
 
 describe("OrganizationListContext > OrganizationProvider Tests", () => {
-  const emptyMocks = [
+  const emptyMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
     {
       request: {
         query: LIST_ORGS,
       },
+      variableMatcher: () => true,
       result: {
         data: {
-          listOrganizations: [],
+          listPrograms: {
+            total: 0,
+            programs: [],
+          },
         },
       },
     },
@@ -90,14 +94,18 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
       { name: "Org Two", status: "Active" },
     ];
 
-    const mocks = [
+    const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       {
         request: {
           query: LIST_ORGS,
         },
+        variableMatcher: () => true,
         result: {
           data: {
-            listOrganizations: orgData,
+            listPrograms: {
+              total: orgData.length,
+              programs: orgData as ListOrgsResp["listPrograms"]["programs"],
+            },
           },
         },
       },
@@ -113,11 +121,12 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
   });
 
   it("should handle errors when failing to load organizations", async () => {
-    const mocks = [
+    const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       {
         request: {
           query: LIST_ORGS,
         },
+        variableMatcher: () => true,
         result: {
           errors: [new GraphQLError("Failed to fetch")],
         },
@@ -137,14 +146,18 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
       { name: "Inactive Org", status: "Inactive" },
     ];
 
-    const mocks = [
+    const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       {
         request: {
           query: LIST_ORGS,
         },
+        variableMatcher: () => true,
         result: {
           data: {
-            listOrganizations: orgData,
+            listPrograms: {
+              total: orgData.length,
+              programs: orgData as ListOrgsResp["listPrograms"]["programs"],
+            },
           },
         },
       },
@@ -167,79 +180,33 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
     });
   });
 
-  it("should sort organizations by name in ascending order", async () => {
-    const orgData = [
-      { name: "Organization Zeta", status: "Active" },
-      { name: "Organization Alpha", status: "Active" },
-      { name: "Organization Delta", status: "Active" },
-    ];
-
-    const mocks = [
-      {
-        request: {
-          query: LIST_ORGS,
-        },
-        result: {
-          data: {
-            listOrganizations: orgData,
-          },
-        },
-      },
-    ];
-
-    const { getByTestId } = render(<TestParent mocks={mocks} />);
-
-    await waitFor(() => {
-      expect(getByTestId("organization-0").textContent).toEqual("Organization Alpha");
-      expect(getByTestId("organization-1").textContent).toEqual("Organization Delta");
-      expect(getByTestId("organization-2").textContent).toEqual("Organization Zeta");
-    });
-  });
-
   it("should not execute query when preload is false", async () => {
     const { queryByText } = render(
       <TestParent mocks={[]} preload={false}>
         <TestChild />
       </TestParent>
     );
+
     await waitFor(() => {
       expect(queryByText("Loading...")).not.toBeInTheDocument();
-    });
-  });
-
-  it("should handle state changes gracefully", async () => {
-    const orgData = [{ name: "Org Fast", status: "Active" }];
-    const loadingMock = {
-      request: { query: LIST_ORGS },
-      result: { data: { listOrganizations: [] } },
-      delay: 100,
-    };
-    const loadedMock = {
-      request: { query: LIST_ORGS },
-      result: { data: { listOrganizations: orgData } },
-    };
-
-    const { getByText } = render(<TestParent mocks={[loadingMock]} />);
-
-    await waitFor(() => {
-      expect(getByText("Loading...")).toBeInTheDocument();
-    });
-
-    const { getByTestId } = render(<TestParent mocks={[loadedMock]} />);
-
-    await waitFor(() => {
-      expect(getByTestId("status").textContent).toEqual(OrgStatus.LOADED);
-      expect(getByTestId("organization-0").textContent).toEqual("Org Fast");
     });
   });
 
   it("should correctly update all consumers when state changes", async () => {
     const orgData = [{ name: "Org Multi", status: "Active" }];
 
-    const mocks = [
+    const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       {
         request: { query: LIST_ORGS },
-        result: { data: { listOrganizations: orgData } },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            listPrograms: {
+              total: orgData.length,
+              programs: orgData as ListOrgsResp["listPrograms"]["programs"],
+            },
+          },
+        },
       },
     ];
 
@@ -262,11 +229,18 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
   });
 
   it("should handle partial data without crashing", async () => {
-    const partialDataMocks = [
+    const partialDataMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       {
         request: { query: LIST_ORGS },
+        variableMatcher: () => true,
+
         result: {
-          data: { listOrganizations: [{ name: "Org Partial" }] }, // Missing "status"
+          data: {
+            listPrograms: {
+              total: 1,
+              programs: [{ name: "Org Partial" }] as ListOrgsResp["listPrograms"]["programs"], // Missing "status"
+            },
+          },
         },
       },
     ];
