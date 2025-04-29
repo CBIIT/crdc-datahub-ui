@@ -5,6 +5,7 @@ import {
   moduleReducers as submission,
   versionInfo,
   changelogInfo,
+  iconMapInfo,
   getModelExploreData,
   getChangelog,
 } from "data-model-navigator";
@@ -37,7 +38,7 @@ export type ReduxStoreData = {
 export type ReduxStoreResult = [ReduxStoreData, (assets: DataCommon, modelVersion: string) => void];
 
 const makeStore = (): Store => {
-  const reducers = { ddgraph, versionInfo, submission, changelogInfo };
+  const reducers = { ddgraph, versionInfo, submission, changelogInfo, iconMapInfo };
   const newStore = createStore(combineReducers(reducers));
 
   // @ts-ignore
@@ -177,6 +178,13 @@ const useBuildReduxStore = (): ReduxStoreResult => {
         changelogTabName: "Version History",
       },
     });
+
+    if (datacommon?.assets?.["model-navigator-config"]?.iconMap) {
+      store.dispatch({
+        type: "RECEIVE_ICON_MAP",
+        data: datacommon?.assets?.["model-navigator-config"]?.iconMap,
+      });
+    }
 
     // MVP-2 M2 NOTE: This resets the search history to prevent the data models
     // from overlapping on searches. A future improvement would be to isolate
