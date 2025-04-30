@@ -48,7 +48,7 @@ const StyledTableContainer = styled(TableContainer)({
     background: "#FFF",
   },
   "& .MuiTableBody-root .MuiTableRow-root:nth-of-type(even)": {
-    background: "#E3EEF9",
+    background: "#EDF7FF",
   },
   "& .MuiTableCell-root:first-of-type": {
     paddingLeft: "24px",
