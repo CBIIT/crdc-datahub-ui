@@ -8,7 +8,7 @@ describe("Users View", () => {
   });
 
   // NOTE: This is mostly a sanity check to ensure we're ignoring the signed-in user's role
-  it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead", "Submitter", "User"])(
+  it.each<UserRole>(["Admin", "Data Commons Personnel", "Submitter", "User"])(
     "should return UNLOCKED for role, status, and PBAC when viewing users with management permission (%s)",
     (role) => {
       const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
@@ -105,6 +105,23 @@ describe("Users View", () => {
     expect(result.current.firstName).toBe("READ_ONLY");
     expect(result.current.lastName).toBe("READ_ONLY");
   });
+
+  it.each<UserRole>(["Federal Lead"])(
+    "should return UNLOCKED for all fields except the role field on the users page for role %s modifying a Federal Lead",
+    (role) => {
+      const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
+
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "users"));
+
+      expect(result.current.role).toBe("DISABLED");
+      expect(result.current.userStatus).toBe("UNLOCKED");
+      expect(result.current.permissions).toBe("UNLOCKED");
+      expect(result.current.notifications).toBe("UNLOCKED");
+    }
+  );
 });
 
 describe("Profile View", () => {
@@ -151,14 +168,31 @@ describe("Profile View", () => {
   );
 
   it.each<UserRole>(["Federal Lead"])(
-    "should return UNLOCKED for all fields except role on the profile page for role %s modifying a Federal Lead",
+    "should return READ_ONLY for the role field on the profile page for role %s",
     (role) => {
-      const user = { _id: "User-A", role } as User;
+      const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
 
       jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+
+      expect(result.current.role).toBe("READ_ONLY");
+    }
+  );
+
+  it.each<UserRole>(["Federal Lead"])(
+    "should return UNLOCKED for all fields except role on the profile page for role %s modifying a Federal Lead",
+    (role) => {
+      const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
+      const profileOf: Pick<User, "_id" | "role"> = {
+        _id: "User-A",
+        role: "Federal Lead",
+      };
+
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
       expect(result.current.role).toBe("DISABLED");
       expect(result.current.userStatus).toBe("UNLOCKED");

@@ -83,7 +83,7 @@ const useProfileFields = (
 
   // Editable for user with permission to Manage Users
   if (canManage && viewType === "users") {
-    fields.role = "UNLOCKED";
+    fields.role = user?.role === "Federal Lead" ? "DISABLED" : "UNLOCKED";
     fields.userStatus = "UNLOCKED";
     fields.permissions = "UNLOCKED";
     fields.notifications = "UNLOCKED";
@@ -100,13 +100,6 @@ const useProfileFields = (
     fields.dataCommons = canManage && viewType === "users" ? "UNLOCKED" : "READ_ONLY";
   } else {
     fields.dataCommons = "HIDDEN";
-  }
-
-  if (profileOf?.role === "Federal Lead" && user?.role === "Federal Lead") {
-    fields.role = "DISABLED";
-    fields.userStatus = "UNLOCKED";
-    fields.permissions = "UNLOCKED";
-    fields.notifications = "UNLOCKED";
   }
 
   return fields;
