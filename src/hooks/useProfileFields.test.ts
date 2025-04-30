@@ -122,6 +122,28 @@ describe("Users View", () => {
       expect(result.current.notifications).toBe("UNLOCKED");
     }
   );
+
+  it.each<UserRole>(["Admin", "Data Commons Personnel", "Federal Lead", "Submitter", "User"])(
+    "should return defaults for all fields on the users page for role %s when they do not have the user:manage permission",
+    (role) => {
+      const user = { _id: "User-A", role, permissions: [] } as User;
+      const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
+
+      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "users"));
+
+      expect(result.current.firstName).toBe("READ_ONLY");
+      expect(result.current.lastName).toBe("READ_ONLY");
+      expect(result.current.role).toBe("READ_ONLY");
+      expect(result.current.userStatus).toBe("READ_ONLY");
+      expect(result.current.dataCommons).toBe("HIDDEN");
+      expect(result.current.studies).toBe("HIDDEN");
+      expect(result.current.institution).toBe("HIDDEN");
+      expect(result.current.permissions).toBe("HIDDEN");
+      expect(result.current.notifications).toBe("HIDDEN");
+    }
+  );
 });
 
 describe("Profile View", () => {
