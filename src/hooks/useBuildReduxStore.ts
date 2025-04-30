@@ -167,7 +167,6 @@ const useBuildReduxStore = (): ReduxStoreResult => {
           type: "static",
           url: assets.loading_file,
         },
-        graphViewConfig,
       },
     });
 
