@@ -112,7 +112,7 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
 }));
 
 const StyledSpecialStatus = styled(Stack)({
-  color: "#D82F00",
+  color: "#C94313",
   fontWeight: 600,
 });
 
