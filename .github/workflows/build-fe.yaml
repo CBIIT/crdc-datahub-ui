@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: Choose the environment to build
+        description: Build from github actions
         type: environment
 #      code_branch:
 #        description: Branch to build validation
@@ -16,7 +16,7 @@ on:
         description: "Run Trivy Test Scan"
         required: true
         type: boolean
-        default: false
+        default: true
 
 
 jobs:
@@ -111,6 +111,7 @@ jobs:
           #PV_PULLER_IMAGE_NAME: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_PVPULLER }}:${{ env.CODE_BRANCH }}.${{ github.run_number }}
           FE_IMAGE_NAME: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_FE }}:${{ env.IMAGE_TAG }}
         run: |
+          docker tag $ECR_REPO_FE:$IMAGE_TAG $FE_IMAGE_NAME
           echo "Pushing: $FE_IMAGE_NAME"
           docker push $FE_IMAGE_NAME
 
