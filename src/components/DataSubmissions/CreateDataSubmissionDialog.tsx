@@ -192,7 +192,7 @@ const StyledBellIcon = styled(BellIcon)({
   width: "18px",
   position: "absolute",
   right: "-28px",
-  color: "#D82F00",
+  color: "#C94313",
 });
 
 type Props = {
