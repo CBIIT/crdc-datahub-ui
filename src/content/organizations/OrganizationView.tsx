@@ -33,6 +33,7 @@ import {
   EditOrgInput,
   CreateOrgInput,
   ListApprovedStudiesInput,
+  GetOrgInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -233,7 +234,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
+  const [getOrganization] = useLazyQuery<GetOrgResp, GetOrgInput>(GET_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -466,6 +467,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
+                  disabled={organization?.readOnly}
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
                   required
@@ -485,6 +487,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       onChange={(e) => {
                         field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
                       }}
+                      disabled={organization?.readOnly}
                       inputProps={{
                         "aria-labelledby": "abbreviationLabel",
                         maxLength: 100,
@@ -504,6 +507,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     "aria-labelledby": "descriptionLabel",
                     maxLength: 500,
                   }}
+                  disabled={organization?.readOnly}
                   error={!!errors.description}
                   placeholder="500 characters allowed"
                   rows={2}
@@ -520,6 +524,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     <StyledSelect
                       {...field}
                       value={field.value || ""}
+                      disabled={organization?.readOnly}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{
                         "aria-labelledby": "primaryContactLabel",
@@ -548,6 +553,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       renderInput={({ inputProps, ...params }) => (
                         <TextField
                           {...params}
+                          disabled={organization?.readOnly}
                           placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
                           inputProps={{ "aria-labelledby": "studiesLabel", ...inputProps }}
                           onBlur={sortStudyOptions}
@@ -588,7 +594,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     <StyledSelect
                       {...field}
                       value={field.value || ""}
-                      disabled={_id === "new"}
+                      disabled={_id === "new" || organization?.readOnly}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
                       error={!!errors.status}
@@ -605,9 +611,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
-                  Save
-                </StyledButton>
+                {!organization?.readOnly && (
+                  <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
+                    Save
+                  </StyledButton>
+                )}
                 <StyledButton
                   type="button"
                   onClick={() => navigate(manageOrgPageUrl)}
