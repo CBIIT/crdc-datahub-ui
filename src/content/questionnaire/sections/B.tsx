@@ -304,7 +304,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
   const allProgramOptions = useMemo(() => {
     // Filter out system-managed programs
-    const filteredPrograms = programs?.filter((p) => p.readOnly);
+    const filteredPrograms = programs?.filter((p) => !p.readOnly);
 
     return [NotApplicableProgram, ...filteredPrograms, OtherProgram];
   }, [NotApplicableProgram, OtherProgram, programs]);
