@@ -29,6 +29,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
           studyName
           studyAbbreviation
         }
+        readOnly
         createdAt
         updateAt
       }
@@ -58,6 +59,7 @@ export type Response = {
         | "conciergeName"
         | "createdAt"
         | "updateAt"
+        | "readOnly"
       > & {
         studies: Pick<Organization["studies"][number], "_id" | "studyName" | "studyAbbreviation">[];
       }

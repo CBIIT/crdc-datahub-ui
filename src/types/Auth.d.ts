@@ -132,6 +132,10 @@ type Organization = {
    */
   studies: ApprovedStudy[];
   /**
+   * A flag indicating this organization is system-managed and not editable
+   */
+  readOnly: boolean;
+  /**
    * The date of the object creation
    *
    * @note ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
