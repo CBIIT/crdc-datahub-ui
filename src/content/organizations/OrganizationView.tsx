@@ -467,7 +467,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 </StyledLabel>
                 <StyledTextField
                   {...register("name", { required: true })}
-                  disabled={organization?.readOnly}
+                  readOnly={organization?.readOnly}
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
                   required
@@ -487,7 +487,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       onChange={(e) => {
                         field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
                       }}
-                      disabled={organization?.readOnly}
+                      readOnly={organization?.readOnly}
                       inputProps={{
                         "aria-labelledby": "abbreviationLabel",
                         maxLength: 100,
@@ -507,7 +507,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     "aria-labelledby": "descriptionLabel",
                     maxLength: 500,
                   }}
-                  disabled={organization?.readOnly}
+                  readOnly={organization?.readOnly}
                   error={!!errors.description}
                   placeholder="500 characters allowed"
                   rows={2}
@@ -524,7 +524,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     <StyledSelect
                       {...field}
                       value={field.value || ""}
-                      disabled={organization?.readOnly}
+                      readOnly={organization?.readOnly}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{
                         "aria-labelledby": "primaryContactLabel",
@@ -553,14 +553,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       renderInput={({ inputProps, ...params }) => (
                         <TextField
                           {...params}
-                          disabled={organization?.readOnly}
                           placeholder={studiesField?.length > 0 ? undefined : "Select studies"}
                           inputProps={{ "aria-labelledby": "studiesLabel", ...inputProps }}
                           onBlur={sortStudyOptions}
                         />
                       )}
                       renderTags={(value: string[], _, state) => {
-                        if (value?.length === 0 || state.focused) {
+                        if (value?.length === 0 || (state.focused && !organization?.readOnly)) {
                           return null;
                         }
 
@@ -573,6 +572,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       options={studyOptions}
                       getOptionLabel={(option: string) => formattedStudyMap[option]}
                       onChange={(_, data: string[]) => field.onChange(data)}
+                      readOnly={organization?.readOnly}
                       loading={approvedStudiesLoading}
                       PaperComponent={StyledPaper}
                       PopperComponent={StyledPopper}
@@ -594,7 +594,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     <StyledSelect
                       {...field}
                       value={field.value || ""}
-                      disabled={_id === "new" || organization?.readOnly}
+                      disabled={_id === "new"}
+                      readOnly={organization?.readOnly}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
                       error={!!errors.status}
