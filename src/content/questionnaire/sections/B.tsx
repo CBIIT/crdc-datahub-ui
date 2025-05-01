@@ -302,10 +302,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
-  const allProgramOptions = useMemo(
-    () => [NotApplicableProgram, ...programs, OtherProgram],
-    [NotApplicableProgram, OtherProgram, programs]
-  );
+  const allProgramOptions = useMemo(() => {
+    // Filter out system-managed programs
+    const filteredPrograms = programs?.filter((p) => p.readOnly);
+
+    return [NotApplicableProgram, ...filteredPrograms, OtherProgram];
+  }, [NotApplicableProgram, OtherProgram, programs]);
   const readOnlyProgram = readOnlyInputs || program?._id !== OtherProgram._id;
 
   return (
