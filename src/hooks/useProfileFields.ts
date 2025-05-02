@@ -83,7 +83,7 @@ const useProfileFields = (
 
   // Editable for user with permission to Manage Users
   if (canManage && viewType === "users") {
-    fields.role = "UNLOCKED";
+    fields.role = user?.role === "Federal Lead" ? "DISABLED" : "UNLOCKED";
     fields.userStatus = "UNLOCKED";
     fields.permissions = "UNLOCKED";
     fields.notifications = "UNLOCKED";

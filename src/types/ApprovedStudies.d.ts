@@ -44,6 +44,10 @@ type ApprovedStudy = {
    */
   primaryContact: User;
   /**
+   * Indicates whether the study should use the program Primary Contact
+   */
+  useProgramPC: boolean;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;
