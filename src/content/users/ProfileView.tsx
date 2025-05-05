@@ -290,7 +290,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       variables: { userID: _id },
       context: { clientName: "backend" },
       fetchPolicy: "cache-and-network",
-      skip: user?.role !== "Data Commons Personnel",
+      skip: user?.role !== "Data Commons Personnel" || viewType !== "users",
       onError: (error) => {
         Logger.error("ProfileView: Error checking primary contact status", error);
       },
