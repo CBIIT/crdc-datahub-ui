@@ -142,6 +142,49 @@ describe("Basic Functionality", () => {
     expect(getByText(/example 03/i)).toBeInTheDocument();
     expect(getByText(/example 04/i)).toBeInTheDocument();
   });
+
+  it.each<boolean>([true, false])("should render the boolean %s value correctly", (value) => {
+    const { getAllByText } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({ mock_node_data_name: "example 01", baz: value }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({ mock_node_data_name: "example 02", baz: value }),
+        }}
+        loading={false}
+      />
+    );
+
+    expect(getAllByText(value.toString())).toHaveLength(2);
+    expect(getAllByText(value.toString())[0]).toBeInTheDocument();
+    expect(getAllByText(value.toString())[1]).toBeInTheDocument();
+  });
+
+  it.each<number>([0, 900, 10.5, -99999999])(
+    "should render the number %s value correctly",
+    (value) => {
+      const { getAllByText } = render(
+        <ComparisonTable
+          newNode={{
+            ...baseNode,
+            props: JSON.stringify({ mock_node_data_name: "example 01", baz: value }),
+          }}
+          existingNode={{
+            ...baseNode,
+            props: JSON.stringify({ mock_node_data_name: "example 02", baz: value }),
+          }}
+          loading={false}
+        />
+      );
+
+      expect(getAllByText(value.toString())).toHaveLength(2);
+      expect(getAllByText(value.toString())[0]).toBeInTheDocument();
+      expect(getAllByText(value.toString())[1]).toBeInTheDocument();
+    }
+  );
 });
 
 describe("Implementation Requirements", () => {

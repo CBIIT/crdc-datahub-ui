@@ -114,22 +114,26 @@ export const findProgram = (
 
 /**
  * Formats an Approved Study Name and Abbreviation into a single string.
- * If the abbreviation is provided and not equal to the name, it will be included in parentheses.
+ * Prioritizes the display of Abbreviation over Study Name.
  *
- * @note The study name, at a minimum, should be provided.
+ * Examples:
+ * - Both values are provided – "Abbreviation - Study Name"
+ * - Only study name is provided – "Study Name"
+ * - Both values are the same (case-insensitive) – "Study Abbreviation"
+ *
  * @param studyName The full name of the study
  * @param studyAbbreviation The abbreviation of the study
- * @returns The formatted study name
+ * @returns The formatted study name or empty string if something is invalid
  */
 export const formatFullStudyName = (studyName: string, studyAbbreviation: string): string => {
   if (typeof studyName !== "string") {
     return "";
   }
   if (studyAbbreviation?.toLowerCase() === studyName?.toLowerCase()) {
-    return studyName.trim();
+    return studyAbbreviation.trim();
   }
   if (studyAbbreviation && studyAbbreviation.length > 0) {
-    return `${studyName.trim()} (${studyAbbreviation.trim()})`;
+    return `${studyAbbreviation.trim()} - ${studyName.trim()}`;
   }
 
   return studyName.trim();

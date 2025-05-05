@@ -11,6 +11,7 @@ export const mutation = gql`
     $ORCID: String
     $PI: String
     $primaryContactID: String
+    $useProgramPC: Boolean!
   ) {
     updateApprovedStudy(
       studyID: $studyID
@@ -22,19 +23,9 @@ export const mutation = gql`
       ORCID: $ORCID
       PI: $PI
       primaryContactID: $primaryContactID
+      useProgramPC: $useProgramPC
     ) {
       _id
-      studyName
-      studyAbbreviation
-      dbGaPID
-      controlledAccess
-      openAccess
-      PI
-      ORCID
-      programs {
-        _id
-      }
-      createdAt
     }
   }
 `;
@@ -49,8 +40,9 @@ export type Input = {
   ORCID: string;
   PI: string;
   primaryContactID: string;
+  useProgramPC: boolean;
 };
 
 export type Response = {
-  updateApprovedStudy: ApprovedStudy;
+  updateApprovedStudy: Pick<ApprovedStudy, "_id">;
 };

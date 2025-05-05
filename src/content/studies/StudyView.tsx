@@ -206,7 +206,14 @@ const StyledAsterisk = styled(BaseAsterisk, { shouldForwardProp: (p) => p !== "v
 
 type FormInput = Pick<
   ApprovedStudy,
-  "studyName" | "studyAbbreviation" | "PI" | "dbGaPID" | "ORCID" | "openAccess" | "controlledAccess"
+  | "studyName"
+  | "studyAbbreviation"
+  | "PI"
+  | "dbGaPID"
+  | "ORCID"
+  | "openAccess"
+  | "controlledAccess"
+  | "useProgramPC"
 > & { primaryContactID: string };
 
 type Props = {
@@ -256,7 +263,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       variables: { _id },
       skip: !_id || _id === "new",
       onCompleted: (data) => {
-        setApprovedStudy({ ...data?.getApprovedStudy });
+        setApprovedStudy({ ...data?.getApprovedStudy } as ApprovedStudy);
         const {
           primaryContact,
           studyName,
@@ -266,13 +273,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           ORCID,
           openAccess,
           controlledAccess,
+          useProgramPC,
         } = data?.getApprovedStudy || {};
 
-        if (primaryContact?._id) {
-          setSameAsProgramPrimaryContact(false);
-        } else if (data?.getApprovedStudy?.programs?.length === 1) {
-          setSameAsProgramPrimaryContact(true);
-        }
+        setSameAsProgramPrimaryContact(useProgramPC);
 
         resetForm({
           studyName,
@@ -282,6 +286,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           ORCID,
           openAccess,
           controlledAccess,
+          useProgramPC,
           primaryContactID: primaryContact?._id,
         });
       },
@@ -364,13 +369,16 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
+    const { studyName, studyAbbreviation, ...rest } = data;
+
     const variables: CreateApprovedStudyInput | UpdateApprovedStudyInput = {
-      ...data,
-      name: data.studyName,
-      acronym: data.studyAbbreviation,
+      ...rest,
+      name: studyName,
+      acronym: studyAbbreviation,
       primaryContactID: sameAsProgramPrimaryContact
         ? undefined
-        : data.primaryContactID || undefined,
+        : rest.primaryContactID || undefined,
+      useProgramPC: sameAsProgramPrimaryContact,
     };
 
     if (_id === "new") {
