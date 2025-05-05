@@ -46,6 +46,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             PI: "",
             primaryContact: null,
             programs: [],
+            useProgramPC: false,
             createdAt: "",
           },
           {
@@ -60,6 +61,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             PI: "",
             primaryContact: null,
             programs: [],
+            useProgramPC: false,
             createdAt: "",
           },
         ],
