@@ -86,4 +86,56 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       className: "navMobileSubItem",
     },
   ],
+  User: [
+    {
+      name: "User Profile",
+      link: "/profile/:userId",
+      id: "navbar-dropdown-item-user-profile",
+      className: "navMobileSubItem",
+    },
+    {
+      name: "Uploader CLI Tool",
+      id: "navbar-dropdown-item-uploader-tool",
+      className: "navMobileSubItem action",
+    },
+    {
+      name: "API Token",
+      id: "navbar-dropdown-item-api-token",
+      className: "navMobileSubItem action",
+      permissions: ["data_submission:create"],
+    },
+    {
+      name: "Manage Studies",
+      link: "/studies",
+      id: "navbar-dropdown-item-studies-manage",
+      className: "navMobileSubItem",
+      permissions: ["study:manage"],
+    },
+    {
+      name: "Manage Programs",
+      link: "/programs",
+      id: "navbar-dropdown-item-program-manage",
+      className: "navMobileSubItem",
+      permissions: ["program:manage"],
+    },
+    {
+      name: "Manage Institutions",
+      link: "/institutions",
+      id: "navbar-dropdown-item-institution-manage",
+      className: "navMobileSubItem",
+      permissions: ["institution:manage"],
+    },
+    {
+      name: "Manage Users",
+      link: "/users",
+      id: "navbar-dropdown-item-user-manage",
+      className: "navMobileSubItem",
+      permissions: ["user:manage"],
+    },
+    {
+      name: "Logout",
+      id: "navbar-dropdown-item-logout",
+      className: "navMobileSubItem action",
+    },
+  ],
 };

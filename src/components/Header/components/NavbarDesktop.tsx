@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
-import { Button, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
+import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
+import { Logger } from "../../../utils";
 
 const Nav = styled("div")({
   top: 0,
@@ -197,54 +199,6 @@ const LiSection = styled("li")({
   },
 });
 
-const Dropdown = styled("div")({
-  top: "60.5px",
-  left: 0,
-  width: "100%",
-  background: "#1F4671",
-  zIndex: 1100,
-  position: "absolute",
-});
-
-const NameDropdownContainer = styled("div")({
-  margin: "0 auto",
-  textAlign: "left",
-  position: "relative",
-  maxWidth: "1400px",
-  "& .dropdownList": {
-    background: "#1F4671",
-    display: "inline-flex",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    padding: "32px 32px 0 32px",
-  },
-  "& .dropdownItem": {
-    padding: "0 10px 52px 10px",
-    textAlign: "left",
-    fontFamily: "'Poppins', sans-serif",
-    fontStyle: "normal",
-    fontWeight: 600,
-    fontSize: "20px",
-    lineHeight: "110%",
-    color: "#FFFFFF",
-    textDecoration: "none",
-    cursor: "pointer",
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
-  "& .dropdownItemButton": {
-    textTransform: "none",
-    paddingLeft: "20px",
-    paddingRight: "20px",
-    "&:hover": {
-      background: "transparent",
-    },
-  },
-  "#navbar-dropdown-item-name-logout": {
-    maxWidth: "200px",
-  },
-});
-
 const StyledLoginLink = styled(Link)({
   color: "#007BBD !important",
   textAlign: "right",
@@ -305,62 +259,6 @@ const NavBar = () => {
 
   clickableTitle.push(displayName);
 
-  HeaderSubLinks[displayName] = [
-    {
-      name: "User Profile",
-      link: `/profile/${user?._id}`,
-      id: "navbar-dropdown-item-user-profile",
-      className: "navMobileSubItem",
-    },
-    {
-      name: "Uploader CLI Tool",
-      onClick: () => setUploaderToolOpen(true),
-      id: "navbar-dropdown-item-uploader-tool",
-      className: "navMobileSubItem action",
-    },
-    {
-      name: "API Token",
-      onClick: () => setOpenAPITokenDialog(true),
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
-    },
-    {
-      name: "Manage Studies",
-      link: "/studies",
-      id: "navbar-dropdown-item-studies-manage",
-      className: "navMobileSubItem",
-      permissions: ["study:manage"],
-    },
-    {
-      name: "Manage Programs",
-      link: "/programs",
-      id: "navbar-dropdown-item-program-manage",
-      className: "navMobileSubItem",
-      permissions: ["program:manage"],
-    },
-    {
-      name: "Manage Institutions",
-      link: "/institutions",
-      id: "navbar-dropdown-item-institution-manage",
-      className: "navMobileSubItem",
-      permissions: ["institution:manage"],
-    },
-    {
-      name: "Manage Users",
-      link: "/users",
-      id: "navbar-dropdown-item-user-manage",
-      className: "navMobileSubItem",
-      permissions: ["user:manage"],
-    },
-    {
-      name: "Logout",
-      onClick: () => handleLogout(),
-      id: "navbar-dropdown-item-logout",
-      className: "navMobileSubItem action",
-    },
-  ];
-
   const handleLogout = async () => {
     setClickedTitle("");
     const logoutStatus = await logout();
@@ -368,6 +266,22 @@ const NavBar = () => {
       navigate("/");
       setShowLogoutAlert(true);
       setTimeout(() => setShowLogoutAlert(false), 10000);
+    }
+  };
+
+  const handleItemClick = (item: string) => {
+    switch (item) {
+      case "Uploader CLI Tool":
+        setUploaderToolOpen(true);
+        break;
+      case "API Token":
+        setOpenAPITokenDialog(true);
+        break;
+      case "Logout":
+        handleLogout();
+        break;
+      default:
+        Logger.error(`NavbarDesktop.tsx: Unknown sub-navigation item clicked ${item}`);
     }
   };
 
@@ -510,60 +424,11 @@ const NavBar = () => {
           </LiSection>
         </UlContainer>
       </NavContainer>
-      <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
-        <NameDropdownContainer>
-          <div className="dropdownList">
-            {clickedTitle !== ""
-              ? HeaderSubLinks[clickedTitle]?.map((dropItem) => {
-                  if (
-                    dropItem?.permissions?.length > 0 &&
-                    !dropItem?.permissions?.every(
-                      (permission: AuthPermissions) => user?.permissions?.includes(permission)
-                    )
-                  ) {
-                    return null;
-                  }
-
-                  if (dropItem.link) {
-                    return (
-                      <span className="dropdownItem" key={dropItem.id}>
-                        <Link
-                          target={
-                            dropItem.link.startsWith("https://") || dropItem.link.endsWith(".pdf")
-                              ? "_blank"
-                              : "_self"
-                          }
-                          id={dropItem.id}
-                          to={dropItem.link}
-                          className="dropdownItem"
-                          onClick={() => setClickedTitle("")}
-                        >
-                          {dropItem.name}
-                          {dropItem.text && <div className="dropdownItemText">{dropItem.text}</div>}
-                        </Link>
-                      </span>
-                    );
-                  }
-
-                  if (dropItem.onClick) {
-                    return (
-                      <Button
-                        id={dropItem.id}
-                        key={dropItem.id}
-                        className="dropdownItem dropdownItemButton"
-                        onClick={dropItem.onClick}
-                      >
-                        {dropItem.name}
-                      </Button>
-                    );
-                  }
-
-                  return null;
-                })
-              : null}
-          </div>
-        </NameDropdownContainer>
-      </Dropdown>
+      <NavbarDesktopDropdown
+        clickedTitle={clickedTitle}
+        onTitleClick={(title) => setClickedTitle(title)}
+        onItemClick={(item) => handleItemClick(item)}
+      />
       <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
       <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
     </Nav>

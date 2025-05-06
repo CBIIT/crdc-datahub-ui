@@ -1,0 +1,98 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { Context as AuthContext, ContextState as AuthCtxState } from "../../Contexts/AuthContext";
+import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
+import { Roles } from "../../../config/AuthRoles";
+import { HeaderSubLinks } from "../../../config/HeaderConfig";
+
+const meta: Meta<typeof NavbarDesktopDropdown> = {
+  title: "Navigation / Header / NavbarDesktopDropdown",
+  component: NavbarDesktopDropdown,
+  parameters: {
+    layout: "fullscreen",
+  },
+  tags: ["autodocs"],
+} satisfies Meta<typeof NavbarDesktopDropdown>;
+
+type Story = StoryObj<typeof meta>;
+
+export const Empty: Story = {
+  name: "Without links",
+  args: {},
+  decorators: [
+    (Story) => (
+      <AuthContext.Provider value={{ isLoggedIn: false } as AuthCtxState}>
+        <Story />
+      </AuthContext.Provider>
+    ),
+  ],
+};
+
+export const DropdownExpanded: Story = {
+  name: "Expanded",
+  args: {
+    role: "Admin",
+    permissions: [
+      "user:manage",
+      "program:manage",
+      "study:manage",
+      "dashboard:view",
+      "institution:manage",
+    ],
+    clickedTitle: Object.keys(HeaderSubLinks)?.[0] || "",
+  },
+  argTypes: {
+    role: {
+      name: "Role",
+      options: Roles,
+      control: {
+        type: "radio",
+      },
+    },
+    permissions: {
+      name: "Permissions",
+      options: [
+        "user:manage",
+        "program:manage",
+        "study:manage",
+        "dashboard:view",
+        "institution:manage",
+      ],
+      control: {
+        type: "check",
+      },
+    },
+    HeaderSubLinks: {
+      control: false,
+      description: "The header sub-navigation links",
+    },
+    clickedTitle: {
+      name: "Clicked Title",
+      options: Object.keys(HeaderSubLinks),
+      control: {
+        type: "radio",
+      },
+      description: "The title of the navigation item clicked",
+    },
+  },
+  decorators: [
+    (Story, context) => (
+      <AuthContext.Provider
+        value={
+          {
+            isLoggedIn: true,
+            user: {
+              _id: "example-user",
+              firstName: "Example",
+              role: context.args.role,
+              permissions: context.args.permissions,
+            } as User,
+          } as AuthCtxState
+        }
+      >
+        <Story />
+      </AuthContext.Provider>
+    ),
+  ],
+};
+
+export default meta;

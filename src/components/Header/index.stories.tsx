@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { screen, within } from "@storybook/testing-library";
+import { expect, userEvent, waitFor } from "@storybook/test";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import Header from "./index";
 import { Roles } from "../../config/AuthRoles";
@@ -47,6 +49,70 @@ export const Authenticated: Story = {
         type: "check",
       },
     },
+  },
+  decorators: [
+    (Story, context) => (
+      <AuthContext.Provider
+        value={
+          {
+            isLoggedIn: true,
+            user: {
+              firstName: "Example",
+              role: context.args.role,
+              permissions: context.args.permissions,
+            } as User,
+          } as AuthCtxState
+        }
+      >
+        <Story />
+      </AuthContext.Provider>
+    ),
+  ],
+};
+
+export const DropdownExpanded: Story = {
+  name: "Expanded",
+  args: {
+    role: "Admin",
+    permissions: [
+      "user:manage",
+      "program:manage",
+      "study:manage",
+      "dashboard:view",
+      "institution:manage",
+    ],
+  },
+  argTypes: {
+    role: {
+      name: "Role",
+      options: Roles,
+      control: {
+        type: "radio",
+      },
+    },
+    permissions: {
+      name: "Permissions",
+      options: [
+        "user:manage",
+        "program:manage",
+        "study:manage",
+        "dashboard:view",
+        "institution:manage",
+      ],
+      control: {
+        type: "check",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const button = canvas.getByRole("button", { name: /Example/i });
+    await userEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText("User Profile")).toBeInTheDocument();
+    });
   },
   decorators: [
     (Story, context) => (
