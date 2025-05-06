@@ -238,6 +238,10 @@ export const validateEmoji = (value: string): string | null => {
 /**
  * Provides a validation function to test against a string for non-UTF8 characters.
  *
+ * NOTE:
+ * This is more restrictive than {@link validateEmoji} and will not allow any characters
+ * outside the standard ASCII range (0-127).
+ *
  * @param value The input string to validate
  * @returns A string if the value contains non-UTF8 characters, otherwise null if valid
  */

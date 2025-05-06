@@ -462,6 +462,11 @@ describe("validateUTF8 cases", () => {
     expect(utils.validateUTF8("123 hello valid '@#$%^&*(")).toBe(null);
   });
 
+  it("should handle large valid input", () => {
+    const largeValidInput = "abc-123".repeat(10000);
+    expect(utils.validateUTF8(largeValidInput)).toBe(null);
+  });
+
   it("should handle null or undefined values", () => {
     expect(utils.validateUTF8(null as unknown as string)).toBe(null);
     expect(utils.validateUTF8(undefined as unknown as string)).toBe(null);
