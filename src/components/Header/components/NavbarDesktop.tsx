@@ -293,6 +293,10 @@ const NavBar = () => {
     }
   };
 
+  const handleUserClick = () => {
+    setClickedTitle("User");
+  };
+
   const onKeyPressHandler = (e) => {
     if (e.key === "Enter") {
       handleMenuClick(e);
@@ -395,19 +399,17 @@ const NavBar = () => {
             {isLoggedIn ? (
               <div
                 id="navbar-dropdown-name-container"
-                className={clickedTitle === displayName ? "navTitleClicked" : "navTitle"}
+                className={clickedTitle === "User" ? "navTitleClicked" : "navTitle"}
               >
                 <div
                   id="navbar-dropdown-name"
                   role="button"
                   tabIndex={0}
                   className={
-                    clickedTitle === displayName
-                      ? "navText displayName clicked"
-                      : "navText displayName"
+                    clickedTitle === "User" ? "navText displayName clicked" : "navText displayName"
                   }
                   onKeyDown={onKeyPressHandler}
-                  onClick={handleMenuClick}
+                  onClick={handleUserClick}
                 >
                   {displayName}
                 </div>

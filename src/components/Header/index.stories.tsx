@@ -121,6 +121,7 @@ export const DropdownExpanded: Story = {
           {
             isLoggedIn: true,
             user: {
+              _id: "example-user",
               firstName: "Example",
               role: context.args.role,
               permissions: context.args.permissions,

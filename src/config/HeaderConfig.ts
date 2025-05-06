@@ -86,6 +86,8 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       className: "navMobileSubItem",
     },
   ],
+
+  // NOTE: Special case for logged-in user. Should not be renamed
   User: [
     {
       name: "User Profile",
