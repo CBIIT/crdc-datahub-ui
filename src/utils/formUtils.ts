@@ -234,3 +234,17 @@ export const validateEmoji = (value: string): string | null => {
 
   return null;
 };
+
+/**
+ * Provides a validation function to test against a string for non-UTF8 characters.
+ *
+ * @param value The input string to validate
+ * @returns A string if the value contains non-UTF8 characters, otherwise null if valid
+ */
+export const validateUTF8 = (value: string): string | null => {
+  if (value?.split("").some((char) => char.charCodeAt(0) > 127)) {
+    return "This field contains invalid characters";
+  }
+
+  return null;
+};

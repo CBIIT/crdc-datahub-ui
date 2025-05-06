@@ -36,7 +36,12 @@ import {
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
-import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import {
+  filterAlphaNumeric,
+  formatFullStudyName,
+  mapOrganizationStudyToId,
+  validateUTF8,
+} from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
@@ -465,7 +470,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   Program <BaseAsterisk />
                 </StyledLabel>
                 <StyledTextField
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: true,
+                    setValueAs: (val) => val?.trim(),
+                    validate: { utf8: validateUTF8 },
+                  })}
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
                   required

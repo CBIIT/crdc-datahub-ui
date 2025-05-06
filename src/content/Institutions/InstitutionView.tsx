@@ -23,7 +23,7 @@ import {
   UpdateInstitutionInput,
   UpdateInstitutionResp,
 } from "../../graphql";
-import { Logger } from "../../utils";
+import { Logger, validateUTF8 } from "../../utils";
 import SuspenseLoader from "../../components/SuspenseLoader";
 
 const StyledBanner = styled("div")({
@@ -257,7 +257,11 @@ const InstitutionView = ({ _id }: Props) => {
                   <StyledAsterisk />
                 </StyledLabel>
                 <StyledTextField
-                  {...register("name", { required: true, setValueAs: (val) => val?.trim() })}
+                  {...register("name", {
+                    required: true,
+                    setValueAs: (val) => val?.trim(),
+                    validate: { utf8: validateUTF8 },
+                  })}
                   size="small"
                   required
                   disabled={retrievingInstitution}

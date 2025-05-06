@@ -455,3 +455,29 @@ describe("validateEmoji cases", () => {
     }
   );
 });
+
+describe("validateUTF8 cases", () => {
+  it("should return null for a string without non-UTF8 characters", () => {
+    expect(utils.validateUTF8("This is a test string")).toBe(null);
+    expect(utils.validateUTF8("123 hello valid '@#$%^&*(")).toBe(null);
+  });
+
+  it("should handle null or undefined values", () => {
+    expect(utils.validateUTF8(null as unknown as string)).toBe(null);
+    expect(utils.validateUTF8(undefined as unknown as string)).toBe(null);
+  });
+
+  it.each<string>(["😊", "👨🏿‍🎤", "🔴", "1️⃣", "🇵🇷"])(
+    "should return an error message for a string with emojis (%s)",
+    (value) => {
+      expect(utils.validateUTF8(value)).toEqual(expect.any(String));
+    }
+  );
+
+  it.each<string>(["�", "ä", "ü", "ß", "è", "ò"])(
+    "should return an error message for a string with non-UTF8 character %s",
+    (value) => {
+      expect(utils.validateUTF8(value)).toEqual(expect.any(String));
+    }
+  );
+});
