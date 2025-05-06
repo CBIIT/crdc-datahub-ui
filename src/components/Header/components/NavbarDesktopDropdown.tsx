@@ -1,5 +1,6 @@
 import { Button, styled } from "@mui/material";
 import { useMemo, useRef } from "react";
+import { flatMap, keyBy, map, maxBy, range } from "lodash";
 import Grid from "@mui/material/Unstable_Grid2";
 import { generatePath, Link } from "react-router-dom";
 import { Status, useAuthContext } from "../../Contexts/AuthContext";
@@ -95,18 +96,36 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
     return <SuspenseLoader />;
   }
 
+  const cells = useMemo(() => {
+    const positioned = (HeaderSubLinks[clickedTitle] ?? []).map((item) => {
+      const [col = 0, row = 0] = item.position ?? [];
+      return { item, col, row };
+    });
+
+    const bySlot = keyBy(positioned, (p) => `${p.row}-${p.col}`);
+
+    const maxRow = positioned.length ? maxBy(positioned, "row").row : 0;
+
+    return flatMap(range(0, maxRow + 1), (row) =>
+      map(range(0, 4), (col) => bySlot[`${row}-${col}`] ?? null)
+    );
+  }, [clickedTitle]);
+
   return (
     <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
       <StyledGridContainer container>
         {clickedTitle !== ""
-          ? HeaderSubLinks?.[clickedTitle]?.map((dropItem) => {
+          ? cells?.map((cell, idx) => {
+              const { item: dropItem } = cell || {};
               if (
-                dropItem?.permissions?.length > 0 &&
-                !dropItem?.permissions?.every(
-                  (permission: AuthPermissions) => user?.permissions?.includes(permission)
-                )
+                (dropItem?.permissions?.length > 0 &&
+                  !dropItem?.permissions?.every(
+                    (permission: AuthPermissions) => user?.permissions?.includes(permission)
+                  )) ||
+                !dropItem
               ) {
-                return null;
+                // eslint-disable-next-line react/no-array-index-key
+                return <Grid xs={3} key={`empty-${idx}`} />;
               }
 
               if (dropItem.link) {

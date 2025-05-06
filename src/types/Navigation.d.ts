@@ -77,6 +77,14 @@ type NavBarSubItem = {
    *   otherwise it will be hidden
    */
   permissions?: AuthPermissions[];
+  /**
+   * Defines the column and row (0-based) this sub-item will display in
+   *
+   * Guide:
+   * - [0, 0] will display in column 0, row 0
+   * - [3, 10] will display in column 3, row 10
+   */
+  position?: [number, number]; // TODO: Make required
 };
 
 type FooterConfiguration = {

@@ -37,6 +37,7 @@ export const DropdownExpanded: Story = {
       "study:manage",
       "dashboard:view",
       "institution:manage",
+      "data_submission:create",
     ],
     clickedTitle: Object.keys(HeaderSubLinks)?.[0] || "",
   },
@@ -56,6 +57,7 @@ export const DropdownExpanded: Story = {
         "study:manage",
         "dashboard:view",
         "institution:manage",
+        "data_submission:create",
       ],
       control: {
         type: "check",

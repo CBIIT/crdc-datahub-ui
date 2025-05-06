@@ -59,11 +59,12 @@ export const HeaderLinks: NavBarItem[] = [
 ];
 
 export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
-  "Model Navigator": DataCommons.map((dc) => ({
+  "Model Navigator": DataCommons.map((dc, idx) => ({
     id: `model-navigator-${dc.name}`,
     name: `${dc.displayName}${dc.displayName.indexOf("Model") === -1 ? " Model" : ""}`,
     link: `/model-navigator/${dc.displayName}/latest`,
     className: "navMobileSubItem",
+    position: [idx % 4, Math.floor(idx / 4)],
   })),
 
   Documentation: [
@@ -72,18 +73,21 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       link: "https://datacommons.cancer.gov/submission-request-instructions",
       id: "submission-request-instructions",
       className: "navMobileSubItem",
+      position: [0, 0],
     },
     {
       name: "Data Submission Instructions",
       link: DataSubmissionInstructionsLink,
       id: "data-submission-instructions",
       className: "navMobileSubItem",
+      position: [1, 0],
     },
     {
       name: "API Instructions",
       link: ApiInstructions,
       id: "api-instructions",
       className: "navMobileSubItem",
+      position: [2, 0],
     },
   ],
 
@@ -94,17 +98,20 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       link: "/profile/:userId",
       id: "navbar-dropdown-item-user-profile",
       className: "navMobileSubItem",
+      position: [0, 0],
     },
     {
       name: "Uploader CLI Tool",
       id: "navbar-dropdown-item-uploader-tool",
       className: "navMobileSubItem action",
+      position: [1, 0],
     },
     {
       name: "API Token",
       id: "navbar-dropdown-item-api-token",
       className: "navMobileSubItem action",
       permissions: ["data_submission:create"],
+      position: [1, 1],
     },
     {
       name: "Manage Studies",
@@ -112,6 +119,7 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       id: "navbar-dropdown-item-studies-manage",
       className: "navMobileSubItem",
       permissions: ["study:manage"],
+      position: [2, 0],
     },
     {
       name: "Manage Programs",
@@ -119,6 +127,7 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       id: "navbar-dropdown-item-program-manage",
       className: "navMobileSubItem",
       permissions: ["program:manage"],
+      position: [2, 1],
     },
     {
       name: "Manage Institutions",
@@ -126,6 +135,7 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       id: "navbar-dropdown-item-institution-manage",
       className: "navMobileSubItem",
       permissions: ["institution:manage"],
+      position: [2, 2],
     },
     {
       name: "Manage Users",
@@ -133,11 +143,13 @@ export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
       id: "navbar-dropdown-item-user-manage",
       className: "navMobileSubItem",
       permissions: ["user:manage"],
+      position: [2, 3],
     },
     {
       name: "Logout",
       id: "navbar-dropdown-item-logout",
       className: "navMobileSubItem action",
+      position: [3, 0],
     },
   ],
 };
