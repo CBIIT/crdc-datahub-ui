@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { debounce } from "lodash";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { debounce, sortBy } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import StyledOutlinedInput from "../../StyledFormComponents/StyledOutlinedInput";
@@ -160,6 +160,12 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
 
+  // Move 'NA' program to the front
+  const sortedActivePrograms = useMemo(
+    () => sortBy(activePrograms, ({ name }) => (name === "NA" ? 0 : 1)),
+    [activePrograms]
+  );
+
   return (
     <StyledFilterContainer data-testid="approved-study-filters">
       <Stack direction="row" alignItems="center">
@@ -219,7 +225,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
                 <MenuItem value="All" data-testid="programID-option-NA">
                   All
                 </MenuItem>
-                {activePrograms?.map((p) => (
+                {sortedActivePrograms?.map((p) => (
                   <MenuItem key={p._id} value={p._id} data-testid={`programID-option-${p._id}`}>
                     {p.name}
                   </MenuItem>
