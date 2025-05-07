@@ -42,6 +42,7 @@ const mockReleasedDataQuery: MockedResponse<RetrieveReleasedDataResp, RetrieveRe
           props: JSON.stringify({
             mock_node_data_name: "foo",
             baz: 1,
+            bool_value: true,
             more_cols: "Yes that is true",
           }),
         },
@@ -51,6 +52,7 @@ const mockReleasedDataQuery: MockedResponse<RetrieveReleasedDataResp, RetrieveRe
           props: JSON.stringify({
             mock_node_data_name: "bar",
             baz: 2,
+            bool_value: false,
             more_cols: "No that is false",
           }),
         },
