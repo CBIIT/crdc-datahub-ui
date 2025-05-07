@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { FC, memo, useMemo } from "react";
 import { RetrieveReleasedDataResp } from "../../graphql";
-import { safeParse } from "../../utils";
+import { coerceToString, safeParse } from "../../utils";
 import Repeater from "../Repeater";
 
 const StyledAlert = styled(Alert)({
@@ -84,6 +84,8 @@ export type ComparisonTableProps = {
   loading: boolean;
 };
 
+type ParsedNodeProps = Record<string, string | number | boolean>;
+
 /**
  * Builds a dynamic table to compare the dataset between two data records
  * Handles loading state
@@ -91,12 +93,9 @@ export type ComparisonTableProps = {
  * @returns The NodeComparisonTable component
  */
 const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, loading }) => {
-  const newProps = useMemo<Record<string, string | number>>(
-    () => safeParse(newNode?.props),
-    [newNode]
-  );
+  const newProps = useMemo<ParsedNodeProps>(() => safeParse(newNode?.props), [newNode]);
 
-  const existingProps = useMemo<Record<string, string | number>>(
+  const existingProps = useMemo<ParsedNodeProps>(
     () => safeParse(existingNode?.props),
     [existingNode]
   );
@@ -139,14 +138,16 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                 <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
                 {allPropertyNames.map((property) => (
                   <StyledTableCell key={property}>
-                    {existingProps?.[property] || ""}
+                    {coerceToString(existingProps?.[property])}
                   </StyledTableCell>
                 ))}
               </TableRow>
               <TableRow data-testid="node-comparison-table-new">
                 <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>{newProps?.[property] || ""}</StyledTableCell>
+                  <StyledTableCell key={property}>
+                    {coerceToString(newProps?.[property])}
+                  </StyledTableCell>
                 ))}
               </TableRow>
             </>

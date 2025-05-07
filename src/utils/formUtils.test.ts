@@ -174,31 +174,33 @@ describe("findProgram", () => {
 });
 
 describe("formatFullStudyName cases", () => {
-  it("should return the study name with abbreviation if abbreviation is provided", () => {
+  it("should return the abbreviation with the study name if both are available", () => {
     const studyName = "Study Name";
     const studyAbbreviation = "SN";
+    expect(utils.formatFullStudyName(studyName, studyAbbreviation)).toBe("SN - Study Name");
+  });
+
+  it.each(["", undefined, null])(
+    "should return only the study name if abbreviation is %s",
+    (studyAbbreviation) => {
+      const studyName = "Study Name";
+      expect(utils.formatFullStudyName(studyName, studyAbbreviation)).toBe("Study Name");
+    }
+  );
+
+  it("should ignore the study name if its equal to the abbreviation", () => {
+    const studyName = "Study Name";
+    const studyAbbreviation = "Study Name";
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
-    expect(result).toBe("Study Name (SN)");
-  });
-
-  it("should return the study name without abbreviation if abbreviation is not provided", () => {
-    const studyName = "Study Name";
-    const result = utils.formatFullStudyName(studyName, "");
-    expect(result).toBe("Study Name");
-  });
-
-  it("should return the study name without abbreviation if abbreviation is undefined", () => {
-    const studyName = "Study Name";
-    const result = utils.formatFullStudyName(studyName, undefined);
     expect(result).toBe("Study Name");
   });
 
   it("should ignore casing when comparing the study name and abbreviation", () => {
-    const equalValuesWithDifferentCasing = utils.formatFullStudyName("study name", "STUDY NAME");
-    expect(equalValuesWithDifferentCasing).toBe("study name");
+    const equalValuesWithDifferentCasing = utils.formatFullStudyName("study_name", "STUDY_NAME");
+    expect(equalValuesWithDifferentCasing).toBe("STUDY_NAME"); // capitalized abbreviation
 
-    const equalValuesWithDifferentCasing2 = utils.formatFullStudyName("STUDY NAME", "study name");
-    expect(equalValuesWithDifferentCasing2).toBe("STUDY NAME");
+    const equalValuesWithDifferentCasing2 = utils.formatFullStudyName("STUDY_NAME", "study_name");
+    expect(equalValuesWithDifferentCasing2).toBe("study_name"); // lowercase abbreviation
   });
 
   it("should remove extra spaces from the study name", () => {
@@ -211,14 +213,7 @@ describe("formatFullStudyName cases", () => {
     const studyName = "Study Name";
     const studyAbbreviation = "   SN   ";
     const result = utils.formatFullStudyName(studyName, studyAbbreviation);
-    expect(result).toBe("Study Name (SN)");
-  });
-
-  it("should ignore the abbreviation if its equal to the study name", () => {
-    const studyName = "Study Name";
-    const studyAbbreviation = "Study Name";
-    const result = utils.formatFullStudyName(studyName, studyAbbreviation);
-    expect(result).toBe("Study Name");
+    expect(result).toBe("SN - Study Name");
   });
 
   it("should return an empty string if the study name is not a string", () => {
