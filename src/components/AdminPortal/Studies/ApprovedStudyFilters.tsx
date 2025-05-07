@@ -5,7 +5,8 @@ import { Controller, useForm } from "react-hook-form";
 import StyledOutlinedInput from "../../StyledFormComponents/StyledOutlinedInput";
 import BaseSelect from "../../StyledFormComponents/StyledSelect";
 import { useSearchParamsContext } from "../../Contexts/SearchParamsContext";
-import { useOrganizationListContext } from "../../Contexts/OrganizationListContext";
+import { Status, useOrganizationListContext } from "../../Contexts/OrganizationListContext";
+import SuspenseLoader from "../../SuspenseLoader";
 
 const StyledFilterContainer = styled(Box)({
   display: "flex",
@@ -54,7 +55,7 @@ type Props = {
 
 const ApprovedStudyFilters = ({ onChange }: Props) => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
-  const { activeOrganizations: activePrograms } = useOrganizationListContext();
+  const { activeOrganizations: activePrograms, status: OrgStatus } = useOrganizationListContext();
   const { watch, register, control, setValue, getValues } = useForm<FilterForm>({
     defaultValues: {
       study: "",
@@ -90,8 +91,8 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
   useEffect(() => {
     const dbGaPID = searchParams.get("dbGaPID") || "";
     const study = searchParams.get("study") || "";
-    const accessType = searchParams.get("accessType");
-    const programID = searchParams.get("programID");
+    const accessType = searchParams.get("accessType") || "All";
+    const programID = searchParams.get("programID") || "All";
 
     if (programID !== programIDFilter) {
       setValue("programID", programID);
@@ -166,6 +167,10 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
     [activePrograms]
   );
 
+  if (OrgStatus === Status.LOADING) {
+    return <SuspenseLoader data-testid="approved-study-filters-suspense-loader" />;
+  }
+
   return (
     <StyledFilterContainer data-testid="approved-study-filters">
       <Stack direction="row" alignItems="center">
@@ -222,7 +227,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
                   handleFilterChange("programID");
                 }}
               >
-                <MenuItem value="All" data-testid="programID-option-NA">
+                <MenuItem value="All" data-testid="programID-option-All">
                   All
                 </MenuItem>
                 {sortedActivePrograms?.map((p) => (

@@ -12,6 +12,10 @@ export type StudyListProps = {
    */
   studies: Partial<ApprovedStudy>[];
   /**
+   * The text displayed when there is no studies.
+   */
+  emptyText?: string;
+  /**
    * Provides a custom render for the approved study.
    *
    * @param study The study to be rendered.
@@ -34,15 +38,19 @@ export type StudyListProps = {
  *
  * @returns The formatted list of studies
  */
-const StudyList: FC<StudyListProps> = ({ studies, renderStudy }: StudyListProps) => {
-  if (studies.findIndex((s) => s?._id === "All") !== -1) {
+const StudyList: FC<StudyListProps> = ({
+  studies,
+  emptyText = "None.",
+  renderStudy,
+}: StudyListProps) => {
+  if (studies?.length && studies.findIndex((s) => s?._id === "All") !== -1) {
     return <span>All</span>;
   }
 
   return (
     <SummaryList
       data={studies}
-      emptyText=""
+      emptyText={emptyText}
       getItemKey={(s) => s._id}
       renderItem={(s) => renderStudy?.(s) ?? (s.studyAbbreviation || s.studyName)}
       renderTooltipItem={({ studyName, studyAbbreviation }) =>

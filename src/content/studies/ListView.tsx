@@ -223,7 +223,7 @@ const ListView = () => {
   const [count, setCount] = useState<number>(0);
   const filtersRef = useRef<FilterForm>({
     study: "",
-    programID: "",
+    programID: "All",
     dbGaPID: "",
     accessType: "All",
   });

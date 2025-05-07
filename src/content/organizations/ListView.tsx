@@ -160,6 +160,7 @@ const columns: Column<T>[] = [
       return (
         <StudyList
           studies={studies}
+          emptyText=""
           renderStudy={(s) => (
             <TruncatedText text={s?.studyAbbreviation || s?.studyName} maxCharacters={37} />
           )}
