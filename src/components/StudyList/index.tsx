@@ -1,33 +1,7 @@
-import { FC, memo, useMemo } from "react";
+import { FC, memo } from "react";
 import { isEqual } from "lodash";
-import { styled, Typography } from "@mui/material";
 import { formatFullStudyName } from "../../utils";
-import Tooltip from "../Tooltip";
-
-const StyledContainerTypography = styled(Typography)<{ component: React.ElementType }>({
-  wordWrap: "break-word",
-  maxWidth: "100%",
-  fontSize: "inherit",
-});
-
-const StyledList = styled("ul")({
-  paddingInlineStart: 16,
-  marginBlockStart: 6,
-  marginBlockEnd: 6,
-});
-
-const StyledListItem = styled("li")({
-  "&:not(:last-child)": {
-    marginBottom: 8,
-  },
-  fontSize: 14,
-});
-
-const StyledTypography = styled(Typography)<{ component: React.ElementType }>(() => ({
-  textDecoration: "underline",
-  cursor: "pointer",
-  color: "#0B6CB1",
-}));
+import SummaryList from "../SummaryList";
 
 export type StudyListProps = {
   /**
@@ -36,9 +10,14 @@ export type StudyListProps = {
    * - `studyName`
    * - `studyAbbreviation`
    */
-  studies:
-    | Partial<ApprovedStudy>[]
-    | Pick<ApprovedStudy, "_id" | "studyName" | "studyAbbreviation">[];
+  studies: Partial<ApprovedStudy>[];
+  /**
+   * Provides a custom render for the approved study.
+   *
+   * @param study The study to be rendered.
+   * @returns A string or ReactNode being rendered.
+   */
+  renderStudy?: (study: Partial<ApprovedStudy>) => string | React.ReactNode;
 };
 
 /**
@@ -55,48 +34,21 @@ export type StudyListProps = {
  *
  * @returns The formatted list of studies
  */
-const StudyList: FC<StudyListProps> = ({ studies }: StudyListProps) => {
-  const tooltipContent = useMemo<React.ReactNode>(
-    () => (
-      <StyledList>
-        {studies?.map(({ _id, studyName, studyAbbreviation }) => (
-          <StyledListItem key={_id} data-testid={_id}>
-            {formatFullStudyName(studyName, studyAbbreviation)}
-          </StyledListItem>
-        ))}
-      </StyledList>
-    ),
-    [studies]
-  );
-
-  if (!studies || !Array.isArray(studies) || studies.length === 0) {
-    return <span>None.</span>;
-  }
-
+const StudyList: FC<StudyListProps> = ({ studies, renderStudy }: StudyListProps) => {
   if (studies.findIndex((s) => s?._id === "All") !== -1) {
     return <span>All</span>;
   }
 
   return (
-    <StyledContainerTypography component="span">
-      {studies[0].studyAbbreviation || studies[0].studyName}
-      {studies.length > 1 && (
-        <>
-          {" and "}
-          <Tooltip
-            title={tooltipContent}
-            placement="top"
-            open={undefined}
-            disableHoverListener={false}
-            arrow
-          >
-            <StyledTypography component="span" data-testid="study-list-other-count">
-              other {studies.length - 1}
-            </StyledTypography>
-          </Tooltip>
-        </>
-      )}
-    </StyledContainerTypography>
+    <SummaryList
+      data={studies}
+      emptyText=""
+      getItemKey={(s) => s._id}
+      renderItem={(s) => renderStudy?.(s) ?? (s.studyAbbreviation || s.studyName)}
+      renderTooltipItem={({ studyName, studyAbbreviation }) =>
+        formatFullStudyName(studyName, studyAbbreviation)
+      }
+    />
   );
 };
 
