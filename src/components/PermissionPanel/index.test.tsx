@@ -2065,4 +2065,72 @@ describe("Implementation Requirements", () => {
       })
     ).toBeChecked();
   });
+
+  it("should check permissions when both user permission and defaults have scopes", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "data_submission:view:scope:scope-value" as AuthPermissions,
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: ["data_submission:view:scope:scope-value" as AuthPermissions],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-data_submission:view:scope:scope-value")).toBeInTheDocument();
+    });
+
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(1)/);
+
+    expect(
+      within(getByTestId("permission-data_submission:view:scope:scope-value")).getByRole(
+        "checkbox",
+        {
+          hidden: true,
+        }
+      )
+    ).toBeChecked();
+  });
 });
