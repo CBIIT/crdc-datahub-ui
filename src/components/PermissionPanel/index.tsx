@@ -22,12 +22,7 @@ import {
   RetrievePBACDefaultsInput,
   RETRIEVE_PBAC_DEFAULTS,
 } from "../../graphql";
-import {
-  cleanPermissionKeys,
-  ColumnizedPBACGroups,
-  columnizePBACGroups,
-  Logger,
-} from "../../utils";
+import { ColumnizedPBACGroups, columnizePBACGroups, Logger } from "../../utils";
 
 const StyledBox = styled(Box)({
   width: "957px",
@@ -148,19 +143,15 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       return [0, []];
     }
 
-    // Clean up the value keys by only keeping the entity:action, ignoring any extensions
-    const permissionValueKeys = cleanPermissionKeys(permissionsValue);
     const clonedPermissions = cloneDeep(defaults.permissions);
-    const checkedPermissions = clonedPermissions?.filter(
-      (p) => permissionValueKeys?.includes(p._id)
-    );
+    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue?.includes(p._id));
     const inheritedPermissions = uniq(flatMap(checkedPermissions, (p) => p.inherited || []));
 
     const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
       ...p,
       // NOTE: Inherited permissions are explicitly checked here to handle the initial loading state
       // when the permission may not have been checked yet.
-      checked: permissionValueKeys?.includes(p._id) || inheritedPermissions.includes(p._id),
+      checked: permissionsValue?.includes(p._id) || inheritedPermissions.includes(p._id),
       disabled: p.disabled || inheritedPermissions.includes(p._id),
     }));
 
@@ -183,11 +174,9 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       return [0, []];
     }
 
-    // Clean up the value keys by only keeping the entity:action, ignoring any extensions
-    const notificationsValueKeys = cleanPermissionKeys(notificationsValue);
     const clonedNotifications = cloneDeep(defaults.notifications);
     const checkedNotifications = clonedNotifications?.filter(
-      (p) => notificationsValueKeys?.includes(p._id)
+      (p) => notificationsValue?.includes(p._id)
     );
     const inheritedNotifications = uniq(flatMap(checkedNotifications, (p) => p.inherited || []));
 
@@ -196,7 +185,7 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
         ...n,
         // NOTE: Inherited notifications are explicitly checked here to handle the initial loading state
         // when the notification may not have been checked yet.
-        checked: notificationsValueKeys?.includes(n._id) || inheritedNotifications.includes(n._id),
+        checked: notificationsValue?.includes(n._id) || inheritedNotifications.includes(n._id),
         disabled: n.disabled || inheritedNotifications.includes(n._id),
       })
     );
@@ -208,14 +197,13 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   }, [data, notificationsValue]);
 
   const handlePermissionChange = (_id: AuthPermissions) => {
-    const permissionValueKeys = cleanPermissionKeys(permissionsValue) as AuthPermissions[];
-    if (permissionValueKeys.includes(_id)) {
+    if (permissionsValue.includes(_id)) {
       setValue(
         "permissions",
-        permissionValueKeys.filter((p) => p !== _id)
+        permissionsValue.filter((p) => p !== _id)
       );
     } else {
-      setValue("permissions", [...permissionValueKeys, _id]);
+      setValue("permissions", [...permissionsValue, _id]);
     }
   };
 
@@ -250,19 +238,18 @@ const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
       return;
     }
 
-    const permissionValueKeys = cleanPermissionKeys(permissionsValue) as AuthPermissions[];
     const checkedPermissions = data?.retrievePBACDefaults
       ?.find((pbac) => pbac.role === selectedRole)
-      ?.permissions?.filter((p) => permissionValueKeys.includes(p._id));
+      ?.permissions?.filter((p) => permissionsValue.includes(p._id));
 
     // Find any inherited permissions that are not already checked and add them to the new value
     const uncheckedInheritedPermissions =
       uniq(flatMap(checkedPermissions, (p) => p.inherited || [])).filter(
-        (p) => !permissionValueKeys.includes(p)
+        (p) => !permissionsValue.includes(p)
       ) || [];
 
     if (uncheckedInheritedPermissions.length) {
-      setValue("permissions", [...permissionValueKeys, ...uncheckedInheritedPermissions]);
+      setValue("permissions", [...permissionsValue, ...uncheckedInheritedPermissions]);
     }
   }, [permissionsValue]);
 
