@@ -6,6 +6,7 @@ import {
   IconButton,
   Stack,
   Typography,
+  TypographyProps,
   styled,
 } from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
@@ -38,7 +39,6 @@ const StyledCloseButton = styled(Button)({
     minWidth: "101px",
     padding: "10px",
     color: "#000000",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 500,
@@ -46,7 +46,7 @@ const StyledCloseButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-    border: "1px solid #AEAEAE",
+    border: "1.5px solid #AEAEAE",
   },
 });
 
@@ -54,7 +54,6 @@ const StyledConfirmButton = styled(Button)({
   "&.MuiButton-root": {
     minWidth: "137px",
     padding: "10px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 700,
@@ -85,6 +84,7 @@ const StyledDescription = styled("div")({
 
 type Props = {
   header?: string;
+  headerProps?: Omit<TypographyProps, "children">;
   description?: string | JSX.Element;
   closeText?: string;
   closeButtonProps?: Omit<ButtonProps, "children" | "onClick">;
@@ -96,6 +96,7 @@ type Props = {
 
 const DeleteDialog = ({
   header = "Remove Data",
+  headerProps = {},
   description,
   closeText = "Cancel",
   closeButtonProps = {},
@@ -114,7 +115,7 @@ const DeleteDialog = ({
     >
       <CloseIconSvg />
     </StyledCloseDialogButton>
-    <StyledHeader variant="h3" data-testid="delete-dialog-header">
+    <StyledHeader variant="h3" data-testid="delete-dialog-header" {...headerProps}>
       {header}
     </StyledHeader>
     <StyledDescription data-testid="delete-dialog-description">
