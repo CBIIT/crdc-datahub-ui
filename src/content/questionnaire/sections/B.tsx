@@ -11,10 +11,10 @@ import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
 import {
   filterAlphaNumeric,
+  filterNonUTF8,
   findProgram,
   Logger,
   mapObjectWithKey,
-  validateUTF8,
 } from "../../../utils";
 import AddRemoveButton from "../../../components/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
@@ -337,7 +337,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Program Title"
           name="program[name]"
           value={program?.name}
-          validate={(input: string) => !validateUTF8(input)}
+          filter={(v: string) => (readOnlyProgram ? v : filterNonUTF8(v))}
           maxLength={100}
           placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
@@ -390,7 +390,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={study.name}
           maxLength={100}
           placeholder="100 characters allowed"
-          validate={(input: string) => !validateUTF8(input)}
+          filter={filterNonUTF8}
           readOnly={readOnlyInputs}
           hideValidation={readOnlyInputs}
           tooltipText="A descriptive name that will be used to identify the study."

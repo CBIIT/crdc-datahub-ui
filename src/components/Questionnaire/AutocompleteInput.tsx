@@ -140,6 +140,13 @@ type Props<T> = {
   tooltipText?: string | ReactNode;
   required?: boolean;
   validate?: (input: T) => boolean;
+  /**
+   * Provide custom filtering logic for the Autocomplete component.
+   *
+   * @param input The input value to filter
+   * @returns The filtered value
+   */
+  filter?: (input: T) => T;
 } & Omit<AutocompleteProps<T, false, true, true, "div">, "renderInput">;
 
 const AutocompleteInput = <T,>({
@@ -153,6 +160,7 @@ const AutocompleteInput = <T,>({
   onChange,
   options,
   validate,
+  filter,
   placeholder,
   freeSolo,
   readOnly,
@@ -166,6 +174,11 @@ const AutocompleteInput = <T,>({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const processValue = (newValue: T) => {
+    // Pre-process the value before setting it
+    if (typeof filter === "function") {
+      newValue = filter(newValue);
+    }
+
     if (typeof validate === "function") {
       const customIsValid = validate(newValue);
       updateInputValidity(inputRef, !customIsValid ? helpText : "");
