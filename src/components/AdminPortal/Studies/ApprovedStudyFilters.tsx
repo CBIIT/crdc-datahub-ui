@@ -210,7 +210,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
       </Stack>
 
       <Stack direction="row" alignItems="center">
-        <StyledInlineLabel htmlFor="program-filter">Program</StyledInlineLabel>
+        <StyledInlineLabel htmlFor="programID-filter">Program</StyledInlineLabel>
         <StyledFormControl>
           <Controller
             name="programID"
