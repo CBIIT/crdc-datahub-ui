@@ -29,6 +29,7 @@ const listOrgMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
               description: "",
               status: "Active",
               studies: [],
+              readOnly: false,
               updateAt: "",
             },
           ],
