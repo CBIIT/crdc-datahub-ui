@@ -524,7 +524,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     <StyledSelect
                       {...field}
                       value={field.value || ""}
-                      readOnly={organization?.readOnly}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{
                         "aria-labelledby": "primaryContactLabel",
@@ -559,7 +558,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         />
                       )}
                       renderTags={(value: string[], _, state) => {
-                        if (value?.length === 0 || (state.focused && !organization?.readOnly)) {
+                        if (value?.length === 0 || state.focused) {
                           return null;
                         }
 
@@ -572,7 +571,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       options={studyOptions}
                       getOptionLabel={(option: string) => formattedStudyMap[option]}
                       onChange={(_, data: string[]) => field.onChange(data)}
-                      readOnly={organization?.readOnly}
                       loading={approvedStudiesLoading}
                       PaperComponent={StyledPaper}
                       PopperComponent={StyledPopper}
@@ -595,7 +593,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       {...field}
                       value={field.value || ""}
                       disabled={_id === "new"}
-                      readOnly={organization?.readOnly}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{ "aria-labelledby": "statusLabel" }}
                       error={!!errors.status}
@@ -612,11 +609,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 alignItems="center"
                 spacing={1}
               >
-                {!organization?.readOnly && (
-                  <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
-                    Save
-                  </StyledButton>
-                )}
+                <StyledButton type="submit" loading={saving} txt="#14634F" border="#26B893">
+                  Save
+                </StyledButton>
                 <StyledButton
                   type="button"
                   onClick={() => navigate(manageOrgPageUrl)}
