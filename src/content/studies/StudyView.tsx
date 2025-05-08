@@ -672,11 +672,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                     render={({ field }) => (
                       <StyledSelect
                         {...field}
-                        value={
-                          sameAsProgramPrimaryContact
-                            ? approvedStudy?.programs?.[0]?.conciergeID || ""
-                            : field.value || ""
-                        }
+                        value={field.value || ""}
                         MenuProps={{ disablePortal: true }}
                         inputProps={{
                           "aria-labelledby": "primaryContactLabel",
