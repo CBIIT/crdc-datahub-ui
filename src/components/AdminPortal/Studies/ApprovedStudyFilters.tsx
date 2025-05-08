@@ -105,18 +105,23 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
     }
     handleAccessTypeChange(accessType);
 
-    if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.accessType) {
+    if (Object.values(touchedFilters).every((filter) => !filter)) {
       onChange?.(getValues());
     }
-  }, [searchParams.get("dbGaPID"), searchParams.get("study"), searchParams.get("accessType")]);
+  }, [
+    searchParams.get("dbGaPID"),
+    searchParams.get("study"),
+    searchParams.get("accessType"),
+    searchParams.get("programID"),
+  ]);
 
   useEffect(() => {
-    if (!touchedFilters.dbGaPID && !touchedFilters.study && !touchedFilters.accessType) {
+    if (Object.values(touchedFilters).every((filter) => !filter)) {
       return;
     }
     const newSearchParams = new URLSearchParams(searchParams);
 
-    if (programIDFilter) {
+    if (programIDFilter && programIDFilter !== "All") {
       newSearchParams.set("programID", programIDFilter);
     } else {
       newSearchParams.delete("programID");
@@ -140,7 +145,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [dbGaPIDFilter, studyFilter, accessTypeFilter, touchedFilters]);
+  }, [dbGaPIDFilter, studyFilter, accessTypeFilter, programIDFilter, touchedFilters]);
 
   useEffect(() => {
     const subscription = watch((formValue: FilterForm, { name }) => {
