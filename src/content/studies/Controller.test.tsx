@@ -15,10 +15,14 @@ import {
   GetApprovedStudyResp,
   LIST_ACTIVE_DCPS,
   LIST_APPROVED_STUDIES,
+  LIST_ORGS,
   ListActiveDCPsResp,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
+  ListOrgsInput,
+  ListOrgsResp,
 } from "../../graphql";
+import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 
 const listActiveDCPsMock: MockedResponse<ListActiveDCPsResp> = {
   request: {
@@ -46,6 +50,36 @@ const listActiveDCPsMock: MockedResponse<ListActiveDCPsResp> = {
     },
   },
 };
+
+const listOrgMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
+  {
+    request: {
+      query: LIST_ORGS,
+    },
+    variableMatcher: () => true,
+    result: {
+      data: {
+        listPrograms: {
+          total: 1,
+          programs: [
+            {
+              _id: "option-1",
+              name: "Option 1",
+              abbreviation: "O1",
+              conciergeName: "primary-contact-1",
+              createdAt: "",
+              description: "",
+              status: "Active",
+              studies: [],
+              updateAt: "",
+            },
+          ],
+        },
+      },
+    },
+    maxUsageCount: Infinity,
+  },
+];
 
 // NOTE: Omitting fields depended on by the component
 const baseUser: Omit<User, "role" | "permissions"> = {
@@ -91,14 +125,16 @@ const TestParent: FC<ParentProps> = ({
   );
 
   return (
-    <MockedProvider mocks={mocks} showWarnings>
+    <MockedProvider mocks={[...listOrgMocks, ...mocks]} showWarnings>
       <MemoryRouter initialEntries={[initialEntry]}>
         <Routes>
           <Route
             path="/studies/:studyId?"
             element={
               <AuthContext.Provider value={baseAuthCtx}>
-                <SearchParamsProvider>{children}</SearchParamsProvider>
+                <OrganizationProvider preload>
+                  <SearchParamsProvider>{children}</SearchParamsProvider>
+                </OrganizationProvider>
               </AuthContext.Provider>
             }
           />

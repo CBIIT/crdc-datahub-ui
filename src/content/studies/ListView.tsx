@@ -12,9 +12,12 @@ import {
 } from "../../graphql";
 import { FormatDate } from "../../utils";
 import { formatAccessTypes } from "../../utils/studyUtils";
-import ApprovedStudyFilters from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
+import ApprovedStudyFilters, {
+  FilterForm,
+} from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
 import TruncatedText from "../../components/TruncatedText";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import SummaryList from "../../components/SummaryList";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -28,7 +31,7 @@ const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   textTransform: "none",
   borderColor: "#26B893 !important",
   background: "#1B8369 !important",
-  marginRight: "25px",
+  marginRight: "0",
 });
 
 const StyledBannerBody = styled(Stack)({
@@ -94,35 +97,37 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
-type FilterForm = {
-  study: string;
-  dbGaPID: string;
-  accessType: AccessType;
-};
-
 const columns: Column<ApprovedStudy>[] = [
   {
     label: "Name",
     renderValue: (a) => <TruncatedText text={a.studyName} />,
     field: "studyName",
     default: true,
+    sx: {
+      width: "144px",
+    },
   },
   {
     label: "Acronym",
     renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
     field: "studyAbbreviation",
     sx: {
-      width: "208px",
+      width: "144px",
     },
   },
   {
     label: "dbGaPID",
-    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={15} />,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={10} />,
     field: "dbGaPID",
+    sx: {
+      width: "144px",
+    },
   },
   {
     label: "Access Type",
-    renderValue: (a) => formatAccessTypes(a.controlledAccess, a.openAccess),
+    renderValue: (a) => (
+      <TruncatedText text={formatAccessTypes(a.controlledAccess, a.openAccess)} />
+    ),
     fieldKey: "accessType",
     sortDisabled: true,
     sx: {
@@ -133,11 +138,43 @@ const columns: Column<ApprovedStudy>[] = [
     label: "Principal Investigator",
     renderValue: (a) => <TruncatedText text={a.PI} />,
     field: "PI",
+    sx: {
+      width: "144px",
+    },
   },
   {
     label: "ORCID",
-    renderValue: (a) => a.ORCID,
+    renderValue: (a) => <TruncatedText text={a.ORCID} />,
     field: "ORCID",
+    sx: {
+      width: "144px",
+    },
+  },
+  {
+    label: "Program",
+    renderValue: ({ programs }) => (
+      <SummaryList
+        data={programs}
+        getItemKey={(p) => p._id}
+        renderItem={(p) => <TruncatedText text={p.name} maxCharacters={8} />}
+        renderTooltipItem={(p) => p.name}
+        emptyText=""
+      />
+    ),
+    fieldKey: "programs.name",
+    sx: {
+      width: "380px",
+    },
+  },
+  {
+    label: "Primary Contact",
+    renderValue: (a) => {
+      const primaryContactName = a.primaryContact
+        ? `${a.primaryContact?.firstName || ""} ${a.primaryContact?.lastName || ""}`?.trim()
+        : "";
+      return <TruncatedText text={primaryContactName || ""} />;
+    },
+    fieldKey: "primaryContact.firstName",
   },
   {
     label: "Created Date",
@@ -182,6 +219,7 @@ const ListView = () => {
   const [count, setCount] = useState<number>(0);
   const filtersRef = useRef<FilterForm>({
     study: "",
+    programID: "All",
     dbGaPID: "",
     accessType: "All",
   });
@@ -215,6 +253,7 @@ const ListView = () => {
           dbGaPID: filtersRef.current.dbGaPID,
           controlledAccess: filtersRef.current.accessType,
           study: filtersRef.current.study,
+          programID: filtersRef.current.programID,
         },
         context: { clientName: "backend" },
         fetchPolicy: "no-cache",
@@ -254,7 +293,7 @@ const ListView = () => {
       <PageBanner
         title="Manage Studies"
         subTitle=""
-        padding="38px 0 0 25px"
+        padding="38px 25px 0"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             <StyledButton component={Link} to="/studies/new">
