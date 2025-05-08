@@ -169,10 +169,6 @@ const columns: Column<ApprovedStudy>[] = [
   {
     label: "Primary Contact",
     renderValue: (a) => {
-      if (a.programs?.length > 1) {
-        return "";
-      }
-
       const primaryContactName = a.primaryContact
         ? `${a.primaryContact?.firstName || ""} ${a.primaryContact?.lastName || ""}`?.trim()
         : "";
