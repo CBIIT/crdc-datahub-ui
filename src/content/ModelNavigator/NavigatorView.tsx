@@ -26,7 +26,7 @@ type ModelNavigatorProps = {
  */
 const ModelNavigator: FC<ModelNavigatorProps> = ({ version = "latest" }) => {
   const { status, DataCommon } = useDataCommonContext();
-  const [{ status: buildStatus, store }, , populate] = useBuildReduxStore();
+  const [{ status: buildStatus, store }, populate] = useBuildReduxStore();
 
   if (status === Status.LOADING || buildStatus === "loading") {
     return <SuspenseLoader />;
@@ -44,7 +44,7 @@ const ModelNavigator: FC<ModelNavigatorProps> = ({ version = "latest" }) => {
   return (
     <Box sx={{ mt: "40px" }}>
       <Provider store={store}>
-        <ReduxDataDictionary pdfDownloadConfig={DataCommon.configuration?.pdfConfig} />
+        <ReduxDataDictionary />
       </Provider>
     </Box>
   );
