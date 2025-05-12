@@ -1,5 +1,14 @@
 # Release Notes
 
+## 3.2.2 (Released 05/13/2025)
+
+This production patch includes a critical fix to resolve a timeout and crash issue that occurred when users accessed the Data Submission page containing a large number of submission batches.
+
+#### Bug Fixes
+
+- **Resolved Website Crash on Data Submission Page**\
+  Optimized backend queries to prevent request timeouts and crashes when accessing submissions with high batch volumes.
+
 ## 3.2.1 (Released 04/09/2025)
 
 #### CDS Rebranding
