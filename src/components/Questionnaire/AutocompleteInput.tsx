@@ -230,6 +230,7 @@ const AutocompleteInput = <T,>({
         </StyledFormLabel>
         <StyledAutocomplete
           value={val}
+          inputValue={val as unknown as string}
           onChange={onChangeWrapper}
           onInputChange={onInputChangeWrapper}
           options={options}
