@@ -5,7 +5,7 @@ import Logo from "./LogoMobile";
 import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
-import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
+import { HeaderLinks } from "../../../config/HeaderConfig";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
@@ -146,7 +146,7 @@ const Header = () => {
     }
   };
 
-  HeaderSubLinks[displayName] = [
+  HeaderLinks[displayName] = [
     {
       name: "User Profile",
       link: `/profile/${user?._id}`,
@@ -204,7 +204,7 @@ const Header = () => {
 
   const clickNavItem = (e) => {
     const clickTitle = e.target.textContent;
-    setSelectedList(HeaderSubLinks[clickTitle]);
+    setSelectedList(HeaderLinks[clickTitle] as unknown as never); // TODO: fix type
   };
 
   useEffect(() => {

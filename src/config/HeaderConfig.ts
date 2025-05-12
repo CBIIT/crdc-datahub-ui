@@ -18,7 +18,7 @@ export const headerData = {
   usaFlagSmallAltText: "usaFlagSmall",
 };
 
-export const HeaderLinks: NavBarItem[] = [
+export const HeaderLinks = [
   {
     name: "Back to CRDC",
     link: "https://datacommons.cancer.gov/submit",
@@ -42,12 +42,38 @@ export const HeaderLinks: NavBarItem[] = [
     link: "#",
     id: "navbar-dropdown-documentation",
     className: "navMobileItem clickable",
+    groups: [
+      {
+        name: "Submission Request Instructions",
+        link: "https://datacommons.cancer.gov/submission-request-instructions",
+        id: "submission-request-instructions",
+        className: "navMobileSubItem",
+      },
+      {
+        name: "Data Submission Instructions",
+        link: DataSubmissionInstructionsLink,
+        id: "data-submission-instructions",
+        className: "navMobileSubItem",
+      },
+      {
+        name: "API Instructions",
+        link: ApiInstructions,
+        id: "api-instructions",
+        className: "navMobileSubItem",
+      },
+    ],
   },
   {
     name: "Model Navigator",
     link: "#",
     id: "navbar-dropdown-model-navigator",
     className: "navMobileItem clickable",
+    groups: DataCommons.map((dc) => ({
+      id: `model-navigator-${dc.name}`,
+      name: `${dc.displayName}${dc.displayName.indexOf("Model") === -1 ? " Model" : ""}`,
+      link: `/model-navigator/${dc.displayName}/latest`,
+      className: "navMobileSubItem",
+    })),
   },
   {
     name: "Operation Dashboard",
@@ -56,100 +82,82 @@ export const HeaderLinks: NavBarItem[] = [
     className: "navMobileItem",
     permissions: ["dashboard:view"],
   },
-];
 
-export const HeaderSubLinks: Record<string, NavBarSubItem[]> = {
-  "Model Navigator": DataCommons.map((dc, idx) => ({
-    id: `model-navigator-${dc.name}`,
-    name: `${dc.displayName}${dc.displayName.indexOf("Model") === -1 ? " Model" : ""}`,
-    link: `/model-navigator/${dc.displayName}/latest`,
-    className: "navMobileSubItem",
-    position: [idx % 4, Math.floor(idx / 4)],
-  })),
+  {
+    name: "User",
+    id: "navbar-dropdown-user",
+    className: "navMobileItem clickable",
+    groups: [
+      {
+        name: "User Profile",
+        link: "/profile/:userId",
+        id: "navbar-dropdown-item-user-profile",
+        className: "navMobileSubItem",
+      },
+      {
+        name: "Uploader CLI Tool",
+        id: "navbar-dropdown-item-uploader-tool",
+        className: "navMobileSubItem action",
+        actionId: "openCLIToolDialog",
+      },
+      {
+        name: "API Token",
+        id: "navbar-dropdown-item-api-token",
+        className: "navMobileSubItem action",
+        permissions: ["data_submission:create"],
+        actionId: "openAPITokenDialog",
+      },
+      {
+        name: "Manage Studies",
+        link: "/studies",
+        id: "navbar-dropdown-item-studies-manage",
+        className: "navMobileSubItem",
+        permissions: ["study:manage"],
+      },
+      {
+        name: "Manage Programs",
+        link: "/programs",
+        id: "navbar-dropdown-item-program-manage",
+        className: "navMobileSubItem",
+        permissions: ["program:manage"],
+      },
+      {
+        name: "Manage Institutions",
+        link: "/institutions",
+        id: "navbar-dropdown-item-institution-manage",
+        className: "navMobileSubItem",
+        permissions: ["institution:manage"],
+      },
+      {
+        name: "Manage Users",
+        link: "/users",
+        id: "navbar-dropdown-item-user-manage",
+        className: "navMobileSubItem",
+        permissions: ["user:manage"],
+      },
+      {
+        name: "Logout",
+        id: "navbar-dropdown-item-logout",
+        className: "navMobileSubItem action",
+        actionId: "logout",
+      },
+    ],
+  },
+] as const satisfies NavBarItem[];
 
-  Documentation: [
-    {
-      name: "Submission Request Instructions",
-      link: "https://datacommons.cancer.gov/submission-request-instructions",
-      id: "submission-request-instructions",
-      className: "navMobileSubItem",
-      position: [0, 0],
-    },
-    {
-      name: "Data Submission Instructions",
-      link: DataSubmissionInstructionsLink,
-      id: "data-submission-instructions",
-      className: "navMobileSubItem",
-      position: [1, 0],
-    },
-    {
-      name: "API Instructions",
-      link: ApiInstructions,
-      id: "api-instructions",
-      className: "navMobileSubItem",
-      position: [2, 0],
-    },
-  ],
+/**
+ * Type defining the actionId's defined within HeaderLinks
+ *
+ * @see HeaderLinks
+ */
+export type ActionId = Extract<
+  Extract<(typeof HeaderLinks)[number], { groups: NavBarSubItem[] }>["groups"][number],
+  { actionId: string }
+>["actionId"];
 
-  // NOTE: Special case for logged-in user. Should not be renamed
-  User: [
-    {
-      name: "User Profile",
-      link: "/profile/:userId",
-      id: "navbar-dropdown-item-user-profile",
-      className: "navMobileSubItem",
-      position: [0, 0],
-    },
-    {
-      name: "Uploader CLI Tool",
-      id: "navbar-dropdown-item-uploader-tool",
-      className: "navMobileSubItem action",
-      position: [1, 0],
-    },
-    {
-      name: "API Token",
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
-      position: [1, 1],
-    },
-    {
-      name: "Manage Studies",
-      link: "/studies",
-      id: "navbar-dropdown-item-studies-manage",
-      className: "navMobileSubItem",
-      permissions: ["study:manage"],
-      position: [2, 0],
-    },
-    {
-      name: "Manage Programs",
-      link: "/programs",
-      id: "navbar-dropdown-item-program-manage",
-      className: "navMobileSubItem",
-      permissions: ["program:manage"],
-      position: [2, 1],
-    },
-    {
-      name: "Manage Institutions",
-      link: "/institutions",
-      id: "navbar-dropdown-item-institution-manage",
-      className: "navMobileSubItem",
-      permissions: ["institution:manage"],
-      position: [2, 2],
-    },
-    {
-      name: "Manage Users",
-      link: "/users",
-      id: "navbar-dropdown-item-user-manage",
-      className: "navMobileSubItem",
-      permissions: ["user:manage"],
-      position: [2, 3],
-    },
-    {
-      name: "Logout",
-      id: "navbar-dropdown-item-logout",
-      className: "navMobileSubItem action",
-      position: [3, 0],
-    },
-  ],
-};
+/**
+ * Provides structure for the action handlers
+ *
+ * @see HeaderLinks
+ */
+export type ActionHandlers = { [key in ActionId]?: (...args) => unknown };

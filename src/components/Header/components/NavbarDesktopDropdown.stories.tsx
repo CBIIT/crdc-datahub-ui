@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../../Contexts/AuthContext";
 import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
 import { Roles } from "../../../config/AuthRoles";
-import { HeaderSubLinks } from "../../../config/HeaderConfig";
+import { HeaderLinks } from "../../../config/HeaderConfig";
 
 const meta: Meta<typeof NavbarDesktopDropdown> = {
   title: "Navigation / Header / NavbarDesktopDropdown",
@@ -39,7 +39,7 @@ export const DropdownExpanded: Story = {
       "institution:manage",
       "data_submission:create",
     ],
-    clickedTitle: Object.keys(HeaderSubLinks)?.[0] || "",
+    clickedTitle: Object.keys(HeaderLinks)?.[0] || "",
   },
   argTypes: {
     role: {
@@ -63,13 +63,13 @@ export const DropdownExpanded: Story = {
         type: "check",
       },
     },
-    HeaderSubLinks: {
+    HeaderLinks: {
       control: false,
       description: "The header sub-navigation links",
     },
     clickedTitle: {
       name: "Clicked Title",
-      options: Object.keys(HeaderSubLinks),
+      options: Object.keys(HeaderLinks),
       control: {
         type: "radio",
       },
