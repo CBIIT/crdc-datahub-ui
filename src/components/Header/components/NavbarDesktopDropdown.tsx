@@ -1,10 +1,9 @@
 import { Button, styled } from "@mui/material";
-import { useMemo, useRef } from "react";
-import { flatMap, keyBy, map, maxBy, range } from "lodash";
+import { useRef } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
-import { generatePath, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Status, useAuthContext } from "../../Contexts/AuthContext";
-import { HeaderSubLinks } from "../../../config/HeaderConfig";
+import { ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import SuspenseLoader from "../../SuspenseLoader";
 
 const Dropdown = styled("div")({
@@ -76,7 +75,7 @@ const StyledGridContainer = styled(Grid)({
 type Props = {
   clickedTitle: string;
   onTitleClick?: (title: string) => void;
-  onItemClick?: (item: string) => void;
+  onItemClick?: (item: ActionId) => void;
 };
 
 const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Props) => {
@@ -85,38 +84,17 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
   // TODO: replace with clickaway listener
   const dropdownSelection = useRef<HTMLDivElement>(null);
 
-  const paramGetters: { [key in string]?: () => Record<string, string> } = useMemo(
-    () => ({
-      "User Profile": () => ({ userId: user?._id }),
-    }),
-    [user?._id]
-  );
-
   if (AuthStatus === Status.LOADING) {
     return <SuspenseLoader />;
   }
 
-  const cells = useMemo(() => {
-    const positioned = (HeaderSubLinks[clickedTitle] ?? []).map((item) => {
-      const [col = 0, row = 0] = item.position ?? [];
-      return { item, col, row };
-    });
-
-    const bySlot = keyBy(positioned, (p) => `${p.row}-${p.col}`);
-
-    const maxRow = positioned.length ? maxBy(positioned, "row").row : 0;
-
-    return flatMap(range(0, maxRow + 1), (row) =>
-      map(range(0, 4), (col) => bySlot[`${row}-${col}`] ?? null)
-    );
-  }, [clickedTitle]);
+  const dropdownLinks: NavBarItem = HeaderLinks.find((link) => link.name === clickedTitle);
 
   return (
     <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
       <StyledGridContainer container>
         {clickedTitle !== ""
-          ? cells?.map((cell, idx) => {
-              const { item: dropItem } = cell || {};
+          ? dropdownLinks?.groups?.map((dropItem, idx) => {
               if (
                 (dropItem?.permissions?.length > 0 &&
                   !dropItem?.permissions?.every(
@@ -129,11 +107,6 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
               }
 
               if (dropItem.link) {
-                const to =
-                  dropItem.link.includes(":") && paramGetters?.[dropItem.name]
-                    ? generatePath(dropItem.link, paramGetters[dropItem.name]())
-                    : dropItem.link;
-
                 return (
                   <Grid xs={3} key={dropItem.id} className="gridItem">
                     <ul className="dropdownList">
@@ -145,7 +118,7 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
                               : "_self"
                           }
                           id={dropItem.id}
-                          to={to}
+                          to={dropItem.link}
                           className="dropdownItem"
                           onClick={() => onTitleClick("")}
                         >
@@ -166,7 +139,7 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
                         id={dropItem.id}
                         key={dropItem.id}
                         className="dropdownItem dropdownItemButton"
-                        onClick={() => onItemClick?.(dropItem.name)}
+                        onClick={() => onItemClick?.(dropItem.actionId as ActionId)}
                       >
                         {dropItem.name}
                       </Button>

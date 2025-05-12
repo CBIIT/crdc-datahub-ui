@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
-import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
+import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
@@ -254,7 +254,7 @@ const NavBar = () => {
   const clickableObject = HeaderLinks.filter(
     (item) => item.className === "navMobileItem clickable"
   );
-  const clickableTitle = clickableObject.map((item) => item.name);
+  const clickableTitle = clickableObject.map((item) => item.name) as string[];
   const displayName = user?.firstName?.toUpperCase() || "N/A";
 
   clickableTitle.push(displayName);
@@ -269,20 +269,22 @@ const NavBar = () => {
     }
   };
 
-  const handleItemClick = (item: string) => {
-    switch (item) {
-      case "Uploader CLI Tool":
-        setUploaderToolOpen(true);
-        break;
-      case "API Token":
-        setOpenAPITokenDialog(true);
-        break;
-      case "Logout":
-        handleLogout();
-        break;
-      default:
-        Logger.error(`NavbarDesktop.tsx: Unknown sub-navigation item clicked ${item}`);
+  const actionHandlers: ActionHandlers = useMemo(
+    () => ({
+      logout: handleLogout,
+      openAPITokenDialog: () => setOpenAPITokenDialog(true),
+      openCLIToolDialog: () => setUploaderToolOpen(true),
+    }),
+    [logout]
+  );
+
+  const handleItemClick = (item: ActionId) => {
+    if (!item) {
+      Logger.error(`NavbarDesktop: No action found for actionId '${item}'`);
+      return;
     }
+
+    actionHandlers[item]?.();
   };
 
   const handleMenuClick = (e) => {
@@ -309,10 +311,10 @@ const NavBar = () => {
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
-    if (HeaderSubLinks[linkName] === undefined) {
+    if (HeaderLinks[linkName] === undefined) {
       return false;
     }
-    const linkNames = Object.values(HeaderSubLinks[linkName]).map((e: NavBarSubItem) => e.link);
+    const linkNames = Object.values(HeaderLinks[linkName]).map((e: NavBarSubItem) => e.link);
     return linkNames.includes(correctPath);
   };
 
@@ -337,6 +339,8 @@ const NavBar = () => {
     setRestorePath(location?.pathname);
   }, [location]);
 
+  const headerLinksWithoutUser = HeaderLinks.filter((headerLinks) => headerLinks.name !== "User");
+
   return (
     <Nav>
       <GenericAlert open={showLogoutAlert}>
@@ -344,7 +348,7 @@ const NavBar = () => {
       </GenericAlert>
       <NavContainer>
         <UlContainer>
-          {HeaderLinks.map((navItem: NavBarItem) => {
+          {headerLinksWithoutUser?.map((navItem: NavBarItem) => {
             if (
               navItem?.permissions?.length > 0 &&
               !navItem?.permissions?.every(
