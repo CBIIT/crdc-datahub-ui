@@ -32,12 +32,12 @@ export const DropdownExpanded: Story = {
   args: {
     role: "Admin",
     permissions: [
+      "dashboard:view",
+      "data_submission:create",
       "user:manage",
       "program:manage",
       "study:manage",
-      "dashboard:view",
       "institution:manage",
-      "data_submission:create",
     ],
     clickedTitle: Object.keys(HeaderLinks)?.[0] || "",
   },
@@ -52,12 +52,12 @@ export const DropdownExpanded: Story = {
     permissions: {
       name: "Permissions",
       options: [
+        "dashboard:view",
+        "data_submission:create",
         "user:manage",
         "program:manage",
         "study:manage",
-        "dashboard:view",
         "institution:manage",
-        "data_submission:create",
       ],
       control: {
         type: "check",
