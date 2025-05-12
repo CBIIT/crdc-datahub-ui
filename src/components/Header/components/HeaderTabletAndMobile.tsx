@@ -10,6 +10,7 @@ import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
+import { hasPermission, Permissions } from "../../../config/AuthPermissions";
 
 const HeaderBanner = styled("div")({
   width: "100%",
@@ -207,6 +208,25 @@ const Header = () => {
     setSelectedList(HeaderLinks[clickTitle] as unknown as never); // TODO: fix type
   };
 
+  const checkPermissions = (permissions: AuthPermissions[]) => {
+    if (!permissions?.length) {
+      return true; // No permissions required
+    }
+
+    return permissions.every((permission) => {
+      const [entityRaw, actionRaw] = permission.split(":", 2);
+
+      if (!entityRaw || !actionRaw) {
+        return false;
+      }
+
+      const entity = entityRaw as keyof Permissions;
+      const action = actionRaw as Permissions[keyof Permissions]["action"];
+
+      return hasPermission(user, entity, action, null, true);
+    });
+  };
+
   useEffect(() => {
     if (!location?.pathname || location?.pathname === "/") {
       setRestorePath(null);
@@ -277,12 +297,8 @@ const Header = () => {
             )}
             <div className="navMobileContainer">
               {selectedList?.map((navMobileItem: NavBarItem | NavBarSubItem) => {
-                if (
-                  navMobileItem?.permissions?.length > 0 &&
-                  !navMobileItem?.permissions?.every(
-                    (permission: AuthPermissions) => user?.permissions?.includes(permission)
-                  )
-                ) {
+                const hasEveryPermission = checkPermissions(navMobileItem?.permissions);
+                if (!hasEveryPermission) {
                   return null;
                 }
 

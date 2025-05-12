@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Status, useAuthContext } from "../../Contexts/AuthContext";
 import { ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import SuspenseLoader from "../../SuspenseLoader";
+import { hasPermission, Permissions } from "../../../config/AuthPermissions";
 
 const Dropdown = styled("div")({
   left: 0,
@@ -81,6 +82,25 @@ type Props = {
 const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Props) => {
   const { user, status: AuthStatus } = useAuthContext();
 
+  const checkPermissions = (permissions: AuthPermissions[]) => {
+    if (!permissions?.length) {
+      return true; // No permissions required
+    }
+
+    return permissions.every((permission) => {
+      const [entityRaw, actionRaw] = permission.split(":", 2);
+
+      if (!entityRaw || !actionRaw) {
+        return false;
+      }
+
+      const entity = entityRaw as keyof Permissions;
+      const action = actionRaw as Permissions[keyof Permissions]["action"];
+
+      return hasPermission(user, entity, action, null, true);
+    });
+  };
+
   // TODO: replace with clickaway listener
   const dropdownSelection = useRef<HTMLDivElement>(null);
 
@@ -95,13 +115,8 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
       <StyledGridContainer container>
         {clickedTitle !== ""
           ? dropdownLinks?.groups?.map((dropItem, idx) => {
-              if (
-                (dropItem?.permissions?.length > 0 &&
-                  !dropItem?.permissions?.every(
-                    (permission: AuthPermissions) => user?.permissions?.includes(permission)
-                  )) ||
-                !dropItem
-              ) {
+              const hasEveryPermission = checkPermissions(dropItem?.permissions);
+              if (!hasEveryPermission) {
                 // eslint-disable-next-line react/no-array-index-key
                 return <Grid xs={3} key={`empty-${idx}`} />;
               }

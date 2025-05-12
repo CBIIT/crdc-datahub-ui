@@ -3,7 +3,7 @@ import { styled, SxProps } from "@mui/material";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledText = styled("span")(() => ({
-  display: "block",
+  display: "inline",
   textDecoration: "none",
   whiteSpace: "nowrap",
   overflow: "hidden",
@@ -13,7 +13,7 @@ const StyledText = styled("span")(() => ({
 const StyledTextWrapper = styled("span", {
   shouldForwardProp: (p) => p !== "truncated" && p !== "underline" && p !== "sx",
 })<{ truncated: boolean; underline: boolean }>(({ truncated, underline }) => ({
-  display: "block",
+  display: "inline",
   textDecoration: truncated && underline ? "underline" : "none",
   textDecorationStyle: "dashed",
   textUnderlineOffset: "4px",

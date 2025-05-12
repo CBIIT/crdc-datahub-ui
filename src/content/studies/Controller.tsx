@@ -5,6 +5,7 @@ import ListView from "./ListView";
 import StudyView from "./StudyView";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { hasPermission } from "../../config/AuthPermissions";
+import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 
 /**
  * Renders the correct view based on the URL and permissions-tier
@@ -23,7 +24,13 @@ const StudiesController: FC = () => {
     return <Navigate to="/" />;
   }
 
-  return studyId ? <StudyView _id={studyId} /> : <ListView />;
+  return studyId ? (
+    <StudyView _id={studyId} />
+  ) : (
+    <OrganizationProvider preload>
+      <ListView />
+    </OrganizationProvider>
+  );
 };
 
 export default StudiesController;

@@ -8,6 +8,7 @@ import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
 import { Logger } from "../../../utils";
+import { hasPermission, Permissions } from "../../../config/AuthPermissions";
 
 const Nav = styled("div")({
   top: 0,
@@ -318,6 +319,25 @@ const NavBar = () => {
     return linkNames.includes(correctPath);
   };
 
+  const checkPermissions = (permissions: AuthPermissions[]) => {
+    if (!permissions?.length) {
+      return true; // No permissions required
+    }
+
+    return permissions.every((permission) => {
+      const [entityRaw, actionRaw] = permission.split(":", 2);
+
+      if (!entityRaw || !actionRaw) {
+        return false;
+      }
+
+      const entity = entityRaw as keyof Permissions;
+      const action = actionRaw as Permissions[keyof Permissions]["action"];
+
+      return hasPermission(user, entity, action, null, true);
+    });
+  };
+
   useOutsideAlerter(dropdownSelection);
 
   useEffect(() => {
@@ -349,12 +369,8 @@ const NavBar = () => {
       <NavContainer>
         <UlContainer>
           {headerLinksWithoutUser?.map((navItem: NavBarItem) => {
-            if (
-              navItem?.permissions?.length > 0 &&
-              !navItem?.permissions?.every(
-                (permission: AuthPermissions) => user?.permissions?.includes(permission)
-              )
-            ) {
+            const hasEveryPermission = checkPermissions(navItem.permissions);
+            if (!hasEveryPermission) {
               return null;
             }
 
