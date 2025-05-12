@@ -30,9 +30,9 @@ type NavBarItem = {
    */
   permissions?: AuthPermissions[];
   /**
-   * Defines a list of sub-navigation sub-items
+   * Defines the columns of sub-navigation items
    */
-  groups?: NavBarSubItem[];
+  columns?: NavBarSubItem[][];
 };
 
 type NavBarSubItem = {

@@ -110,56 +110,76 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
 
   const dropdownLinks: NavBarItem = HeaderLinks.find((link) => link.name === clickedTitle);
 
+  // Get completely empty columns due to insufficient permissions
+  const emptyColumns =
+    dropdownLinks?.columns.filter(
+      (c) => c.some((r) => r.permissions) && c.every((r) => !checkPermissions(r.permissions || []))
+    ) || [];
+
   return (
     <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
       <StyledGridContainer container>
         {clickedTitle !== ""
-          ? dropdownLinks?.groups?.map((dropItem, idx) => {
-              const hasEveryPermission = checkPermissions(dropItem?.permissions);
-              if (!hasEveryPermission) {
-                // eslint-disable-next-line react/no-array-index-key
-                return <Grid xs={3} key={`empty-${idx}`} />;
-              }
-
-              if (dropItem.link) {
-                return (
-                  <Grid xs={3} key={dropItem.id} className="gridItem">
-                    <ul className="dropdownList">
-                      <li className="dropdownListItem">
-                        <Link
-                          target={
-                            dropItem.link.startsWith("https://") || dropItem.link.endsWith(".pdf")
-                              ? "_blank"
-                              : "_self"
-                          }
-                          id={dropItem.id}
-                          to={dropItem.link}
-                          className="dropdownItem"
-                          onClick={() => onTitleClick("")}
-                        >
-                          {dropItem.name}
-                          {dropItem.text && <div className="dropdownItemText">{dropItem.text}</div>}
-                        </Link>
-                      </li>
-                    </ul>
-                  </Grid>
-                );
+          ? dropdownLinks?.columns?.map((column, columnIdx) => {
+              if (!column?.length || emptyColumns.includes(column)) {
+                return null;
               }
 
               return (
-                <Grid xs={3} key={dropItem.id} className="gridItem">
-                  <ul className="dropdownList">
-                    <li className="dropdownListItem">
-                      <Button
-                        id={dropItem.id}
-                        key={dropItem.id}
-                        className="dropdownItem dropdownItemButton"
-                        onClick={() => onItemClick?.(dropItem.actionId as ActionId)}
-                      >
-                        {dropItem.name}
-                      </Button>
-                    </li>
-                  </ul>
+                // eslint-disable-next-line react/no-array-index-key
+                <Grid xs={3} key={`column-${columnIdx}`}>
+                  {column.map((dropItem, rowIdx) => {
+                    const hasEveryPermission = checkPermissions(dropItem?.permissions);
+                    if (!hasEveryPermission) {
+                      // eslint-disable-next-line react/no-array-index-key
+                      return <Grid xs={3} key={`empty-${columnIdx}-${rowIdx}`} />;
+                    }
+
+                    if (dropItem.link) {
+                      return (
+                        <Grid xs={3} key={dropItem.id} className="gridItem">
+                          <ul className="dropdownList">
+                            <li className="dropdownListItem">
+                              <Link
+                                target={
+                                  dropItem.link.startsWith("https://") ||
+                                  dropItem.link.endsWith(".pdf")
+                                    ? "_blank"
+                                    : "_self"
+                                }
+                                id={dropItem.id}
+                                to={dropItem.link}
+                                className="dropdownItem"
+                                onClick={() => onTitleClick("")}
+                              >
+                                {dropItem.name}
+                                {dropItem.text && (
+                                  <div className="dropdownItemText">{dropItem.text}</div>
+                                )}
+                              </Link>
+                            </li>
+                          </ul>
+                        </Grid>
+                      );
+                    }
+
+                    return (
+                      <Grid xs={3} key={dropItem.id} className="gridItem">
+                        <ul className="dropdownList">
+                          <li className="dropdownListItem">
+                            <Button
+                              id={dropItem.id}
+                              key={dropItem.id}
+                              className="dropdownItem dropdownItemButton"
+                              onClick={() => onItemClick?.(dropItem.actionId as ActionId)}
+                            >
+                              {dropItem.name}
+                            </Button>
+                          </li>
+                        </ul>
+                      </Grid>
+                    );
+                  })}
                 </Grid>
               );
             })

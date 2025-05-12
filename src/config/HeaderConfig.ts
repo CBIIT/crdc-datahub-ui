@@ -42,25 +42,31 @@ export const HeaderLinks = [
     link: "#",
     id: "navbar-dropdown-documentation",
     className: "navMobileItem clickable",
-    groups: [
-      {
-        name: "Submission Request Instructions",
-        link: "https://datacommons.cancer.gov/submission-request-instructions",
-        id: "submission-request-instructions",
-        className: "navMobileSubItem",
-      },
-      {
-        name: "Data Submission Instructions",
-        link: DataSubmissionInstructionsLink,
-        id: "data-submission-instructions",
-        className: "navMobileSubItem",
-      },
-      {
-        name: "API Instructions",
-        link: ApiInstructions,
-        id: "api-instructions",
-        className: "navMobileSubItem",
-      },
+    columns: [
+      [
+        {
+          name: "Submission Request Instructions",
+          link: "https://datacommons.cancer.gov/submission-request-instructions",
+          id: "submission-request-instructions",
+          className: "navMobileSubItem",
+        },
+      ],
+      [
+        {
+          name: "Data Submission Instructions",
+          link: DataSubmissionInstructionsLink,
+          id: "data-submission-instructions",
+          className: "navMobileSubItem",
+        },
+      ],
+      [
+        {
+          name: "API Instructions",
+          link: ApiInstructions,
+          id: "api-instructions",
+          className: "navMobileSubItem",
+        },
+      ],
     ],
   },
   {
@@ -68,12 +74,14 @@ export const HeaderLinks = [
     link: "#",
     id: "navbar-dropdown-model-navigator",
     className: "navMobileItem clickable",
-    groups: DataCommons.map((dc) => ({
-      id: `model-navigator-${dc.name}`,
-      name: `${dc.displayName}${dc.displayName.indexOf("Model") === -1 ? " Model" : ""}`,
-      link: `/model-navigator/${dc.displayName}/latest`,
-      className: "navMobileSubItem",
-    })),
+    columns: DataCommons.map((dc) => [
+      {
+        id: `model-navigator-${dc.name}`,
+        name: `${dc.displayName}${dc.displayName.indexOf("Model") === -1 ? " Model" : ""}`,
+        link: `/model-navigator/${dc.displayName}/latest`,
+        className: "navMobileSubItem",
+      },
+    ]),
   },
   {
     name: "Operation Dashboard",
@@ -87,60 +95,68 @@ export const HeaderLinks = [
     name: "User",
     id: "navbar-dropdown-user",
     className: "navMobileItem clickable",
-    groups: [
-      {
-        name: "User Profile",
-        link: "/profile/:userId",
-        id: "navbar-dropdown-item-user-profile",
-        className: "navMobileSubItem",
-      },
-      {
-        name: "Uploader CLI Tool",
-        id: "navbar-dropdown-item-uploader-tool",
-        className: "navMobileSubItem action",
-        actionId: "openCLIToolDialog",
-      },
-      {
-        name: "API Token",
-        id: "navbar-dropdown-item-api-token",
-        className: "navMobileSubItem action",
-        permissions: ["data_submission:create"],
-        actionId: "openAPITokenDialog",
-      },
-      {
-        name: "Manage Studies",
-        link: "/studies",
-        id: "navbar-dropdown-item-studies-manage",
-        className: "navMobileSubItem",
-        permissions: ["study:manage"],
-      },
-      {
-        name: "Manage Programs",
-        link: "/programs",
-        id: "navbar-dropdown-item-program-manage",
-        className: "navMobileSubItem",
-        permissions: ["program:manage"],
-      },
-      {
-        name: "Manage Institutions",
-        link: "/institutions",
-        id: "navbar-dropdown-item-institution-manage",
-        className: "navMobileSubItem",
-        permissions: ["institution:manage"],
-      },
-      {
-        name: "Manage Users",
-        link: "/users",
-        id: "navbar-dropdown-item-user-manage",
-        className: "navMobileSubItem",
-        permissions: ["user:manage"],
-      },
-      {
-        name: "Logout",
-        id: "navbar-dropdown-item-logout",
-        className: "navMobileSubItem action",
-        actionId: "logout",
-      },
+    columns: [
+      [
+        {
+          name: "User Profile",
+          link: "/profile/:userId",
+          id: "navbar-dropdown-item-user-profile",
+          className: "navMobileSubItem",
+        },
+      ],
+      [
+        {
+          name: "Uploader CLI Tool",
+          id: "navbar-dropdown-item-uploader-tool",
+          className: "navMobileSubItem action",
+          actionId: "openCLIToolDialog",
+        },
+        {
+          name: "API Token",
+          id: "navbar-dropdown-item-api-token",
+          className: "navMobileSubItem action",
+          permissions: ["data_submission:create"],
+          actionId: "openAPITokenDialog",
+        },
+      ],
+      [
+        {
+          name: "Manage Studies",
+          link: "/studies",
+          id: "navbar-dropdown-item-studies-manage",
+          className: "navMobileSubItem",
+          permissions: ["study:manage"],
+        },
+        {
+          name: "Manage Programs",
+          link: "/programs",
+          id: "navbar-dropdown-item-program-manage",
+          className: "navMobileSubItem",
+          permissions: ["program:manage"],
+        },
+        {
+          name: "Manage Institutions",
+          link: "/institutions",
+          id: "navbar-dropdown-item-institution-manage",
+          className: "navMobileSubItem",
+          permissions: ["institution:manage"],
+        },
+        {
+          name: "Manage Users",
+          link: "/users",
+          id: "navbar-dropdown-item-user-manage",
+          className: "navMobileSubItem",
+          permissions: ["user:manage"],
+        },
+      ],
+      [
+        {
+          name: "Logout",
+          id: "navbar-dropdown-item-logout",
+          className: "navMobileSubItem action",
+          actionId: "logout",
+        },
+      ],
     ],
   },
 ] as const satisfies NavBarItem[];
@@ -151,7 +167,7 @@ export const HeaderLinks = [
  * @see HeaderLinks
  */
 export type ActionId = Extract<
-  Extract<(typeof HeaderLinks)[number], { groups: NavBarSubItem[] }>["groups"][number],
+  Extract<(typeof HeaderLinks)[number], { columns: NavBarSubItem[][] }>["columns"][number][number],
   { actionId: string }
 >["actionId"];
 
