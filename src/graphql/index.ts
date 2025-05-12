@@ -185,12 +185,18 @@ export type {
   Response as RetrievePBACDefaultsResp,
 } from "./retrievePBACDefaults";
 
+export { query as USER_IS_PRIMARY_CONTACT } from "./userIsPrimaryContact";
+export type {
+  Input as UserIsPrimaryContactInput,
+  Response as UserIsPrimaryContactResp,
+} from "./userIsPrimaryContact";
+
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
 export type { Input as ListOrgsInput, Response as ListOrgsResp } from "./listOrganizations";
 
 export { query as GET_ORG } from "./getOrganization";
-export type { Response as GetOrgResp } from "./getOrganization";
+export type { Input as GetOrgInput, Response as GetOrgResp } from "./getOrganization";
 
 export { mutation as EDIT_ORG } from "./editOrganization";
 export type { Input as EditOrgInput, Response as EditOrgResp } from "./editOrganization";

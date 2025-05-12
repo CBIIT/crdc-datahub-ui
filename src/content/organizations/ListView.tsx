@@ -157,7 +157,15 @@ const columns: Column<T>[] = [
         return "";
       }
 
-      return <StudyList studies={studies} />;
+      return (
+        <StudyList
+          studies={studies}
+          emptyText=""
+          renderStudy={(s) => (
+            <TruncatedText text={s?.studyAbbreviation || s?.studyName} maxCharacters={37} />
+          )}
+        />
+      );
     },
     field: "studies",
     sortDisabled: true,

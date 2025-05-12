@@ -33,6 +33,7 @@ import {
   EditOrgInput,
   CreateOrgInput,
   ListApprovedStudiesInput,
+  GetOrgInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -238,7 +239,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
+  const [getOrganization] = useLazyQuery<GetOrgResp, GetOrgInput>(GET_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -475,6 +476,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     setValueAs: (val) => val?.trim(),
                     validate: { utf8: validateUTF8 },
                   })}
+                  readOnly={organization?.readOnly}
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
                   required
@@ -494,6 +496,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       onChange={(e) => {
                         field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
                       }}
+                      readOnly={organization?.readOnly}
                       inputProps={{
                         "aria-labelledby": "abbreviationLabel",
                         maxLength: 100,
@@ -513,6 +516,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     "aria-labelledby": "descriptionLabel",
                     maxLength: 500,
                   }}
+                  readOnly={organization?.readOnly}
                   error={!!errors.description}
                   placeholder="500 characters allowed"
                   rows={2}

@@ -39,3 +39,13 @@ export const CustomizedButtons: Story = {
     },
   },
 };
+
+export const CustomizedHeader: Story = {
+  args: {
+    ...Default.args,
+    header: "Custom Header",
+    headerProps: {
+      color: "blue !important",
+    },
+  },
+};
