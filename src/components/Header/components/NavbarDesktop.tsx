@@ -106,6 +106,7 @@ const LiSection = styled("li")({
     borderTop: "4px solid transparent",
     borderLeft: "4px solid transparent",
     borderRight: "4px solid transparent",
+    height: "100%",
     "&:hover": {
       cursor: "pointer",
     },
@@ -113,6 +114,7 @@ const LiSection = styled("li")({
   "& .navText": {
     borderBottom: "4px solid transparent",
     width: "fit-content",
+    height: "100%",
     margin: "auto",
     "&:hover": {
       cursor: "pointer",
@@ -195,6 +197,7 @@ const LiSection = styled("li")({
     borderTop: "4px solid #5786FF",
     borderLeft: "4px solid #5786FF",
     borderRight: "4px solid #5786FF",
+    height: "100%",
   },
   "& .invisible": {
     visibility: "hidden",
