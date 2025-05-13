@@ -68,12 +68,6 @@ type NavBarSubItem = {
    */
   text?: string;
   /**
-   * The onClick function to be called when the Navigation Sub Item is clicked
-   *
-   * @note Only works if the className is `navMobileSubItem action`
-   */
-  onClick?: () => void;
-  /**
    * Defines a list of permissions necessary for the Navigation Sub Item to be shown
    *
    * Guide:
