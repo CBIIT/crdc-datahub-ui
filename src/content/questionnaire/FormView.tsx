@@ -30,6 +30,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import ExportRequestButton from "../../components/ExportRequestButton";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -718,6 +719,11 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Submit
                   </StyledExtendedLoadingButton>
+                )}
+
+              {activeSection === "REVIEW" &&
+                hasPermission(user, "submission_request", "cancel", data) && (
+                  <CancelApplicationButton />
                 )}
 
               {activeSection === "REVIEW" && formMode === "Review" && (
