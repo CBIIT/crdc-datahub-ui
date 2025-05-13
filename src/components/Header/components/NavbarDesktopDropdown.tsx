@@ -32,8 +32,8 @@ const StyledGridContainer = styled(Grid)({
     listStyle: "none",
   },
   "& .gridItem": {
-    paddingLeft: "16px",
-    paddingRight: "16px",
+    paddingLeft: "12px",
+    paddingRight: "12px",
   },
   "& .dropdownListItem": {
     padding: 0,

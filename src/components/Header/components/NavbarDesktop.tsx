@@ -86,6 +86,7 @@ const LiSection = styled("li")({
   },
   "&.name-dropdown-li": {
     marginLeft: "auto",
+    marginRight: "12px",
   },
   "&.login-button": {
     lineHeight: "48px",
