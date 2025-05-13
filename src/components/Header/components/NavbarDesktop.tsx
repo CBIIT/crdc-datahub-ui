@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { ClickAwayListener, styled } from "@mui/material";
+import { flatMap } from "lodash";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
@@ -198,6 +199,9 @@ const LiSection = styled("li")({
     borderLeft: "4px solid #5786FF",
     borderRight: "4px solid #5786FF",
     height: "100%",
+    "& .shouldBeUnderlined": {
+      borderBottom: "0 !important",
+    },
   },
   "& .invisible": {
     visibility: "hidden",
@@ -315,11 +319,18 @@ const NavBar = () => {
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
-    if (HeaderLinks[linkName] === undefined) {
+    const tab = HeaderLinks.find((link) => link.name === linkName);
+    if (!tab) {
       return false;
     }
-    const linkNames = Object.values(HeaderLinks[linkName]).map((e: NavBarSubItem) => e.link);
-    return linkNames.includes(correctPath);
+
+    if ("columns" in tab) {
+      // Current path is within sub-navigation links
+      const linkNames = flatMap(tab.columns).map((item) => item.link);
+      return linkNames.includes(correctPath);
+    }
+
+    return false;
   };
 
   const checkPermissions = (permissions: AuthPermissions[]) => {
