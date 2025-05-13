@@ -1,5 +1,4 @@
 import { Button, styled } from "@mui/material";
-import { useRef } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Link } from "react-router-dom";
 import { Status, useAuthContext } from "../../Contexts/AuthContext";
@@ -17,6 +16,9 @@ const Dropdown = styled("div")({
   position: "absolute",
   paddingTop: "35px",
   paddingBottom: "12px",
+  "&.invisible": {
+    visibility: "hidden",
+  },
 });
 
 const StyledGridContainer = styled(Grid)({
@@ -101,9 +103,6 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
     });
   };
 
-  // TODO: replace with clickaway listener
-  const dropdownSelection = useRef<HTMLDivElement>(null);
-
   if (AuthStatus === Status.LOADING) {
     return <SuspenseLoader />;
   }
@@ -117,7 +116,7 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
     ) || [];
 
   return (
-    <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
+    <Dropdown className={clickedTitle === "" ? "invisible" : ""}>
       <StyledGridContainer container>
         {clickedTitle !== ""
           ? dropdownLinks?.columns?.map((column, columnIdx) => {

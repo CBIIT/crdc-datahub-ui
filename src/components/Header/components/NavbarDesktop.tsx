@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
-import { styled } from "@mui/material";
+import { ClickAwayListener, styled } from "@mui/material";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import GenericAlert from "../../GenericAlert";
 import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
@@ -366,98 +366,102 @@ const NavBar = () => {
   const headerLinksWithoutUser = HeaderLinks.filter((headerLinks) => headerLinks.name !== "User");
 
   return (
-    <Nav>
-      <GenericAlert open={showLogoutAlert}>
-        <span>You have been logged out.</span>
-      </GenericAlert>
-      <NavContainer>
-        <UlContainer>
-          {headerLinksWithoutUser?.map((navItem: NavBarItem) => {
-            const hasEveryPermission = checkPermissions(navItem.permissions);
-            if (!hasEveryPermission) {
-              return null;
-            }
+    <ClickAwayListener onClickAway={() => setClickedTitle("")}>
+      <Nav>
+        <GenericAlert open={showLogoutAlert}>
+          <span>You have been logged out.</span>
+        </GenericAlert>
+        <NavContainer>
+          <UlContainer>
+            {headerLinksWithoutUser?.map((navItem: NavBarItem) => {
+              const hasEveryPermission = checkPermissions(navItem.permissions);
+              if (!hasEveryPermission) {
+                return null;
+              }
 
-            return (
-              <LiSection key={navItem.id}>
-                {navItem.className === "navMobileItem" ? (
-                  <div className="navTitle directLink">
-                    <NavLink
-                      to={navItem.link}
-                      target={navItem.link.startsWith("https://") ? "_blank" : "_self"}
-                    >
+              return (
+                <LiSection key={navItem.id}>
+                  {navItem.className === "navMobileItem" ? (
+                    <div className="navTitle directLink">
+                      <NavLink
+                        to={navItem.link}
+                        target={navItem.link.startsWith("https://") ? "_blank" : "_self"}
+                      >
+                        <div
+                          id={navItem.id}
+                          role="button"
+                          tabIndex={0}
+                          className={`navText directLink ${
+                            shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""
+                          }`}
+                          onKeyDown={onKeyPressHandler}
+                          onClick={handleMenuClick}
+                        >
+                          {navItem.name}
+                        </div>
+                      </NavLink>
+                    </div>
+                  ) : (
+                    <div className={clickedTitle === navItem.name ? "navTitleClicked" : "navTitle"}>
                       <div
                         id={navItem.id}
                         role="button"
                         tabIndex={0}
-                        className={`navText directLink ${
-                          shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""
-                        }`}
+                        className={`${
+                          clickedTitle === navItem.name ? "navText clicked" : "navText"
+                        } ${shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""}`}
                         onKeyDown={onKeyPressHandler}
                         onClick={handleMenuClick}
                       >
                         {navItem.name}
                       </div>
-                    </NavLink>
-                  </div>
-                ) : (
-                  <div className={clickedTitle === navItem.name ? "navTitleClicked" : "navTitle"}>
-                    <div
-                      id={navItem.id}
-                      role="button"
-                      tabIndex={0}
-                      className={`${
-                        clickedTitle === navItem.name ? "navText clicked" : "navText"
-                      } ${shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""}`}
-                      onKeyDown={onKeyPressHandler}
-                      onClick={handleMenuClick}
-                    >
-                      {navItem.name}
                     </div>
-                  </div>
-                )}
-              </LiSection>
-            );
-          })}
-          <LiSection className={`name-dropdown-li${isLoggedIn ? "" : " login-button"}`}>
-            {isLoggedIn ? (
-              <div
-                id="navbar-dropdown-name-container"
-                className={clickedTitle === "User" ? "navTitleClicked" : "navTitle"}
-              >
+                  )}
+                </LiSection>
+              );
+            })}
+            <LiSection className={`name-dropdown-li${isLoggedIn ? "" : " login-button"}`}>
+              {isLoggedIn ? (
                 <div
-                  id="navbar-dropdown-name"
-                  role="button"
-                  tabIndex={0}
-                  className={
-                    clickedTitle === "User" ? "navText displayName clicked" : "navText displayName"
-                  }
-                  onKeyDown={onKeyPressHandler}
-                  onClick={handleUserClick}
+                  id="navbar-dropdown-name-container"
+                  className={clickedTitle === "User" ? "navTitleClicked" : "navTitle"}
                 >
-                  {displayName}
+                  <div
+                    id="navbar-dropdown-name"
+                    role="button"
+                    tabIndex={0}
+                    className={
+                      clickedTitle === "User"
+                        ? "navText displayName clicked"
+                        : "navText displayName"
+                    }
+                    onKeyDown={onKeyPressHandler}
+                    onClick={handleUserClick}
+                  >
+                    {displayName}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <StyledLoginLink
-                id="header-navbar-login-button"
-                to="/login"
-                state={{ redirectState: restorePath }}
-              >
-                Login
-              </StyledLoginLink>
-            )}
-          </LiSection>
-        </UlContainer>
-      </NavContainer>
-      <NavbarDesktopDropdown
-        clickedTitle={clickedTitle}
-        onTitleClick={(title) => setClickedTitle(title)}
-        onItemClick={(item) => handleItemClick(item)}
-      />
-      <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
-      <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
-    </Nav>
+              ) : (
+                <StyledLoginLink
+                  id="header-navbar-login-button"
+                  to="/login"
+                  state={{ redirectState: restorePath }}
+                >
+                  Login
+                </StyledLoginLink>
+              )}
+            </LiSection>
+          </UlContainer>
+        </NavContainer>
+        <NavbarDesktopDropdown
+          clickedTitle={clickedTitle}
+          onTitleClick={(title) => setClickedTitle(title)}
+          onItemClick={(item) => handleItemClick(item)}
+        />
+        <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+        <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
+      </Nav>
+    </ClickAwayListener>
   );
 };
 
