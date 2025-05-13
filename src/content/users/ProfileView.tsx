@@ -292,7 +292,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       fetchPolicy: "cache-and-network",
       skip: user?.role !== "Data Commons Personnel" || viewType !== "users",
       onError: (error) => {
-        Logger.error("ProfileView: Error checking primary contact status", error);
+        Logger.error("ProfileView: Error checking data concierge status", error);
       },
     }
   );
