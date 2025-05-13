@@ -4,11 +4,20 @@ import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
 import { Roles } from "../../../config/AuthRoles";
 import { HeaderLinks } from "../../../config/HeaderConfig";
 
+const HeaderTitles =
+  HeaderLinks?.filter((link) => "columns" in link).map((link) => link.name) || [];
+
 const meta: Meta<typeof NavbarDesktopDropdown> = {
-  title: "Navigation / Header / NavbarDesktopDropdown",
+  title: "Navigation / Header / Dropdown",
   component: NavbarDesktopDropdown,
   parameters: {
     layout: "fullscreen",
+    docs: {
+      story: {
+        inline: false,
+        iframeHeight: 300,
+      },
+    },
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof NavbarDesktopDropdown>;
@@ -39,7 +48,7 @@ export const DropdownExpanded: Story = {
       "study:manage",
       "institution:manage",
     ],
-    clickedTitle: Object.keys(HeaderLinks)?.[0] || "",
+    clickedTitle: HeaderTitles[0],
   },
   argTypes: {
     role: {
@@ -69,7 +78,7 @@ export const DropdownExpanded: Story = {
     },
     clickedTitle: {
       name: "Clicked Title",
-      options: Object.keys(HeaderLinks),
+      options: HeaderTitles,
       control: {
         type: "radio",
       },

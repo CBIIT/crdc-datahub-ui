@@ -111,7 +111,7 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
 
   // Get completely empty columns due to insufficient permissions
   const emptyColumns =
-    dropdownLinks?.columns.filter(
+    dropdownLinks?.columns?.filter(
       (c) => c.some((r) => r.permissions) && c.every((r) => !checkPermissions(r.permissions || []))
     ) || [];
 
