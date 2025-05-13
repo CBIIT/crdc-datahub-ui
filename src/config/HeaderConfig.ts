@@ -53,7 +53,7 @@ export const HeaderLinks = [
       ],
       [
         {
-          name: "Data Submission Instructions",
+          name: "Data Submission\nInstructions",
           link: DataSubmissionInstructionsLink,
           id: "data-submission-instructions",
           className: "navMobileSubItem",
