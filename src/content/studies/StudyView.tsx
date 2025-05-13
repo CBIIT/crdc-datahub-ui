@@ -625,7 +625,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
 
               <StyledField sx={{ alignItems: "flex-start" }}>
-                <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
+                <StyledLabel id="dataConciergeLabel" sx={{ paddingTop: "10px" }}>
                   Data Concierge
                 </StyledLabel>
                 <Stack
@@ -679,7 +679,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         }
                         MenuProps={{ disablePortal: true }}
                         inputProps={{
-                          "aria-labelledby": "primaryContactLabel",
+                          "aria-labelledby": "dataConciergeLabel",
                         }}
                         data-testid="primaryContactID-select"
                         error={!!errors.primaryContactID}
