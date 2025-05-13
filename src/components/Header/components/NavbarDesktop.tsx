@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { ClickAwayListener, styled } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { useAuthContext } from "../../Contexts/AuthContext";
-import GenericAlert from "../../GenericAlert";
 import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
@@ -248,11 +248,11 @@ const NavBar = () => {
   const { isLoggedIn, user, logout } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [clickedTitle, setClickedTitle] = useState("");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
-  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   const [restorePath, setRestorePath] = useState<string>(null);
   const dropdownSelection = useRef<HTMLDivElement>(null);
 
@@ -269,8 +269,7 @@ const NavBar = () => {
     const logoutStatus = await logout();
     if (logoutStatus) {
       navigate("/");
-      setShowLogoutAlert(true);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
+      enqueueSnackbar("You have been logged out.", { variant: "success" });
     }
   };
 
@@ -368,9 +367,6 @@ const NavBar = () => {
   return (
     <ClickAwayListener onClickAway={() => setClickedTitle("")}>
       <Nav>
-        <GenericAlert open={showLogoutAlert}>
-          <span>You have been logged out.</span>
-        </GenericAlert>
         <NavContainer>
           <UlContainer>
             {headerLinksWithoutUser?.map((navItem: NavBarItem) => {

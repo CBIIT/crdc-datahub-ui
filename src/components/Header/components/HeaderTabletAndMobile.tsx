@@ -2,13 +2,13 @@ import React, { HTMLProps, useEffect, useMemo, useState } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { flatMap } from "lodash";
 import { styled } from "@mui/material";
+import { useSnackbar } from "notistack";
 import Logo from "./LogoMobile";
 import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg";
 import leftArrowIcon from "../../../assets/header/Left_Arrow.svg";
 import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import { useAuthContext } from "../../Contexts/AuthContext";
-import GenericAlert from "../../GenericAlert";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
 import { hasPermission, Permissions } from "../../../config/AuthPermissions";
@@ -130,12 +130,12 @@ const Header = () => {
   const { isLoggedIn, user, logout } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [navMobileDisplay, setNavMobileDisplay] = useState("none");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
   const [selectedList, setSelectedList] = useState<NavBarItem[] | NavBarSubItem[]>(HeaderLinks);
-  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   const [restorePath, setRestorePath] = useState<string | null>(null);
 
   const displayName = user?.firstName || "N/A";
@@ -144,8 +144,7 @@ const Header = () => {
     const logoutStatus = await logout?.();
     if (logoutStatus) {
       navigate("/");
-      setShowLogoutAlert(true);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
+      enqueueSnackbar("You have been logged out.", { variant: "success" });
     }
   };
 
@@ -204,9 +203,6 @@ const Header = () => {
 
   return (
     <>
-      <GenericAlert open={showLogoutAlert}>
-        <span>You have been logged out.</span>
-      </GenericAlert>
       <HeaderBanner data-testid="navigation-header-mobile">
         <HeaderContainer>
           <Logo />
