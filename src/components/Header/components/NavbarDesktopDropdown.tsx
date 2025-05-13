@@ -107,7 +107,9 @@ const NavbarDesktopDropdown = ({ clickedTitle, onTitleClick, onItemClick }: Prop
     return <SuspenseLoader />;
   }
 
-  const dropdownLinks: NavBarItem = HeaderLinks.find((link) => link.name === clickedTitle);
+  const dropdownLinks: NavBarItem | undefined = HeaderLinks.find(
+    (link) => link.name === clickedTitle
+  );
 
   // Get completely empty columns due to insufficient permissions
   const emptyColumns =
