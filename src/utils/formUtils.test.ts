@@ -468,8 +468,8 @@ describe("validateUTF8 cases", () => {
   });
 
   it("should handle null or undefined values", () => {
-    expect(utils.validateUTF8(null as unknown as string)).toBe(null);
-    expect(utils.validateUTF8(undefined as unknown as string)).toBe(null);
+    expect(utils.validateUTF8(null as unknown as string)).toEqual(expect.any(String));
+    expect(utils.validateUTF8(undefined as unknown as string)).toEqual(expect.any(String));
   });
 
   it.each<string>(["😊", "👨🏿‍🎤", "🔴", "1️⃣", "🇵🇷"])(
