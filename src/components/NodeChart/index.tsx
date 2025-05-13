@@ -28,6 +28,7 @@ const StyledPieChartLabel = styled(Typography)({
   lineHeight: "21px",
   marginBottom: "12px",
   userSelect: "none",
+  textAlign: "center",
 });
 
 const StyledChartContainer = styled(Box)({
@@ -85,11 +86,7 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
     <StyledChartContainer ref={containerRef}>
       {reformattedLabel && (
         <StyledPieChartLabel>
-          <TruncatedText
-            text={reformattedLabel}
-            wrapperSx={{ margin: "0 auto" }}
-            maxCharacters={14}
-          />
+          <TruncatedText text={reformattedLabel} maxCharacters={14} />
         </StyledPieChartLabel>
       )}
       <PieChart width={150} height={150}>
