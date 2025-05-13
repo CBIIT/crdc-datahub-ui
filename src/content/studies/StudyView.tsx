@@ -629,8 +629,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
 
               <StyledField sx={{ alignItems: "flex-start" }}>
-                <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
-                  Primary Contact
+                <StyledLabel id="dataConciergeLabel" sx={{ paddingTop: "10px" }}>
+                  Data Concierge
                 </StyledLabel>
                 <Stack
                   direction="column"
@@ -640,7 +640,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 >
                   <StyledCheckboxFormGroup>
                     <Tooltip
-                      title="Disabled due to this study is associated with multiple programs; manually assign a Primary Contact."
+                      title="Disabled due to this study is associated with multiple programs; manually assign a Data Concierge."
                       placement="top"
                       open={undefined}
                       disableHoverListener={
@@ -665,7 +665,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                             }
                           />
                         }
-                        label="Same as the Program Primary Contact"
+                        label="Same as the Program Data Concierge"
                       />
                     </Tooltip>
                   </StyledCheckboxFormGroup>
@@ -683,7 +683,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         }
                         MenuProps={{ disablePortal: true }}
                         inputProps={{
-                          "aria-labelledby": "primaryContactLabel",
+                          "aria-labelledby": "dataConciergeLabel",
                         }}
                         data-testid="primaryContactID-select"
                         error={!!errors.primaryContactID}
