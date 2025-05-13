@@ -362,7 +362,10 @@ const NavBar = () => {
     setRestorePath(location?.pathname);
   }, [location]);
 
-  const headerLinksWithoutUser = HeaderLinks.filter((headerLinks) => headerLinks.name !== "User");
+  const headerLinksWithoutUser = useMemo(
+    () => HeaderLinks.filter((headerLinks) => headerLinks.name !== "User"),
+    [HeaderLinks]
+  );
 
   return (
     <ClickAwayListener onClickAway={() => setClickedTitle("")}>
