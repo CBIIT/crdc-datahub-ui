@@ -142,7 +142,7 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Primary Contact",
+    label: "Data Concierge",
     renderValue: (a) => <TruncatedText text={a.conciergeName} maxCharacters={15} />,
     comparator: (a, b) => (a?.conciergeName || "").localeCompare(b?.conciergeName || ""),
     field: "conciergeName",

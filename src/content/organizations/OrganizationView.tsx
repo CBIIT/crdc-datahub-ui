@@ -515,7 +515,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
+                <StyledLabel id="dataConciergeLabel">Data Concierge</StyledLabel>
                 <Controller
                   name="conciergeID"
                   control={control}
@@ -526,7 +526,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       value={field.value || ""}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{
-                        "aria-labelledby": "primaryContactLabel",
+                        "aria-labelledby": "dataConciergeLabel",
                       }}
                       error={!!errors.conciergeID}
                     >
