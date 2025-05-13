@@ -167,7 +167,7 @@ const columns: Column<ApprovedStudy>[] = [
     },
   },
   {
-    label: "Primary Contact",
+    label: "Data Concierge",
     renderValue: (a) => {
       const primaryContactName = a.primaryContact
         ? `${a.primaryContact?.firstName || ""} ${a.primaryContact?.lastName || ""}`?.trim()

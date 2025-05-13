@@ -170,7 +170,7 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Primary Contact",
+    label: "Data Concierge",
     renderValue: (a) => <TruncatedText text={a.conciergeName} />,
     field: "conciergeName",
     hideable: true,

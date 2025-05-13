@@ -256,7 +256,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             value={dataSubmission?.organization?.name ?? "NA"}
           />
           <SubmissionHeaderProperty
-            label="Primary Contact"
+            label="Data Concierge"
             value={
               <Stack direction="row" alignItems="center" spacing={1.375}>
                 <StyledConciergeName>
@@ -270,7 +270,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 {dataSubmission?.conciergeName && dataSubmission?.conciergeEmail && (
                   <StyledEmailWrapper
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
-                    aria-label="Email Primary Contact"
+                    aria-label="Email Data Concierge"
                     data-testid="email-primary-contact-link"
                   >
                     <EmailIconSvg />

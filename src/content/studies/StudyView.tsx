@@ -626,7 +626,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
               <StyledField sx={{ alignItems: "flex-start" }}>
                 <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
-                  Primary Contact
+                  Data Concierge
                 </StyledLabel>
                 <Stack
                   direction="column"
@@ -636,7 +636,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 >
                   <StyledCheckboxFormGroup>
                     <Tooltip
-                      title="Disabled due to this study is associated with multiple programs; manually assign a Primary Contact."
+                      title="Disabled due to this study is associated with multiple programs; manually assign a Data Concierge."
                       placement="top"
                       open={undefined}
                       disableHoverListener={
@@ -661,7 +661,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                             }
                           />
                         }
-                        label="Same as the Program Primary Contact"
+                        label="Same as the Program Data Concierge"
                       />
                     </Tooltip>
                   </StyledCheckboxFormGroup>

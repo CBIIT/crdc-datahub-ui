@@ -515,7 +515,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
+                <StyledLabel id="primaryContactLabel">Data Concierge</StyledLabel>
                 <Controller
                   name="conciergeID"
                   control={control}
