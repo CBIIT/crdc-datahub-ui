@@ -67,7 +67,13 @@ type Props = {
   onCancel?: () => void;
 } & Omit<IconButtonProps, "onClick">;
 
-const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: Props) => {
+/**
+ * Provides a button to either cancel or restore an application,
+ * depending on the current status of the application.
+ *
+ * @returns The ToggleApplicationButton component.
+ */
+const ToggleApplicationButton = ({ application, onCancel, disabled, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const formId = useId();
@@ -154,7 +160,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       setConfirmOpen(false);
       onCancel();
     } catch (err) {
-      Logger.error("CancelApplicationButton: API error received", err);
+      Logger.error("ToggleApplicationButton: API error received", err);
       enqueueSnackbar(
         `Oops! Unable to ${isRestoreAction ? "restore" : "cancel"} that Submission Request`,
         { variant: "error" }
@@ -237,4 +243,4 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
   );
 };
 
-export default memo<Props>(CancelApplicationButton, isEqual);
+export default memo<Props>(ToggleApplicationButton, isEqual);

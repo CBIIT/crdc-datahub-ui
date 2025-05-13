@@ -42,7 +42,7 @@ const mockRestoreApp: MockedResponse<RestoreAppResp, RestoreAppInput> = {
 };
 
 const meta: Meta<typeof Button> = {
-  title: "Submission Requests / Cancel & Restore Button",
+  title: "Submission Requests / ToggleApplicationButton",
   component: Button,
   tags: ["autodocs"],
   parameters: {
