@@ -285,7 +285,7 @@ const NavBar = () => {
 
   const handleItemClick = (item: ActionId) => {
     if (!item) {
-      Logger.error(`NavbarDesktop: No action found for actionId '${item}'`);
+      Logger.error(`NavbarDesktop.tsx: No action found for actionId '${item}'`);
       return;
     }
 
