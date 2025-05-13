@@ -5,7 +5,7 @@ import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import TextInput from "./TextInput";
 import AddRemoveButton from "../AddRemoveButton";
 import AutocompleteInput from "./AutocompleteInput";
-import { filterForNumbers, filterNonUTF8, validateEmail } from "../../utils";
+import { filterForNumbers, validateEmail, validateUTF8 } from "../../utils";
 import { useInstitutionList } from "../Contexts/InstitutionListContext";
 
 const GridContainer = styled(Grid)({
@@ -91,8 +91,7 @@ const AdditionalContact: FC<Props> = ({
           value={institution || ""}
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
-          validate={(v: string) => v?.trim()?.length > 0}
-          filter={filterNonUTF8}
+          validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
           required
           disableClearable
           freeSolo

@@ -50,18 +50,6 @@ export const filterNonNumeric = (value: string): string => value.replace(/[^0-9]
 export const filterForNumbers = (value: string): string => value?.replace(/[^0-9- ]+/g, "");
 
 /**
- * Filters input fields for non-UTF8 (0-127) characters
- *
- * @param value The value to filter
- * @returns The filtered value or empty string if null/undefined
- */
-export const filterNonUTF8 = (value: string): string =>
-  value
-    ?.split("")
-    .filter((char) => char.charCodeAt(0) <= 127)
-    .join("") || "";
-
-/**
  * Adds a semi-stable key to the object
  *
  * NOTE:

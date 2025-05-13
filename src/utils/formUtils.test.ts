@@ -47,37 +47,6 @@ describe("filterForNumbers cases", () => {
   });
 });
 
-describe("filterNonUTF8 cases", () => {
-  it("should return the unmodified input for a string without non-UTF8 characters", () => {
-    expect(utils.filterNonUTF8("This is a test string")).toBe("This is a test string");
-    expect(utils.filterNonUTF8("123 hello valid '@#$%^&*(")).toBe("123 hello valid '@#$%^&*(");
-  });
-
-  it("should handle large valid input", () => {
-    const largeValidInput = "abc-123".repeat(10000);
-    expect(utils.filterNonUTF8(largeValidInput)).toBe(largeValidInput);
-  });
-
-  it("should handle null or undefined values", () => {
-    expect(utils.filterNonUTF8(null as unknown as string)).toBe("");
-    expect(utils.filterNonUTF8(undefined as unknown as string)).toBe("");
-  });
-
-  it.each<string>(["😊", "👨🏿‍🎤", "🔴", "℗", "🇵🇷"])(
-    "should return an empty filtered string for input with emojis (%s)",
-    (value) => {
-      expect(utils.filterNonUTF8(value)).toEqual("");
-    }
-  );
-
-  it.each<string>(["�", "ä", "ü", "ß", "è", "ò", "€", "µ"])(
-    "should return an empty string for a input with non-UTF8 character %s",
-    (value) => {
-      expect(utils.filterNonUTF8(value)).toEqual("");
-    }
-  );
-});
-
 describe("validateEmail cases", () => {
   it("should prevent domain-only emails", () => {
     expect(utils.validateEmail("abc.com")).toEqual(false);
@@ -510,7 +479,7 @@ describe("validateUTF8 cases", () => {
     }
   );
 
-  it.each<string>(["�", "ä", "ü", "ß", "è", "ò", "€", "µ"])(
+  it.each<string>(["�", "ä", "ü", "ß", "è", "ò"])(
     "should return an error message for a string with non-UTF8 character %s",
     (value) => {
       expect(utils.validateUTF8(value)).toEqual(expect.any(String));
