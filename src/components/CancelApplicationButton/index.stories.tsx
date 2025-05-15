@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect } from "@storybook/test";
+import { expect, fn } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
 import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
@@ -25,6 +25,9 @@ const meta: Meta<typeof Button> = {
   title: "Submission Requests / Cancel Application Button",
   component: Button,
   tags: ["autodocs"],
+  args: {
+    onCancel: fn(),
+  },
   parameters: {
     apolloClient: {
       mocks: [mockCancelApp],
@@ -93,11 +96,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const CancelButton: Story = {
   name: "Button",
-  parameters: {
-    apolloClient: {
-      mocks: [mockCancelApp],
-    },
-  },
+  parameters: meta.parameters,
 };
 
 /**
@@ -105,6 +104,7 @@ export const CancelButton: Story = {
  */
 export const CancelConfirmDialog: Story = {
   name: "Dialog",
+  parameters: meta.parameters,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 

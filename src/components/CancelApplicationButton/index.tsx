@@ -16,6 +16,7 @@ import { hasPermission } from "../../config/AuthPermissions";
 import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledTooltip = styled(StyledFormTooltip)({
+  margin: "0 !important",
   "& .MuiTooltip-tooltip": {
     color: "#000000",
   },
@@ -37,14 +38,19 @@ type FormFields = {
   comment: string;
 };
 
-type Props = Omit<ButtonProps, "onClick">;
+type Props = {
+  /**
+   * An optional closure function to be called when the cancel action is completed.
+   */
+  onCancel?: () => void;
+} & Omit<ButtonProps, "onClick">;
 
 /**
  * Provides a button to cancel the contextually relevant Submission Request.
  *
  * @returns The CancelApplicationButton component.
  */
-const CancelApplicationButton = ({ disabled, ...rest }: Props) => {
+const CancelApplicationButton = ({ disabled, onCancel, ...rest }: Props) => {
   const formId = useId();
   const { data } = useFormContext();
   const { user } = useAuthContext();
@@ -111,13 +117,14 @@ const CancelApplicationButton = ({ disabled, ...rest }: Props) => {
       }
 
       setConfirmOpen(false);
+      onCancel?.();
     } catch (err) {
       Logger.error("CancelApplicationButton: API error received", err);
       enqueueSnackbar(`Oops! Unable to cancel the Submission Request.`, { variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [comment, cancelApp, enqueueSnackbar]);
+  }, [comment, cancelApp, enqueueSnackbar, onCancel]);
 
   if (!canSeeButton) {
     return null;

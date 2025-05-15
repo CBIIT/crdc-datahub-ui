@@ -77,7 +77,7 @@ type Story = StoryObj<typeof meta>;
  * The button that allows the user to restore an application.
  */
 export const RestoreCanceled: Story = {
-  name: "Restore (From Cancelled)",
+  name: "Restore (From Canceled)",
   args: {
     onCancel: fn(),
     application: {

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
   unstable_useBlocker as useBlocker,
@@ -589,6 +589,13 @@ const FormView: FC<Props> = ({ section }: Props) => {
     navigate(nextSection, { preventScrollReset: true });
   };
 
+  const handleOnCancel = useCallback(() => {
+    enqueueSnackbar("Successfully canceled that Submission Request.", {
+      variant: "success",
+    });
+    navigate("/submission-requests");
+  }, [enqueueSnackbar, navigate]);
+
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
@@ -721,7 +728,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   </StyledExtendedLoadingButton>
                 )}
 
-              {activeSection === "REVIEW" && <CancelApplicationButton />}
+              {activeSection === "REVIEW" && <CancelApplicationButton onCancel={handleOnCancel} />}
 
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>

@@ -328,6 +328,121 @@ describe("Basic Functionality", () => {
       );
     });
   });
+
+  it("should call the onCancel callback when the cancel operation is successful", async () => {
+    const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
+      {
+        request: {
+          query: CANCEL_APP,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            cancelApplication: {
+              _id: "some id",
+            },
+          },
+        },
+      },
+    ];
+
+    const onCancelMock = jest.fn();
+
+    const { getByRole, getByTestId } = render(<Button onCancel={onCancelMock} />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={mocks}
+          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          application={{
+            ...baseApp,
+            status: "In Progress",
+            applicant: { ...baseApp.applicant, applicantID: "owner" },
+          }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
+
+    // Click dialog confirm button once it is enabled
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(onCancelMock).toHaveBeenCalled();
+    });
+  });
+
+  it("should not call the onCancel callback when the cancel operation fails", async () => {
+    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
+      {
+        request: {
+          query: CANCEL_APP,
+        },
+        variableMatcher: mockMatcher,
+        result: {
+          data: {
+            cancelApplication: {
+              _id: null,
+            },
+          },
+        },
+      },
+    ];
+
+    const onCancelMock = jest.fn();
+
+    const { getByRole, getByTestId } = render(<Button onCancel={onCancelMock} />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={mocks}
+          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          application={{
+            ...baseApp,
+            status: "In Progress",
+            applicant: { ...baseApp.applicant, applicantID: "owner" },
+          }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    // Open confirmation dialog
+    userEvent.click(getByTestId("cancel-application-button"));
+
+    // Enter reason for action
+    const input = await within(getByRole("dialog")).findByRole("textbox");
+    userEvent.type(input, "mock reason");
+
+    // Click dialog confirm button once it is enabled
+    const button = await within(getByRole("dialog")).findByRole("button", { name: /confirm/i });
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
+    userEvent.click(button);
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalled();
+    });
+
+    expect(onCancelMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("Implementation Requirements", () => {
