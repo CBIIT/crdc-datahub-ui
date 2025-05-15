@@ -26,7 +26,7 @@ import {
   RequestAccessInput,
   RequestAccessResp,
 } from "../../graphql";
-import { Logger } from "../../utils";
+import { Logger, validateUTF8 } from "../../utils";
 import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
 
 const StyledDialog = styled(DefaultDialog)({
@@ -197,7 +197,13 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
             <Controller
               name="institutionName"
               control={control}
-              rules={{ required: "This field is required", maxLength: 100 }}
+              rules={{
+                validate: {
+                  required: (v: string) => v.trim() !== "" || "This field is required",
+                  maxLength: (v: string) => v.length <= 100 || "Maximum of 100 characters allowed",
+                  utf8: validateUTF8,
+                },
+              }}
               render={({ field }) => (
                 <StyledAutocomplete
                   {...field}

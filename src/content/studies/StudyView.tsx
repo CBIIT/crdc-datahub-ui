@@ -21,7 +21,7 @@ import studyIcon from "../../assets/icons/study_icon.svg";
 import usePageTitle from "../../hooks/usePageTitle";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { formatORCIDInput, isValidORCID } from "../../utils";
+import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
 import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
@@ -475,7 +475,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   <StyledAsterisk visible />
                 </StyledLabel>
                 <StyledTextField
-                  {...register("studyName", { required: true, setValueAs: (val) => val?.trim() })}
+                  {...register("studyName", {
+                    required: true,
+                    setValueAs: (val) => val?.trim(),
+                    validate: { utf8: validateUTF8 },
+                  })}
                   size="small"
                   required
                   disabled={retrievingStudy}
