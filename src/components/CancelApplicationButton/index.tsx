@@ -12,6 +12,8 @@ import Asterisk from "../StyledFormComponents/StyledAsterisk";
 import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 import { Logger } from "../../utils";
 import { useFormContext } from "../Contexts/FormContext";
+import { hasPermission } from "../../config/AuthPermissions";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   "& .MuiTooltip-tooltip": {
@@ -45,6 +47,7 @@ type Props = Omit<ButtonProps, "onClick">;
 const CancelApplicationButton = ({ disabled, ...rest }: Props) => {
   const formId = useId();
   const { data } = useFormContext();
+  const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const {
     register,
@@ -77,6 +80,17 @@ const CancelApplicationButton = ({ disabled, ...rest }: Props) => {
     [isValid, loading]
   );
 
+  const canSeeButton = useMemo<boolean>(() => {
+    if (!hasPermission(user, "submission_request", "cancel", data)) {
+      return false;
+    }
+    if (data?.status === "Canceled" || data?.status === "Deleted") {
+      return false;
+    }
+
+    return true;
+  }, [data, user]);
+
   const onButtonClick = async () => {
     setConfirmOpen(true);
   };
@@ -105,8 +119,7 @@ const CancelApplicationButton = ({ disabled, ...rest }: Props) => {
     }
   }, [comment, cancelApp, enqueueSnackbar]);
 
-  // If the status is already a deleted or canceled status, do not show the button
-  if (!data?.status && data?.status !== "Canceled" && data?.status !== "Deleted") {
+  if (!canSeeButton) {
     return null;
   }
 

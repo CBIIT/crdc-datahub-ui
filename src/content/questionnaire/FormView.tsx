@@ -721,10 +721,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   </StyledExtendedLoadingButton>
                 )}
 
-              {activeSection === "REVIEW" &&
-                hasPermission(user, "submission_request", "cancel", data) && (
-                  <CancelApplicationButton />
-                )}
+              {activeSection === "REVIEW" && <CancelApplicationButton />}
 
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>

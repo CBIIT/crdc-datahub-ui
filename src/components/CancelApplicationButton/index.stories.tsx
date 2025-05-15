@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
 import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
+import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
 import Button from "./index";
 import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
@@ -31,6 +32,22 @@ const meta: Meta<typeof Button> = {
   },
   decorators: [
     (Story) => (
+      <AuthContext.Provider
+        value={
+          {
+            isLoggedIn: true,
+            user: {
+              _id: "applicant-123",
+              role: "Submitter",
+              permissions: ["submission_request:cancel"],
+            } as User,
+          } as AuthCtxState
+        }
+      >
+        <Story />
+      </AuthContext.Provider>
+    ),
+    (Story) => (
       <FormContext.Provider
         value={{
           status: FormStatus.LOADED,
@@ -50,7 +67,7 @@ const meta: Meta<typeof Button> = {
             PI: "",
             controlledAccess: false,
             openAccess: false,
-            studyAbbreviation: "Mock Study that is in progress",
+            studyAbbreviation: "MOCK-STUDY",
             conditional: false,
             pendingConditions: [],
             programName: "",
@@ -76,8 +93,16 @@ type Story = StoryObj<typeof meta>;
  */
 export const CancelButton: Story = {
   name: "Button",
+  parameters: {
+    apolloClient: {
+      mocks: [mockCancelApp],
+    },
+  },
 };
 
+/**
+ * The dialog confirmation that appears when the user clicks the cancel button.
+ */
 export const CancelConfirmDialog: Story = {
   name: "Dialog",
   play: async ({ canvasElement }) => {
@@ -91,7 +116,7 @@ export const CancelConfirmDialog: Story = {
     });
 
     const reasonInput = within(screen.getByRole("dialog")).queryByTestId(
-      "cancel-restore-application-reason"
+      "cancel-application-reason"
     );
 
     await userEvent.type(reasonInput, "lorem ipsum dol excel ".repeat(10));
@@ -99,12 +124,5 @@ export const CancelConfirmDialog: Story = {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /confirm/i })).toBeEnabled();
     });
-  },
-  argTypes: {
-    application: {
-      control: {
-        disable: true,
-      },
-    },
   },
 };
