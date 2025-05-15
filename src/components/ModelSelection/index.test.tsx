@@ -567,4 +567,77 @@ describe("Implementation Requirements", () => {
       expect(mockUpdateQuery).toHaveBeenCalledTimes(1);
     });
   });
+
+  it("should reset validation results after the model version is changed", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
+    const prevState: GetSubmissionResp = {
+      getSubmission: {
+        ...baseSubmission,
+        status: "New",
+        modelVersion: "1.0.0",
+        metadataValidationStatus: "Passed",
+        fileValidationStatus: "Passed",
+      },
+      submissionStats: null,
+      batchStatusList: null,
+    };
+
+    let updateQueryResult: GetSubmissionResp | undefined;
+    const mockUpdateQuery = jest.fn((updater: (prev: GetSubmissionResp) => GetSubmissionResp) => {
+      updateQueryResult = updater(prevState);
+    });
+
+    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+      request: {
+        query: UPDATE_MODEL_VERSION,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          updateSubmissionModelVersion: {
+            _id: baseSubmission._id,
+            modelVersion: "API RESPONSE VERSION",
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<ModelSelection />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          updateQuery={mockUpdateQuery}
+          submission={{ ...prevState.getSubmission }}
+          user={{
+            ...baseUser,
+            role: "Data Commons Personnel",
+            permissions: ["data_submission:review"],
+            dataCommons: [baseSubmission.dataCommons],
+            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+          }}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    expect(updateQueryResult).toBeUndefined();
+
+    userEvent.click(getByTestId("change-model-version-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("model-version-dialog")).toBeVisible();
+    });
+
+    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+
+    await waitFor(() => {
+      expect(mockUpdateQuery).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateQueryResult).toBeDefined();
+    expect(updateQueryResult.getSubmission.metadataValidationStatus).toBe("New");
+    expect(updateQueryResult.getSubmission.fileValidationStatus).toBe("New");
+  });
 });
