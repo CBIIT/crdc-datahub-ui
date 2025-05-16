@@ -37,7 +37,12 @@ import {
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
-import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import {
+  filterAlphaNumeric,
+  formatFullStudyName,
+  mapOrganizationStudyToId,
+  validateUTF8,
+} from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
@@ -466,7 +471,11 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   Program <BaseAsterisk />
                 </StyledLabel>
                 <StyledTextField
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: true,
+                    setValueAs: (val) => val?.trim(),
+                    validate: { utf8: validateUTF8 },
+                  })}
                   readOnly={organization?.readOnly}
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
@@ -515,7 +524,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
+                <StyledLabel id="dataConciergeLabel">Data Concierge</StyledLabel>
                 <Controller
                   name="conciergeID"
                   control={control}
@@ -526,7 +535,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       value={field.value || ""}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{
-                        "aria-labelledby": "primaryContactLabel",
+                        "aria-labelledby": "dataConciergeLabel",
                       }}
                       error={!!errors.conciergeID}
                     >

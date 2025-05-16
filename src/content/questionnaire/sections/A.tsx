@@ -17,6 +17,7 @@ import {
   isValidORCID,
   mapObjectWithKey,
   validateEmail,
+  validateUTF8,
 } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
@@ -196,7 +197,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={pi?.institution || ""}
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
-          validate={(v: string) => v?.trim()?.length > 0}
+          validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
           required
           disableClearable
           freeSolo
@@ -298,7 +299,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               options={institutionList?.map((i) => i.name)}
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
-              validate={(v: string) => v?.trim()?.length > 0}
+              validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
               disableClearable
               required
               freeSolo

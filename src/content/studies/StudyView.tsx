@@ -21,7 +21,7 @@ import studyIcon from "../../assets/icons/study_icon.svg";
 import usePageTitle from "../../hooks/usePageTitle";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { formatORCIDInput, isValidORCID } from "../../utils";
+import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
 import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
@@ -475,7 +475,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   <StyledAsterisk visible />
                 </StyledLabel>
                 <StyledTextField
-                  {...register("studyName", { required: true, setValueAs: (val) => val?.trim() })}
+                  {...register("studyName", {
+                    required: true,
+                    setValueAs: (val) => val?.trim(),
+                    validate: { utf8: validateUTF8 },
+                  })}
                   size="small"
                   required
                   disabled={retrievingStudy}
@@ -625,8 +629,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               </StyledField>
 
               <StyledField sx={{ alignItems: "flex-start" }}>
-                <StyledLabel id="primaryContactLabel" sx={{ paddingTop: "10px" }}>
-                  Primary Contact
+                <StyledLabel id="dataConciergeLabel" sx={{ paddingTop: "10px" }}>
+                  Data Concierge
                 </StyledLabel>
                 <Stack
                   direction="column"
@@ -636,7 +640,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 >
                   <StyledCheckboxFormGroup>
                     <Tooltip
-                      title="Disabled due to this study is associated with multiple programs; manually assign a Primary Contact."
+                      title="Disabled due to this study is associated with multiple programs; manually assign a Data Concierge."
                       placement="top"
                       open={undefined}
                       disableHoverListener={
@@ -661,7 +665,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                             }
                           />
                         }
-                        label="Same as the Program Primary Contact"
+                        label="Same as the Program Data Concierge"
                       />
                     </Tooltip>
                   </StyledCheckboxFormGroup>
@@ -679,7 +683,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         }
                         MenuProps={{ disablePortal: true }}
                         inputProps={{
-                          "aria-labelledby": "primaryContactLabel",
+                          "aria-labelledby": "dataConciergeLabel",
                         }}
                         data-testid="primaryContactID-select"
                         error={!!errors.primaryContactID}

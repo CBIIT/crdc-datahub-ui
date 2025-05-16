@@ -291,7 +291,7 @@ describe("Implementation Requirements", () => {
       "Change Data Model Version"
     );
     expect(getByTestId("model-version-dialog-body")).toHaveTextContent(
-      "Changing the model version for an in-progress submission may require rerunning validation to ensure alignment with the selected version."
+      "Changing the model version for an in-progress submission will reset all validation results. The submitter will need to re-run the validation to ensure alignment with the new model version."
     );
     expect(getByTestId("model-version-dialog-submit-button")).toHaveTextContent("Save");
     expect(getByTestId("model-version-dialog-cancel-button")).toHaveTextContent("Cancel");

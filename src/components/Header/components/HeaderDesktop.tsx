@@ -9,6 +9,7 @@ const HeaderBanner = styled("div")({
 const HeaderContainer = styled("div")({
   margin: "0 auto",
   paddingLeft: "32px",
+  paddingRight: "32px",
   maxWidth: "1400px",
   display: "flex",
 });
