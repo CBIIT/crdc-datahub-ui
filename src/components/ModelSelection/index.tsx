@@ -102,6 +102,8 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
           ...prev,
           getSubmission: {
             ...prev.getSubmission,
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
             modelVersion: d.updateSubmissionModelVersion.modelVersion,
           },
         }));

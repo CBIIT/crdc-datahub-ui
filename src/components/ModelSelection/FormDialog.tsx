@@ -130,8 +130,9 @@ const FormDialog: FC<Props> = ({ dataCommons, modelVersion, onSubmitForm, onClos
       </StyledHeader>
       <StyledDialogContent>
         <StyledBodyText data-testid="model-version-dialog-body" variant="body1">
-          Changing the model version for an in-progress submission may require rerunning validation
-          to ensure alignment with the selected version.
+          Changing the model version for an in-progress submission will reset all validation
+          results. The submitter will need to re-run the validation to ensure alignment with the new
+          model version.
         </StyledBodyText>
         <StyledForm>
           <Box>
