@@ -32,7 +32,7 @@ export type AdminOverrideCondition = Omit<SubmitButtonCondition, "required">;
 /**
  * The title of the error message that represents an orphaned file
  */
-const ORPHANED_FILE_ERROR_TITLE = "Orphaned file found";
+export const ORPHANED_FILE_ERROR_TITLE = "Orphaned file found";
 
 /**
  * Configuration of conditions used to determine whether the submit button

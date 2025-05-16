@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import { ComponentPropsWithoutRef } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import {
   Context as AuthContext,
@@ -11,19 +12,7 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../../components/Contexts/SubmissionContext";
-
-const meta: Meta<typeof DataSubmissionActions> = {
-  title: "Data Submissions / Actions",
-  component: DataSubmissionActions,
-  parameters: {
-    layout: "centered",
-  },
-  tags: ["autodocs"],
-} satisfies Meta<typeof DataSubmissionActions>;
-
-export default meta;
-
-type Story = StoryObj<typeof meta>;
+import { ORPHANED_FILE_ERROR_TITLE } from "../../config/SubmitButtonConfig";
 
 const baseSubmission: Submission = {
   _id: "submission-1",
@@ -106,21 +95,79 @@ const validationStatuses: (ValidationStatus | null)[] = [
   "Warning",
 ];
 
-export const Default: Story = {
-  args: {
-    role: "Submitter",
-    permissions: [
-      "data_submission:view",
-      "data_submission:create",
-      "data_submission:review",
-      "data_submission:admin_submit",
-      "data_submission:confirm",
-      "data_submission:cancel",
-    ],
-    submissionStatus: "In Progress",
-    metadataValidationStatus: "Passed",
-    fileValidationStatus: "Passed",
+type ContextArgs = {
+  role: UserRole;
+  permissions: DataSubmissionPermissions[];
+  submissionStatus: SubmissionStatus;
+  metadataValidationStatus: ValidationStatus | null;
+  fileValidationStatus: ValidationStatus | null;
+  dataType: SubmissionDataType;
+  intention: SubmissionIntention;
+  submissionQCResults: ValidationResult<Pick<QCResult, "errors">> | null;
+};
+
+type ComponentProps = ComponentPropsWithoutRef<typeof DataSubmissionActions>;
+
+type StoryArgs = ContextArgs & ComponentProps;
+
+const withProviders: Decorator<StoryArgs> = (Story, context) => {
+  const {
+    role,
+    permissions,
+    submissionStatus,
+    metadataValidationStatus,
+    fileValidationStatus,
+    dataType,
+    intention,
+    submissionQCResults,
+  } = context.args;
+
+  return (
+    <AuthContext.Provider
+      value={
+        {
+          isLoggedIn: true,
+          user: {
+            _id: "example-user",
+            firstName: "Example",
+            role,
+            permissions,
+          } as User,
+        } as AuthCtxState
+      }
+    >
+      <SubmissionContext.Provider
+        value={{
+          ...baseSubmissionCtx,
+          data: {
+            ...baseSubmissionCtx.data,
+            getSubmission: {
+              ...baseSubmissionCtx.data.getSubmission,
+              status: submissionStatus,
+              metadataValidationStatus,
+              fileValidationStatus,
+              dataType,
+              intention,
+            },
+          },
+          qcData: {
+            submissionQCResults,
+          },
+        }}
+      >
+        <Story />
+      </SubmissionContext.Provider>
+    </AuthContext.Provider>
+  );
+};
+
+const meta = {
+  title: "Data Submissions / Actions",
+  component: DataSubmissionActions,
+  parameters: {
+    layout: "centered",
   },
+  decorators: [withProviders],
   argTypes: {
     role: {
       name: "Role",
@@ -157,133 +204,111 @@ export const Default: Story = {
         type: "radio",
       },
     },
+    dataType: {
+      name: "dataType",
+      options: ["Metadata and Data Files", "Metadata Only"],
+      control: {
+        type: "radio",
+      },
+    },
+    intention: {
+      name: "intention",
+      options: ["New/Update", "Delete"],
+      control: {
+        type: "radio",
+      },
+    },
+    submissionQCResults: {
+      name: "submissionQCResults",
+      control: {
+        type: "text",
+      },
+    },
   },
-  decorators: [
-    (Story, context) => (
-      <AuthContext.Provider
-        value={
-          {
-            isLoggedIn: true,
-            user: {
-              _id: "example-user",
-              firstName: "Example",
-              role: context.args.role,
-              permissions: context.args.permissions,
-            } as User,
-          } as AuthCtxState
-        }
-      >
-        <SubmissionContext.Provider
-          value={{
-            ...baseSubmissionCtx,
-            data: {
-              ...baseSubmissionCtx.data,
-              getSubmission: {
-                ...baseSubmissionCtx.data.getSubmission,
-                status: context.args.submissionStatus,
-                dataType: "Metadata and Data Files",
-                metadataValidationStatus: context.args.metadataValidationStatus,
-                fileValidationStatus: context.args.fileValidationStatus,
-              },
-            },
-            qcData: {
-              submissionQCResults: null,
-            },
-          }}
-        >
-          <Story />
-        </SubmissionContext.Provider>
-      </AuthContext.Provider>
-    ),
-  ],
+  args: {
+    role: "Submitter",
+    permissions: ["data_submission:view", "data_submission:create", "data_submission:cancel"],
+    submissionStatus: "In Progress",
+    metadataValidationStatus: "Passed",
+    fileValidationStatus: "Passed",
+    dataType: "Metadata and Data Files",
+    intention: "New/Update",
+    submissionQCResults: null,
+    loading: false,
+    onAction: fn(),
+  },
+  tags: ["autodocs"],
+} satisfies Meta<StoryArgs>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+
+export const BatchesShouldNotBeUploading: Story = {
+  name: "No Batches should have 'Uploading' status",
+  args: { loading: true },
 };
 
 export const ValidationShouldNotCurrentlyBeRunning: Story = {
   name: "Validation should not currently be running",
+  args: { metadataValidationStatus: "Validating", fileValidationStatus: "Validating" },
+};
+
+export const MetadataAndDataFileShouldNotHaveNewStatus: Story = {
+  name: "Metadata and Data File should not have 'New' status",
+  args: { metadataValidationStatus: "New", fileValidationStatus: "New" },
+};
+
+export const SubmissionShouldNotHaveOrphanedFiles: Story = {
+  name: "Submission should not have orphaned files",
   args: {
-    role: "Submitter" as UserRole,
+    submissionQCResults: {
+      total: 1,
+      results: [
+        { errors: [{ title: ORPHANED_FILE_ERROR_TITLE, code: "M018" as const, description: "" }] },
+      ],
+    },
+  },
+};
+
+export const MetadataValidationShouldBeInitializedForDeleteIntention: Story = {
+  name: "Metadata validation should be initialized for 'Delete' intention",
+  args: { intention: "Delete", metadataValidationStatus: null },
+};
+
+export const MetadataValidationShouldBeInitializedForMetadataOnlySubmissions: Story = {
+  name: "Metadata validation should be initialized for 'Metadata Only' submissions",
+  args: { dataType: "Metadata Only", metadataValidationStatus: null },
+};
+
+export const DataFileValidationShouldBeInitializedForMetadataAndDataFileSubmissions: Story = {
+  name: "Data file validation should be initialized for 'Metadata and Data Files' submissions",
+  args: { dataType: "Metadata and Data Files", fileValidationStatus: null },
+};
+
+export const MetadataValidationShouldBeInitializedForMetadataAndDataFilesSubmissions: Story = {
+  name: "Metadata validation should be initialized for 'Metadata and Data Files' submissions",
+  args: { dataType: "Metadata and Data Files", metadataValidationStatus: null },
+};
+
+export const ThereShouldBeNoValidationErrorsForMetadataOrDataFiles: Story = {
+  name: "There should be no validation errors for metadata or data files",
+  args: { metadataValidationStatus: "Error", fileValidationStatus: "Error" },
+};
+
+export const AdminOverrideSubmissionHasValidationErrors: Story = {
+  name: "Admin Override - Submission has validation errors",
+  args: {
+    metadataValidationStatus: "Error",
+    fileValidationStatus: "Error",
+    role: "Admin",
     permissions: [
       "data_submission:view",
       "data_submission:create",
       "data_submission:cancel",
-    ] as AuthPermissions[],
-    submissionStatus: "In Progress" as SubmissionStatus,
-    metadataValidationStatus: "Validating" as ValidationStatus,
-    fileValidationStatus: "Validating" as ValidationStatus,
+      "data_submission:admin_submit",
+    ],
   },
-  argTypes: {
-    role: {
-      name: "Role",
-      options: Roles,
-      control: {
-        type: "radio",
-      },
-    },
-    permissions: {
-      name: "Permissions",
-      options: dataSubmissionPermissions,
-      control: {
-        type: "check",
-      },
-    },
-    submissionStatus: {
-      name: "Status",
-      options: submissionStatuses,
-      control: {
-        type: "radio",
-      },
-    },
-    metadataValidationStatus: {
-      name: "metadataValidationStatus",
-      options: validationStatuses,
-      control: {
-        type: "radio",
-      },
-    },
-    fileValidationStatus: {
-      name: "fileValidationStatus",
-      options: validationStatuses,
-      control: {
-        type: "radio",
-      },
-    },
-  },
-  decorators: [
-    (Story, context) => (
-      <AuthContext.Provider
-        value={
-          {
-            isLoggedIn: true,
-            user: {
-              _id: "example-user",
-              firstName: "Example",
-              role: context.args.role,
-              permissions: context.args.permissions,
-            } as User,
-          } as AuthCtxState
-        }
-      >
-        <SubmissionContext.Provider
-          value={{
-            ...baseSubmissionCtx,
-            data: {
-              ...baseSubmissionCtx.data,
-              getSubmission: {
-                ...baseSubmissionCtx.data.getSubmission,
-                status: context.args.submissionStatus,
-                dataType: "Metadata and Data Files",
-                metadataValidationStatus: context.args.metadataValidationStatus,
-                fileValidationStatus: context.args.fileValidationStatus,
-              },
-            },
-            qcData: {
-              submissionQCResults: null,
-            },
-          }}
-        >
-          <Story />
-        </SubmissionContext.Provider>
-      </AuthContext.Provider>
-    ),
-  ],
 };
