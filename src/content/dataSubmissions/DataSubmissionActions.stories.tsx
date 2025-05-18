@@ -321,3 +321,11 @@ export const AdminOverrideSubmissionHasValidationErrors: Story = {
     ],
   },
 };
+
+export const AdminCanPerformRegularSubmitWithAdminSubmitPermissions: Story = {
+  name: "Admin can perform regular submit with 'admin_submit' permissions",
+  args: {
+    role: "Admin",
+    permissions: ["data_submission:view", "data_submission:cancel", "data_submission:admin_submit"],
+  },
+};

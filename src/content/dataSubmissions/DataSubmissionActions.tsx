@@ -209,8 +209,7 @@ const DataSubmissionActions = ({ onAction }: Props) => {
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
-      {canShowAction("Submit") ||
-      (canShowAction("AdminSubmit") && submitActionButton?.isAdminOverride) ? (
+      {canShowAction("Submit") || canShowAction("AdminSubmit") ? (
         <Tooltip
           placement="top"
           title={submitActionButton?.tooltip}
