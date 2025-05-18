@@ -255,14 +255,24 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const BatchesShouldNotBeUploading: Story = {
-  name: "No Batches should have 'Uploading' status",
-  args: { batchStatusList: { batches: [{ _id: "batch-1", status: "Uploading" as BatchStatus }] } },
+export const MetadataValidationShouldBeInitializedForDeleteIntention: Story = {
+  name: "Metadata validation should be initialized for 'Delete' intention",
+  args: { intention: "Delete", metadataValidationStatus: null },
 };
 
-export const ValidationShouldNotCurrentlyBeRunning: Story = {
-  name: "Validation should not currently be running",
-  args: { metadataValidationStatus: "Validating", fileValidationStatus: "Validating" },
+export const MetadataValidationShouldBeInitializedForMetadataOnlySubmissions: Story = {
+  name: "Metadata validation should be initialized for 'Metadata Only' submissions",
+  args: { dataType: "Metadata Only", metadataValidationStatus: null },
+};
+
+export const DataFileValidationShouldBeInitializedForMetadataAndDataFileSubmissions: Story = {
+  name: "Data file validation should be initialized for 'Metadata and Data Files' submissions",
+  args: { dataType: "Metadata and Data Files", fileValidationStatus: null },
+};
+
+export const MetadataValidationShouldBeInitializedForMetadataAndDataFilesSubmissions: Story = {
+  name: "Metadata validation should be initialized for 'Metadata and Data Files' submissions",
+  args: { dataType: "Metadata and Data Files", metadataValidationStatus: null },
 };
 
 export const MetadataAndDataFileShouldNotHaveNewStatus: Story = {
@@ -282,24 +292,14 @@ export const SubmissionShouldNotHaveOrphanedFiles: Story = {
   },
 };
 
-export const MetadataValidationShouldBeInitializedForDeleteIntention: Story = {
-  name: "Metadata validation should be initialized for 'Delete' intention",
-  args: { intention: "Delete", metadataValidationStatus: null },
+export const ValidationShouldNotCurrentlyBeRunning: Story = {
+  name: "Validation should not currently be running",
+  args: { metadataValidationStatus: "Validating", fileValidationStatus: "Validating" },
 };
 
-export const MetadataValidationShouldBeInitializedForMetadataOnlySubmissions: Story = {
-  name: "Metadata validation should be initialized for 'Metadata Only' submissions",
-  args: { dataType: "Metadata Only", metadataValidationStatus: null },
-};
-
-export const DataFileValidationShouldBeInitializedForMetadataAndDataFileSubmissions: Story = {
-  name: "Data file validation should be initialized for 'Metadata and Data Files' submissions",
-  args: { dataType: "Metadata and Data Files", fileValidationStatus: null },
-};
-
-export const MetadataValidationShouldBeInitializedForMetadataAndDataFilesSubmissions: Story = {
-  name: "Metadata validation should be initialized for 'Metadata and Data Files' submissions",
-  args: { dataType: "Metadata and Data Files", metadataValidationStatus: null },
+export const BatchesShouldNotBeUploading: Story = {
+  name: "No Batches should have 'Uploading' status",
+  args: { batchStatusList: { batches: [{ _id: "batch-1", status: "Uploading" as BatchStatus }] } },
 };
 
 export const ThereShouldBeNoValidationErrorsForMetadataOrDataFiles: Story = {
