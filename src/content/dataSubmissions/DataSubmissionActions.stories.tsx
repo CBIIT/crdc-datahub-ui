@@ -104,6 +104,7 @@ type ContextArgs = {
   dataType: SubmissionDataType;
   intention: SubmissionIntention;
   submissionQCResults: ValidationResult<Pick<QCResult, "errors">> | null;
+  batchStatusList: { batches: Pick<Batch, "_id" | "status">[] } | null;
 };
 
 type ComponentProps = ComponentPropsWithoutRef<typeof DataSubmissionActions>;
@@ -120,6 +121,7 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
     dataType,
     intention,
     submissionQCResults,
+    batchStatusList,
   } = context.args;
 
   return (
@@ -149,6 +151,7 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
               dataType,
               intention,
             },
+            batchStatusList,
           },
           qcData: {
             submissionQCResults,
@@ -224,6 +227,12 @@ const meta = {
         type: "text",
       },
     },
+    batchStatusList: {
+      name: "batchStatusList",
+      control: {
+        type: "text",
+      },
+    },
   },
   args: {
     role: "Submitter",
@@ -234,7 +243,7 @@ const meta = {
     dataType: "Metadata and Data Files",
     intention: "New/Update",
     submissionQCResults: null,
-    loading: false,
+    batchStatusList: null,
     onAction: fn(),
   },
   tags: ["autodocs"],
@@ -248,7 +257,7 @@ export const Default: Story = {};
 
 export const BatchesShouldNotBeUploading: Story = {
   name: "No Batches should have 'Uploading' status",
-  args: { loading: true },
+  args: { batchStatusList: { batches: [{ _id: "batch-1", status: "Uploading" as BatchStatus }] } },
 };
 
 export const ValidationShouldNotCurrentlyBeRunning: Story = {

@@ -164,10 +164,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     lastSearchParams?.["/data-submissions"] ?? ""
   }`;
   const activityRef = useRef<DataActivityRef>(null);
-  const hasUploadingBatches = useMemo<boolean>(
-    () => data?.batchStatusList?.batches?.some((b) => b.status === "Uploading"),
-    [data?.batchStatusList?.batches]
-  );
   const crossValidationVisible: boolean = useMemo<boolean>(
     () =>
       hasPermission(user, "data_submission", "review", data?.getSubmission) &&
@@ -318,10 +314,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions>
-            <DataSubmissionActions
-              loading={hasUploadingBatches}
-              onAction={updateSubmissionAction}
-            />
+            <DataSubmissionActions onAction={updateSubmissionAction} />
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>

@@ -147,11 +147,10 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 };
 
 type Props = {
-  loading?: boolean;
   onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
 };
 
-const DataSubmissionActions = ({ loading, onAction }: Props) => {
+const DataSubmissionActions = ({ onAction }: Props) => {
   const { user } = useAuthContext();
   const { data, qcData } = useSubmissionContext();
   const { getSubmission: submission } = data || {};
@@ -161,12 +160,12 @@ const DataSubmissionActions = ({ loading, onAction }: Props) => {
   const [reviewComment, setReviewComment] = useState("");
 
   const submitActionButton: SubmitButtonResult = useMemo(() => {
-    if (!data?.getSubmission?._id || loading) {
+    if (!data?.getSubmission?._id) {
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data.getSubmission, qcData?.submissionQCResults?.results, user);
-  }, [data?.getSubmission, qcData?.submissionQCResults?.results, user, loading]);
+    return shouldEnableSubmit(data, qcData?.submissionQCResults?.results, user);
+  }, [data?.getSubmission, qcData?.submissionQCResults?.results, user]);
 
   const releaseActionButton: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
