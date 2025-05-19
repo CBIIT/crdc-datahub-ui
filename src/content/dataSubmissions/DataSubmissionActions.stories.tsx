@@ -258,6 +258,7 @@ export const Default: Story = {};
 export const UserIsMissingSubmitPermissions: Story = {
   name: "User is missing 'data_submission:create' and 'data_submission:admin_submit' permissions",
   args: {
+    role: "Admin",
     permissions: ["data_submission:view", "data_submission:review", "data_submission:cancel"],
   },
 };
