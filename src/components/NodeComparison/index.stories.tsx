@@ -1,0 +1,100 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { MockedResponse } from "@apollo/client/testing";
+import NodeComparison from "./index";
+import {
+  RETRIEVE_RELEASED_DATA,
+  RetrieveReleasedDataInput,
+  RetrieveReleasedDataResp,
+} from "../../graphql";
+
+const nominalMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
+  request: {
+    query: RETRIEVE_RELEASED_DATA,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      retrieveReleasedDataByID: [
+        {
+          nodeType: "participant",
+          nodeID: "participant-123",
+          props: JSON.stringify({ col1: "xyz", col2: "abc", col3: "123", mock_col: "foo" }),
+        },
+        {
+          nodeType: "participant",
+          nodeID: "participant-123",
+          props: JSON.stringify({ col1: "123", col2: "xyz", col3: "foo", mock_col: "abc" }),
+        },
+      ],
+    },
+  },
+};
+
+const errorMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
+  request: {
+    query: RETRIEVE_RELEASED_DATA,
+  },
+  variableMatcher: () => true,
+  error: new Error("GraphQL error"),
+};
+
+const loadingMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
+  request: {
+    query: RETRIEVE_RELEASED_DATA,
+  },
+  variableMatcher: () => true,
+  result: null,
+  delay: Infinity,
+};
+
+// --- Storybook Meta ---
+const meta: Meta<typeof NodeComparison> = {
+  title: "Miscellaneous / Node Comparison",
+  component: NodeComparison,
+  tags: ["autodocs"],
+  args: {
+    submissionID: "mock-submission-id",
+    nodeType: "mock-node",
+    submittedID: "mock-node-id",
+  },
+} satisfies Meta<typeof NodeComparison>;
+
+export default meta;
+
+type Story = StoryObj<typeof NodeComparison>;
+
+/**
+ * This story represents the default state of the component with mock data.
+ */
+export const DefaultState: Story = {
+  name: "Default",
+  parameters: {
+    apolloClient: {
+      mocks: [nominalMock],
+    },
+  },
+};
+
+/**
+ * This story simulates a loading state for the component.
+ */
+export const LoadingState: Story = {
+  name: "Loading",
+  parameters: {
+    apolloClient: {
+      mocks: [loadingMock],
+    },
+  },
+};
+
+/**
+ * This story simulates handling of an API error.
+ */
+export const ErrorState: Story = {
+  name: "Error",
+  parameters: {
+    apolloClient: {
+      mocks: [errorMock],
+    },
+  },
+};
