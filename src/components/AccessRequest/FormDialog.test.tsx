@@ -570,27 +570,24 @@ describe("Implementation Requirements", () => {
 
     await findByTestId("access-request-additionalInfo-field");
 
-    userEvent.type(getByTestId("access-request-additionalInfo-field"), "x".repeat(350));
+    await userEvent.type(getByTestId("access-request-additionalInfo-field"), "x".repeat(350));
 
-    userEvent.type(getByTestId("access-request-institution-field"), "mock-value");
+    await userEvent.type(getByTestId("access-request-institution-field"), "mock-value");
 
     // Populate required fields
     const studiesSelect = within(getByTestId("access-request-studies-field")).getByRole("button");
-    userEvent.click(studiesSelect);
+    await userEvent.click(studiesSelect);
 
-    await waitFor(() => {
-      const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole(
-        "listbox",
-        {
-          hidden: true,
-        }
-      );
-      expect(within(muiSelectList).getByTestId("studies-Study-1")).toBeInTheDocument();
-      expect(within(muiSelectList).getByTestId("studies-Study-2")).toBeInTheDocument();
+    const muiSelectList = within(getByTestId("access-request-studies-field")).getByRole("listbox", {
+      hidden: true,
     });
-    userEvent.click(getByTestId("studies-Study-1"));
 
-    userEvent.click(getByTestId("access-request-dialog-submit-button"));
+    await within(muiSelectList).findByTestId("studies-Study-1");
+    await within(muiSelectList).findByTestId("studies-Study-2");
+
+    await userEvent.click(getByTestId("studies-Study-1"));
+
+    await userEvent.click(getByTestId("access-request-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledWith({
