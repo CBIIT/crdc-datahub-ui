@@ -249,6 +249,8 @@ describe("Implementation Requirements", () => {
       /A record with this ID already exists. Review the existing and newly submitted data to decide whether to update the current record./
     );
   });
+
+  it.todo("should have a footer describing special values");
 });
 
 describe("Snapshots", () => {

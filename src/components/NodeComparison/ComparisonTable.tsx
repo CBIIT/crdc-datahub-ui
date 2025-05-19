@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { FC, memo, useMemo } from "react";
+import { isEqual } from "lodash";
 import { RetrieveReleasedDataResp } from "../../graphql";
 import { coerceToString, safeParse } from "../../utils";
 import Repeater from "../Repeater";
@@ -69,6 +70,11 @@ const PLACEHOLDER_NUM_COLS = 5;
  */
 const BLANK_COL_WIDTH = 55;
 
+/**
+ * The special string used to indicate that a value should be deleted by the system processing the data
+ */
+const DELETE_DATA_SYMBOL = "<delete>";
+
 export type ComparisonTableProps = {
   /**
    * The new node to be compared
@@ -106,6 +112,16 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
     return [...new Set([...newKeys, ...existingKeys])];
   }, [newProps, existingProps]);
 
+  const changedPropertyNames = useMemo<string[]>(
+    () =>
+      allPropertyNames.filter((property) => {
+        const [newVal, oldVal] = [newProps?.[property], existingProps?.[property]];
+
+        return !isEqual(newVal, oldVal) && newVal !== DELETE_DATA_SYMBOL && newVal !== "";
+      }),
+    [newProps, existingProps, allPropertyNames]
+  );
+
   if (!loading && !allPropertyNames.length) {
     return (
       <StyledAlert severity="warning" data-testid="node-comparison-error">
@@ -139,6 +155,12 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                 {allPropertyNames.map((property) => (
                   <StyledTableCell key={property}>
                     {coerceToString(existingProps?.[property])}
+                    {/* TODO: just a placeholder */}
+                    {changedPropertyNames.includes(property) ? (
+                      <span style={{ color: "red" }}>HIGHLIGHT</span>
+                    ) : (
+                      <span style={{ color: "gray" }}>GRAY</span>
+                    )}
                   </StyledTableCell>
                 ))}
               </TableRow>
@@ -147,6 +169,12 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                 {allPropertyNames.map((property) => (
                   <StyledTableCell key={property}>
                     {coerceToString(newProps?.[property])}
+                    {/* TODO: just a placeholder */}
+                    {changedPropertyNames.includes(property) ? (
+                      <span style={{ color: "red" }}>HIGHLIGHT</span>
+                    ) : (
+                      <span style={{ color: "gray" }}>GRAY</span>
+                    )}
                   </StyledTableCell>
                 ))}
               </TableRow>

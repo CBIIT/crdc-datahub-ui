@@ -257,6 +257,14 @@ describe("Implementation Requirements", () => {
     expect(getByText(/mock_data_02/i)).toBeInTheDocument();
     expect(getByText(/another_md_03/i)).toBeInTheDocument();
   });
+
+  it.todo("should highlight columns where the values differ (data difference)");
+
+  it.todo("should highlight columns where the values differ ('<delete>' present)");
+
+  it.todo("should gray out columns where the values are the same");
+
+  it.todo("should gray out columns where the new value is empty");
 });
 
 describe("Snapshots", () => {

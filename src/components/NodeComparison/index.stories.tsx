@@ -15,15 +15,29 @@ const nominalMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedData
   result: {
     data: {
       retrieveReleasedDataByID: [
+        // New node
         {
           nodeType: "participant",
           nodeID: "participant-123",
-          props: JSON.stringify({ col1: "xyz", col2: "abc", col3: "123", mock_col: "foo" }),
+          props: JSON.stringify({
+            col1: "xyz",
+            col2: "abc",
+            unchanged_val: "",
+            mock_col: "foo",
+            delete_val: "<delete>",
+          }),
         },
+        // Existing node
         {
           nodeType: "participant",
           nodeID: "participant-123",
-          props: JSON.stringify({ col1: "123", col2: "xyz", col3: "foo", mock_col: "abc" }),
+          props: JSON.stringify({
+            col1: "123",
+            col2: "xyz",
+            unchanged_val: "some val that wont change",
+            mock_col: "abc",
+            delete_val: "some val to be deleted",
+          }),
         },
       ],
     },
