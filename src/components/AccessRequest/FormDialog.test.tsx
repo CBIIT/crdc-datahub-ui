@@ -560,13 +560,15 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+    const { getByTestId, findByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
       wrapper: ({ children }) => (
         <MockParent institutions={mockInstitutionList} mocks={[studiesMock, submitMock]}>
           {children}
         </MockParent>
       ),
     });
+
+    await findByTestId("access-request-additionalInfo-field");
 
     userEvent.type(getByTestId("access-request-additionalInfo-field"), "x".repeat(350));
 
