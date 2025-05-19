@@ -32,7 +32,7 @@ import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import Tooltip from "../Tooltip";
-import { Logger, validateEmoji } from "../../utils";
+import { Logger, formatFullStudyName, validateEmoji } from "../../utils";
 import { RequiresStudiesAssigned } from "../../config/AuthRoles";
 import { hasPermission } from "../../config/AuthPermissions";
 
@@ -476,8 +476,12 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                     data-testid="create-data-submission-dialog-study-id-input"
                   >
                     {studies.map((study) => (
-                      <MenuItem key={study._id} value={study._id}>
-                        {study.studyAbbreviation}
+                      <MenuItem
+                        key={study._id}
+                        value={study._id}
+                        data-testid={`study-option-${study._id}`}
+                      >
+                        {formatFullStudyName(study.studyName, study.studyAbbreviation)}
                       </MenuItem>
                     ))}
                   </StyledSelect>
