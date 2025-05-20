@@ -1,5 +1,6 @@
 import { GetSubmissionResp } from "../graphql";
 import { TOOLTIP_TEXT } from "./DashboardTooltips";
+import { ValidationErrorCodes } from "./ValidationErrors";
 
 export type SubmitButtonCondition = {
   /**
@@ -32,11 +33,6 @@ export type SubmitButtonCondition = {
 };
 
 export type AdminOverrideCondition = Omit<SubmitButtonCondition, "required">;
-
-/**
- * The title of the error message that represents an orphaned file
- */
-export const ORPHANED_FILE_ERROR_TITLE = "Orphaned file found";
 
 /**
  * Configuration of conditions used to determine whether the submit button
@@ -85,7 +81,9 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   {
     _identifier: "Submission should not have orphaned files",
     check: (_, qcResults) =>
-      !qcResults?.some((qc) => qc.errors?.find((err) => err.title === ORPHANED_FILE_ERROR_TITLE)),
+      !qcResults?.some(
+        (qc) => qc.errors?.find((err) => err.code === ValidationErrorCodes.ORPHANED_FILE_FOUND)
+      ),
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: true,
   },
