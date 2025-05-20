@@ -346,7 +346,7 @@ export const Withdraw: Story = {
 };
 
 export const Release: Story = {
-  name: "User with 'data_submission:review' can Release a submitted submission",
+  name: "User with 'data_submission:review' permission can Release a submitted submission",
   args: {
     role: "Admin",
     permissions: ["data_submission:view", "data_submission:review"],
@@ -355,7 +355,7 @@ export const Release: Story = {
 };
 
 export const Complete: Story = {
-  name: "User with 'data_submission:confirm' can Complete a released submission",
+  name: "User with 'data_submission:confirm' permission can Complete a released submission",
   args: {
     role: "Admin",
     permissions: ["data_submission:view", "data_submission:confirm"],
