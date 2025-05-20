@@ -103,6 +103,7 @@ type ContextArgs = {
   fileValidationStatus: ValidationStatus | null;
   dataType: SubmissionDataType;
   intention: SubmissionIntention;
+  dataFileSize: number;
   submissionQCResults: ValidationResult<Pick<QCResult, "errors">> | null;
   batchStatusList: { batches: Pick<Batch, "_id" | "status">[] } | null;
 };
@@ -120,6 +121,7 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
     fileValidationStatus,
     dataType,
     intention,
+    dataFileSize,
     submissionQCResults,
     batchStatusList,
   } = context.args;
@@ -150,6 +152,10 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
               fileValidationStatus,
               dataType,
               intention,
+              dataFileSize: {
+                formatted: "",
+                size: dataFileSize,
+              },
             },
             batchStatusList,
           },
@@ -221,6 +227,12 @@ const meta = {
         type: "radio",
       },
     },
+    dataFileSize: {
+      name: "dataFileSize",
+      control: {
+        type: "number",
+      },
+    },
     submissionQCResults: {
       name: "submissionQCResults",
       control: {
@@ -242,6 +254,7 @@ const meta = {
     fileValidationStatus: "Passed",
     dataType: "Metadata and Data Files",
     intention: "New/Update",
+    dataFileSize: 1000,
     submissionQCResults: null,
     batchStatusList: null,
     onAction: fn(),
@@ -265,9 +278,9 @@ export const MetadataValidationShouldBeInitializedForMetadataOnlySubmissions: St
   args: { dataType: "Metadata Only", metadataValidationStatus: null },
 };
 
-export const DataFileValidationShouldBeInitializedForMetadataAndDataFileSubmissions: Story = {
-  name: "Data file validation should be initialized for 'Metadata and Data Files' submissions",
-  args: { dataType: "Metadata and Data Files", fileValidationStatus: null },
+export const DataFileSizeShouldBeGreaterThan0ForMetadataAndDataFileSubmissions: Story = {
+  name: "Data file size should be greater than 0 for 'Metadata and Data Files' submissions",
+  args: { dataType: "Metadata and Data Files", fileValidationStatus: null, dataFileSize: 0 },
 };
 
 export const MetadataValidationShouldBeInitializedForMetadataAndDataFilesSubmissions: Story = {
