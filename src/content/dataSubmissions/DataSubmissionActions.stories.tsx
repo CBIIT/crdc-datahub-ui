@@ -255,14 +255,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const UserIsMissingSubmitPermissions: Story = {
-  name: "User is missing 'data_submission:create' and 'data_submission:admin_submit' permissions",
-  args: {
-    role: "Admin",
-    permissions: ["data_submission:view", "data_submission:review", "data_submission:cancel"],
-  },
-};
-
 export const MetadataValidationShouldBeInitializedForDeleteIntention: Story = {
   name: "Metadata validation should be initialized for 'Delete' intention",
   args: { intention: "Delete", metadataValidationStatus: null },
@@ -335,5 +327,47 @@ export const AdminCanPerformRegularSubmitWithAdminSubmitPermissions: Story = {
   args: {
     role: "Admin",
     permissions: ["data_submission:view", "data_submission:cancel", "data_submission:admin_submit"],
+  },
+};
+
+export const UserIsMissingSubmitPermissions: Story = {
+  name: "User is missing 'data_submission:create' and 'data_submission:admin_submit' permissions",
+  args: {
+    role: "Admin",
+    permissions: ["data_submission:view", "data_submission:review", "data_submission:cancel"],
+  },
+};
+
+export const Withdraw: Story = {
+  name: "User can Withdraw their submitted submission",
+  args: {
+    submissionStatus: "Submitted",
+  },
+};
+
+export const Release: Story = {
+  name: "User with 'data_submission:review' can Release a submitted submission",
+  args: {
+    role: "Admin",
+    permissions: ["data_submission:view", "data_submission:review"],
+    submissionStatus: "Submitted",
+  },
+};
+
+export const Complete: Story = {
+  name: "User with 'data_submission:confirm' can Complete a released submission",
+  args: {
+    role: "Admin",
+    permissions: ["data_submission:view", "data_submission:confirm"],
+    submissionStatus: "Released",
+  },
+};
+
+export const Completed: Story = {
+  name: "No actions are shown once a submission is completed",
+  args: {
+    role: "Admin",
+    permissions: ["data_submission:view", "data_submission:confirm", "data_submission:confirm"],
+    submissionStatus: "Completed",
   },
 };
