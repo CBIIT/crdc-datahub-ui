@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
-import { Box, Button, styled } from "@mui/material";
+import { Box, Button, styled, SxProps } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -25,11 +25,6 @@ import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 const StyledDateTooltip = styled(StyledTooltip)({
   cursor: "pointer",
-});
-
-const StyledRejectedStatus = styled("div")({
-  color: "#B54717",
-  fontWeight: 600,
 });
 
 const StyledFileCountButton = styled(Button)({
@@ -66,6 +61,21 @@ const StyledErrorDetailsButton = styled(Button)({
   },
 });
 
+const batchStatusStyles: Record<BatchStatus, SxProps> = {
+  Uploading: {
+    color: "#3800F0",
+    fontWeight: 600,
+  },
+  Failed: {
+    color: "#B54717",
+    fontWeight: 600,
+  },
+  Uploaded: {
+    color: "black",
+    fontWeight: 400,
+  },
+};
+
 const columns: Column<Batch>[] = [
   {
     label: "Batch ID",
@@ -100,12 +110,11 @@ const columns: Column<Batch>[] = [
   {
     label: "Status",
     renderValue: (data) => (
-      <Box textTransform="capitalize">
-        {data.status === "Failed" ? (
-          <StyledRejectedStatus>{data.status}</StyledRejectedStatus>
-        ) : (
-          data.status
-        )}
+      <Box
+        textTransform="capitalize"
+        sx={{ ...(batchStatusStyles[data?.status] ?? batchStatusStyles["Uploaded"]) }}
+      >
+        {data.status}
       </Box>
     ),
     field: "status",
