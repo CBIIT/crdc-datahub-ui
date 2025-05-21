@@ -65,6 +65,9 @@ export const query = gql`
         collaboratorName
         permission
       }
+      dataFileSize {
+        size
+      }
       createdAt
       updatedAt
     }
