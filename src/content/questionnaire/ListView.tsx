@@ -24,7 +24,7 @@ import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
-import CancelApplicationButton from "../../components/CancelApplicationButton";
+import ToggleApplicationButton from "../../components/ToggleApplicationButton";
 import CreateApplicationButton from "../../components/CreateApplicationButton";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
@@ -245,7 +245,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => (
       <QuestionnaireContext.Consumer>
         {({ tableRef }) => (
-          <CancelApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
+          <ToggleApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
         )}
       </QuestionnaireContext.Consumer>
     ),
