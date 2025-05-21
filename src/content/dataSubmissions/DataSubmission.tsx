@@ -14,11 +14,6 @@ import QualityControl from "./QualityControl";
 import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
 import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import {
-  ReleaseInfo,
-  shouldDisableRelease,
-  shouldEnableSubmit,
-} from "../../utils/dataSubmissionUtils";
 import usePageTitle from "../../hooks/usePageTitle";
 import BackButton from "../../components/DataSubmissions/BackButton";
 import SubmittedData from "./SubmittedData";
@@ -163,16 +158,12 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { data, error, refetch: getSubmission, qcData, qcError } = useSubmissionContext();
+  const { data, error, refetch: getSubmission, qcError } = useSubmissionContext();
 
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
   }`;
   const activityRef = useRef<DataActivityRef>(null);
-  const hasUploadingBatches = useMemo<boolean>(
-    () => data?.batchStatusList?.batches?.some((b) => b.status === "Uploading"),
-    [data?.batchStatusList?.batches]
-  );
   const crossValidationVisible: boolean = useMemo<boolean>(
     () =>
       hasPermission(user, "data_submission", "review", data?.getSubmission) &&
@@ -183,18 +174,6 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
     tab &&
     Object.values(URLTabs).includes(tab) &&
     (tab !== URLTabs.CROSS_VALIDATION_RESULTS || crossValidationVisible);
-
-  const submitInfo: SubmitButtonResult = useMemo(() => {
-    if (!data?.getSubmission?._id || hasUploadingBatches) {
-      return { enabled: false };
-    }
-
-    return shouldEnableSubmit(data.getSubmission, qcData?.submissionQCResults?.results, user);
-  }, [data?.getSubmission, qcData?.submissionQCResults?.results, user, hasUploadingBatches]);
-  const releaseInfo: ReleaseInfo = useMemo(
-    () => shouldDisableRelease(data?.getSubmission),
-    [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
-  );
 
   const [submissionAction] = useMutation<SubmissionActionResp>(SUBMISSION_ACTION, {
     context: { clientName: "backend" },
@@ -335,13 +314,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions>
-            <DataSubmissionActions
-              submission={data?.getSubmission}
-              onAction={updateSubmissionAction}
-              submitActionButton={submitInfo}
-              releaseActionButton={releaseInfo}
-              onError={(message: string) => enqueueSnackbar(message, { variant: "error" })}
-            />
+            <DataSubmissionActions onAction={updateSubmissionAction} />
           </StyledCardActions>
         </StyledCard>
       </StyledBannerContentContainer>
