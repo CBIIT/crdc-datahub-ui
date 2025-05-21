@@ -1,0 +1,307 @@
+import { render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { axe } from "jest-axe";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { FC, useMemo } from "react";
+import { GraphQLError } from "graphql";
+import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
+import CreateApplicationButton from "./index";
+import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";
+
+const mockUser: User = {
+  _id: "user-1",
+  firstName: "Test",
+  lastName: "User",
+  email: "test@example.com",
+  dataCommons: [],
+  dataCommonsDisplayNames: [],
+  studies: [],
+  institution: null,
+  IDP: "nih",
+  userStatus: "Active",
+  updateAt: "",
+  createdAt: "",
+  notifications: [],
+  role: "Submitter",
+  permissions: ["submission_request:create"],
+};
+
+type MockParentProps = {
+  mocks?: MockedResponse[];
+  user?: User;
+  children: React.ReactNode;
+};
+
+const MockParent: FC<MockParentProps> = ({ mocks = [], user = mockUser, children }) => {
+  const authValue = useMemo(
+    () => ({
+      status: AuthStatus.LOADED,
+      isLoggedIn: true,
+      user,
+    }),
+    [user]
+  );
+  return (
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
+    </MockedProvider>
+  );
+};
+
+describe("Accessibility", () => {
+  it("should have no accessibility violations (button)", async () => {
+    const { container, findByTestId } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+      wrapper: MockParent,
+    });
+
+    await findByTestId("create-application-button"); // Sanity check to ensure the button is rendered
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should have no accessibility violations (disabled button)", async () => {
+    const { container, findByTestId } = render(
+      <CreateApplicationButton onCreate={jest.fn()} disabled />,
+      {
+        wrapper: MockParent,
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+
+    expect(button).toBeDisabled(); // Sanity check to ensure the button is disabled
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should have no accessibility violations (dialog)", async () => {
+    const { container, findByTestId, findByRole } = render(
+      <CreateApplicationButton onCreate={jest.fn()} />,
+      {
+        wrapper: MockParent,
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    await findByRole("dialog"); // Sanity check to ensure the dialog is open
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe("Basic Functionality", () => {
+  it("should call onCreate with the application ID on success", async () => {
+    const mockOnCreate = jest.fn();
+
+    const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
+      request: {
+        query: SAVE_APP,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          saveApplication: {
+            _id: "mock-application-12345",
+          } as SaveAppResp["saveApplication"],
+        },
+      },
+    };
+
+    const { findByTestId, findByText } = render(
+      <CreateApplicationButton onCreate={mockOnCreate} />,
+      {
+        wrapper: ({ children }) => (
+          <MockParent mocks={[mockSaveApplication]}>{children}</MockParent>
+        ),
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    const confirmButton = await findByText("I Read and Accept");
+    userEvent.click(confirmButton);
+
+    await waitFor(() => expect(mockOnCreate).toHaveBeenCalledWith("mock-application-12345"));
+  });
+
+  it("should call onCreate with null on error (API)", async () => {
+    const mockOnCreate = jest.fn();
+
+    const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
+      request: {
+        query: SAVE_APP,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          saveApplication: null, // API issue simulation
+        },
+      },
+    };
+
+    const { findByTestId, findByText } = render(
+      <CreateApplicationButton onCreate={mockOnCreate} />,
+      {
+        wrapper: ({ children }) => (
+          <MockParent mocks={[mockSaveApplication]}>{children}</MockParent>
+        ),
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    const confirmButton = await findByText("I Read and Accept");
+    userEvent.click(confirmButton);
+
+    await waitFor(() => expect(mockOnCreate).toHaveBeenCalledWith(null));
+  });
+
+  it("should call onCreate with null on error (GraphQL)", async () => {
+    const mockOnCreate = jest.fn();
+
+    const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
+      request: {
+        query: SAVE_APP,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("some error")],
+      },
+    };
+
+    const { findByTestId, findByText } = render(
+      <CreateApplicationButton onCreate={mockOnCreate} />,
+      {
+        wrapper: ({ children }) => (
+          <MockParent mocks={[mockSaveApplication]}>{children}</MockParent>
+        ),
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    const confirmButton = await findByText("I Read and Accept");
+    userEvent.click(confirmButton);
+
+    await waitFor(() => expect(mockOnCreate).toHaveBeenCalledWith(null));
+  });
+
+  it("should call onCreate with null on error (Network)", async () => {
+    const mockOnCreate = jest.fn();
+
+    const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
+      request: {
+        query: SAVE_APP,
+      },
+      variableMatcher: () => true,
+      error: new Error("Network error"),
+    };
+
+    const { findByTestId, findByText } = render(
+      <CreateApplicationButton onCreate={mockOnCreate} />,
+      {
+        wrapper: ({ children }) => (
+          <MockParent mocks={[mockSaveApplication]}>{children}</MockParent>
+        ),
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    const confirmButton = await findByText("I Read and Accept");
+    userEvent.click(confirmButton);
+
+    await waitFor(() => expect(mockOnCreate).toHaveBeenCalledWith(null));
+  });
+
+  it("should disable the confirmation button while creating", async () => {
+    jest.useFakeTimers();
+
+    const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
+      request: {
+        query: SAVE_APP,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          saveApplication: {
+            _id: "mock-application-12345",
+          } as SaveAppResp["saveApplication"],
+        },
+      },
+      delay: 5000,
+    };
+
+    const { findByTestId, findByText } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mockSaveApplication]}>{children}</MockParent>,
+    });
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    const confirmButton = await findByText("I Read and Accept");
+    userEvent.click(confirmButton);
+
+    await waitFor(() => expect(confirmButton).toBeDisabled());
+
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
+});
+
+describe("Implementation Requirements", () => {
+  it("should render with the correct button text", async () => {
+    const { findByText } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+      wrapper: MockParent,
+    });
+
+    expect(await findByText("Start a Submission Request")).toBeVisible();
+  });
+
+  it("should be hidden if the user does not have permission", async () => {
+    const { queryByTestId } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[]} user={{ ...mockUser, permissions: [] }}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    expect(queryByTestId("create-application-button")).not.toBeInTheDocument();
+  });
+
+  it("should require confirmation before creating a new application", async () => {
+    const { findByTestId, findByText } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+      wrapper: MockParent,
+    });
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    expect(await findByText("I Read and Accept")).toBeVisible();
+  });
+
+  it("should not do anything if the user cancels the confirmation", async () => {
+    const mockOnCreate = jest.fn();
+
+    const { findByTestId, findByText } = render(
+      <CreateApplicationButton onCreate={mockOnCreate} />,
+      {
+        wrapper: MockParent,
+      }
+    );
+
+    const button = await findByTestId("create-application-button");
+    userEvent.click(button);
+
+    const cancelButton = await findByText("Cancel");
+    userEvent.click(cancelButton);
+
+    expect(mockOnCreate).not.toHaveBeenCalled();
+  });
+});
