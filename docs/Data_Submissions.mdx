@@ -15,6 +15,8 @@ The following table outlines the conditions for which a Data Submission must mee
 
 | Requirement                                                                   | Description                                                                                                             | Admin Submit | Regular Submit |
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------ | -------------- |
+| Validation must not be running                                                | The `metadataValidationStatus` and `fileValidationStatus` should not be `Validating`.                                   | ❌           | ❌             |
+| No uploading batches                                                          | There should be no batches with status `Uploading` for the submission.                                                  | ❌           | ❌             |
 | Submission Status                                                             | The submission status must be one of: `In Progress`, `Withdrawn`, or `Rejected` to submit                               | ❌           | ❌             |
 | Metadata validation for 'Delete' intention                                    | Metadata validation should be initialized for submissions with the intention `Delete`.                                  | ❌           | ❌             |
 | Metadata validation for 'Metadata Only' submissions                           | Metadata validation should be initialized for submissions with the data type `Metadata Only`.                           | ❌           | ❌             |
@@ -22,8 +24,6 @@ The following table outlines the conditions for which a Data Submission must mee
 | Metadata validation for 'Metadata and Data Files' submissions                 | Metadata validation should be initialized for submissions with the data type `Metadata and Data Files`.                 | ❌           | ❌             |
 | Validation must have been run                                                 | The `metadataValidationStatus` and `fileValidationStatus` should not be `New`.                                          | ❌           | ❌             |
 | Submission must not have orphaned files                                       | No `QCResult` should contain the error message `Orphaned file found`.                                                   | ❌           | ❌             |
-| Validation must not be running                                                | The `metadataValidationStatus` and `fileValidationStatus` should not be `Validating`.                                   | ❌           | ❌             |
-| No uploading batches                                                          | There should be no batches with status `Uploading` for the submission.                                                  | ❌           | ❌             |
 | Validation must have passed                                                   | The `metadataValidationStatus` and `fileValidationStatus` should not be `Error`.                                        | ✅           | ❌             |
 | **All checks passed**                                                         | All above conditions have passed.                                                                                       | ❌           | ✅             |
 

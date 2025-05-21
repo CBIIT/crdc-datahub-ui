@@ -1,39 +1,26 @@
 import { memo, useCallback, useId, useMemo, useState } from "react";
 import { isEqual } from "lodash";
-import { Box, ButtonProps, IconButton, IconButtonProps, styled } from "@mui/material";
+import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
-import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_circular_back.svg";
-import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
 import DeleteDialog from "../DeleteDialog";
-import { useAuthContext } from "../Contexts/AuthContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import BaseOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import Asterisk from "../StyledFormComponents/StyledAsterisk";
-import {
-  CANCEL_APP,
-  CancelAppInput,
-  CancelAppResp,
-  RESTORE_APP,
-  RestoreAppInput,
-  RestoreAppResp,
-} from "../../graphql";
+import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 import { Logger } from "../../utils";
+import { useFormContext } from "../Contexts/FormContext";
 import { hasPermission } from "../../config/AuthPermissions";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const StyledTooltip = styled(StyledFormTooltip)({
+  margin: "0 !important",
   "& .MuiTooltip-tooltip": {
     color: "#000000",
   },
 });
-
-const StyledIconButton = styled(IconButton)(({ disabled }) => ({
-  cursor: disabled ? "not-allowed" : "pointer",
-  padding: "0px",
-  minWidth: "unset",
-}));
 
 const StyledFormBox = styled(Box)({
   marginTop: "18.5px",
@@ -47,44 +34,34 @@ const StyledOutlinedInput = styled(BaseOutlinedInput)({
   },
 });
 
-/**
- * The statuses of the application that can be restored from.
- */
-const RESTORE_STATUSES: ApplicationStatus[] = ["Canceled", "Deleted"];
-
 type FormFields = {
   comment: string;
 };
 
 type Props = {
   /**
-   * The the application to be canceled/restored
-   */
-  application: Application | Omit<Application, "questionnaireData">;
-  /**
-   * Optional callback function for when successful cancellation/restoration occurs
+   * An optional closure function to be called when the cancel action is completed.
    */
   onCancel?: () => void;
-} & Omit<IconButtonProps, "onClick">;
+} & Omit<ButtonProps, "onClick">;
 
-const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: Props) => {
-  const { enqueueSnackbar } = useSnackbar();
-  const { user } = useAuthContext();
+/**
+ * Provides a button to cancel the contextually relevant Submission Request.
+ *
+ * @returns The CancelApplicationButton component.
+ */
+const CancelApplicationButton = ({ disabled, onCancel, ...rest }: Props) => {
   const formId = useId();
+  const { data } = useFormContext();
+  const { user } = useAuthContext();
+  const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     watch,
     formState: { isValid },
   } = useForm<FormFields>({ mode: "onBlur" });
 
-  const { _id, status } = application || {};
-
   const [cancelApp] = useMutation<CancelAppResp, CancelAppInput>(CANCEL_APP, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
-  const [restoreApp] = useMutation<RestoreAppResp, RestoreAppInput>(RESTORE_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -92,26 +69,13 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
-  const isRestoreAction = useMemo<boolean>(() => RESTORE_STATUSES.includes(status), [status]);
-
-  const isFromDeletedStatus = useMemo<boolean>(() => status === "Deleted", [status]);
-
   const textValues = useMemo(
     () => ({
-      icon: isRestoreAction ? (
-        <RestoreIcon data-testid="application-restore-icon" />
-      ) : (
-        <DeleteIcon data-testid="application-cancel-icon" />
-      ),
-      tooltipText: `${isRestoreAction ? "Restore" : "Cancel"} submission request`,
-      dialogTitle: `${isRestoreAction ? "Restore" : "Cancel"} Submission Request`,
-      dialogDescription: isRestoreAction
-        ? `Are you sure you want to restore the previously ${
-            isFromDeletedStatus ? "deleted" : "canceled"
-          } submission request for the study listed below?`
-        : `Are you sure you want to cancel the submission request for the study listed below?`,
+      tooltipText: `This action will cancel the entire submission request and set its status to 'Canceled'`,
+      dialogTitle: `Cancel Submission Request`,
+      dialogDescription: `Are you sure you want to cancel the submission request for the study listed below?`,
     }),
-    [isRestoreAction, isFromDeletedStatus]
+    []
   );
 
   const comment = watch("comment");
@@ -122,7 +86,18 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
     [isValid, loading]
   );
 
-  const onClickIcon = async () => {
+  const canSeeButton = useMemo<boolean>(() => {
+    if (!hasPermission(user, "submission_request", "cancel", data)) {
+      return false;
+    }
+    if (data?.status === "Canceled" || data?.status === "Deleted") {
+      return false;
+    }
+
+    return true;
+  }, [data, user]);
+
+  const onButtonClick = async () => {
     setConfirmOpen(true);
   };
 
@@ -133,38 +108,25 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
   const onConfirmDialog = useCallback(async () => {
     setLoading(true);
     try {
-      if (isRestoreAction) {
-        const { data: d, errors } = await restoreApp({
-          variables: { _id, comment },
-        });
+      const { data: d, errors } = await cancelApp({
+        variables: { _id: data?._id, comment },
+      });
 
-        if (errors || !d?.restoreApplication?._id) {
-          throw new Error(errors?.[0]?.message || "Unknown API error");
-        }
-      } else {
-        const { data: d, errors } = await cancelApp({
-          variables: { _id, comment },
-        });
-
-        if (errors || !d?.cancelApplication?._id) {
-          throw new Error(errors?.[0]?.message || "Unknown API error");
-        }
+      if (errors || !d?.cancelApplication?._id) {
+        throw new Error(errors?.[0]?.message || "Unknown API error");
       }
 
       setConfirmOpen(false);
-      onCancel();
+      onCancel?.();
     } catch (err) {
       Logger.error("CancelApplicationButton: API error received", err);
-      enqueueSnackbar(
-        `Oops! Unable to ${isRestoreAction ? "restore" : "cancel"} that Submission Request`,
-        { variant: "error" }
-      );
+      enqueueSnackbar(`Oops! Unable to cancel the Submission Request.`, { variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [isRestoreAction, comment, restoreApp, cancelApp, onCancel, enqueueSnackbar]);
+  }, [comment, cancelApp, enqueueSnackbar, onCancel]);
 
-  if (!hasPermission(user, "submission_request", "cancel", application)) {
+  if (!canSeeButton) {
     return null;
   }
 
@@ -173,22 +135,24 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
       <StyledTooltip
         title={textValues.tooltipText}
         placement="top"
-        aria-label="Cancel/Restore action tooltip"
-        data-testid="cancel-restore-application-tooltip"
+        aria-label="Cancel tooltip"
+        data-testid="cancel-application-tooltip"
         disableInteractive
         arrow
       >
         <span>
-          <StyledIconButton
-            onClick={onClickIcon}
+          <Button
+            variant="contained"
+            color="error"
+            type="button"
+            onClick={onButtonClick}
             disabled={loading || disabled}
-            aria-label="Cancel/Restore icon"
-            data-testid="cancel-restore-application-button"
-            disableRipple
+            aria-label="Cancel button"
+            data-testid="cancel-application-button"
             {...rest}
           >
-            {textValues.icon}
-          </StyledIconButton>
+            Cancel Request
+          </Button>
         </span>
       </StyledTooltip>
       <DeleteDialog
@@ -203,7 +167,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
             {textValues.dialogDescription}
             <br />
             <br />
-            Study: {application.studyAbbreviation || "NA"}
+            Study: {data.studyAbbreviation || "NA"}
             <StyledFormBox>
               <StyledLabel htmlFor={formId}>
                 Reason
@@ -211,7 +175,7 @@ const CancelApplicationButton = ({ application, onCancel, disabled, ...rest }: P
               </StyledLabel>
               <StyledOutlinedInput
                 id={formId}
-                data-testid="cancel-restore-application-reason"
+                data-testid="cancel-application-reason"
                 placeholder="500 characters allowed"
                 required
                 multiline

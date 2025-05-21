@@ -165,7 +165,7 @@ const DataSubmissionActions = ({ onAction }: Props) => {
     }
 
     return shouldEnableSubmit(data, qcData?.submissionQCResults?.results, user);
-  }, [data?.getSubmission, qcData?.submissionQCResults?.results, user]);
+  }, [data, qcData?.submissionQCResults?.results, user]);
 
   const releaseActionButton: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),

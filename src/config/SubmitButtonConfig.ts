@@ -45,6 +45,20 @@ export const ORPHANED_FILE_ERROR_TITLE = "Orphaned file found";
  */
 export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   {
+    _identifier: "Validation should not currently be running",
+    check: ({ getSubmission: s }) =>
+      s.metadataValidationStatus !== "Validating" && s.fileValidationStatus !== "Validating",
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.VALIDATION_RUNNING,
+    required: true,
+  },
+  {
+    _identifier: "There should not be any batches uploading",
+    check: ({ batchStatusList }) =>
+      !batchStatusList?.batches?.some((b) => b.status === "Uploading"),
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.BATCH_IS_UPLOADING,
+    required: true,
+  },
+  {
     // NOTE: Might be redundant, currently only 'Metadata Only' dataType is allowed for 'Delete' intention
     _identifier: "Metadata validation should be initialized for 'Delete' intention",
     preConditionCheck: ({ getSubmission: s }) => s.intention === "Delete",
@@ -87,20 +101,6 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
     check: (_, qcResults) =>
       !qcResults?.some((qc) => qc.errors?.find((err) => err.title === ORPHANED_FILE_ERROR_TITLE)),
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
-    required: true,
-  },
-  {
-    _identifier: "Validation should not currently be running",
-    check: ({ getSubmission: s }) =>
-      s.metadataValidationStatus !== "Validating" && s.fileValidationStatus !== "Validating",
-    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.VALIDATION_RUNNING,
-    required: true,
-  },
-  {
-    _identifier: "There should not be any batches uploading",
-    check: ({ batchStatusList }) =>
-      !batchStatusList?.batches?.some((b) => b.status === "Uploading"),
-    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.BATCH_IS_UPLOADING,
     required: true,
   },
   {
