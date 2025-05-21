@@ -602,7 +602,7 @@ describe("Admin Submit", () => {
       ],
     };
     const qcResults: Pick<QCResult, "errors">[] = [
-      { errors: [{ code: null, title: "Orphaned file found", description: "" }] },
+      { errors: [{ code: "F008", title: "Orphaned file found", description: "" }] },
     ];
     const result = utils.shouldEnableSubmit(
       { getSubmission: submission, batchStatusList: null, submissionStats: null },

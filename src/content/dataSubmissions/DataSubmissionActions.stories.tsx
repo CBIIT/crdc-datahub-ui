@@ -12,7 +12,6 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../../components/Contexts/SubmissionContext";
-import { ORPHANED_FILE_ERROR_TITLE } from "../../config/SubmitButtonConfig";
 
 const baseSubmission: Submission = {
   _id: "submission-1",
@@ -299,7 +298,7 @@ export const SubmissionShouldNotHaveOrphanedFiles: Story = {
     submissionQCResults: {
       total: 1,
       results: [
-        { errors: [{ title: ORPHANED_FILE_ERROR_TITLE, code: "M018" as const, description: "" }] },
+        { errors: [{ title: "Orphaned file found", code: "F008" as const, description: "" }] },
       ],
     },
   },
