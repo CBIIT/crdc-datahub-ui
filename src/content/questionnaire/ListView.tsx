@@ -271,8 +271,8 @@ const ListingView: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
-  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
   const tableRef = useRef<TableMethods>(null);
 
   const [listApplications] = useLazyQuery<ListApplicationsResp, ListApplicationsInput>(
@@ -296,11 +296,12 @@ const ListingView: FC = () => {
             error: "Unable to create a submission request. Please try again later",
           },
         });
-      } else {
-        navigate(`/submission-request/${_id}`, {
-          state: { from: "/submission-requests" },
-        });
+        return;
       }
+
+      navigate(`/submission-request/${_id}`, {
+        state: { from: "/submission-requests" },
+      });
     },
     [navigate]
   );
