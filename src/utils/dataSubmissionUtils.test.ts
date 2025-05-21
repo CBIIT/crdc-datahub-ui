@@ -37,7 +37,10 @@ const baseSubmission: Submission = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
-  dataFileSize: null,
+  dataFileSize: {
+    formatted: "",
+    size: 1000,
+  },
 };
 
 const baseUser: User = {
@@ -182,11 +185,15 @@ describe("General Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should disable submit when file validation is null", () => {
+  it("should disable submit when data file size is 0", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
+      dataFileSize: {
+        formatted: "",
+        size: 0,
+      },
     };
     const result = utils.shouldEnableSubmit(
       { getSubmission: submission, batchStatusList: null, submissionStats: null },
@@ -214,12 +221,16 @@ describe("General Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should disable submit when file validation is null and intention is 'New/Update'", () => {
+  it("should disable submit when data file size is 0 and intention is 'New/Update'", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
       intention: "New/Update",
+      dataFileSize: {
+        formatted: "",
+        size: 0,
+      },
     };
     const result = utils.shouldEnableSubmit(
       { getSubmission: submission, batchStatusList: null, submissionStats: null },
@@ -474,11 +485,12 @@ describe("Admin Submit", () => {
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should not allow admin override when metadata is passed but file validation is null", () => {
+  it("should not allow admin override when metadata is passed but dataFileSize is null", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
+      dataFileSize: null,
     };
     const user: User = {
       ...baseUser,

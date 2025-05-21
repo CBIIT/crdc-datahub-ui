@@ -75,9 +75,9 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   },
   {
     _identifier:
-      "Data file validation should be initialized for 'Metadata and Data Files' submissions",
+      "Data file size should be greater than 0 for 'Metadata and Data Files' submissions",
     preConditionCheck: ({ getSubmission: s }) => s.dataType === "Metadata and Data Files",
-    check: ({ getSubmission: s }) => !!s.fileValidationStatus,
+    check: ({ getSubmission: s }) => s.dataFileSize?.size > 0,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.MISSING_DATA_FILE,
     required: true,
   },
