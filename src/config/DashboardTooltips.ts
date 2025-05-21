@@ -38,6 +38,8 @@ export const TOOLTIP_TEXT = {
           "There are new data entries or validation issues that need to be resolved.",
         MISSING_DATA_FILE:
           "There are no data files for this submission. Please upload the appropriate data files and validate to enable the Submit button.",
+        BATCH_IS_UPLOADING:
+          "There are ongoing batch uploads. Please wait for the upload to complete.",
       },
     },
   },
