@@ -24,6 +24,7 @@ const baseSubmission: Submission = {
   modelVersion: "",
   studyID: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
