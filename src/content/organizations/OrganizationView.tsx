@@ -40,6 +40,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import {
   filterAlphaNumeric,
   formatFullStudyName,
+  hasStudyWithMultiplePrograms,
   mapOrganizationStudyToId,
   validateUTF8,
 } from "../../utils";
@@ -50,6 +51,7 @@ import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutli
 import BaseAutocomplete, {
   StyledPaper as BasePaper,
 } from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseDialog from "../../components/DeleteDialog";
 
 type Props = {
   /**
@@ -195,6 +197,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
+  const [showMultipleProgramsWarning, setShowMultipleProgramsWarning] = useState<boolean>(false);
 
   const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
@@ -357,7 +360,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   };
 
   const handleBypassWarning = () => {
-    setConfirmOpen(false);
+    if (confirmOpen) {
+      setConfirmOpen(false);
+    }
+    if (showMultipleProgramsWarning) {
+      setShowMultipleProgramsWarning(false);
+    }
+
     handleSubmit(onSubmit)();
   };
 
@@ -379,6 +388,15 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         setConfirmOpen(true);
         return;
       }
+    }
+
+    const studies = approvedStudies?.listApprovedStudies?.studies?.filter(
+      (s) => data?.studies?.includes(s._id)
+    );
+
+    if (hasStudyWithMultiplePrograms(studies, organization?._id)) {
+      setShowMultipleProgramsWarning(true);
+      return;
     }
 
     onSubmit(data);
@@ -638,6 +656,19 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         open={confirmOpen}
         onSubmit={handleBypassWarning}
         onClose={() => setConfirmOpen(false)}
+      />
+      <BaseDialog
+        scroll="body"
+        open={showMultipleProgramsWarning}
+        onClose={() => setShowMultipleProgramsWarning(false)}
+        header="Warning: Multiple Program Assignments"
+        description="Saving this change will assign the study to multiple programs. If this was unintentional, please review and remove any unnecessary program associations. Do you want to proceed?"
+        confirmText="Confirm"
+        onConfirm={handleBypassWarning}
+        confirmButtonProps={{
+          disabled: saving,
+          color: "success",
+        }}
       />
     </>
   );
