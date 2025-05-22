@@ -52,13 +52,16 @@ const StyledTableHead = styled(TableHead)({
   },
 });
 
-const StyledTableCell = styled(TableCell)({
+const StyledTableCell = styled(TableCell, { shouldForwardProp: (p) => p !== "highlight" })<{
+  highlight?: boolean;
+}>(({ highlight }) => ({
   color: "#083A50",
   whiteSpace: "nowrap",
   overflow: "hidden",
   border: "0.5px solid #a7a7a7",
   padding: "8px 15px",
-});
+  fontWeight: highlight ? 700 : undefined,
+}));
 
 /**
  * The number of placeholder columns to display in the loading state
@@ -71,7 +74,7 @@ const PLACEHOLDER_NUM_COLS = 5;
 const BLANK_COL_WIDTH = 55;
 
 /**
- * The special string used to indicate that a value should be deleted by the system processing the data
+ * The special symbol used to indicate that the data processing system should delete the property data
  */
 const DELETE_DATA_SYMBOL = "<delete>";
 
@@ -117,7 +120,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
       allPropertyNames.filter((property) => {
         const [newVal, oldVal] = [newProps?.[property], existingProps?.[property]];
 
-        return !isEqual(newVal, oldVal) && newVal !== DELETE_DATA_SYMBOL && newVal !== "";
+        return (!isEqual(newVal, oldVal) && newVal !== "") || newVal === DELETE_DATA_SYMBOL;
       }),
     [newProps, existingProps, allPropertyNames]
   );
@@ -153,28 +156,24 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
               <TableRow data-testid="node-comparison-table-existing">
                 <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>
+                  <StyledTableCell
+                    key={property}
+                    data-testid={`node-comparison-table-existing-${property}`}
+                    highlight={changedPropertyNames.includes(property)}
+                  >
                     {coerceToString(existingProps?.[property])}
-                    {/* TODO: just a placeholder */}
-                    {changedPropertyNames.includes(property) ? (
-                      <span style={{ color: "red" }}>HIGHLIGHT</span>
-                    ) : (
-                      <span style={{ color: "gray" }}>GRAY</span>
-                    )}
                   </StyledTableCell>
                 ))}
               </TableRow>
               <TableRow data-testid="node-comparison-table-new">
                 <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>
+                  <StyledTableCell
+                    key={property}
+                    data-testid={`node-comparison-table-new-${property}`}
+                    highlight={changedPropertyNames.includes(property)}
+                  >
                     {coerceToString(newProps?.[property])}
-                    {/* TODO: just a placeholder */}
-                    {changedPropertyNames.includes(property) ? (
-                      <span style={{ color: "red" }}>HIGHLIGHT</span>
-                    ) : (
-                      <span style={{ color: "gray" }}>GRAY</span>
-                    )}
                   </StyledTableCell>
                 ))}
               </TableRow>

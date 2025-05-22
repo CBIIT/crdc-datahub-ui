@@ -21,8 +21,10 @@ const nominalMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedData
           nodeID: "participant-123",
           props: JSON.stringify({
             col1: "xyz",
+            equal_val: "we're equal",
             col2: "abc",
             unchanged_val: "",
+            identical_delete: "<delete>",
             mock_col: "foo",
             delete_val: "<delete>",
           }),
@@ -33,8 +35,10 @@ const nominalMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedData
           nodeID: "participant-123",
           props: JSON.stringify({
             col1: "123",
+            equal_val: "we're equal",
             col2: "xyz",
-            unchanged_val: "some val that wont change",
+            unchanged_val: "wont change",
+            identical_delete: "<delete>",
             mock_col: "abc",
             delete_val: "some val to be deleted",
           }),
