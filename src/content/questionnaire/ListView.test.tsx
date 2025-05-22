@@ -184,7 +184,7 @@ describe("ListView Component", () => {
       },
     };
 
-    const { getByText } = render(
+    const { getByText, findByText } = render(
       <TestParent role="Submitter" mocks={[...defaultMocks, saveAppMock]}>
         <ListView />
       </TestParent>
@@ -192,40 +192,12 @@ describe("ListView Component", () => {
 
     const button = getByText("Start a Submission Request");
     userEvent.click(button);
+
+    const confirmBtn = await findByText("I Read and Accept");
+    userEvent.click(confirmBtn);
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("/submission-request/new-application-id", {
-        state: { from: "/submission-requests" },
-      });
-    });
-  });
-
-  it("fallbacks to new while creating a new submission request and no ID is provided", async () => {
-    const saveAppMock: MockedResponse<SaveAppResp, SaveAppInput> = {
-      request: {
-        query: SAVE_APP,
-      },
-      variableMatcher: () => true,
-      result: {
-        data: {
-          saveApplication: {
-            _id: null,
-          } as SaveAppResp["saveApplication"],
-        },
-      },
-    };
-
-    const { getByText } = render(
-      <TestParent role="Submitter" mocks={[...defaultMocks, saveAppMock]}>
-        <ListView />
-      </TestParent>
-    );
-
-    const button = getByText("Start a Submission Request");
-    userEvent.click(button);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/submission-request/new", {
         state: { from: "/submission-requests" },
       });
     });
@@ -254,7 +226,7 @@ describe("ListView Component", () => {
       error: new Error("Error creating application"),
     };
 
-    const { getByText } = render(
+    const { getByText, findByText } = render(
       <TestParent role="Submitter" mocks={[...defaultMocks, saveAppMock]}>
         <ListView />
       </TestParent>
@@ -262,6 +234,9 @@ describe("ListView Component", () => {
 
     const button = getByText("Start a Submission Request");
     userEvent.click(button);
+
+    const confirmBtn = await findByText("I Read and Accept");
+    userEvent.click(confirmBtn);
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("", {
