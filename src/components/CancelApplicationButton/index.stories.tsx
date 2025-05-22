@@ -1,17 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, expect } from "@storybook/test";
+import { expect, fn } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
 import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
+import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
 import Button from "./index";
-import {
-  CANCEL_APP,
-  CancelAppInput,
-  CancelAppResp,
-  RESTORE_APP,
-  RestoreAppInput,
-  RestoreAppResp,
-} from "../../graphql";
+import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 
 const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
   request: {
@@ -21,33 +15,22 @@ const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
   result: {
     data: {
       cancelApplication: {
-        _id: "some id",
-      },
-    },
-  },
-};
-
-const mockRestoreApp: MockedResponse<RestoreAppResp, RestoreAppInput> = {
-  request: {
-    query: RESTORE_APP,
-  },
-  variableMatcher: () => true,
-  result: {
-    data: {
-      restoreApplication: {
-        _id: "some id",
+        _id: "mock-uuid-1234",
       },
     },
   },
 };
 
 const meta: Meta<typeof Button> = {
-  title: "Submission Requests / Cancel & Restore Button",
+  title: "Submission Requests / Cancel Application Button",
   component: Button,
   tags: ["autodocs"],
+  args: {
+    onCancel: fn(),
+  },
   parameters: {
     apolloClient: {
-      mocks: [mockCancelApp, mockRestoreApp],
+      mocks: [mockCancelApp],
     },
   },
   decorators: [
@@ -67,221 +50,61 @@ const meta: Meta<typeof Button> = {
         <Story />
       </AuthContext.Provider>
     ),
+    (Story) => (
+      <FormContext.Provider
+        value={{
+          status: FormStatus.LOADED,
+          data: {
+            _id: "mock-id",
+            status: "In Progress",
+            createdAt: "",
+            updatedAt: "",
+            submittedDate: "",
+            history: [],
+            ORCID: "",
+            applicant: {
+              applicantID: "applicant-123",
+              applicantName: "",
+              applicantEmail: "",
+            },
+            PI: "",
+            controlledAccess: false,
+            openAccess: false,
+            studyAbbreviation: "MOCK-STUDY",
+            conditional: false,
+            pendingConditions: [],
+            programName: "",
+            programAbbreviation: "",
+            programDescription: "",
+            version: "",
+            questionnaireData: null,
+          },
+        }}
+      >
+        <Story />
+      </FormContext.Provider>
+    ),
   ],
 } satisfies Meta<typeof Button>;
 
 export default meta;
+
 type Story = StoryObj<typeof meta>;
-
-/**
- * The button that allows the user to restore an application.
- */
-export const RestoreCanceled: Story = {
-  name: "Restore (From Cancelled)",
-  args: {
-    onCancel: fn(),
-    application: {
-      _id: "mock-id",
-      status: "Canceled",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
-        applicantID: "applicant-123",
-        applicantName: "",
-        applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
-      studyAbbreviation: "Mock Study that is canceled",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
-  },
-  argTypes: {
-    application: {
-      control: {
-        disable: true,
-      },
-    },
-  },
-};
-
-/**
- * The button that allows the user to restore an application.
- */
-export const RestoreDeleted: Story = {
-  name: "Restore (From Deleted)",
-  args: {
-    onCancel: fn(),
-    application: {
-      _id: "mock-id",
-      status: "Deleted",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
-        applicantID: "applicant-123",
-        applicantName: "",
-        applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
-      studyAbbreviation: "Mock Study that is deleted",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
-  },
-  argTypes: {
-    application: {
-      control: {
-        disable: true,
-      },
-    },
-  },
-};
-
-export const RestoreDialog: Story = {
-  name: "Restore Confirmation Dialog",
-  args: {
-    onCancel: fn(),
-    application: {
-      _id: "mock-id",
-      status: "Canceled",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
-        applicantID: "applicant-123",
-        applicantName: "",
-        applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
-      studyAbbreviation: "Mock Study that is canceled",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    const button = canvas.getByRole("button", { name: /restore/i });
-    await userEvent.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByRole("dialog")).toBeInTheDocument();
-    });
-
-    const reasonInput = within(screen.getByRole("dialog")).queryByTestId(
-      "cancel-restore-application-reason"
-    );
-
-    await userEvent.type(reasonInput, "lorem ipsum dol excel ".repeat(10));
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /confirm/i })).toBeEnabled();
-    });
-  },
-  argTypes: {
-    application: {
-      control: {
-        disable: true,
-      },
-    },
-  },
-};
 
 /**
  * The button that's visible when the application is in a state that allows restoration.
  */
-export const Cancel: Story = {
-  args: {
-    onCancel: fn(),
-    application: {
-      _id: "mock-id",
-      status: "In Progress",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
-        applicantID: "applicant-123",
-        applicantName: "",
-        applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
-      studyAbbreviation: "Mock Study that is in progress",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
-  },
-  argTypes: {
-    application: {
-      control: {
-        disable: true,
-      },
-    },
-  },
+export const CancelButton: Story = {
+  name: "Button",
+  parameters: meta.parameters,
 };
 
+/**
+ * The dialog confirmation that appears when the user clicks the cancel button.
+ */
 export const CancelConfirmDialog: Story = {
-  name: "Cancel Confirmation Dialog",
-  args: {
-    onCancel: fn(),
-    application: {
-      _id: "mock-id",
-      status: "In Progress",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
-        applicantID: "applicant-123",
-        applicantName: "",
-        applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
-      studyAbbreviation: "Mock Study that is in progress",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
-  },
+  name: "Dialog",
+  parameters: meta.parameters,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -293,7 +116,7 @@ export const CancelConfirmDialog: Story = {
     });
 
     const reasonInput = within(screen.getByRole("dialog")).queryByTestId(
-      "cancel-restore-application-reason"
+      "cancel-application-reason"
     );
 
     await userEvent.type(reasonInput, "lorem ipsum dol excel ".repeat(10));
@@ -301,12 +124,5 @@ export const CancelConfirmDialog: Story = {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /confirm/i })).toBeEnabled();
     });
-  },
-  argTypes: {
-    application: {
-      control: {
-        disable: true,
-      },
-    },
   },
 };

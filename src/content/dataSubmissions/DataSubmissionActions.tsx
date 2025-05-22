@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import CustomDialog from "../../components/GenericDialog";
-import { ReleaseInfo } from "../../utils";
+import { ReleaseInfo, shouldDisableRelease, shouldEnableSubmit } from "../../utils";
 import Tooltip from "../../components/Tooltip";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import { hasPermission } from "../../config/AuthPermissions";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -146,25 +147,30 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
 };
 
 type Props = {
-  submission: Submission;
-  submitActionButton: SubmitButtonResult;
-  releaseActionButton: ReleaseInfo;
   onAction: (action: SubmissionAction, reviewComment?: string) => Promise<void>;
-  onError: (message: string) => void;
 };
 
-const DataSubmissionActions = ({
-  submission,
-  submitActionButton,
-  releaseActionButton,
-  onAction,
-  onError,
-}: Props) => {
+const DataSubmissionActions = ({ onAction }: Props) => {
   const { user } = useAuthContext();
+  const { data, qcData } = useSubmissionContext();
+  const { getSubmission: submission } = data || {};
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
   const [action, setAction] = useState<SubmissionAction | null>(null);
   const [reviewComment, setReviewComment] = useState("");
+
+  const submitActionButton: SubmitButtonResult = useMemo(() => {
+    if (!data?.getSubmission?._id) {
+      return { enabled: false };
+    }
+
+    return shouldEnableSubmit(data, qcData?.submissionQCResults?.results, user);
+  }, [data, qcData?.submissionQCResults?.results, user]);
+
+  const releaseActionButton: ReleaseInfo = useMemo(
+    () => shouldDisableRelease(data?.getSubmission),
+    [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
+  );
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
@@ -203,8 +209,7 @@ const DataSubmissionActions = ({
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
-      {canShowAction("Submit") ||
-      (canShowAction("AdminSubmit") && submitActionButton?.isAdminOverride) ? (
+      {canShowAction("Submit") || canShowAction("AdminSubmit") ? (
         <Tooltip
           placement="top"
           title={submitActionButton?.tooltip}
@@ -229,7 +234,7 @@ const DataSubmissionActions = ({
           placement="top"
           title={TOOLTIP_TEXT.SUBMISSION_ACTIONS.RELEASE.DISABLED.NO_CROSS_VALIDATION}
           open={undefined} // will use hoverListener to open
-          disableHoverListener={!((action && action !== "Release") || releaseActionButton.disable)}
+          disableHoverListener={!((action && action !== "Release") || releaseActionButton?.disable)}
         >
           <span>
             <StyledLoadingButton
@@ -241,7 +246,7 @@ const DataSubmissionActions = ({
                 )
               }
               loading={action === "Release"}
-              disabled={(action && action !== "Release") || releaseActionButton.disable}
+              disabled={(action && action !== "Release") || releaseActionButton?.disable}
             >
               Release
             </StyledLoadingButton>
@@ -292,7 +297,6 @@ const DataSubmissionActions = ({
           Cancel
         </StyledLoadingButton>
       ) : null}
-
       {/* Submit Dialog */}
       <StyledDialog
         open={currentDialog === "Submit" && !submitActionButton.isAdminOverride}
@@ -320,7 +324,6 @@ const DataSubmissionActions = ({
             : "This action will lock your submission and it will no longer accept updates to the data. Are you sure you want to proceed?"}
         </StyledDialogText>
       </StyledDialog>
-
       {/* Admin Submit Dialog */}
       <StyledDialog
         open={currentDialog === "Submit" && submitActionButton.isAdminOverride}
@@ -355,7 +358,6 @@ const DataSubmissionActions = ({
           required
         />
       </StyledDialog>
-
       {/* Release Dialog (default) */}
       <StyledDialog
         open={currentDialog === "Release"}
@@ -382,7 +384,6 @@ const DataSubmissionActions = ({
           changes to the data. Are you sure you want to proceed?
         </StyledDialogText>
       </StyledDialog>
-
       {/* Release dialog (cross-validation) */}
       <StyledDialog
         open={currentDialog === "ReleaseCrossValidation"}
@@ -409,7 +410,6 @@ const DataSubmissionActions = ({
           want to release this data submission to Data Commons?
         </StyledDialogText>
       </StyledDialog>
-
       {/* Cancel Dialog */}
       <StyledDialog
         open={currentDialog === "Cancel"}
@@ -436,7 +436,6 @@ const DataSubmissionActions = ({
           you want to proceed?
         </StyledDialogText>
       </StyledDialog>
-
       {/* Withdraw Dialog */}
       <StyledDialog
         open={currentDialog === "Withdraw"}
@@ -463,7 +462,6 @@ const DataSubmissionActions = ({
           to update the data within the submission. Are you certain you want to proceed?
         </StyledDialogText>
       </StyledDialog>
-
       {/* Reject Dialog */}
       <StyledDialog
         open={currentDialog === "Reject"}
@@ -499,7 +497,6 @@ const DataSubmissionActions = ({
           required
         />
       </StyledDialog>
-
       {/* Complete Dialog */}
       <StyledDialog
         open={currentDialog === "Complete"}

@@ -26,7 +26,7 @@ import {
   RequestAccessInput,
   RequestAccessResp,
 } from "../../graphql";
-import { Logger, validateUTF8 } from "../../utils";
+import { formatFullStudyName, Logger, validateUTF8 } from "../../utils";
 import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
 
 const StyledDialog = styled(DefaultDialog)({
@@ -257,7 +257,7 @@ const FormDialog: FC<Props> = ({ onClose, ...rest }) => {
                       value={study._id}
                       data-testid={`studies-${study.studyName}`}
                     >
-                      {study.studyName}
+                      {formatFullStudyName(study.studyName, study.studyAbbreviation)}
                     </MenuItem>
                   ))}
                 </StyledSelect>

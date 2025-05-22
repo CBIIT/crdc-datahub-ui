@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
   unstable_useBlocker as useBlocker,
@@ -30,6 +30,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import ExportRequestButton from "../../components/ExportRequestButton";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -588,6 +589,13 @@ const FormView: FC<Props> = ({ section }: Props) => {
     navigate(nextSection, { preventScrollReset: true });
   };
 
+  const handleOnCancel = useCallback(() => {
+    enqueueSnackbar("Successfully canceled that Submission Request.", {
+      variant: "success",
+    });
+    navigate("/submission-requests");
+  }, [enqueueSnackbar, navigate]);
+
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
@@ -719,6 +727,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
                     Submit
                   </StyledExtendedLoadingButton>
                 )}
+
+              {activeSection === "REVIEW" && <CancelApplicationButton onCancel={handleOnCancel} />}
 
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>
