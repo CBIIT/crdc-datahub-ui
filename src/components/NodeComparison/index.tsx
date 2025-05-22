@@ -19,6 +19,11 @@ const StyledHeadingTypography = styled(Typography)({
   fontSize: "14px",
 });
 
+const StyledFooterTypography = styled(Typography)({
+  color: "#595959",
+  fontSize: "14px",
+});
+
 export type NodeComparisonProps = {
   /**
    * The identifier for the Data Submission which contains the node
@@ -91,6 +96,14 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
         whether to update the current record.
       </StyledHeadingTypography>
       <ComparisonTable newNode={newNode} existingNode={existingNode} loading={isLoading} />
+      <StyledFooterTypography variant="body1" data-testid="node-comparison-footer">
+        {/* TODO: Style this */}
+        Notes:
+        <ul>
+          <li>Columns with Empty values will leave existing data unchanged.</li>
+          <li>Columns with &quot;&lt;delete&gt;&quot; values will remove the existing data.</li>
+        </ul>
+      </StyledFooterTypography>
     </StyledBox>
   );
 };
