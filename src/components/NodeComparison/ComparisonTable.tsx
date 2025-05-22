@@ -60,7 +60,7 @@ const StyledTableCell = styled(TableCell, { shouldForwardProp: (p) => p !== "hig
   overflow: "hidden",
   border: "0.5px solid #a7a7a7",
   padding: "8px 15px",
-  fontWeight: highlight ? 700 : undefined,
+  fontWeight: highlight ? 700 : 400,
 }));
 
 /**
