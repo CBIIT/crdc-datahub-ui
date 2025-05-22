@@ -19,7 +19,7 @@ const StyledHeadingTypography = styled(Typography)({
   fontSize: "14px",
 });
 
-const StyledFooterTypography = styled(Typography)({
+const StyledFooterTypography = styled(Typography)<{ component: React.ElementType }>({
   color: "#595959",
   fontSize: "14px",
 });
@@ -96,7 +96,7 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
         whether to update the current record.
       </StyledHeadingTypography>
       <ComparisonTable newNode={newNode} existingNode={existingNode} loading={isLoading} />
-      <StyledFooterTypography variant="body1" data-testid="node-comparison-footer">
+      <StyledFooterTypography variant="body1" component="div" data-testid="node-comparison-footer">
         {/* TODO: Style this */}
         Notes:
         <ul>

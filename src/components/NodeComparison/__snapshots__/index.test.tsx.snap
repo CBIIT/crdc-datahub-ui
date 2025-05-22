@@ -11,6 +11,20 @@ exports[`Snapshots should match the nominal state snapshot 1`] = `
     >
       A record with this ID already exists. Review the existing and newly submitted data to decide whether to update the current record.
     </p>
+    <div
+      class="MuiTypography-root MuiTypography-body1 css-1r7ezte-MuiTypography-root"
+      data-testid="node-comparison-footer"
+    >
+      Notes:
+      <ul>
+        <li>
+          Columns with Empty values will leave existing data unchanged.
+        </li>
+        <li>
+          Columns with "&lt;delete&gt;" values will remove the existing data.
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 `;

@@ -250,7 +250,35 @@ describe("Implementation Requirements", () => {
     );
   });
 
-  it.todo("should have a footer describing special values");
+  it("should have a footer describing special values", () => {
+    const mock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
+      request: {
+        query: RETRIEVE_RELEASED_DATA,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          retrieveReleasedDataByID: [],
+        },
+      },
+    };
+
+    const { getByTestId } = render(<NodeComparison submissionID="" nodeType="" submittedID="" />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    expect(getByTestId("node-comparison-footer")).toBeInTheDocument();
+
+    // NOTE: Each line is broken up to avoid dealing with whitespace issues by reading it as text
+    // instead of HTML
+    expect(getByTestId("node-comparison-footer")).toHaveTextContent(`Notes:`);
+    expect(getByTestId("node-comparison-footer")).toHaveTextContent(
+      `Columns with Empty values will leave existing data unchanged.`
+    );
+    expect(getByTestId("node-comparison-footer")).toHaveTextContent(
+      `Columns with "<delete>" values will remove the existing data.`
+    );
+  });
 });
 
 describe("Snapshots", () => {
