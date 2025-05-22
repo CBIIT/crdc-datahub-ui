@@ -3,12 +3,13 @@ type Submission = {
   name: string;
   submitterID: string;
   submitterName: string; // <first name> <last name>
-  organization: Pick<Organization, "_id" | "name">; // Organization
+  organization: Pick<Organization, "_id" | "name" | "abbreviation">; // Organization
   dataCommons: string;
   dataCommonsDisplayName: string;
   modelVersion: string;
   studyID: string;
   studyAbbreviation: string;
+  studyName: string;
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
