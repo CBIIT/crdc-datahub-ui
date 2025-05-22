@@ -20,8 +20,17 @@ const StyledHeadingTypography = styled(Typography)({
 });
 
 const StyledFooterTypography = styled(Typography)<{ component: React.ElementType }>({
-  color: "#595959",
+  color: "#131313",
   fontSize: "14px",
+  marginTop: "12px",
+});
+
+const StyledListItem = styled("ul")({
+  marginTop: 0,
+  "& li": {
+    fontWeight: 300,
+    fontStyle: "italic",
+  },
 });
 
 export type NodeComparisonProps = {
@@ -97,12 +106,11 @@ const NodeComparison: FC<NodeComparisonProps> = ({ submissionID, nodeType, submi
       </StyledHeadingTypography>
       <ComparisonTable newNode={newNode} existingNode={existingNode} loading={isLoading} />
       <StyledFooterTypography variant="body1" component="div" data-testid="node-comparison-footer">
-        {/* TODO: Style this */}
         Notes:
-        <ul>
+        <StyledListItem>
           <li>Columns with Empty values will leave existing data unchanged.</li>
           <li>Columns with &quot;&lt;delete&gt;&quot; values will remove the existing data.</li>
-        </ul>
+        </StyledListItem>
       </StyledFooterTypography>
     </StyledBox>
   );
