@@ -64,7 +64,7 @@ const StyledErrorDetailsButton = styled(Button)({
 const batchStatusStyles: Record<BatchStatus, SxProps> = {
   Uploading: {
     color: "#3800F0",
-    fontWeight: 600,
+    fontWeight: 800,
   },
   Failed: {
     color: "#B54717",
