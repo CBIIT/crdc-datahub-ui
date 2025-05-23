@@ -20,6 +20,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",

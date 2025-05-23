@@ -130,12 +130,13 @@ describe("Basic Functionality", () => {
           permission: "Can Edit",
         },
       ],
-      studyAbbreviation: "AAAAAAAAAAAAAAAAA",
+      studyAbbreviation: "AAAAAAAAAAAAAAAAAAAAAAAAAA",
       dataCommons: "Test Commons AAAAAA",
       dataCommonsDisplayName: "A Display Name of TC AAAAAA",
       organization: {
         _id: "",
         name: "Test Program AAAAAA",
+        abbreviation: "Test Program Abbreviation",
       },
       conciergeName: "Test Concierge AAAAAA",
       conciergeEmail: "concierge@test.com",
@@ -161,9 +162,9 @@ describe("Basic Functionality", () => {
     expect(getByText("Test Submission...")).toBeVisible();
     expect(getByText("Test Intention AAAAAA")).toBeVisible(); // Not truncated
     expect(getByText("Submitter Test A...")).toBeVisible();
-    expect(getByText("AAAAAAAAAAAAAAAA...")).toBeVisible();
+    expect(getByText("AAAAAAAAAAAAAAAAAAAAAAAAA...")).toBeVisible();
     expect(getByText("A Display Name of TC AAAAAA")).toBeVisible(); // Not truncated
-    expect(getByText("Test Program AAA...")).toBeVisible();
+    expect(getByText("Test Program Abbreviati...")).toBeVisible();
     expect(getByText("Test Concierge A...")).toBeVisible();
 
     expect(getByText("2")).toBeVisible();
@@ -250,9 +251,10 @@ describe("Basic Functionality", () => {
     expect(emailLink).toBeNull();
   });
 
-  it("renders the Program as NA when no program is assigned", () => {
+  it("renders the Program as NA when no program abbreviation is assigned", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       organization: null,
+      studyAbbreviation: "some-study",
     };
 
     const { getByText } = render(
@@ -262,6 +264,25 @@ describe("Basic Functionality", () => {
     );
 
     expect(getByText("Program")).toBeVisible();
+    expect(getByText("NA")).toBeVisible();
+  });
+
+  it("renders the Study as NA when no study abbreviation is assigned", () => {
+    const dataSubmission: RecursivePartial<Submission> = {
+      organization: {
+        _id: "org-1",
+        abbreviation: "some-org",
+      },
+      studyAbbreviation: null,
+    };
+
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
+
+    expect(getByText("Study")).toBeVisible();
     expect(getByText("NA")).toBeVisible();
   });
 });

@@ -245,7 +245,16 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
               </StyledTooltip>
             }
           />
-          <SubmissionHeaderProperty label="Study" value={dataSubmission?.studyAbbreviation} />
+          <SubmissionHeaderProperty
+            label="Study"
+            value={dataSubmission?.studyAbbreviation || "NA"}
+            tooltipText={dataSubmission?.studyName}
+            disableTooltip={!dataSubmission?.studyName}
+            copyText={dataSubmission?.studyName}
+            copyTooltipText="Copy the Study full name"
+            truncateAfter={25}
+            showCopyTextIcon
+          />
           <SubmissionHeaderProperty
             label="Data Commons"
             value={dataSubmission?.dataCommonsDisplayName}
@@ -253,7 +262,13 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Program"
-            value={dataSubmission?.organization?.name ?? "NA"}
+            value={dataSubmission?.organization?.abbreviation || "NA"}
+            tooltipText={dataSubmission?.organization?.name}
+            disableTooltip={!dataSubmission?.organization?.name}
+            copyText={dataSubmission?.organization?.name}
+            copyTooltipText="Copy the Program full name"
+            truncateAfter={23}
+            showCopyTextIcon
           />
           <SubmissionHeaderProperty
             label="Data Concierge"
