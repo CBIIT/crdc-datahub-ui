@@ -55,11 +55,11 @@ const StyledTableHead = styled(TableHead)({
 const StyledTableCell = styled(TableCell, { shouldForwardProp: (p) => p !== "highlight" })<{
   highlight?: boolean;
 }>(({ highlight }) => ({
-  color: "#083A50",
   whiteSpace: "nowrap",
   overflow: "hidden",
   border: "0.5px solid #a7a7a7",
   padding: "8px 15px",
+  color: highlight ? "#CA4F1A" : "#083A50",
   fontWeight: highlight ? 700 : 400,
 }));
 

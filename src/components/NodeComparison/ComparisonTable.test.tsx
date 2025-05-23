@@ -275,6 +275,7 @@ describe("Implementation Requirements", () => {
 
     const newStyle: React.CSSProperties = {
       fontWeight: "700",
+      color: "#CA4F1A",
     };
 
     // Data changes
@@ -323,6 +324,7 @@ describe("Implementation Requirements", () => {
 
     const newStyle: React.CSSProperties = {
       fontWeight: "700",
+      color: "#CA4F1A",
     };
 
     // Data changes
@@ -360,6 +362,7 @@ describe("Implementation Requirements", () => {
 
     const unchangedStyle: React.CSSProperties = {
       fontWeight: "400",
+      color: "#083A50",
     };
 
     // No data changes anywhere
@@ -400,6 +403,7 @@ describe("Implementation Requirements", () => {
 
     const unchangedStyle: React.CSSProperties = {
       fontWeight: "400",
+      color: "#083A50",
     };
 
     // No data changes anywhere
