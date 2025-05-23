@@ -258,7 +258,7 @@ describe("Implementation Requirements", () => {
     expect(getByText(/another_md_03/i)).toBeInTheDocument();
   });
 
-  it("should highlight columns where the values differ (data difference)", () => {
+  it("should NEW highlight columns where the values differ (data difference)", () => {
     const { getByTestId } = render(
       <ComparisonTable
         newNode={{
@@ -278,28 +278,35 @@ describe("Implementation Requirements", () => {
       color: "#CA4F1A",
     };
 
-    // Data changes
-    expect(getByTestId("node-comparison-table-existing-mock_node_data_name")).toHaveStyle({
-      ...newStyle,
-    });
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+    };
+
+    // Data changes - NEW value
     expect(getByTestId("node-comparison-table-new-mock_node_data_name")).toHaveStyle({
-      ...newStyle,
-    });
-    expect(getByTestId("node-comparison-table-existing-baz")).toHaveStyle({
       ...newStyle,
     });
     expect(getByTestId("node-comparison-table-new-baz")).toHaveStyle({
       ...newStyle,
     });
 
-    // No data changes
-    expect(getByTestId("node-comparison-table-existing-no_change")).not.toHaveStyle({
-      ...newStyle,
+    // Data changes - EXISTING value
+    expect(getByTestId("node-comparison-table-existing-mock_node_data_name")).toHaveStyle({
+      ...unchangedStyle,
     });
-    expect(getByTestId("node-comparison-table-new-no_change")).not.toHaveStyle({ ...newStyle });
+    expect(getByTestId("node-comparison-table-existing-baz")).toHaveStyle({
+      ...unchangedStyle,
+    });
+
+    // No data changes in the other columns
+    expect(getByTestId("node-comparison-table-existing-no_change")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-no_change")).toHaveStyle({ ...unchangedStyle });
   });
 
-  it("should highlight columns where the values differ ('<delete>' present)", () => {
+  it("should highlight NEW columns where the values differ ('<delete>' present)", () => {
     const { getByTestId } = render(
       <ComparisonTable
         newNode={{
@@ -327,20 +334,27 @@ describe("Implementation Requirements", () => {
       color: "#CA4F1A",
     };
 
-    // Data changes
-    expect(getByTestId("node-comparison-table-existing-hasDelete")).toHaveStyle({
-      ...newStyle,
-    });
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+    };
+
+    // Data changes - NEW value
     expect(getByTestId("node-comparison-table-new-hasDelete")).toHaveStyle({
       ...newStyle,
     });
 
-    // No data changes
-    expect(getByTestId("node-comparison-table-existing-nothing_here")).not.toHaveStyle({
-      ...newStyle,
+    // Data changes - EXISTING value
+    expect(getByTestId("node-comparison-table-existing-hasDelete")).toHaveStyle({
+      ...unchangedStyle,
     });
-    expect(getByTestId("node-comparison-table-new-nothing_here")).not.toHaveStyle({
-      ...newStyle,
+
+    // No data changes in the other columns
+    expect(getByTestId("node-comparison-table-existing-nothing_here")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-nothing_here")).toHaveStyle({
+      ...unchangedStyle,
     });
   });
 

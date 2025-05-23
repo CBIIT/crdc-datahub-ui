@@ -159,7 +159,6 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                   <StyledTableCell
                     key={property}
                     data-testid={`node-comparison-table-existing-${property}`}
-                    highlight={changedPropertyNames.includes(property)}
                   >
                     {coerceToString(existingProps?.[property])}
                   </StyledTableCell>
