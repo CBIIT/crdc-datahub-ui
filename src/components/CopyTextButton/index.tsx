@@ -22,9 +22,23 @@ const CopyButton = (props: IconButtonProps) => (
 );
 
 type Props = {
+  /**
+   * Indicates whether the button should be disabled.
+   */
   disabled?: boolean;
+  /**
+   * The props that will be assigned to the tooltip component.
+   */
   tooltipProps?: TooltipProps;
+  /**
+   * The text that will be copied to clipboard.
+   */
   copyText: string;
+  /**
+   * The callback function after the text is copied to clipbaord.
+   * @param text the text that was copied.
+   * @returns void
+   */
   onCopy?: (text: string) => void;
 } & IconButtonProps;
 
