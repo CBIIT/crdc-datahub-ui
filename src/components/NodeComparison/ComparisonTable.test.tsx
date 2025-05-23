@@ -257,6 +257,189 @@ describe("Implementation Requirements", () => {
     expect(getByText(/mock_data_02/i)).toBeInTheDocument();
     expect(getByText(/another_md_03/i)).toBeInTheDocument();
   });
+
+  it("should NEW highlight columns where the values differ (data difference)", () => {
+    const { getByTestId } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({ mock_node_data_name: "example 01", no_change: "no", baz: 1 }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({ mock_node_data_name: "example 02", no_change: "no", baz: 2 }),
+        }}
+        loading={false}
+      />
+    );
+
+    const newStyle: React.CSSProperties = {
+      fontWeight: "700",
+      color: "#CA4F1A",
+    };
+
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+    };
+
+    // Data changes - NEW value
+    expect(getByTestId("node-comparison-table-new-mock_node_data_name")).toHaveStyle({
+      ...newStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-baz")).toHaveStyle({
+      ...newStyle,
+    });
+
+    // Data changes - EXISTING value
+    expect(getByTestId("node-comparison-table-existing-mock_node_data_name")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-baz")).toHaveStyle({
+      ...unchangedStyle,
+    });
+
+    // No data changes in the other columns
+    expect(getByTestId("node-comparison-table-existing-no_change")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-no_change")).toHaveStyle({ ...unchangedStyle });
+  });
+
+  it("should highlight NEW columns where the values differ ('<delete>' present)", () => {
+    const { getByTestId } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({
+            hasDelete: "<delete>",
+            nothing_here: "xyz",
+            deleteValInData: "<delete>",
+          }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({
+            hasDelete: "example 02",
+            nothing_here: "xyz",
+            deleteValInData: "<delete>",
+          }),
+        }}
+        loading={false}
+      />
+    );
+
+    const newStyle: React.CSSProperties = {
+      fontWeight: "700",
+      color: "#CA4F1A",
+    };
+
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+    };
+
+    // Data changes - NEW value
+    expect(getByTestId("node-comparison-table-new-hasDelete")).toHaveStyle({
+      ...newStyle,
+    });
+
+    // Data changes - EXISTING value
+    expect(getByTestId("node-comparison-table-existing-hasDelete")).toHaveStyle({
+      ...unchangedStyle,
+    });
+
+    // No data changes in the other columns
+    expect(getByTestId("node-comparison-table-existing-nothing_here")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-nothing_here")).toHaveStyle({
+      ...unchangedStyle,
+    });
+  });
+
+  // NOTE: This is just a sanity check. The other tests also cover this.
+  it("should gray out columns where the values are the same", () => {
+    const { getByTestId } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({ sameVal1: "same", xyzSame: "same", emptySame: "" }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({ sameVal1: "same", xyzSame: "same", emptySame: "" }),
+        }}
+        loading={false}
+      />
+    );
+
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+    };
+
+    // No data changes anywhere
+    expect(getByTestId("node-comparison-table-existing-sameVal1")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-sameVal1")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-xyzSame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-xyzSame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+  });
+
+  it("should gray out columns where the NEW value is empty", () => {
+    const { getByTestId } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({ emptyVal: "", xyzEmpty: "", emptySame: "" }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({ emptyVal: "wont", xyzEmpty: "be", emptySame: "changed" }),
+        }}
+        loading={false}
+      />
+    );
+
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+    };
+
+    // No data changes anywhere
+    expect(getByTestId("node-comparison-table-existing-emptyVal")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptyVal")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-xyzEmpty")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-xyzEmpty")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+  });
 });
 
 describe("Snapshots", () => {
