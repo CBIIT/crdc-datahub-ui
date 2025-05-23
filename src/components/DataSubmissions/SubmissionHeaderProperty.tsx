@@ -25,12 +25,39 @@ export const StyledValue = styled(Typography)(() => ({
 }));
 
 type Props = {
+  /**
+   * The name of the property.
+   */
   label: string;
+  /**
+   * The value of the property.
+   */
   value: string | JSX.Element;
+  /**
+   * The tooltip text for the value text.
+   */
   tooltipText?: string;
+  /**
+   * Indicates whether the value text tooltip
+   * should be disabled.
+   */
   disableTooltip?: boolean;
+  /**
+   * Indicates if the copy to clipboard icon should
+   * be displayed or not.
+   */
   showCopyTextIcon?: boolean;
+  /**
+   * The text that will be copied to clipboard.
+   */
   copyText?: string;
+  /**
+   * The tooltip text for the copy to clipboard icon button.
+   */
+  copyTooltipText?: string;
+  /**
+   * The number of characters to be shown before truncation occurs
+   */
   truncateAfter?: number | false;
 };
 
@@ -41,6 +68,7 @@ const SubmissionHeaderProperty = ({
   disableTooltip,
   showCopyTextIcon,
   copyText,
+  copyTooltipText,
   truncateAfter = 16,
 }: Props) => {
   const disableHoverListener = showCopyTextIcon ? false : undefined;
@@ -82,7 +110,7 @@ const SubmissionHeaderProperty = ({
               data-testid={`copy-${label}-button`}
               aria-label={`Copy ${label}`}
               disabled={!copyText}
-              title="Copy the Program full name"
+              title={copyTooltipText}
               copyText={copyText}
               sx={{ marginLeft: "8px" }}
             />

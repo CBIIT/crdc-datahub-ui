@@ -251,6 +251,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             tooltipText={dataSubmission?.studyName}
             disableTooltip={!dataSubmission?.studyName}
             copyText={dataSubmission?.studyName}
+            copyTooltipText="Copy the Study full name"
             truncateAfter={25}
             showCopyTextIcon
           />
@@ -265,6 +266,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             tooltipText={dataSubmission?.organization?.name}
             disableTooltip={!dataSubmission?.organization?.name}
             copyText={dataSubmission?.organization?.name}
+            copyTooltipText="Copy the Program full name"
             truncateAfter={23}
             showCopyTextIcon
           />
