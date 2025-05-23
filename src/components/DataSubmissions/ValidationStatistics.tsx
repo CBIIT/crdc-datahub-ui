@@ -7,7 +7,7 @@ import MiniPieChart from "../NodeChart";
 import SuspenseLoader from "../SuspenseLoader";
 import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
 import StatisticLegend from "./StatisticLegend";
-import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg";
+import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg?react";
 
 type Props = {
   dataSubmission: Submission;

@@ -3,7 +3,7 @@ import { isEqual } from "lodash";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
-import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_all_files_icon.svg";
+import DeleteAllFilesIcon from "../../assets/icons/delete_all_files_icon.svg?react";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import DeleteDialog from "../DeleteDialog";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";

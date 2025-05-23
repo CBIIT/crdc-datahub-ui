@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from "react";
 import { Box, DialogProps, MenuItem, styled } from "@mui/material";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledHelperText from "../StyledFormComponents/StyledHelperText";

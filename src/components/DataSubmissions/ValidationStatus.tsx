@@ -1,7 +1,7 @@
 import { Box, styled } from "@mui/material";
 import { useMemo } from "react";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import { ReactComponent as BellIcon } from "../../assets/icons/bell_icon.svg";
+import BellIcon from "../../assets/icons/bell_icon.svg?react";
 import { FormatDate, capitalizeFirstLetter as capitalizeFirst } from "../../utils";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 

@@ -12,8 +12,8 @@ import {
 import { useMutation } from "@apollo/client";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../GenericAlert";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CopyIconSvg from "../../assets/icons/copy_icon.svg?react";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

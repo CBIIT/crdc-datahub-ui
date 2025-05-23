@@ -1,5 +1,5 @@
 import { Select, SelectProps, styled } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?react";
 
 const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "placeholderText",

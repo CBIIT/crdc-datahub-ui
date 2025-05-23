@@ -13,8 +13,8 @@ import {
   Button,
 } from "@mui/material";
 import { isEqual } from "lodash";
-import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?react";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledPopper = styled(Popper)({
   zIndex: 100,

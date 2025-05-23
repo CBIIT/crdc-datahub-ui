@@ -1,13 +1,13 @@
-import New from "../../../assets/history/new.svg";
-import Submitted from "../../../assets/history/submitted.svg";
-import Rejected from "../../../assets/history/rejected.svg";
-import Approved from "../../../assets/history/submissionRequest/Approved.svg";
-import UnderReview from "../../../assets/history/submissionRequest/UnderReview.svg";
-import StatusApproved from "../../../assets/history/submissionRequest/StatusApproved.svg";
-import StatusRejected from "../../../assets/history/submissionRequest/StatusRejected.svg";
-import InProgress from "../../../assets/history/in_progress.svg";
-import Canceled from "../../../assets/history/canceled.svg";
-import Deleted from "../../../assets/history/deleted.svg";
+import New from "../../../assets/history/new.svg?react";
+import Submitted from "../../../assets/history/submitted.svg?react";
+import Rejected from "../../../assets/history/rejected.svg?react";
+import Approved from "../../../assets/history/submissionRequest/Approved.svg?react";
+import UnderReview from "../../../assets/history/submissionRequest/UnderReview.svg?react";
+import StatusApproved from "../../../assets/history/submissionRequest/StatusApproved.svg?react";
+import StatusRejected from "../../../assets/history/submissionRequest/StatusRejected.svg?react";
+import InProgress from "../../../assets/history/in_progress.svg?react";
+import Canceled from "../../../assets/history/canceled.svg?react";
+import Deleted from "../../../assets/history/deleted.svg?react";
 import { IconType } from "../../HistoryDialog";
 
 /**

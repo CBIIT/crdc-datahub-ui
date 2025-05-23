@@ -12,7 +12,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { isEqual } from "lodash";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";

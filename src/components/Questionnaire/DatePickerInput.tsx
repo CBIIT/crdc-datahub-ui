@@ -5,7 +5,7 @@ import dayjs, { Dayjs } from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 
 import Tooltip from "../Tooltip";
-import calendarIcon from "../../assets/icons/calendar.svg";
+import calendarIcon from "../../assets/icons/calendar.svg?react";
 import { updateInputValidity } from "../../utils";
 
 const CalendarIcon = styled("div")(() => ({

@@ -3,7 +3,7 @@ import { isEqual } from "lodash";
 import { IconButton, IconButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
-import { ReactComponent as CogIcon } from "../../assets/icons/cog_icon.svg";
+import CogIcon from "../../assets/icons/cog_icon.svg?react";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";

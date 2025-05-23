@@ -8,7 +8,7 @@ import {
   styled,
   Paper,
 } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?react";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
 import useFormMode from "../../hooks/useFormMode";
 

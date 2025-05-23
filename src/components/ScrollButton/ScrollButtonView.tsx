@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { styled } from "@mui/material";
-import ArrowUp from "../../assets/icons/arrow_up.svg";
+import ArrowUp from "../../assets/icons/arrow_up.svg?react";
 
 const StyledScrollButton = styled("button")(({ theme }) => ({
   background: "#007bbd",

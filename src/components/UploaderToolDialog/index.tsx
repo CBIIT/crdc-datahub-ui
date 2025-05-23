@@ -9,7 +9,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import PackageTable from "./PackageTable";
 import env from "../../env";
 import { extractVersion } from "../../utils";

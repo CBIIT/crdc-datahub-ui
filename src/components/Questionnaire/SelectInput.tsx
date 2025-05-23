@@ -8,7 +8,7 @@ import {
   SelectProps,
   styled,
 } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?react";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
 

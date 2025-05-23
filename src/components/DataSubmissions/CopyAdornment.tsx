@@ -1,7 +1,7 @@
 import { FC, memo } from "react";
 import { IconButton, Stack, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import CopyIconSvg from "../../assets/icons/copy_icon_2.svg?react";
 
 const StyledCopyWrapper = styled(Stack)({
   height: "42px",

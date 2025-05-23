@@ -17,12 +17,12 @@ import { useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import studyIcon from "../../assets/icons/study_icon.svg";
+import studyIcon from "../../assets/icons/study_icon.svg?react";
 import usePageTitle from "../../hooks/usePageTitle";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
-import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
+import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?react";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
 import {
