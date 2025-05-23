@@ -21,7 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/profile_icon.svg?react";
+import profileIcon from "../../assets/icons/profile_icon.svg?url";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { Roles } from "../../config/AuthRoles";

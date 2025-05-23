@@ -17,7 +17,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import studyIcon from "../../assets/icons/study_icon.svg?react";
+import studyIcon from "../../assets/icons/study_icon.svg?url";
 import usePageTitle from "../../hooks/usePageTitle";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
