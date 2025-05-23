@@ -41,7 +41,7 @@ const CopyTextButton = ({
     }
 
     navigator.clipboard.writeText(copyText);
-    onCopy(copyText);
+    onCopy?.(copyText);
   };
 
   return title && !disabled ? (
