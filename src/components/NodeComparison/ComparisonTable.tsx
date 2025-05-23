@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { FC, memo, useMemo } from "react";
+import { isEqual } from "lodash";
 import { RetrieveReleasedDataResp } from "../../graphql";
 import { coerceToString, safeParse } from "../../utils";
 import Repeater from "../Repeater";
@@ -51,13 +52,16 @@ const StyledTableHead = styled(TableHead)({
   },
 });
 
-const StyledTableCell = styled(TableCell)({
-  color: "#083A50",
+const StyledTableCell = styled(TableCell, { shouldForwardProp: (p) => p !== "highlight" })<{
+  highlight?: boolean;
+}>(({ highlight }) => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
   border: "0.5px solid #a7a7a7",
   padding: "8px 15px",
-});
+  color: highlight ? "#CA4F1A" : "#083A50",
+  fontWeight: highlight ? 700 : 400,
+}));
 
 /**
  * The number of placeholder columns to display in the loading state
@@ -68,6 +72,11 @@ const PLACEHOLDER_NUM_COLS = 5;
  * The width of the new/existing column
  */
 const BLANK_COL_WIDTH = 55;
+
+/**
+ * The special symbol used to indicate that the data processing system should delete the property data
+ */
+const DELETE_DATA_SYMBOL = "<delete>";
 
 export type ComparisonTableProps = {
   /**
@@ -106,6 +115,16 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
     return [...new Set([...newKeys, ...existingKeys])];
   }, [newProps, existingProps]);
 
+  const changedPropertyNames = useMemo<string[]>(
+    () =>
+      allPropertyNames.filter((property) => {
+        const [newVal, oldVal] = [newProps?.[property], existingProps?.[property]];
+
+        return (!isEqual(newVal, oldVal) && newVal !== "") || newVal === DELETE_DATA_SYMBOL;
+      }),
+    [newProps, existingProps, allPropertyNames]
+  );
+
   if (!loading && !allPropertyNames.length) {
     return (
       <StyledAlert severity="warning" data-testid="node-comparison-error">
@@ -137,7 +156,10 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
               <TableRow data-testid="node-comparison-table-existing">
                 <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>
+                  <StyledTableCell
+                    key={property}
+                    data-testid={`node-comparison-table-existing-${property}`}
+                  >
                     {coerceToString(existingProps?.[property])}
                   </StyledTableCell>
                 ))}
@@ -145,7 +167,11 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
               <TableRow data-testid="node-comparison-table-new">
                 <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>
+                  <StyledTableCell
+                    key={property}
+                    data-testid={`node-comparison-table-new-${property}`}
+                    highlight={changedPropertyNames.includes(property)}
+                  >
                     {coerceToString(newProps?.[property])}
                   </StyledTableCell>
                 ))}
