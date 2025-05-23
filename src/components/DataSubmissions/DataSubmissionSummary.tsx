@@ -247,7 +247,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Study"
-            value={dataSubmission?.studyAbbreviation}
+            value={dataSubmission?.studyAbbreviation || "NA"}
             tooltipText={dataSubmission?.studyName}
             disableTooltip={!dataSubmission?.studyName}
             copyText={dataSubmission?.studyName}
@@ -261,8 +261,8 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Program"
-            value={dataSubmission?.organization?.abbreviation ?? "NA"}
-            tooltipText={dataSubmission?.organization?.name ?? "NA"}
+            value={dataSubmission?.organization?.abbreviation || "NA"}
+            tooltipText={dataSubmission?.organization?.name}
             disableTooltip={!dataSubmission?.organization?.name}
             copyText={dataSubmission?.organization?.name}
             truncateAfter={23}
