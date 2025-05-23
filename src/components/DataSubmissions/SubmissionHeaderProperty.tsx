@@ -43,14 +43,6 @@ const SubmissionHeaderProperty = ({
   copyText,
   truncateAfter = 16,
 }: Props) => {
-  const handleCopyText = () => {
-    if (!copyText?.trim()) {
-      return;
-    }
-
-    navigator.clipboard.writeText(copyText);
-  };
-
   const disableHoverListener = showCopyTextIcon ? false : undefined;
 
   return (
@@ -89,7 +81,6 @@ const SubmissionHeaderProperty = ({
             <CopyTextButton
               data-testid={`copy-${label}-button`}
               aria-label={`Copy ${label}`}
-              onClick={handleCopyText}
               disabled={!copyText}
               title="Copy the Program full name"
               copyText={copyText}
