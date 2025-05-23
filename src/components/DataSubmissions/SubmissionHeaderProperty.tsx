@@ -52,7 +52,7 @@ const SubmissionHeaderProperty = ({
         <Stack
           flexDirection="row"
           flexGrow={1}
-          alignItems="center"
+          alignItems="flex-start"
           overflow="hidden"
           lineHeight="16px"
         >
