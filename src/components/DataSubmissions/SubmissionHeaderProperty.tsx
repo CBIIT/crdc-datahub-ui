@@ -1,8 +1,7 @@
-import { Grid, IconButton, Stack, Typography, styled } from "@mui/material";
+import { Grid, Stack, Typography, styled } from "@mui/material";
 import { memo } from "react";
 import TruncatedText from "../TruncatedText";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
-import Tooltip from "../Tooltip";
+import CopyTextButton from "../CopyTextButton";
 
 const StyledLabel = styled(Typography)(() => ({
   color: "#000000",
@@ -25,31 +24,11 @@ export const StyledValue = styled(Typography)(() => ({
   display: "inline",
 }));
 
-const StyledWrapper = styled("span", {
-  shouldForwardProp: (p) => p !== "disabled",
-})<{ disabled: boolean }>(({ disabled }) => ({
-  cursor: disabled ? "not-allowed" : "auto",
-}));
-
-const StyledCopyIDButton = styled(IconButton)(({ theme }) => ({
-  display: "inline-flex",
-  alignItems: "center",
-  padding: 0,
-  height: "fit-content",
-  "&.MuiIconButton-root.Mui-disabled": {
-    color: "#B0B0B0",
-  },
-  "&.Mui-disabled": {
-    opacity: theme.palette.action.disabledOpacity,
-    cursor: "not-allowed",
-  },
-  marginLeft: "8px",
-}));
-
 type Props = {
   label: string;
   value: string | JSX.Element;
   tooltipText?: string;
+  disableTooltip?: boolean;
   showCopyTextIcon?: boolean;
   copyText?: string;
   truncateAfter?: number | false;
@@ -59,6 +38,7 @@ const SubmissionHeaderProperty = ({
   label,
   value,
   tooltipText,
+  disableTooltip,
   showCopyTextIcon,
   copyText,
   truncateAfter = 16,
@@ -70,6 +50,8 @@ const SubmissionHeaderProperty = ({
 
     navigator.clipboard.writeText(copyText);
   };
+
+  const disableHoverListener = showCopyTextIcon ? false : undefined;
 
   return (
     <Grid lg={6} xs={12} item>
@@ -89,9 +71,9 @@ const SubmissionHeaderProperty = ({
                   text={value}
                   maxCharacters={truncateAfter}
                   underline={false}
-                  disableHoverListener={showCopyTextIcon ? false : undefined}
-                  wrapperSx={{ lineHeight: "20px" }}
-                  tooltipText={tooltipText || undefined}
+                  disableHoverListener={disableTooltip ? true : disableHoverListener}
+                  wrapperSx={{ lineHeight: "19.6px" }}
+                  tooltipText={tooltipText}
                   ellipsis
                   arrow
                 />
@@ -104,24 +86,15 @@ const SubmissionHeaderProperty = ({
           )}
 
           {showCopyTextIcon && (
-            <Tooltip
-              placement="top"
+            <CopyTextButton
+              data-testid={`copy-${label}-button`}
+              aria-label={`Copy ${label}`}
+              onClick={handleCopyText}
+              disabled={!copyText}
               title="Copy the Program full name"
-              open={undefined}
-              disableHoverListener={!copyText}
-              arrow
-            >
-              <StyledWrapper disabled={!copyText}>
-                <StyledCopyIDButton
-                  data-testid={`copy-${label}-button`}
-                  aria-label={`Copy ${label}`}
-                  onClick={handleCopyText}
-                  disabled={!copyText}
-                >
-                  <CopyIconSvg />
-                </StyledCopyIDButton>
-              </StyledWrapper>
-            </Tooltip>
+              copyText={copyText}
+              sx={{ marginLeft: "8px" }}
+            />
           )}
         </Stack>
       </Stack>

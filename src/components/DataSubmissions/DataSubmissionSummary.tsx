@@ -249,6 +249,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             label="Study"
             value={dataSubmission?.studyAbbreviation}
             tooltipText={dataSubmission?.studyName}
+            disableTooltip={!dataSubmission?.studyName}
             copyText={dataSubmission?.studyName}
             truncateAfter={25}
             showCopyTextIcon
@@ -262,7 +263,8 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             label="Program"
             value={dataSubmission?.organization?.abbreviation ?? "NA"}
             tooltipText={dataSubmission?.organization?.name ?? "NA"}
-            copyText={dataSubmission?.organization?.name ?? "NA"}
+            disableTooltip={!dataSubmission?.organization?.name}
+            copyText={dataSubmission?.organization?.name}
             truncateAfter={23}
             showCopyTextIcon
           />
