@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { Box, IconButton, IconButtonProps, styled, TooltipProps } from "@mui/material";
+import { forwardRef, memo } from "react";
+import { IconButton, IconButtonProps, styled, TooltipProps } from "@mui/material";
 import Tooltip from "../Tooltip";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 
@@ -15,11 +15,16 @@ const StyledCopyIDButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const CopyButton = (props: IconButtonProps) => (
-  <StyledCopyIDButton data-testid="copy-text-button" aria-label="Copy text to clipboard" {...props}>
+const CopyButton = forwardRef<HTMLButtonElement, IconButtonProps>((props: IconButtonProps, ref) => (
+  <StyledCopyIDButton
+    ref={ref}
+    data-testid="copy-text-button"
+    aria-label="Copy text to clipboard"
+    {...props}
+  >
     <CopyIconSvg />
   </StyledCopyIDButton>
-);
+));
 
 type Props = {
   /**
@@ -68,9 +73,7 @@ const CopyTextButton = ({
       arrow
       {...tooltipProps}
     >
-      <Box component="span" display="inline-flex" alignItems="center" lineHeight={0}>
-        <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
-      </Box>
+      <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
     </Tooltip>
   ) : (
     <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
