@@ -28,11 +28,13 @@ describe("Basic Functionality", () => {
   });
 
   it("should render the copy button with correct aria-label", () => {
-    const { getByTestId } = render(<CopyTextButton title="Copy me" copyText="foo" />);
+    const { getByTestId } = render(
+      <CopyTextButton title="Copy me" copyText="foo" aria-label="Copy-text-aria-label" />
+    );
     const btn = getByTestId("copy-text-button");
     expect(btn).toBeInTheDocument();
     expect(btn).toBeEnabled();
-    expect(btn).toHaveAttribute("aria-label", "Copy text to clipboard");
+    expect(btn).toHaveAttribute("aria-label", "Copy-text-aria-label");
   });
 
   it("should copy the text to clipboard and call onCopy when clicked", async () => {

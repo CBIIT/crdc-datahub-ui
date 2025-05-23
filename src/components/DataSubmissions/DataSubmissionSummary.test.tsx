@@ -251,9 +251,10 @@ describe("Basic Functionality", () => {
     expect(emailLink).toBeNull();
   });
 
-  it("renders the Program as NA when no program is assigned", () => {
+  it("renders the Program as NA when no program abbreviation is assigned", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       organization: null,
+      studyAbbreviation: "some-study",
     };
 
     const { getByText } = render(
@@ -263,6 +264,25 @@ describe("Basic Functionality", () => {
     );
 
     expect(getByText("Program")).toBeVisible();
+    expect(getByText("NA")).toBeVisible();
+  });
+
+  it("renders the Study as NA when no study abbreviation is assigned", () => {
+    const dataSubmission: RecursivePartial<Submission> = {
+      organization: {
+        _id: "org-1",
+        abbreviation: "some-org",
+      },
+      studyAbbreviation: null,
+    };
+
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
+
+    expect(getByText("Study")).toBeVisible();
     expect(getByText("NA")).toBeVisible();
   });
 });
