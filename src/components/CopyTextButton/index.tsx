@@ -1,4 +1,5 @@
-import { IconButton, IconButtonProps, styled, TooltipProps } from "@mui/material";
+import { memo } from "react";
+import { Box, IconButton, IconButtonProps, styled, TooltipProps } from "@mui/material";
 import Tooltip from "../Tooltip";
 import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
 
@@ -53,13 +54,13 @@ const CopyTextButton = ({
       arrow
       {...tooltipProps}
     >
-      <span>
+      <Box component="span" display="inline-flex" alignItems="center" lineHeight={0}>
         <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
-      </span>
+      </Box>
     </Tooltip>
   ) : (
     <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
   );
 };
 
-export default CopyTextButton;
+export default memo(CopyTextButton);
