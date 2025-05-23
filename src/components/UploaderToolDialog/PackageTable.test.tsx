@@ -8,12 +8,12 @@ import packageConfig from "../../config/PackageTableConfig";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
-  REACT_APP_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
-  REACT_APP_UPLOADER_CLI_WINDOWS:
+  VITE_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
+  VITE_UPLOADER_CLI_WINDOWS:
     "https://github.com/.../fake-release/crdc-datahub-cli-uploader-windows.zip",
-  REACT_APP_UPLOADER_CLI_MAC_X64:
+  VITE_UPLOADER_CLI_MAC_X64:
     "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-x64.zip",
-  REACT_APP_UPLOADER_CLI_MAC_ARM:
+  VITE_UPLOADER_CLI_MAC_ARM:
     "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-arm.zip",
 }));
 

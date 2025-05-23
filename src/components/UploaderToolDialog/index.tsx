@@ -122,7 +122,7 @@ type Props = {
 } & Omit<DialogProps, "onClose">;
 
 const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => {
-  const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
+  const version = extractVersion(env?.VITE_UPLOADER_CLI_VERSION);
 
   return (
     <StyledDialog

@@ -5,7 +5,7 @@ global.fetch = jest.fn();
 
 jest.mock("../env", () => ({
   ...process.env,
-  REACT_APP_DEV_TIER: undefined,
+  VITE_DEV_TIER: undefined,
 }));
 
 describe("fetchManifest cases", () => {
@@ -99,7 +99,7 @@ describe("fetchManifest cases", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it("should fall back to prod tier if REACT_APP_DEV_TIER is not defined", async () => {
+  it("should fall back to prod tier if VITE_DEV_TIER is not defined", async () => {
     const fakeManifest = { key: "value" };
 
     (fetch as jest.Mock).mockImplementationOnce(() =>
@@ -181,7 +181,7 @@ describe("listAvailableModelVersions", () => {
 });
 
 describe("buildAssetUrls cases", () => {
-  it("should build asset URLs using prod tier when REACT_APP_DEV_TIER is not defined", () => {
+  it("should build asset URLs using prod tier when VITE_DEV_TIER is not defined", () => {
     const dc: DataCommon = {
       name: "test-name",
       assets: {

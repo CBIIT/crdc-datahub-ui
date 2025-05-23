@@ -16,7 +16,7 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
   }
 
   const response = await fetch(
-    `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/content.json`
+    `${MODEL_FILE_REPO}${env.VITE_DEV_TIER || "prod"}/cache/content.json`
   ).catch(() => null);
   const parsed = await response?.json().catch(() => null);
   if (response && parsed) {
@@ -63,7 +63,7 @@ export const listAvailableModelVersions = async (model: string): Promise<string[
 export const buildAssetUrls = (model: DataCommon, modelVersion: string): ModelAssetUrls => {
   const { name, assets } = model || {};
   const version = modelVersion === "latest" ? assets?.["current-version"] : modelVersion;
-  const tier = env.REACT_APP_DEV_TIER || "prod";
+  const tier = env.VITE_DEV_TIER || "prod";
 
   return {
     model_files:

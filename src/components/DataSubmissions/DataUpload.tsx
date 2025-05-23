@@ -111,7 +111,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
           _id,
           dataFolder,
           manifest,
-          apiURL: env.REACT_APP_BACKEND_API,
+          apiURL: env.VITE_BACKEND_API,
         },
       });
 
@@ -151,7 +151,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
   }, [submission, user]);
 
   const Adornments: ReactElement = useMemo(() => {
-    const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
+    const version = extractVersion(env?.VITE_UPLOADER_CLI_VERSION);
     if (submission?.dataType !== "Metadata and Data Files" || !version) {
       return null;
     }
@@ -180,7 +180,7 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
         </StyledUploaderCLIVersionText>
       </Stack>
     );
-  }, [submission?.dataType, env?.REACT_APP_UPLOADER_CLI_VERSION]);
+  }, [submission?.dataType, env?.VITE_UPLOADER_CLI_VERSION]);
 
   return (
     <FlowWrapper index={2} title="Upload Data Files" titleAdornment={Adornments} actions={Actions}>

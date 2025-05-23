@@ -13,28 +13,28 @@ export const ReleaseRegex = /^(\d{1,4}\.\d{1,4}\.\d{1,4}).*/;
  * If it is not set, return an empty string.
  *
  * @note This utility expects the current tag to be defined as `X.X.X.buildNumber`.
- * @see {@link AppEnv.REACT_APP_FE_VERSION}
+ * @see {@link AppEnv.VITE_FE_VERSION}
  * @returns The parsed release version or "N/A" if not set.
  */
 export const parseReleaseVersion = (): string => {
-  const { REACT_APP_FE_VERSION } = env || {};
+  const { VITE_FE_VERSION } = env || {};
 
-  if (!REACT_APP_FE_VERSION || typeof REACT_APP_FE_VERSION !== "string") {
-    Logger.error("parseReleaseVersion: REACT_APP_FE_VERSION is not set or is not a string");
+  if (!VITE_FE_VERSION || typeof VITE_FE_VERSION !== "string") {
+    Logger.error("parseReleaseVersion: VITE_FE_VERSION is not set or is not a string");
     return "N/A";
   }
 
-  if (!ReleaseRegex.test(REACT_APP_FE_VERSION)) {
+  if (!ReleaseRegex.test(VITE_FE_VERSION)) {
     Logger.error(
-      `parseReleaseVersion: REACT_APP_FE_VERSION is not in the expected format: ${REACT_APP_FE_VERSION}`
+      `parseReleaseVersion: VITE_FE_VERSION is not in the expected format: ${VITE_FE_VERSION}`
     );
     return "N/A";
   }
 
-  const splitVersion = REACT_APP_FE_VERSION.match(ReleaseRegex);
+  const splitVersion = VITE_FE_VERSION.match(ReleaseRegex);
   if (!splitVersion || splitVersion.length < 2 || !splitVersion[1]) {
     Logger.error(
-      `parseReleaseVersion: Unable to get release version from build tag: ${REACT_APP_FE_VERSION}`
+      `parseReleaseVersion: Unable to get release version from build tag: ${VITE_FE_VERSION}`
     );
     return "N/A";
   }
@@ -49,14 +49,14 @@ export const parseReleaseVersion = (): string => {
  * @returns The URL to the Release Notes Markdown file.
  */
 export const buildReleaseNotesUrl = (): string => {
-  const { REACT_APP_FE_VERSION } = env || {};
+  const { VITE_FE_VERSION } = env || {};
 
   if (
-    REACT_APP_FE_VERSION &&
-    typeof REACT_APP_FE_VERSION === "string" &&
-    ReleaseRegex.test(REACT_APP_FE_VERSION)
+    VITE_FE_VERSION &&
+    typeof VITE_FE_VERSION === "string" &&
+    ReleaseRegex.test(VITE_FE_VERSION)
   ) {
-    return `https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/tags/${REACT_APP_FE_VERSION}/CHANGELOG.md`;
+    return `https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/tags/${VITE_FE_VERSION}/CHANGELOG.md`;
   }
 
   return "https://raw.githubusercontent.com/CBIIT/crdc-datahub-ui/refs/heads/main/CHANGELOG.md";
@@ -69,14 +69,14 @@ export const buildReleaseNotesUrl = (): string => {
  * @returns An array of hidden Data Commons or an empty array if not set.
  */
 export const getFilteredDataCommons = (): string[] => {
-  const { REACT_APP_HIDDEN_MODELS } = env || {};
+  const { VITE_HIDDEN_MODELS } = env || {};
 
-  if (!REACT_APP_HIDDEN_MODELS || typeof REACT_APP_HIDDEN_MODELS !== "string") {
-    Logger.error("getFilteredDataCommons: REACT_APP_HIDDEN_MODELS is not set or is not a string");
+  if (!VITE_HIDDEN_MODELS || typeof VITE_HIDDEN_MODELS !== "string") {
+    Logger.error("getFilteredDataCommons: VITE_HIDDEN_MODELS is not set or is not a string");
     return [];
   }
 
-  const mapped = REACT_APP_HIDDEN_MODELS.split(",")
+  const mapped = VITE_HIDDEN_MODELS.split(",")
     .map((dc) => dc?.trim())
     .filter((dc) => dc?.length);
 

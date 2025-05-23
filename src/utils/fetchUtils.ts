@@ -75,7 +75,7 @@ export const authenticationLogin = async (
     body: JSON.stringify({
       code,
       IDP: "nih",
-      redirectUri: env.REACT_APP_NIH_REDIRECT_URL,
+      redirectUri: env.VITE_NIH_REDIRECT_URL,
     }),
     signal,
   }).catch((error) => {

@@ -7,8 +7,8 @@ import UploaderToolDialog from "./index";
 
 jest.mock("../../env", () => ({
   ...jest.requireActual("../../env"),
-  REACT_APP_UPLOADER_CLI: "mocked-cli-download-link",
-  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+  VITE_UPLOADER_CLI: "mocked-cli-download-link",
+  VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
 }));
 
 type ParentProps = {

@@ -23,7 +23,7 @@ const LoggingWrapper = (level: LogLevel, message: string, ...optionalParams: unk
   }
 
   // Skip logging on stage or production environments.
-  if (env?.REACT_APP_DEV_TIER === "prod" || env?.REACT_APP_DEV_TIER === "stage") {
+  if (env?.VITE_DEV_TIER === "prod" || env?.VITE_DEV_TIER === "stage") {
     return;
   }
 
