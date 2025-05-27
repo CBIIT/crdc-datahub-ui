@@ -16,11 +16,11 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
           class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-11xqpzo-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-10x4n77-MuiTableCell-root"
             width="55"
           />
           <td
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-11xqpzo-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-10x4n77-MuiTableCell-root"
             data-testid="node-comparison-table-header-skeleton"
           >
             <span
@@ -29,7 +29,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-11xqpzo-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-10x4n77-MuiTableCell-root"
             data-testid="node-comparison-table-header-skeleton"
           >
             <span
@@ -38,7 +38,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-11xqpzo-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-10x4n77-MuiTableCell-root"
             data-testid="node-comparison-table-header-skeleton"
           >
             <span
@@ -47,7 +47,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-11xqpzo-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-10x4n77-MuiTableCell-root"
             data-testid="node-comparison-table-header-skeleton"
           >
             <span
@@ -56,7 +56,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-11xqpzo-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-10x4n77-MuiTableCell-root"
             data-testid="node-comparison-table-header-skeleton"
           >
             <span
@@ -73,13 +73,13 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
           class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
             width="55"
           >
             Existing
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -87,7 +87,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -95,7 +95,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -103,7 +103,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -111,7 +111,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -123,13 +123,13 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
           class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
             width="55"
           >
             New
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -137,7 +137,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -145,7 +145,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -153,7 +153,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"
@@ -161,7 +161,7 @@ exports[`Snapshots should match the loading state snapshot: loading table 1`] = 
             />
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1o5yevd-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1yqt4t-MuiTableCell-root"
           >
             <span
               class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-1n7gpw1-MuiSkeleton-root"

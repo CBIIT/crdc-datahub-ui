@@ -52,12 +52,16 @@ const StyledTableHead = styled(TableHead)({
   },
 });
 
-const StyledTableCell = styled(TableCell, { shouldForwardProp: (p) => p !== "highlight" })<{
+const StyledTableCell = styled(TableCell, {
+  shouldForwardProp: (p) => p !== "highlight" && p !== "gray",
+})<{
   highlight?: boolean;
-}>(({ highlight }) => ({
+  gray?: boolean;
+}>(({ highlight, gray }) => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
   border: "0.5px solid #a7a7a7",
+  backgroundColor: gray ? "#F2F6FA" : "transparent",
   padding: "8px 15px",
   color: highlight ? "#CA4F1A" : "#083A50",
   fontWeight: highlight ? 700 : 400,
@@ -159,6 +163,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                   <StyledTableCell
                     key={property}
                     data-testid={`node-comparison-table-existing-${property}`}
+                    gray={!changedPropertyNames.includes(property)}
                   >
                     {coerceToString(existingProps?.[property])}
                   </StyledTableCell>
@@ -171,6 +176,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
                     key={property}
                     data-testid={`node-comparison-table-new-${property}`}
                     highlight={changedPropertyNames.includes(property)}
+                    gray={!changedPropertyNames.includes(property)}
                   >
                     {coerceToString(newProps?.[property])}
                   </StyledTableCell>
