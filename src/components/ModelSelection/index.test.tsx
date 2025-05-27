@@ -38,6 +38,7 @@ const baseSubmission: Omit<Submission, "status"> = {
   dataCommonsDisplayName: "Mock Data Common",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",

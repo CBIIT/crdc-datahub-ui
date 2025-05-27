@@ -38,6 +38,7 @@ const baseSubmission: Submission = {
   organization: undefined,
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
