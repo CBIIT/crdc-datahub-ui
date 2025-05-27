@@ -118,6 +118,4 @@ describe("Basic Functionality", () => {
     // Assume maintenance is DISABLED
     expect(getByText("Home Page")).toBeInTheDocument();
   });
-
-  it.todo("should handle loading state when fetching maintenance mode");
 });
