@@ -23,7 +23,7 @@ const MaintenanceGate: FC<MaintenanceGateProps> = ({ children }) => {
     },
   });
 
-  if (data?.maintenanceMode) {
+  if (data?.maintenanceMode === true) {
     return <Navigate to="/maintenance" replace state={{ data: { shouldBlock: true } }} />;
   }
 
