@@ -3,7 +3,7 @@ import { FC } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { render, waitFor } from "@testing-library/react";
 import { GraphQLError } from "graphql";
-import { GET_MAINTENANCE_MODE, GetMaintenanceModeResponse } from "../../graphql/getMaintenanceMode";
+import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import MaintenanceGate from "./index";
 
 type MockParentProps = {
@@ -24,24 +24,24 @@ const MockParent: FC<MockParentProps> = ({ mocks, initialEntries = ["/"] }) => (
   </MockedProvider>
 );
 
-const MaintModeOnMock: MockedResponse<GetMaintenanceModeResponse> = {
+const MaintModeOnMock: MockedResponse<IsMaintenanceModeResponse> = {
   request: {
-    query: GET_MAINTENANCE_MODE,
+    query: IS_MAINTENANCE_MODE,
   },
   result: {
     data: {
-      maintenanceMode: true,
+      isMaintenanceMode: true,
     },
   },
 };
 
-const MaintModeOffMock: MockedResponse<GetMaintenanceModeResponse> = {
+const MaintModeOffMock: MockedResponse<IsMaintenanceModeResponse> = {
   request: {
-    query: GET_MAINTENANCE_MODE,
+    query: IS_MAINTENANCE_MODE,
   },
   result: {
     data: {
-      maintenanceMode: false,
+      isMaintenanceMode: false,
     },
   },
 };
@@ -72,9 +72,9 @@ describe("Basic Functionality", () => {
   });
 
   it("should handle error when fetching maintenance mode (Network)", () => {
-    const errorMock: MockedResponse<GetMaintenanceModeResponse> = {
+    const errorMock: MockedResponse<IsMaintenanceModeResponse> = {
       request: {
-        query: GET_MAINTENANCE_MODE,
+        query: IS_MAINTENANCE_MODE,
       },
       error: new Error("Network error"),
     };
@@ -86,9 +86,9 @@ describe("Basic Functionality", () => {
   });
 
   it("should handle error when fetching maintenance mode (GraphQL)", () => {
-    const errorMock: MockedResponse<GetMaintenanceModeResponse> = {
+    const errorMock: MockedResponse<IsMaintenanceModeResponse> = {
       request: {
-        query: GET_MAINTENANCE_MODE,
+        query: IS_MAINTENANCE_MODE,
       },
       result: {
         errors: [new GraphQLError("mock error")],
@@ -102,13 +102,13 @@ describe("Basic Functionality", () => {
   });
 
   it("should handle error when fetching maintenance mode (API)", () => {
-    const errorMock: MockedResponse<GetMaintenanceModeResponse> = {
+    const errorMock: MockedResponse<IsMaintenanceModeResponse> = {
       request: {
-        query: GET_MAINTENANCE_MODE,
+        query: IS_MAINTENANCE_MODE,
       },
       result: {
         data: {
-          maintenanceMode: null,
+          isMaintenanceMode: null,
         },
       },
     };

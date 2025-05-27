@@ -1,7 +1,7 @@
 import { FC, memo } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useQuery } from "@apollo/client";
-import { GET_MAINTENANCE_MODE, GetMaintenanceModeResponse } from "../../graphql/getMaintenanceMode";
+import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import { Logger } from "../../utils";
 
 export type MaintenanceGateProps = {
@@ -16,14 +16,14 @@ export type MaintenanceGateProps = {
  * @returns The maintenance gate component.
  */
 const MaintenanceGate: FC<MaintenanceGateProps> = ({ children }) => {
-  const { data } = useQuery<GetMaintenanceModeResponse>(GET_MAINTENANCE_MODE, {
+  const { data } = useQuery<IsMaintenanceModeResponse>(IS_MAINTENANCE_MODE, {
     fetchPolicy: "cache-and-network",
     onError: (error) => {
       Logger.error("Unable to fetch maintenance mode. Assuming disabled.", error);
     },
   });
 
-  if (data?.maintenanceMode === true) {
+  if (data?.isMaintenanceMode === true) {
     return <Navigate to="/maintenance" replace state={{ data: { shouldBlock: true } }} />;
   }
 
