@@ -278,7 +278,7 @@ describe("Implementation Requirements", () => {
       color: "#CA4F1A",
     };
 
-    const unchangedStyle: React.CSSProperties = {
+    const defaultStyle: React.CSSProperties = {
       fontWeight: "400",
       color: "#083A50",
     };
@@ -293,17 +293,21 @@ describe("Implementation Requirements", () => {
 
     // Data changes - EXISTING value
     expect(getByTestId("node-comparison-table-existing-mock_node_data_name")).toHaveStyle({
-      ...unchangedStyle,
+      ...defaultStyle,
     });
     expect(getByTestId("node-comparison-table-existing-baz")).toHaveStyle({
-      ...unchangedStyle,
+      ...defaultStyle,
     });
 
     // No data changes in the other columns
     expect(getByTestId("node-comparison-table-existing-no_change")).toHaveStyle({
-      ...unchangedStyle,
+      ...defaultStyle,
+      backgroundColor: "#F2F6FA",
     });
-    expect(getByTestId("node-comparison-table-new-no_change")).toHaveStyle({ ...unchangedStyle });
+    expect(getByTestId("node-comparison-table-new-no_change")).toHaveStyle({
+      ...defaultStyle,
+      backgroundColor: "#F2F6FA",
+    });
   });
 
   it("should highlight NEW columns where the values differ ('<delete>' present)", () => {
@@ -334,7 +338,7 @@ describe("Implementation Requirements", () => {
       color: "#CA4F1A",
     };
 
-    const unchangedStyle: React.CSSProperties = {
+    const defaultStyle: React.CSSProperties = {
       fontWeight: "400",
       color: "#083A50",
     };
@@ -346,15 +350,17 @@ describe("Implementation Requirements", () => {
 
     // Data changes - EXISTING value
     expect(getByTestId("node-comparison-table-existing-hasDelete")).toHaveStyle({
-      ...unchangedStyle,
+      ...defaultStyle,
     });
 
     // No data changes in the other columns
     expect(getByTestId("node-comparison-table-existing-nothing_here")).toHaveStyle({
-      ...unchangedStyle,
+      ...defaultStyle,
+      backgroundColor: "#F2F6FA",
     });
     expect(getByTestId("node-comparison-table-new-nothing_here")).toHaveStyle({
-      ...unchangedStyle,
+      ...defaultStyle,
+      backgroundColor: "#F2F6FA",
     });
   });
 
@@ -376,6 +382,7 @@ describe("Implementation Requirements", () => {
 
     const unchangedStyle: React.CSSProperties = {
       fontWeight: "400",
+      backgroundColor: "#F2F6FA",
       color: "#083A50",
     };
 
@@ -418,6 +425,7 @@ describe("Implementation Requirements", () => {
     const unchangedStyle: React.CSSProperties = {
       fontWeight: "400",
       color: "#083A50",
+      backgroundColor: "#F2F6FA",
     };
 
     // No data changes anywhere
