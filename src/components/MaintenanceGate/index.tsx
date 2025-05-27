@@ -24,7 +24,7 @@ const MaintenanceGate: FC<MaintenanceGateProps> = ({ children }) => {
   });
 
   if (data?.maintenanceMode) {
-    return <Navigate to="/maintenance" replace state={{ data: { shouldLock: true } }} />;
+    return <Navigate to="/maintenance" replace state={{ data: { shouldBlock: true } }} />;
   }
 
   return children || <Outlet />;

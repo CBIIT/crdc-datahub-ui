@@ -1,25 +1,41 @@
 import { FC, memo } from "react";
-import { Box, Stack, styled } from "@mui/material";
+import { Box, Stack, Typography, styled } from "@mui/material";
 import { unstable_useBlocker as useBlocker, useLocation } from "react-router-dom";
+import { ReactComponent as MaintenanceIcon } from "../../assets/icons/maintenance.svg";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const StyledContainer = styled(Stack)({
-  background: "#114454CC",
-  padding: "69px 0",
-  alignItems: "center",
-  justifyContent: "center",
-  // NOTE: 209px is the header height. This is only visible on larger screens.
-  minHeight: "calc(100vh - 209px)",
+  background: "#2F4F70",
+  minHeight: "100vh",
+  paddingTop: "89px",
+  paddingBottom: "140px",
 });
 
 const StyledContent = styled(Box)({
   textAlign: "center",
+  margin: "0 auto",
+  maxWidth: "795px",
+});
+
+const StyledPageTitle = styled(Typography)({
+  color: "#31F7C3",
+  fontWeight: 800,
+  fontFamily: "Nunito Sans",
+  fontSize: "45px",
+});
+
+const StyledBodyText = styled(Typography)({
+  color: "#D2E9EE",
+  marginTop: "10px",
+  fontSize: "18px",
+  fontFamily: "Inter",
+  lineHeight: "26px",
 });
 
 /**
  * Provides a maintenance page for the application.
  *
- * If passed `state.data.shouldLock` is true, it will block any navigation away.
+ * If passed `state.data.shouldBlock` is true, it will block any navigation away.
  *
  * @returns The maintenance page component.
  */
@@ -28,11 +44,18 @@ const MaintenancePage: FC = () => {
 
   const { state } = useLocation();
 
-  useBlocker(() => state?.data?.shouldLock);
+  useBlocker(() => state?.data?.shouldBlock);
 
   return (
     <StyledContainer>
-      <StyledContent>TODO</StyledContent>
+      <StyledContent>
+        <MaintenanceIcon />
+        <StyledPageTitle>Website Maintenance</StyledPageTitle>
+        <StyledBodyText>
+          The CRDC Submission Portal site is currently undergoing scheduled maintenance. Please
+          check back soon. We appreciate your patience.
+        </StyledBodyText>
+      </StyledContent>
     </StyledContainer>
   );
 };
