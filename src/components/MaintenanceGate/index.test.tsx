@@ -1,53 +1,28 @@
 import { MockedResponse, MockedProvider } from "@apollo/client/testing";
-import { FC, useEffect, useMemo } from "react";
-import { RouteObject, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { FC } from "react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { render, waitFor } from "@testing-library/react";
 import { GraphQLError } from "graphql";
 import { GET_MAINTENANCE_MODE, GetMaintenanceModeResponse } from "../../graphql/getMaintenanceMode";
 import MaintenanceGate from "./index";
-
-const MockRoutes: RouteObject[] = [
-  {
-    path: "/maintenance",
-    element: <p>Maintenance Mode On</p>,
-  },
-  {
-    element: <MaintenanceGate />,
-    children: [
-      {
-        path: "/",
-        element: <p>Home Page</p>,
-      },
-    ],
-  },
-];
 
 type MockParentProps = {
   mocks?: MockedResponse[];
   initialEntries?: string[];
 };
 
-const MockParent: FC<MockParentProps> = ({ mocks, initialEntries = ["/"] }) => {
-  const router = useMemo(
-    () =>
-      createBrowserRouter(MockRoutes, {
-        basename: "/",
-      }),
-    [initialEntries]
-  );
-
-  useEffect(() => {
-    // This is a workaround to ensure the router initializes correctly
-    // with the initial entries provided.
-    window.history.replaceState({}, "", initialEntries[0]);
-  }, [initialEntries]);
-
-  return (
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <RouterProvider router={router} />
-    </MockedProvider>
-  );
-};
+const MockParent: FC<MockParentProps> = ({ mocks, initialEntries = ["/"] }) => (
+  <MockedProvider mocks={mocks} addTypename={false}>
+    <MemoryRouter initialEntries={initialEntries}>
+      <Routes>
+        <Route path="/maintenance" element={<p>Maintenance Mode On</p>} />
+        <Route element={<MaintenanceGate />}>
+          <Route path="/" element={<p>Home Page</p>} />
+        </Route>
+      </Routes>
+    </MemoryRouter>
+  </MockedProvider>
+);
 
 const MaintModeOnMock: MockedResponse<GetMaintenanceModeResponse> = {
   request: {
