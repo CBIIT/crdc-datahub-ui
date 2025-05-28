@@ -7,7 +7,9 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
   base: "./",
   plugins: [
-    react(),
+    react({
+      jsxImportSource: "@emotion/react",
+    }),
     svgr({
       svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
     }),
@@ -32,5 +34,8 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json", "html"],
     },
+  },
+  optimizeDeps: {
+    include: ["@emotion/react", "@emotion/styled", "@mui/material/Unstable_Grid2"],
   },
 });
