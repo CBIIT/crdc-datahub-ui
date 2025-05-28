@@ -52,7 +52,7 @@ const PageContentContainer = styled("div")({
   width: "100%",
   height: "633px",
   margin: "auto",
-  backgroundImage: `url(${background})`,
+  backgroundImage: `url("${background}")`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
   backgroundRepeat: "no-repeat",

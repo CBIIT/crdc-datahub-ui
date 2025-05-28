@@ -22,7 +22,7 @@ import usePageTitle from "../../hooks/usePageTitle";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
-import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?react";
+import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?url";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
 import {
@@ -53,7 +53,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
 }));
 
 const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
-  backgroundImage: `url(${CheckboxCheckedIconSvg})`,
+  backgroundImage: `url("${CheckboxCheckedIconSvg}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",

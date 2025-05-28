@@ -8,12 +8,12 @@ import {
   SelectProps,
   styled,
 } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?react";
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 import Tooltip from "../Tooltip";
 import { updateInputValidity } from "../../utils";
 
 const DropdownArrowsIcon = styled("div")(() => ({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundImage: `url("${dropdownArrowsIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "10px",

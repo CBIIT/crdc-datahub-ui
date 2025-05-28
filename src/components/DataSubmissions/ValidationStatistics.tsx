@@ -7,7 +7,7 @@ import MiniPieChart from "../NodeChart";
 import SuspenseLoader from "../SuspenseLoader";
 import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
 import StatisticLegend from "./StatisticLegend";
-import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg?react";
+import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg?url";
 
 type Props = {
   dataSubmission: Submission;
@@ -43,7 +43,7 @@ const StyledChartArea = styled(Stack, {
   ...(hasNoData && {
     "&::after": {
       position: "absolute",
-      content: `url(${blurredDataVisualizationSvg})`,
+      content: `url("${blurredDataVisualizationSvg}")`,
       width: "100%",
       height: "344px",
       background: "transparent",

@@ -13,7 +13,7 @@ import {
   Button,
 } from "@mui/material";
 import { isEqual } from "lodash";
-import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?react";
+import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?url";
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledPopper = styled(Popper)({
@@ -55,7 +55,7 @@ const UncheckedIcon = styled("div")({
 });
 
 const CheckedIcon = styled("div")({
-  backgroundImage: `url(${checkboxCheckedIcon})`,
+  backgroundImage: `url("${checkboxCheckedIcon}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",
