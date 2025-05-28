@@ -32,6 +32,8 @@ events {
 }
 
 http {
+    client_max_body_size 128M;
+
     server {
         listen       0.0.0.0:4010;
         server_name  localhost;
