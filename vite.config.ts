@@ -9,6 +9,9 @@ export default defineConfig({
   plugins: [
     react({
       jsxImportSource: "@emotion/react",
+      babel: {
+        plugins: ["@emotion/babel-plugin"],
+      },
     }),
     svgr({
       svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
@@ -36,6 +39,11 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ["@emotion/react", "@emotion/styled", "@mui/material/Unstable_Grid2"],
+    include: [
+      "@emotion/react",
+      "@emotion/styled",
+      "@mui/material/Unstable_Grid2",
+      "@mui/icons-material",
+    ],
   },
 });
