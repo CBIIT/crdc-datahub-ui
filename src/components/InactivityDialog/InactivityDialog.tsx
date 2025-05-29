@@ -198,7 +198,7 @@ const InactivityDialog: FC = () => {
   };
 
   useEffect(() => {
-    let ID: NodeJS.Timer;
+    let ID: ReturnType<typeof setInterval>;
     if (isLoggedIn) {
       ID = setInterval(loadData, 10 * 1000);
     } else {
