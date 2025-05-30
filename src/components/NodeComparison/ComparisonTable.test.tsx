@@ -263,11 +263,21 @@ describe("Implementation Requirements", () => {
       <ComparisonTable
         newNode={{
           ...baseNode,
-          props: JSON.stringify({ mock_node_data_name: "example 01", no_change: "no", baz: 1 }),
+          props: JSON.stringify({
+            mock_node_data_name: "example 01",
+            no_change: "no",
+            baz: 1,
+            booleanDifference: false,
+          }),
         }}
         existingNode={{
           ...baseNode,
-          props: JSON.stringify({ mock_node_data_name: "example 02", no_change: "no", baz: 2 }),
+          props: JSON.stringify({
+            mock_node_data_name: "example 02",
+            no_change: "no",
+            baz: 2,
+            booleanDifference: true,
+          }),
         }}
         loading={false}
       />
@@ -290,12 +300,18 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("node-comparison-table-new-baz")).toHaveStyle({
       ...newStyle,
     });
+    expect(getByTestId("node-comparison-table-new-booleanDifference")).toHaveStyle({
+      ...newStyle,
+    });
 
     // Data changes - EXISTING value
     expect(getByTestId("node-comparison-table-existing-mock_node_data_name")).toHaveStyle({
       ...defaultStyle,
     });
     expect(getByTestId("node-comparison-table-existing-baz")).toHaveStyle({
+      ...defaultStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-booleanDifference")).toHaveStyle({
       ...defaultStyle,
     });
 
@@ -370,11 +386,23 @@ describe("Implementation Requirements", () => {
       <ComparisonTable
         newNode={{
           ...baseNode,
-          props: JSON.stringify({ sameVal1: "same", xyzSame: "same", emptySame: "" }),
+          props: JSON.stringify({
+            sameVal1: "same",
+            xyzSame: true,
+            emptySame: "",
+            booleanSame: false,
+            numericSame: 0,
+          }),
         }}
         existingNode={{
           ...baseNode,
-          props: JSON.stringify({ sameVal1: "same", xyzSame: "same", emptySame: "" }),
+          props: JSON.stringify({
+            sameVal1: "same",
+            xyzSame: true,
+            emptySame: "",
+            booleanSame: false,
+            numericSame: 0,
+          }),
         }}
         loading={false}
       />
@@ -405,6 +433,18 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("node-comparison-table-new-emptySame")).toHaveStyle({
       ...unchangedStyle,
     });
+    expect(getByTestId("node-comparison-table-existing-booleanSame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-booleanSame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-numericSame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-numericSame")).toHaveStyle({
+      ...unchangedStyle,
+    });
   });
 
   it("should gray out columns where the NEW value is empty", () => {
@@ -413,6 +453,48 @@ describe("Implementation Requirements", () => {
         newNode={{
           ...baseNode,
           props: JSON.stringify({ emptyVal: "", xyzEmpty: "", emptySame: "" }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({ emptyVal: "wont", xyzEmpty: "be", emptySame: "changed" }),
+        }}
+        loading={false}
+      />
+    );
+
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+      backgroundColor: "#F2F6FA",
+    };
+
+    // No data changes anywhere
+    expect(getByTestId("node-comparison-table-existing-emptyVal")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptyVal")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-xyzEmpty")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-xyzEmpty")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+  });
+
+  it("should gray out columns where the NEW value is NULL", () => {
+    const { getByTestId } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({ emptyVal: null, xyzEmpty: null, emptySame: null }),
         }}
         existingNode={{
           ...baseNode,

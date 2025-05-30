@@ -106,6 +106,15 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
             fileValidationStatus: "New",
             modelVersion: d.updateSubmissionModelVersion.modelVersion,
           },
+          submissionStats: {
+            stats: prev.submissionStats?.stats?.map((stat) => ({
+              ...stat,
+              new: stat?.total || 0,
+              error: 0,
+              passed: 0,
+              warning: 0,
+            })),
+          },
         }));
       } catch (err) {
         Logger.error("ModelSelection: API error received", err);
