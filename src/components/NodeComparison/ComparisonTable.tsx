@@ -124,7 +124,7 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
       allPropertyNames.filter((property) => {
         const [newVal, oldVal] = [newProps?.[property], existingProps?.[property]];
 
-        return (!isEqual(newVal, oldVal) && newVal !== "") || newVal === DELETE_DATA_SYMBOL;
+        return (!isEqual(newVal, oldVal) && !!newVal) || newVal === DELETE_DATA_SYMBOL;
       }),
     [newProps, existingProps, allPropertyNames]
   );

@@ -448,6 +448,48 @@ describe("Implementation Requirements", () => {
       ...unchangedStyle,
     });
   });
+
+  it("should gray out columns where the NEW value is NULL", () => {
+    const { getByTestId } = render(
+      <ComparisonTable
+        newNode={{
+          ...baseNode,
+          props: JSON.stringify({ emptyVal: null, xyzEmpty: null, emptySame: null }),
+        }}
+        existingNode={{
+          ...baseNode,
+          props: JSON.stringify({ emptyVal: "wont", xyzEmpty: "be", emptySame: "changed" }),
+        }}
+        loading={false}
+      />
+    );
+
+    const unchangedStyle: React.CSSProperties = {
+      fontWeight: "400",
+      color: "#083A50",
+      backgroundColor: "#F2F6FA",
+    };
+
+    // No data changes anywhere
+    expect(getByTestId("node-comparison-table-existing-emptyVal")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptyVal")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-xyzEmpty")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-xyzEmpty")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-existing-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+    expect(getByTestId("node-comparison-table-new-emptySame")).toHaveStyle({
+      ...unchangedStyle,
+    });
+  });
 });
 
 describe("Snapshots", () => {
