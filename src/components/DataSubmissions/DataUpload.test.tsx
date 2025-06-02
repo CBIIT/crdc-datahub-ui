@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { vi } from "vitest";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
@@ -14,9 +15,10 @@ import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { DataUpload } from "./DataUpload";
 
 vi.mock("../../env", () => ({
-  ...vi.importActual("../../env"),
-  VITE_BACKEND_API: "mocked-backend-api-url",
-  VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+  default: {
+    VITE_BACKEND_API: "mocked-backend-api-url",
+    VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+  },
 }));
 
 const mockDownloadBlob = vi.fn();

@@ -1,11 +1,13 @@
+import { vi } from "vitest";
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import * as utils from "./dataModelUtils";
 
 global.fetch = vi.fn();
 
 vi.mock("../env", () => ({
-  ...process.env,
-  VITE_DEV_TIER: undefined,
+  default: {
+    VITE_DEV_TIER: undefined,
+  },
 }));
 
 describe("fetchManifest cases", () => {

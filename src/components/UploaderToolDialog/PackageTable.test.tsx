@@ -3,18 +3,20 @@ import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { render } from "@testing-library/react";
 import { axe } from "jest-axe";
+import { vi } from "vitest";
 import PackageTable from "./PackageTable";
 import packageConfig from "../../config/PackageTableConfig";
 
 vi.mock("../../env", () => ({
-  ...vi.importActual("../../env"),
-  VITE_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
-  VITE_UPLOADER_CLI_WINDOWS:
-    "https://github.com/.../fake-release/crdc-datahub-cli-uploader-windows.zip",
-  VITE_UPLOADER_CLI_MAC_X64:
-    "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-x64.zip",
-  VITE_UPLOADER_CLI_MAC_ARM:
-    "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-arm.zip",
+  default: {
+    VITE_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
+    VITE_UPLOADER_CLI_WINDOWS:
+      "https://github.com/.../fake-release/crdc-datahub-cli-uploader-windows.zip",
+    VITE_UPLOADER_CLI_MAC_X64:
+      "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-x64.zip",
+    VITE_UPLOADER_CLI_MAC_ARM:
+      "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-arm.zip",
+  },
 }));
 
 type ParentProps = {

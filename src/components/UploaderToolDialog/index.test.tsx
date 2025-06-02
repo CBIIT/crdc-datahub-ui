@@ -3,12 +3,14 @@ import { MemoryRouter } from "react-router-dom";
 import { render, waitFor } from "@testing-library/react";
 import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import UploaderToolDialog from "./index";
 
 vi.mock("../../env", () => ({
-  ...vi.importActual("../../env"),
-  VITE_UPLOADER_CLI: "mocked-cli-download-link",
-  VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+  default: {
+    VITE_UPLOADER_CLI: "mocked-cli-download-link",
+    VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+  },
 }));
 
 type ParentProps = {
