@@ -446,7 +446,6 @@ describe("Implementation Requirements", () => {
 
     expect(called).toBe(false);
 
-    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
     await act(async () => {
       // Open the dialog
       userEvent.click(getByTestId("uploader-cli-config-button"));
@@ -455,7 +454,6 @@ describe("Implementation Requirements", () => {
     userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
     userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
-    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
     await act(async () => {
       userEvent.click(getByText("Download"));
     });

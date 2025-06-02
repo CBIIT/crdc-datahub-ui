@@ -51,8 +51,6 @@ describe("Implementation Requirements", () => {
       "test.email@nih.gov"
     );
 
-    // Act warning caused by RHF reset
-    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       userEvent.click(
         within(getByTestId("newsletter-form")).getByRole("button", {
@@ -109,8 +107,6 @@ describe("Implementation Requirements", () => {
       "valid-email@nih.gov"
     );
 
-    // Act warning caused by RHF reset
-    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       userEvent.click(
         within(getByTestId("newsletter-form")).getByRole("button", {
@@ -136,8 +132,6 @@ describe("Implementation Requirements", () => {
       "valid@nih.gov"
     );
 
-    // Act warning caused by RHF reset
-    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       userEvent.click(
         within(getByTestId("newsletter-form")).getByRole("button", {

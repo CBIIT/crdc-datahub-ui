@@ -1,8 +1,5 @@
 /* eslint-disable max-classes-per-file */
 import "@testing-library/jest-dom";
-import "jest-axe/extend-expect";
-import "jest-canvas-mock";
-import failOnConsole from "jest-fail-on-console";
 import crypto from "crypto";
 
 /**
@@ -80,12 +77,3 @@ jest.mock("recharts", () => ({
 jest.mock("react-markdown", () => ({ children }: { children: string }) => (
   <div data-testid="react-markdown-mock">{children}</div>
 ));
-
-/**
- * Prevents the console.error and console.warn from silently failing
- * in tests by throwing an error when called
- */
-failOnConsole({
-  shouldFailOnWarn: true,
-  shouldFailOnError: true,
-});

@@ -10,7 +10,6 @@ const config = {
     "airbnb-typescript",
     "prettier",
     "react-app",
-    "react-app/jest",
     "plugin:storybook/recommended",
     "plugin:compat/recommended",
   ],
