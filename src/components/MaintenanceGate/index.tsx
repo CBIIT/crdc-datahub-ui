@@ -1,8 +1,9 @@
 import { FC, memo } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import { Logger } from "../../utils";
+import MaintenancePage from "../../content/status/MaintenancePage";
 
 export type MaintenanceGateProps = {
   children?: React.ReactNode;
@@ -10,7 +11,7 @@ export type MaintenanceGateProps = {
 
 /**
  * Provides a rendering gateway for toggling maintenance mode.
- * If the application is in maintenance mode, it will redirect to the maintenance page.
+ * If the application is in maintenance mode, it will replace the current route with the maintenance page.
  * Otherwise, it will render the children or the Outlet component.
  *
  * @returns The maintenance gate component.
@@ -24,7 +25,7 @@ const MaintenanceGate: FC<MaintenanceGateProps> = ({ children }) => {
   });
 
   if (data?.isMaintenanceMode === true) {
-    return <Navigate to="/maintenance" replace state={{ data: { shouldBlock: true } }} />;
+    return <MaintenancePage />;
   }
 
   return children || <Outlet />;

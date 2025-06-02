@@ -1,6 +1,5 @@
 import { FC, memo } from "react";
 import { Box, Stack, Typography, styled } from "@mui/material";
-import { unstable_useBlocker as useBlocker, useLocation } from "react-router-dom";
 import { ReactComponent as MaintenanceIcon } from "../../assets/icons/maintenance.svg";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -41,10 +40,6 @@ const StyledBodyText = styled(Typography)({
  */
 const MaintenancePage: FC = () => {
   usePageTitle("Website Maintenance");
-
-  const { state } = useLocation();
-
-  useBlocker(() => state?.data?.shouldBlock);
 
   return (
     <StyledContainer>

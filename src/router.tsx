@@ -21,7 +21,6 @@ const Organizations = LazyLoader(lazy(() => import("./content/organizations/Cont
 const Studies = LazyLoader(lazy(() => import("./content/studies/Controller")));
 const Institutions = LazyLoader(lazy(() => import("./content/Institutions/Controller")));
 const Status404 = LazyLoader(lazy(() => import("./content/status/Page404")));
-const StatusMaintenance = LazyLoader(lazy(() => import("./content/status/MaintenancePage")));
 const OperationDashboard = LazyLoader(
   lazy(() => import("./content/OperationDashboard/Controller"))
 );
@@ -161,10 +160,6 @@ const routes: RouteObject[] = [
             ),
           },
         ],
-      },
-      {
-        path: "/maintenance",
-        element: <StatusMaintenance />,
       },
       {
         path: "*",

@@ -6,6 +6,11 @@ import { GraphQLError } from "graphql";
 import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import MaintenanceGate from "./index";
 
+jest.mock("../../content/status/MaintenancePage", () => ({
+  __esModule: true,
+  default: () => <p>MOCK-MAINTENANCE-PAGE</p>,
+}));
+
 type MockParentProps = {
   mocks?: MockedResponse[];
   initialEntries?: string[];
@@ -15,7 +20,6 @@ const MockParent: FC<MockParentProps> = ({ mocks, initialEntries = ["/"] }) => (
   <MockedProvider mocks={mocks} addTypename={false}>
     <MemoryRouter initialEntries={initialEntries}>
       <Routes>
-        <Route path="/maintenance" element={<p>Maintenance Mode On</p>} />
         <Route element={<MaintenanceGate />}>
           <Route path="/" element={<p>Home Page</p>} />
         </Route>
@@ -67,7 +71,7 @@ describe("Basic Functionality", () => {
     const { getByText } = render(<MockParent mocks={[MaintModeOnMock]} initialEntries={["/"]} />);
 
     await waitFor(() => {
-      expect(getByText("Maintenance Mode On")).toBeInTheDocument();
+      expect(getByText("MOCK-MAINTENANCE-PAGE")).toBeInTheDocument();
     });
   });
 
