@@ -113,7 +113,7 @@ const config = {
       },
     ],
 
-    /* jest and testing-library rules */
+    /* testing rules */
     "testing-library/prefer-screen-queries": "off",
     "testing-library/no-wait-for-multiple-assertions": "off",
     "testing-library/no-node-access": "off",
