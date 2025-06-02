@@ -3,13 +3,18 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 import LoginController from "./Controller";
 
-vi.mock("../../env", () => ({
-  default: {
-    VITE_NIH_AUTHORIZE_URL: "https://mock-sso-url",
-    VITE_NIH_CLIENT_ID: "mock-client-id",
-    VITE_NIH_REDIRECT_URL: "mock-redirect-url",
-  },
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_NIH_AUTHORIZE_URL: "https://mock-sso-url",
+      VITE_NIH_CLIENT_ID: "mock-client-id",
+      VITE_NIH_REDIRECT_URL: "mock-redirect-url",
+    },
+  };
+});
 
 const mockUsePageTitle = vi.fn();
 vi.mock("../../hooks/usePageTitle", () => ({

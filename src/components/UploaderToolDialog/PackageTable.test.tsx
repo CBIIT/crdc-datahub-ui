@@ -7,17 +7,22 @@ import { vi } from "vitest";
 import PackageTable from "./PackageTable";
 import packageConfig from "../../config/PackageTableConfig";
 
-vi.mock("../../env", () => ({
-  default: {
-    VITE_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
-    VITE_UPLOADER_CLI_WINDOWS:
-      "https://github.com/.../fake-release/crdc-datahub-cli-uploader-windows.zip",
-    VITE_UPLOADER_CLI_MAC_X64:
-      "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-x64.zip",
-    VITE_UPLOADER_CLI_MAC_ARM:
-      "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-arm.zip",
-  },
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
+      VITE_UPLOADER_CLI_WINDOWS:
+        "https://github.com/.../fake-release/crdc-datahub-cli-uploader-windows.zip",
+      VITE_UPLOADER_CLI_MAC_X64:
+        "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-x64.zip",
+      VITE_UPLOADER_CLI_MAC_ARM:
+        "https://github.com/.../fake-release/crdc-datahub-cli-uploader-mac-arm.zip",
+    },
+  };
+});
 
 type ParentProps = {
   children: React.ReactNode;

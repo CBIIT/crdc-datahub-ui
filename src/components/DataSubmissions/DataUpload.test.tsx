@@ -14,12 +14,17 @@ import {
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { DataUpload } from "./DataUpload";
 
-vi.mock("../../env", () => ({
-  default: {
-    VITE_BACKEND_API: "mocked-backend-api-url",
-    VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
-  },
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_BACKEND_API: "mocked-backend-api-url",
+      VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+    },
+  };
+});
 
 const mockDownloadBlob = vi.fn();
 vi.mock("../../utils", () => ({
