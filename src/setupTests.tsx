@@ -1,6 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import "@testing-library/jest-dom";
 import crypto from "crypto";
+import * as matchers from "vitest-axe/matchers";
+import { expect } from "vitest";
+
+expect.extend(matchers);
 
 /**
  * Makes the global.crypto.getRandomValues function available in Jest

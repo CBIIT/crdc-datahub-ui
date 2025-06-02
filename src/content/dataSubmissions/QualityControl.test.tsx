@@ -2,7 +2,7 @@ import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {

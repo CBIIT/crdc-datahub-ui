@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { render, fireEvent, within, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import {
   Context as AuthContext,

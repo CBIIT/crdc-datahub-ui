@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import ApprovedStudyFilters from "./ApprovedStudyFilters";
 import { SearchParamsProvider, useSearchParamsContext } from "../../Contexts/SearchParamsContext";

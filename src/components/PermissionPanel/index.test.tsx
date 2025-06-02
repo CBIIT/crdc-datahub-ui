@@ -1,7 +1,7 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { act, render, waitFor, within } from "@testing-library/react";
 import { FormProvider, FormProviderProps } from "react-hook-form";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { FC } from "react";
 import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";

@@ -2,7 +2,7 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { vi } from "vitest";
 import PackageTable from "./PackageTable";
 import packageConfig from "../../config/PackageTableConfig";

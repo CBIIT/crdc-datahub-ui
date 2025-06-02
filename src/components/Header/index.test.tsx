@@ -1,6 +1,6 @@
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { render, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import Header from "./index";

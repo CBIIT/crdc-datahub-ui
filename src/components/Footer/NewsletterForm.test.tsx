@@ -1,5 +1,5 @@
 import { render, waitFor, within } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 import NewsletterForm from "./NewsletterForm";

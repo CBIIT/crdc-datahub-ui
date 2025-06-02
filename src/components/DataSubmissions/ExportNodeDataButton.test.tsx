@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { ExportNodeDataButton } from "./ExportNodeDataButton";
 import {
   GET_SUBMISSION_NODES,

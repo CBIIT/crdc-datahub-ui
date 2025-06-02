@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import ExportRequestButton from "./index";
 import {
   ContextState as FormContextState,

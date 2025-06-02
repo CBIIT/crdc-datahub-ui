@@ -2,7 +2,7 @@ import { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { render, waitFor } from "@testing-library/react";
 import DataActivity from "./DataActivity";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";

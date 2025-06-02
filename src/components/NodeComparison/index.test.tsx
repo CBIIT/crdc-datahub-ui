@@ -1,5 +1,5 @@
 import { act, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC } from "react";
 import { GraphQLError } from "graphql";

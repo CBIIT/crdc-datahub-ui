@@ -1,4 +1,4 @@
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { render } from "@testing-library/react";
 import Banner from "./index";
 

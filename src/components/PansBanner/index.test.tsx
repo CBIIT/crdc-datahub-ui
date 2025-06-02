@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import dayjs from "dayjs";
 import PansBanner from "./index";
 

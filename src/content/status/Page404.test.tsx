@@ -1,4 +1,4 @@
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { BrowserRouter, RouterProvider, createMemoryRouter } from "react-router-dom";
 import { render, waitFor } from "@testing-library/react";
 import { FC } from "react";

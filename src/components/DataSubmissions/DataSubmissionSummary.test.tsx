@@ -4,7 +4,7 @@ import { render, waitFor } from "@testing-library/react";
 import { isEqual } from "lodash";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import DataSubmissionSummary from "./DataSubmissionSummary";
 import HistoryIconMap from "./DataSubmissionIconMap";
 import {

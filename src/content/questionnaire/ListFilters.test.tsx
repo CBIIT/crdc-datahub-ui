@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { render, fireEvent, waitFor, act, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import ListFilters, { defaultValues, DEFAULT_STATUSES_SELECTED } from "./ListFilters";
 import type { FilterForm } from "./ListFilters";

@@ -1,7 +1,7 @@
 import React from "react";
 import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MemoryRouter } from "react-router-dom";
 import InstitutionListFilters from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";

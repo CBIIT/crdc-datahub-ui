@@ -1,5 +1,5 @@
 import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import CustomTick from "./CustomTick";
 

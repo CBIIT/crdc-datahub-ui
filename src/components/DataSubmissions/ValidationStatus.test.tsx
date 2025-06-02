@@ -1,6 +1,6 @@
 import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { useMemo } from "react";
 import { ValidationStatus } from "./ValidationStatus";
 import {

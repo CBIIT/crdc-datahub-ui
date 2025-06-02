@@ -1,6 +1,6 @@
 import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { GraphQLError } from "graphql";

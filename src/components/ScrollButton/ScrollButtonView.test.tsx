@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import ScrollButton from "./ScrollButtonView";
 
 describe("Accessibility", () => {
