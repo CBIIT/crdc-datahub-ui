@@ -128,7 +128,7 @@ describe("Basic Functionality", () => {
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   it("should render without crashing", () => {

@@ -65,7 +65,7 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => <TestParent isLoggedIn>{children}</TestParent>,
     });
 
-    jest.advanceTimersByTime(10001);
+    vi.advanceTimersByTime(10001);
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledTimes(1);
@@ -73,7 +73,7 @@ describe("Basic Functionality", () => {
 
     expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining(`/api/authn/session-ttl`));
 
-    jest.advanceTimersByTime(10001);
+    vi.advanceTimersByTime(10001);
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledTimes(2);
@@ -93,7 +93,7 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => <TestParent isLoggedIn>{children}</TestParent>,
     });
 
-    jest.advanceTimersByTime(10001);
+    vi.advanceTimersByTime(10001);
 
     await waitFor(() => {
       expect(logoutMock).toHaveBeenCalledTimes(1);

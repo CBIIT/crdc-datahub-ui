@@ -940,7 +940,7 @@ describe("downloadBlob cases", () => {
       setAttribute: mockSetAttribute,
       click: mockClick,
       remove: mockRemove,
-    }) as jest.MockedFunction<typeof document.createElement>;
+    }) as vi.MockedFunction<typeof document.createElement>;
   });
 
   afterEach(() => {

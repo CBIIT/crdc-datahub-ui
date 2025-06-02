@@ -20,7 +20,7 @@ vi.mock("../../hooks/usePageTitle", () => ({
 describe("Basic Functionality", () => {
   afterEach(() => {
     vi.resetAllMocks();
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   it("should set the page title 'Release Notes'", async () => {
@@ -75,7 +75,7 @@ describe("Basic Functionality", () => {
     expect(queryByText(/Mock Markdown Data/)).not.toBeInTheDocument();
 
     act(() => {
-      jest.advanceTimersByTime(500); // Trigger promise resolution
+      vi.advanceTimersByTime(500); // Trigger promise resolution
     });
 
     await waitFor(() => {

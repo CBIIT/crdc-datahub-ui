@@ -292,7 +292,7 @@ describe("ApprovedStudyFilters Component", () => {
     userEvent.type(dbGaPIDInput, "DB1");
 
     // Advance timers by less than debounce time (500ms)
-    jest.advanceTimersByTime(300);
+    vi.advanceTimersByTime(300);
     expect(mockOnChange).not.toHaveBeenCalledWith(
       expect.objectContaining({
         study: "Can",
@@ -301,7 +301,7 @@ describe("ApprovedStudyFilters Component", () => {
     );
 
     // Advance timers to exceed debounce time
-    jest.advanceTimersByTime(300);
+    vi.advanceTimersByTime(300);
 
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith({
@@ -362,7 +362,7 @@ describe("ApprovedStudyFilters Component", () => {
     userEvent.type(studyInput, "Test Study");
 
     // Advance timers to trigger debounce
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledTimes(2);
@@ -375,7 +375,7 @@ describe("ApprovedStudyFilters Component", () => {
     });
 
     // Ensure no additional calls are made
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     expect(mockOnChange).toHaveBeenCalledTimes(2);
 
     vi.useRealTimers();

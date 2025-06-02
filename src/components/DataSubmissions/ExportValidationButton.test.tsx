@@ -253,7 +253,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       vi.useRealTimers();
     }
   );

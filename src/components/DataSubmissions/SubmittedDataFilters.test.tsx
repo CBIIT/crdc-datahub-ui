@@ -19,7 +19,7 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 
 describe("SubmittedDataFilters cases", () => {
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
@@ -316,7 +316,7 @@ describe("SubmittedDataFilters cases", () => {
 
     expect(mockOnChange).not.toHaveBeenCalled(); // Not called before advancing timers
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(mockOnChange).toHaveBeenCalledWith({
       nodeType: expect.any(String),
@@ -357,7 +357,7 @@ describe("SubmittedDataFilters cases", () => {
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "valid id here");
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     expect(mockOnChange).toHaveBeenCalledWith({
       nodeType: expect.any(String),
@@ -407,7 +407,7 @@ describe("SubmittedDataFilters cases", () => {
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "1");
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "2");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(mockOnChange).not.toHaveBeenCalled();
   });

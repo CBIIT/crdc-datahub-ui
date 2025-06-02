@@ -22,9 +22,9 @@ vi.mock("../Contexts/SubmissionContext", () => ({
   useSubmissionContext: vi.fn(),
 }));
 
-const mockUseAuthContext = useAuthContext as jest.Mock;
-const mockUseCollaboratorsContext = useCollaboratorsContext as jest.Mock;
-const mockUseSubmissionContext = useSubmissionContext as jest.Mock;
+const mockUseAuthContext = useAuthContext as vi.Mock;
+const mockUseCollaboratorsContext = useCollaboratorsContext as vi.Mock;
+const mockUseSubmissionContext = useSubmissionContext as vi.Mock;
 
 const mockUser: User = {
   _id: "user-1",

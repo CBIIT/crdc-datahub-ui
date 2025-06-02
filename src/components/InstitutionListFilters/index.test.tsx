@@ -130,7 +130,7 @@ describe("InstitutionListFilters Component", () => {
     userEvent.clear(nameInput);
     userEvent.type(nameInput, "Test");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith({ name: "Test", status: "All" });
@@ -149,13 +149,13 @@ describe("InstitutionListFilters Component", () => {
     const nameInput = getByTestId("name-input");
 
     userEvent.type(nameInput, "TestName");
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith({ name: "TestName", status: "All" });
     });
 
     userEvent.clear(nameInput);
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith({ name: "", status: "All" });
     });

@@ -11,7 +11,7 @@ interface ColumnType {
   hideable?: boolean;
 }
 
-const mockUseLocalStorage = useLocalStorage as jest.MockedFunction<typeof useLocalStorage>;
+const mockUseLocalStorage = useLocalStorage as vi.MockedFunction<typeof useLocalStorage>;
 
 describe("useColumnVisibility Hook", () => {
   const getColumnKey = (column: Column<ColumnType>): string => column.name;

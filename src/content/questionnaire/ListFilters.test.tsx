@@ -47,7 +47,7 @@ describe("Accessibility", () => {
 
 describe("ListFilters Component", () => {
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
@@ -87,7 +87,7 @@ describe("ListFilters Component", () => {
     userEvent.type(submitterInput, "John Doe");
     userEvent.type(studyInput, "StudyX");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     // Wait for the debounced callback to fire
     await waitFor(() => {
@@ -122,7 +122,7 @@ describe("ListFilters Component", () => {
     fireEvent.blur(submitterInput);
     fireEvent.blur(studyInput);
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     await waitFor(() => {
       expect(onChangeMock).toHaveBeenCalled();
@@ -153,14 +153,14 @@ describe("ListFilters Component", () => {
     userEvent.type(submitterInput, "Some Name");
     userEvent.type(studyInput, "Some Study");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     const resetButton = getByTestId("reset-filters-button");
     userEvent.click(resetButton);
 
     // Causes error without the act
     act(() => {
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
     });
 
     await waitFor(() => {

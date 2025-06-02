@@ -264,7 +264,7 @@ describe("ExportCrossValidationButton cases", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       vi.useRealTimers();
     }
   );

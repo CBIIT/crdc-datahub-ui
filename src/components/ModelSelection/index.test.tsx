@@ -585,7 +585,7 @@ describe("Implementation Requirements", () => {
     };
 
     let updateQueryResult: GetSubmissionResp | undefined;
-    const mockUpdateQuery = jest.fn((updater: (prev: GetSubmissionResp) => GetSubmissionResp) => {
+    const mockUpdateQuery = vi.fn((updater: (prev: GetSubmissionResp) => GetSubmissionResp) => {
       updateQueryResult = updater(prevState);
     });
 

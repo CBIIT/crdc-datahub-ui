@@ -19,13 +19,7 @@ describe("Accessibility", () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
     const { container } = render(
-      <FormDialog
-        open
-        dataCommons=""
-        modelVersion=""
-        onSubmitForm={vi.fn()}
-        onClose={vi.fn()}
-      />
+      <FormDialog open dataCommons="" modelVersion="" onSubmitForm={vi.fn()} onClose={vi.fn()} />
     );
 
     await waitFor(() => {

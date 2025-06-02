@@ -201,7 +201,7 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-file1-button")).toBeDisabled();
     expect(getByTestId("download-all-button")).toBeDisabled();
 
-    jest.advanceTimersByTime(3001); // Simulate the delay for the download to complete
+    vi.advanceTimersByTime(3001); // Simulate the delay for the download to complete
 
     await waitFor(() => {
       expect(getByTestId("download-file2-button")).toBeEnabled();
@@ -210,7 +210,7 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-file1-button")).toBeEnabled();
     expect(getByTestId("download-all-button")).toBeEnabled();
 
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 

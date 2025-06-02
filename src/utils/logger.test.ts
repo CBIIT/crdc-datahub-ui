@@ -4,7 +4,7 @@ import env from "../env";
 describe("Logger", () => {
   const originalEnv = process.env;
 
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: vi.SpyInstance;
 
   beforeEach(() => {
     // Reset the environment variables back to their original values

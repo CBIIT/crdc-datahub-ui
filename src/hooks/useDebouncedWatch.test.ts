@@ -13,22 +13,22 @@ vi.mock("react-hook-form", () => ({
 }));
 
 describe("useDebouncedWatch", () => {
-  let fakeWatch: jest.Mock;
-  let unsubscribeSpy: jest.Mock;
+  let fakeWatch: vi.Mock;
+  let unsubscribeSpy: vi.Mock;
   let capturedWatchCallback: ((values: FormValues, details: { name?: string }) => void) | undefined;
 
   beforeEach(() => {
     vi.useFakeTimers();
     unsubscribeSpy = vi.fn();
-    fakeWatch = jest.fn((callback: (values: FormValues, details: { name?: string }) => void) => {
+    fakeWatch = vi.fn((callback: (values: FormValues, details: { name?: string }) => void) => {
       capturedWatchCallback = callback;
       return { unsubscribe: unsubscribeSpy };
     });
-    (useFormContext as jest.Mock).mockReturnValue({ watch: fakeWatch });
+    (useFormContext as vi.Mock).mockReturnValue({ watch: fakeWatch });
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     vi.useRealTimers();
     vi.resetAllMocks();
   });
@@ -45,7 +45,7 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "John" }, { name: "firstName" });
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(onChangeMock).toHaveBeenCalledWith({ firstName: "John" });
   });
@@ -62,7 +62,7 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "John" }, { name: "firstName" });
-    jest.advanceTimersByTime(999);
+    vi.advanceTimersByTime(999);
     await Promise.resolve();
     expect(onChangeMock).toHaveBeenCalledTimes(0);
   });
@@ -79,7 +79,7 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "Jo" }, { name: "firstName" });
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     await Promise.resolve();
     expect(onChangeMock).not.toHaveBeenCalled();
   });
@@ -111,7 +111,7 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ lastName: "Smith" }, { name: "lastName" });
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     expect(onChangeMock).not.toHaveBeenCalled();
   });
 
@@ -127,7 +127,7 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "John" }, {});
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     expect(onChangeMock).not.toHaveBeenCalled();
   });
 
@@ -144,11 +144,11 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "Hell" }, { name: "firstName" });
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     expect(onChangeMock).not.toHaveBeenCalled();
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "Hello" }, { name: "firstName" });
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     expect(onChangeMock).toHaveBeenCalledWith({ firstName: "Hello" });
   });
 
@@ -163,7 +163,7 @@ describe("useDebouncedWatch", () => {
     );
 
     capturedWatchCallback && capturedWatchCallback({ firstName: "John" }, { name: "firstName" });
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
     await Promise.resolve();
     expect(onChangeMock).toHaveBeenCalledWith({ firstName: "John" });
   });

@@ -13,7 +13,7 @@ const getColumnKey = (column: Column) => column.fieldKey ?? column.field;
 const getColumnLabel = (column: Column) => column.label;
 
 let columnVisibilityModel: { [key: string]: boolean };
-let setColumnVisibilityModel: jest.Mock;
+let setColumnVisibilityModel: vi.Mock;
 
 type Column = {
   field: string;
@@ -29,7 +29,7 @@ describe("Accessibility", () => {
       age: true,
       email: true,
     };
-    setColumnVisibilityModel = jest.fn((model) => {
+    setColumnVisibilityModel = vi.fn((model) => {
       columnVisibilityModel = model;
     });
   });
@@ -76,7 +76,7 @@ describe("ColumnVisibilityButton", () => {
       age: true,
       email: true,
     };
-    setColumnVisibilityModel = jest.fn((model) => {
+    setColumnVisibilityModel = vi.fn((model) => {
       columnVisibilityModel = model;
     });
   });

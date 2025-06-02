@@ -249,7 +249,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => expect(confirmButton).toBeDisabled());
 
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 });

@@ -184,28 +184,25 @@ describe("Accessibility", () => {
   });
 
   it("should not have accessibility violations for the Model Version element", async () => {
-    const { getByTestId } = render(
-      <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />,
-      {
-        wrapper: ({ children }) => (
-          <TestParent
-            mocks={[]}
-            authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
-            submission={{
-              ...baseSubmission,
-              _id: "id-upload-button-text",
-              metadataValidationStatus: "New",
-              fileValidationStatus: "New",
-              dataCommons: "Test Data Common",
-              dataCommonsDisplayName: "Display Name of TDC",
-              modelVersion: "1.9.3",
-            }}
-          >
-            {children}
-          </TestParent>
-        ),
-      }
-    );
+    const { getByTestId } = render(<MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[]}
+          authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+          submission={{
+            ...baseSubmission,
+            _id: "id-upload-button-text",
+            metadataValidationStatus: "New",
+            fileValidationStatus: "New",
+            dataCommons: "Test Data Common",
+            dataCommonsDisplayName: "Display Name of TDC",
+            modelVersion: "1.9.3",
+          }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
 
     expect(getByTestId("metadata-upload-model-version")).toBeInTheDocument();
     expect(await axe(getByTestId("metadata-upload-model-version"))).toHaveNoViolations();

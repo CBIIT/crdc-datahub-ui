@@ -100,7 +100,7 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
 
 describe("CrossValidationFilters cases", () => {
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 

@@ -2,7 +2,7 @@ describe("parseReleaseVersion cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
@@ -90,7 +90,7 @@ describe("buildReleaseNotesUrl cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
@@ -141,7 +141,7 @@ describe("getFilteredDataCommons cases", () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
 
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };

@@ -75,7 +75,7 @@ interface TestParentProps {
   submissionContextValue?: SubmissionCtxState;
   issueTypeProp?: string | null;
   isAggregated?: boolean;
-  onChange?: jest.Mock;
+  onChange?: vi.Mock;
   mocks?: MockedResponse[];
 }
 

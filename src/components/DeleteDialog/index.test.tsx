@@ -107,12 +107,7 @@ describe("Basic Functionality", () => {
   it("should forward button props to the close button", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog
-          open
-          onConfirm={vi.fn()}
-          onClose={vi.fn()}
-          closeButtonProps={{ disabled: true }}
-        />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} closeButtonProps={{ disabled: true }} />
       </TestParent>
     );
 

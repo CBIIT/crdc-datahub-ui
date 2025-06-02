@@ -441,7 +441,7 @@ describe("Implementation Requirements", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       vi.useRealTimers();
     }
   );
