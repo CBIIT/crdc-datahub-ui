@@ -10,7 +10,7 @@
     "build": "vite build",
     "test": "TZ=UTC vitest",
     "test:ui": "vitest --ui",
-    "test:ci": "TZ=UTC CI=true vitest --passWithNoTests --coverage --maxWorkers=2 --maxConcurrent=2 --logHeapUsage --collectCoverageFrom=src/**/*.{js,ts,jsx,tsx} --collectCoverageFrom=!src/**/*.stories.{js,ts,jsx,tsx}",
+    "test:ci": "TZ=UTC CI=true vitest",
     "lint": "eslint . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
