@@ -927,15 +927,15 @@ describe("unpackQCResultSeverities cases", () => {
 });
 
 describe("downloadBlob cases", () => {
-  const mockSetAttribute = jest.fn();
-  const mockClick = jest.fn();
-  const mockRemove = jest.fn();
+  const mockSetAttribute = vi.fn();
+  const mockClick = vi.fn();
+  const mockRemove = vi.fn();
 
   beforeEach(() => {
-    URL.createObjectURL = jest.fn().mockReturnValue("blob-url");
+    URL.createObjectURL = vi.fn().mockReturnValue("blob-url");
 
     // Spy on document.createElement calls and override the return value
-    jest.spyOn(document, "createElement").mockReturnValue({
+    vi.spyOn(document, "createElement").mockReturnValue({
       ...document.createElement("a"),
       setAttribute: mockSetAttribute,
       click: mockClick,
@@ -944,11 +944,11 @@ describe("downloadBlob cases", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should create a ObjectURL with the file content blob", () => {

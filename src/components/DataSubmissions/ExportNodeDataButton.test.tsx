@@ -22,9 +22,9 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   </MockedProvider>
 );
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", () => ({
+  ...vi.importActual("../../utils"),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -61,7 +61,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should only execute the GET_SUBMISSION_NODES query onClick", async () => {
@@ -276,7 +276,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip present on the button for Metadata", async () => {
@@ -394,7 +394,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should safely create the TSV filename using Submission Name, Node Type, and Exported Date",
     async ({ name, nodeType, date, expected }) => {
-      jest.useFakeTimers().setSystemTime(date);
+      vi.useFakeTimers().setSystemTime(date);
 
       const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
         {
@@ -442,7 +442,7 @@ describe("Implementation Requirements", () => {
       });
 
       jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+      vi.useRealTimers();
     }
   );
 });

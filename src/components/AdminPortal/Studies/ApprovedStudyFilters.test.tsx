@@ -62,8 +62,8 @@ const TestParent: FC<ParentProps> = ({
 
 describe("ApprovedStudyFilters Component", () => {
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("renders without crashing", async () => {
@@ -110,7 +110,7 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("allows users to select an access type", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ApprovedStudyFilters onChange={mockOnChange} />
@@ -146,7 +146,7 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("sets accessType correctly when selecting 'Open'", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent>
@@ -188,7 +188,7 @@ describe("ApprovedStudyFilters Component", () => {
       return <div data-testid="search-params">{searchParams.toString()}</div>;
     };
 
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={["/?accessType=Controlled"]}>
@@ -266,8 +266,8 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("debounces input changes for study and dbGaPID fields", async () => {
-    jest.useFakeTimers();
-    const mockOnChange = jest.fn();
+    vi.useFakeTimers();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ApprovedStudyFilters onChange={mockOnChange} />
@@ -312,11 +312,11 @@ describe("ApprovedStudyFilters Component", () => {
       });
     });
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("handles empty input fields correctly", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ApprovedStudyFilters onChange={mockOnChange} />
@@ -344,8 +344,8 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("prevents infinite loops by ensuring setSearchParams is called appropriately", async () => {
-    jest.useFakeTimers();
-    const mockOnChange = jest.fn();
+    vi.useFakeTimers();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ApprovedStudyFilters onChange={mockOnChange} />
@@ -378,11 +378,11 @@ describe("ApprovedStudyFilters Component", () => {
     jest.advanceTimersByTime(500);
     expect(mockOnChange).toHaveBeenCalledTimes(2);
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("updates dbGaPID input when searchParams dbGaPID is different", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent initialEntries={["/test?dbGaPID=DB123"]}>
         <ApprovedStudyFilters onChange={mockOnChange} />
@@ -408,7 +408,7 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("updates accessType dropdown when searchParams accessType is different", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={["/test?accessType=Controlled"]}>
@@ -435,7 +435,7 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("handles accessTypeFilter being 'All' correctly when study equals studyFilter", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={["/?study=Study1&accessType=All"]}>
@@ -465,7 +465,7 @@ describe("ApprovedStudyFilters Component", () => {
   });
 
   it("handles invalid accessTypeFilter value in searchParams correctly", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
 
     const { getByTestId } = render(
       <TestParent initialEntries={["/?study=Study1&accessType=invalid-access-type"]}>

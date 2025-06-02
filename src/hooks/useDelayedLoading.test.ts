@@ -3,11 +3,11 @@ import { useDelayedLoading } from "./useDelayedLoading";
 
 describe("useDelayedLoading", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("should not show loading initially even when isLoading is true", () => {
@@ -38,7 +38,7 @@ describe("useDelayedLoading", () => {
 
   it("should clean up on component unmount to prevent memory leaks", () => {
     const { unmount } = renderHook(() => useDelayedLoading(true, 1000));
-    const spy = jest.spyOn(global, "clearTimeout");
+    const spy = vi.spyOn(global, "clearTimeout");
     unmount();
     expect(spy).toHaveBeenCalled(); // Verify that clearTimeout is called upon unmount
     act(() => jest.advanceTimersByTime(1000));

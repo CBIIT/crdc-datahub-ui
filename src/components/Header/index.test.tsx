@@ -6,9 +6,9 @@ import { MockedProvider } from "@apollo/client/testing";
 import Header from "./index";
 import { ContextState, Context, Status } from "../Contexts/AuthContext";
 
-const mockUseMediaQuery = jest.fn();
-jest.mock("@mui/material", () => ({
-  ...jest.requireActual("@mui/material"),
+const mockUseMediaQuery = vi.fn();
+vi.mock("@mui/material", () => ({
+  ...vi.importActual("@mui/material"),
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 

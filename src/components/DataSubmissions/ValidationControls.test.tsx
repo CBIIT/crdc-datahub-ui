@@ -70,10 +70,10 @@ const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  startPolling: jest.fn(),
-  stopPolling: jest.fn(),
-  refetch: jest.fn(),
-  updateQuery: jest.fn(),
+  startPolling: vi.fn(),
+  stopPolling: vi.fn(),
+  refetch: vi.fn(),
+  updateQuery: vi.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
@@ -174,7 +174,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -610,7 +610,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render as disabled with text 'Validating...' when metadata is validating", () => {
@@ -757,7 +757,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const mockRefetch = jest.fn();
+    const mockRefetch = vi.fn();
     const { getByTestId } = render(
       <TestParent
         mocks={mocks}
@@ -818,7 +818,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const mockRefetch = jest.fn();
+    const mockRefetch = vi.fn();
     const { getByTestId, rerender } = render(
       <TestParent
         mocks={mocks}

@@ -10,11 +10,11 @@ describe("Logger", () => {
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
 
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should log an error message with the correct format", () => {

@@ -29,8 +29,8 @@ const TestParent: FC<ParentProps> = ({ initialEntries = ["/"], children }) => (
 
 describe("Accessibility", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("has no accessibility violations", async () => {
@@ -48,7 +48,7 @@ describe("Accessibility", () => {
 describe("ListFilters Component", () => {
   afterEach(() => {
     jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("renders all filter fields with correct labels and placeholders", () => {
@@ -72,9 +72,9 @@ describe("ListFilters Component", () => {
   });
 
   it("calls onChange callback after debounced input changes with valid values", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
@@ -104,9 +104,9 @@ describe("ListFilters Component", () => {
   });
 
   it("sends empty strings for submitterName and studyName if input length is less than 3", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
@@ -138,9 +138,9 @@ describe("ListFilters Component", () => {
   });
 
   it("reset button resets filters to default values and calls onChange callback", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />
@@ -263,7 +263,7 @@ describe("ListFilters Component", () => {
     const initialEntries = [
       "/?programName=Program%20A&studyName=TestStudy&statuses=Submitted&statuses=Approved&submitterName=JohnDoe",
     ];
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     const { getByTestId, getByPlaceholderText } = render(
       <TestParent initialEntries={initialEntries}>
         <ListFilters applicationData={mockApplicationData} onChange={onChangeMock} />

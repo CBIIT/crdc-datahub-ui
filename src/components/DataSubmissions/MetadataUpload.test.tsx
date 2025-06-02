@@ -154,7 +154,7 @@ describe("Accessibility", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -173,8 +173,8 @@ describe("Accessibility", () => {
         }}
       >
         <MetadataUpload
-          onCreateBatch={jest.fn()}
-          onUpload={jest.fn()}
+          onCreateBatch={vi.fn()}
+          onUpload={vi.fn()}
           readOnly // NOTE: this property also disables the component
         />
       </TestParent>
@@ -185,7 +185,7 @@ describe("Accessibility", () => {
 
   it("should not have accessibility violations for the Model Version element", async () => {
     const { getByTestId } = render(
-      <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />,
+      <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />,
       {
         wrapper: ({ children }) => (
           <TestParent
@@ -224,7 +224,7 @@ describe("MetadataUpload Tooltip", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -248,11 +248,11 @@ describe("MetadataUpload Tooltip", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -277,7 +277,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: null,
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -301,7 +301,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: null,
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -312,7 +312,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onCreateBatch when successfully creating a batch", async () => {
-    const onCreateBatchMock = jest.fn();
+    const onCreateBatchMock = vi.fn();
     const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
@@ -353,7 +353,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={onCreateBatchMock} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={onCreateBatchMock} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -368,7 +368,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onUpload when successfully uploading metadata", async () => {
-    const onUploadMock = jest.fn();
+    const onUploadMock = vi.fn();
     const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
@@ -409,7 +409,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={onUploadMock} />
       </TestParent>
     );
 
@@ -424,7 +424,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onUpload when failing to upload metadata (CREATE BATCH)", async () => {
-    const onUploadMock = jest.fn();
+    const onUploadMock = vi.fn();
     const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
@@ -465,7 +465,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={onUploadMock} />
       </TestParent>
     );
 
@@ -480,7 +480,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onUpload when failing to upload metadata (UPDATE BATCH)", async () => {
-    const onUploadMock = jest.fn();
+    const onUploadMock = vi.fn();
     const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
@@ -517,7 +517,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={onUploadMock} />
       </TestParent>
     );
 
@@ -536,7 +536,7 @@ describe("Basic Functionality", () => {
       .spyOn(window, "fetch")
       .mockImplementationOnce(() => Promise.reject(new Error("simulated")));
 
-    const onUploadMock = jest.fn();
+    const onUploadMock = vi.fn();
     const mocks: MockedResponse<CreateBatchResp | UpdateBatchResp>[] = [
       {
         request: {
@@ -577,7 +577,7 @@ describe("Basic Functionality", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={onUploadMock} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={onUploadMock} />
       </TestParent>
     );
 
@@ -594,16 +594,16 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render the Data Model version if it's provided", () => {
     const { getByText, getByTestId } = render(
-      <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />,
+      <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />,
       {
         wrapper: ({ children }) => (
           <TestParent
@@ -632,7 +632,7 @@ describe("Implementation Requirements", () => {
 
   it("should not render the Data Model version if it's not provided", () => {
     const { queryByTestId } = render(
-      <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />,
+      <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />,
       {
         wrapper: ({ children }) => (
           <TestParent
@@ -698,7 +698,7 @@ describe("Implementation Requirements", () => {
           fileValidationStatus: "New",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -724,7 +724,7 @@ describe("Implementation Requirements", () => {
           fileValidationStatus: null,
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -746,7 +746,7 @@ describe("Implementation Requirements", () => {
           fileValidationStatus: null,
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -772,7 +772,7 @@ describe("Implementation Requirements", () => {
           fileValidationStatus: null,
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -797,7 +797,7 @@ describe("Implementation Requirements", () => {
           fileValidationStatus: null,
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -823,7 +823,7 @@ describe("Implementation Requirements", () => {
           submitterID: "random-id-owner",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -850,7 +850,7 @@ describe("Implementation Requirements", () => {
           submitterID: "test-user",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -870,7 +870,7 @@ describe("Implementation Requirements", () => {
           fileValidationStatus: "Passed",
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} readOnly />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} readOnly />
       </TestParent>
     );
 
@@ -904,7 +904,7 @@ describe("Implementation Requirements", () => {
           ],
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -939,7 +939,7 @@ describe("Implementation Requirements", () => {
           ],
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 
@@ -979,7 +979,7 @@ describe("Implementation Requirements", () => {
           ],
         }}
       >
-        <MetadataUpload onCreateBatch={jest.fn()} onUpload={jest.fn()} />
+        <MetadataUpload onCreateBatch={vi.fn()} onUpload={vi.fn()} />
       </TestParent>
     );
 

@@ -20,9 +20,9 @@ Object.defineProperty(global, "crypto", {
  * @example expect(global.mockEnqueue).toHaveBeenCalledWith('message', { variant: 'error' });
  * @see notistack documentation: https://notistack.com/getting-started
  */
-global.mockEnqueue = jest.fn();
-jest.mock("notistack", () => ({
-  ...jest.requireActual("notistack"),
+global.mockEnqueue = vi.fn();
+vi.mock("notistack", () => ({
+  ...vi.importActual("notistack"),
   useSnackbar: () => ({ enqueueSnackbar: global.mockEnqueue }),
 }));
 
@@ -65,8 +65,8 @@ global.DataTransfer = class DataTransfer {
  * @see Recharts documentation: https://recharts.org/en-US/guide
  */
 const MockResponsiveContainer = (props) => <div {...props} />;
-jest.mock("recharts", () => ({
-  ...jest.requireActual("recharts"),
+vi.mock("recharts", () => ({
+  ...vi.importActual("recharts"),
   ResponsiveContainer: MockResponsiveContainer,
 }));
 
@@ -74,6 +74,6 @@ jest.mock("recharts", () => ({
  * Mocks the react-markdown package for testing
  * as Jest does not support ESM modules by default
  */
-jest.mock("react-markdown", () => ({ children }: { children: string }) => (
+vi.mock("react-markdown", () => ({ children }: { children: string }) => (
   <div data-testid="react-markdown-mock">{children}</div>
 ));

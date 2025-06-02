@@ -18,16 +18,16 @@ import {
 } from "../../graphql";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", () => ({
+  ...vi.importActual("../../hooks/usePageTitle"),
   __esModule: true,
   default: (p) => mockUsePageTitle(p),
 }));
 
-const mockNavigate = jest.fn();
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", () => ({
+  ...vi.importActual("react-router-dom"),
   useNavigate: () => mockNavigate,
 }));
 
@@ -139,7 +139,7 @@ describe("Accessibility", () => {
 
 describe("InstitutionView Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders without crashing", () => {

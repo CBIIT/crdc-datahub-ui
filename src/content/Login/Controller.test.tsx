@@ -2,16 +2,16 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import LoginController from "./Controller";
 
-jest.mock("../../env", () => ({
+vi.mock("../../env", () => ({
   ...process.env,
   VITE_NIH_AUTHORIZE_URL: "https://mock-sso-url",
   VITE_NIH_CLIENT_ID: "mock-client-id",
   VITE_NIH_REDIRECT_URL: "mock-redirect-url",
 }));
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", () => ({
+  ...vi.importActual("../../hooks/usePageTitle"),
   __esModule: true,
   default: (p) => mockUsePageTitle(p),
 }));

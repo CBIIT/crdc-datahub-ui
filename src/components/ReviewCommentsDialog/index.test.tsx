@@ -95,7 +95,7 @@ describe("ReviewCommentsDialog Tests", () => {
   });
 
   it("closes the dialog when the close button is clicked", async () => {
-    const mockClose = jest.fn();
+    const mockClose = vi.fn();
     const data = {
       open: true,
       title: "",

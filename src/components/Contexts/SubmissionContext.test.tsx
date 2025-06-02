@@ -11,10 +11,10 @@ import {
   SubmissionQCResultsResp,
 } from "../../graphql";
 
-const mockStartPolling = jest.fn();
-const mockStopPolling = jest.fn();
-jest.mock("@apollo/client", () => {
-  const originalModule = jest.requireActual("@apollo/client");
+const mockStartPolling = vi.fn();
+const mockStopPolling = vi.fn();
+vi.mock("@apollo/client", () => {
+  const originalModule = vi.importActual("@apollo/client");
 
   return {
     ...originalModule,
@@ -85,11 +85,11 @@ const TestParent: FC<TestParentProps> = ({ mocks = [], _id = "", children }: Tes
 
 describe("useSubmissionContext", () => {
   it("should throw an exception when used outside of a SubmissionProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useSubmissionContext cannot be used outside of the SubmissionProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 
   it("should render nominally when used inside a SubmissionProvider", () => {
@@ -131,7 +131,7 @@ describe("useSubmissionContext", () => {
 
 describe("SubmissionProvider", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should handle API network errors without crashing", async () => {

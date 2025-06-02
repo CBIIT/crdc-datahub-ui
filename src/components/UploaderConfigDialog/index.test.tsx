@@ -14,11 +14,11 @@ const TestParent: FC<ParentProps> = ({ children }) => (
 );
 
 describe("Accessibility", () => {
-  const mockDownload = jest.fn();
-  const mockOnClose = jest.fn();
+  const mockDownload = vi.fn();
+  const mockOnClose = vi.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have no violations", async () => {
@@ -33,11 +33,11 @@ describe("Accessibility", () => {
 });
 
 describe("Basic Functionality", () => {
-  const mockDownload = jest.fn();
-  const mockOnClose = jest.fn();
+  const mockDownload = vi.fn();
+  const mockOnClose = vi.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -186,11 +186,11 @@ describe("Basic Functionality", () => {
 });
 
 describe("Implementation Requirements", () => {
-  const mockDownload = jest.fn();
-  const mockOnClose = jest.fn();
+  const mockDownload = vi.fn();
+  const mockOnClose = vi.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not submit the form if any of the inputs are invalid", async () => {

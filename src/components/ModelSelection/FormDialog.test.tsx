@@ -3,15 +3,15 @@ import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import FormDialog from "./FormDialog";
 
-const mockListAvailableModelVersions = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockListAvailableModelVersions = vi.fn();
+vi.mock("../../utils", () => ({
+  ...vi.importActual("../../utils"),
   listAvailableModelVersions: async (...args) => mockListAvailableModelVersions(...args),
 }));
 
 describe("Accessibility", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
@@ -23,8 +23,8 @@ describe("Accessibility", () => {
         open
         dataCommons=""
         modelVersion=""
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -38,19 +38,19 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
   it("should close the dialog when the 'Cancel' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     const { getByTestId } = render(
       <FormDialog
         open
         dataCommons=""
         modelVersion=""
-        onSubmitForm={jest.fn()}
+        onSubmitForm={vi.fn()}
         onClose={mockOnClose}
       />
     );
@@ -65,14 +65,14 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     const { getByTestId } = render(
       <FormDialog
         open
         dataCommons=""
         modelVersion=""
-        onSubmitForm={jest.fn()}
+        onSubmitForm={vi.fn()}
         onClose={mockOnClose}
       />
     );
@@ -87,14 +87,14 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     const { getByTestId } = render(
       <FormDialog
         open
         dataCommons=""
         modelVersion=""
-        onSubmitForm={jest.fn()}
+        onSubmitForm={vi.fn()}
         onClose={mockOnClose}
       />
     );
@@ -116,8 +116,8 @@ describe("Basic Functionality", () => {
         open={false}
         dataCommons="MOCK-DC-TEST"
         modelVersion="1.0.0"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -128,8 +128,8 @@ describe("Basic Functionality", () => {
         open
         dataCommons="MOCK-DC-TEST"
         modelVersion="1.0.0"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -141,7 +141,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onSubmitForm function with the selected model version", async () => {
-    const mockOnSubmitForm = jest.fn().mockResolvedValueOnce(undefined);
+    const mockOnSubmitForm = vi.fn().mockResolvedValueOnce(undefined);
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
     const { getByTestId } = render(
@@ -150,7 +150,7 @@ describe("Basic Functionality", () => {
         dataCommons="MOCK-DC-TEST"
         modelVersion="1.0.0"
         onSubmitForm={mockOnSubmitForm}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -168,7 +168,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
@@ -180,8 +180,8 @@ describe("Implementation Requirements", () => {
         open
         dataCommons="MOCK-DC-TEST"
         modelVersion="1.0.0"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -205,8 +205,8 @@ describe("Implementation Requirements", () => {
         open
         dataCommons="MOCK-DC-TEST"
         modelVersion="MODEL-VERSION-ABC"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -235,8 +235,8 @@ describe("Implementation Requirements", () => {
         open
         dataCommons="MOCK-DC-TEST"
         modelVersion="6.1.1"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -260,8 +260,8 @@ describe("Implementation Requirements", () => {
         open
         dataCommons="MOCK-DC-TEST"
         modelVersion="MODEL-VERSION-1.2.3"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -278,8 +278,8 @@ describe("Implementation Requirements", () => {
         open
         dataCommons="MOCK-DC-TEST"
         modelVersion="XYZ"
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 

@@ -102,7 +102,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -119,7 +119,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -136,7 +136,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -193,7 +193,7 @@ describe("Basic Functionality", () => {
       expect(getByTestId("generic-table")).toBeVisible();
     });
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     userEvent.click(getByTestId("download-file2-button"));
 
@@ -211,7 +211,7 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-all-button")).toBeEnabled();
 
     jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("should disable the download all button when there are no files to download", async () => {
@@ -457,7 +457,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should open the presigned URL in a new tab", async () => {
-    jest.spyOn(global, "open").mockImplementation(() => null);
+    vi.spyOn(global, "open").mockImplementation(() => null);
 
     const mock: MockedResponse<DownloadMetadataFileResp, DownloadMetadataFileInput> = {
       request: {

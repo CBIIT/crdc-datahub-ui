@@ -9,8 +9,8 @@ type ParentProps = {
   children: React.ReactNode;
 };
 
-jest.mock("../NodeComparison", () => ({
-  ...jest.requireActual("../NodeComparison"),
+vi.mock("../NodeComparison", () => ({
+  ...vi.importActual("../NodeComparison"),
   __esModule: true,
   default: () => <div>MOCK NODE COMPARISON</div>,
 }));
@@ -53,7 +53,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open errors={[]} onClose={mockOnClose} />
@@ -70,7 +70,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open errors={[]} onClose={mockOnClose} />
@@ -87,7 +87,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open errors={[]} onClose={mockOnClose} />

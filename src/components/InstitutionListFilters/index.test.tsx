@@ -31,7 +31,7 @@ describe("Accessibility", () => {
 
 describe("InstitutionListFilters Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders without crashing", () => {
@@ -45,7 +45,7 @@ describe("InstitutionListFilters Component", () => {
   });
 
   it("updates onChange immediately when selecting a new status", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const { getByTestId, getByRole } = render(
       <TestParent>
         <InstitutionListFilters onChange={mockOnChange} />
@@ -86,7 +86,7 @@ describe("InstitutionListFilters Component", () => {
   });
 
   it("calls onChange with default values on initial render", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     render(
       <TestParent>
         <InstitutionListFilters onChange={mockOnChange} />
@@ -100,7 +100,7 @@ describe("InstitutionListFilters Component", () => {
 
   it("initializes form fields based on URL search params", async () => {
     const initialEntries = ["/?name=TestName&status=Active"];
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent initialEntries={initialEntries}>
         <InstitutionListFilters onChange={mockOnChange} />
@@ -117,8 +117,8 @@ describe("InstitutionListFilters Component", () => {
   });
 
   it("debounces onChange after entering a value in the name input", async () => {
-    jest.useFakeTimers();
-    const mockOnChange = jest.fn();
+    vi.useFakeTimers();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <InstitutionListFilters onChange={mockOnChange} />
@@ -135,12 +135,12 @@ describe("InstitutionListFilters Component", () => {
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith({ name: "Test", status: "All" });
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("calls onChange after clearing the name input", async () => {
-    jest.useFakeTimers();
-    const mockOnChange = jest.fn();
+    vi.useFakeTimers();
+    const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <InstitutionListFilters onChange={mockOnChange} />
@@ -159,6 +159,6 @@ describe("InstitutionListFilters Component", () => {
     await waitFor(() => {
       expect(mockOnChange).toHaveBeenCalledWith({ name: "", status: "All" });
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 });

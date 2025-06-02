@@ -7,9 +7,9 @@ type FormValues = {
   lastName?: string;
 };
 
-jest.mock("react-hook-form", () => ({
-  ...jest.requireActual("react-hook-form"),
-  useFormContext: jest.fn(),
+vi.mock("react-hook-form", () => ({
+  ...vi.importActual("react-hook-form"),
+  useFormContext: vi.fn(),
 }));
 
 describe("useDebouncedWatch", () => {
@@ -18,8 +18,8 @@ describe("useDebouncedWatch", () => {
   let capturedWatchCallback: ((values: FormValues, details: { name?: string }) => void) | undefined;
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    unsubscribeSpy = jest.fn();
+    vi.useFakeTimers();
+    unsubscribeSpy = vi.fn();
     fakeWatch = jest.fn((callback: (values: FormValues, details: { name?: string }) => void) => {
       capturedWatchCallback = callback;
       return { unsubscribe: unsubscribeSpy };
@@ -29,12 +29,12 @@ describe("useDebouncedWatch", () => {
 
   afterEach(() => {
     jest.clearAllTimers();
-    jest.useRealTimers();
-    jest.resetAllMocks();
+    vi.useRealTimers();
+    vi.resetAllMocks();
   });
 
   it("calls onChange after debounce when field value length is greater than or equal to required length", async () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -51,7 +51,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("does not call onChange before debounce time interval", async () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -68,7 +68,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("does not call onChange if field value length is positive but below required length", async () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -85,7 +85,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("calls onChange immediately when the field is cleared (empty string)", () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -100,7 +100,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("ignores changes for fields not specified in fieldsToDebounce", () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -116,7 +116,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("ignores callback when details.name is undefined", () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -132,7 +132,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("respects minLengths override for a field", () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -153,7 +153,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("uses default debounceMs value when not provided", async () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,
@@ -169,7 +169,7 @@ describe("useDebouncedWatch", () => {
   });
 
   it("calls onChange immediately when field value is non-string", () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderHook(() =>
       useDebouncedWatch<FormValues>({
         watch: useFormContext().watch,

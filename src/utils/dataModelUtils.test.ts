@@ -1,16 +1,16 @@
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import * as utils from "./dataModelUtils";
 
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
-jest.mock("../env", () => ({
+vi.mock("../env", () => ({
   ...process.env,
   VITE_DEV_TIER: undefined,
 }));
 
 describe("fetchManifest cases", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
@@ -114,7 +114,7 @@ describe("fetchManifest cases", () => {
 
 describe("listAvailableModelVersions", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 

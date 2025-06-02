@@ -13,7 +13,7 @@ import {
 } from "../Contexts/AuthContext";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 
-const mockWriteText = jest.fn();
+const mockWriteText = vi.fn();
 Object.assign(navigator, {
   clipboard: {
     writeText: mockWriteText,
@@ -84,7 +84,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -92,7 +92,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onClose when the 'Close' button is clicked", async () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getByText } = render(<ApiTokenDialog open onClose={onClose} />, {
       wrapper: TestParent,
     });
@@ -103,7 +103,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onClose when the 'X' icon is clicked", async () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getByRole } = render(<ApiTokenDialog open onClose={onClose} />, {
       wrapper: TestParent,
     });
@@ -114,7 +114,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onClose when the backdrop is clicked", async () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { findAllByRole } = render(<ApiTokenDialog open onClose={onClose} />, {
       wrapper: TestParent,
     });

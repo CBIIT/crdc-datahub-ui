@@ -114,7 +114,7 @@ describe("Accessibility", () => {
 // NOTE: We're testing component behavior here, not requirement-based behavior
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not crash if the submission is null", async () => {
@@ -182,7 +182,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip appear on hover", async () => {

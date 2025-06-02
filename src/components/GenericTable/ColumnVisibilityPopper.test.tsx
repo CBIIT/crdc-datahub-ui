@@ -24,7 +24,7 @@ const getColumnLabel = (column: Column) => column.label;
 describe("Accessibility", () => {
   let columnVisibilityModel: { [key: string]: boolean };
   let setColumnVisibilityModel: jest.Mock;
-  const onClose = jest.fn();
+  const onClose = vi.fn();
 
   beforeEach(() => {
     columnVisibilityModel = {
@@ -58,7 +58,7 @@ describe("Accessibility", () => {
 describe("ColumnVisibilityPopper", () => {
   let columnVisibilityModel: { [key: string]: boolean };
   let setColumnVisibilityModel: jest.Mock;
-  const onClose = jest.fn();
+  const onClose = vi.fn();
 
   beforeEach(() => {
     columnVisibilityModel = {

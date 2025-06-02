@@ -165,11 +165,11 @@ const MockParent: FC<MockParentProps> = ({
 
 // describe("Accessibility", () => {
 //   beforeEach(() => {
-//     jest.resetAllMocks();
+//     vi.resetAllMocks();
 //   });
 
 //   it("should have no violations", async () => {
-//     const { container } = render(<FormDialog open onClose={jest.fn()} />, {
+//     const { container } = render(<FormDialog open onClose={vi.fn()} />, {
 //       wrapper: ({ children }) => (
 //         <MockParent mocks={[emptyStudiesMock, emptyInstitutionsMock]}>{children}</MockParent>
 //       ),
@@ -181,11 +181,11 @@ const MockParent: FC<MockParentProps> = ({
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     expect(() =>
       render(<FormDialog open onClose={mockOnClose} />, {
@@ -199,7 +199,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Cancel' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     const { getByTestId } = render(<FormDialog open onClose={mockOnClose} />, {
       wrapper: ({ children }) => (
@@ -219,7 +219,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     const { getByTestId } = render(<FormDialog open onClose={mockOnClose} />, {
       wrapper: ({ children }) => (
@@ -239,7 +239,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
 
     const { getByTestId } = render(<FormDialog open onClose={mockOnClose} />, {
       wrapper: ({ children }) => (
@@ -268,7 +268,7 @@ describe("Basic Functionality", () => {
   //     error: new Error("Network error"),
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
@@ -295,7 +295,7 @@ describe("Basic Functionality", () => {
   //     },
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
@@ -328,7 +328,7 @@ describe("Basic Functionality", () => {
   //     },
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
@@ -360,7 +360,7 @@ describe("Basic Functionality", () => {
   //     },
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
@@ -387,7 +387,7 @@ describe("Basic Functionality", () => {
       variableMatcher: () => true,
     };
 
-    render(<FormDialog open onClose={jest.fn()} />, {
+    render(<FormDialog open onClose={vi.fn()} />, {
       wrapper: ({ children }) => (
         <MockParent institutions={[]} mocks={[mock]}>
           {children}
@@ -411,7 +411,7 @@ describe("Basic Functionality", () => {
       variableMatcher: () => true,
     };
 
-    render(<FormDialog open onClose={jest.fn()} />, {
+    render(<FormDialog open onClose={vi.fn()} />, {
       wrapper: ({ children }) => (
         <MockParent institutions={[]} mocks={[mock]}>
           {children}
@@ -443,7 +443,7 @@ describe("Basic Functionality", () => {
   //     },
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => <MockParent mocks={[emptyStudiesMock, mock]}>{children}</MockParent>,
   //   });
 
@@ -463,12 +463,12 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
-    jest.clearAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should have the placeholder '100 characters allowed' for the institution field", () => {
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+    const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
       wrapper: ({ children }) => (
         <MockParent institutions={[]} mocks={[emptyStudiesMock]}>
           {children}
@@ -482,7 +482,7 @@ describe("Implementation Requirements", () => {
   });
 
   // it("should trim whitespace from the text fields before submitting", async () => {
-  //   const mockMatcher = jest.fn().mockImplementation(() => true);
+  //   const mockMatcher = vi.fn().mockImplementation(() => true);
   //   const mock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
   //     request: {
   //       query: REQUEST_ACCESS,
@@ -498,7 +498,7 @@ describe("Implementation Requirements", () => {
   //     },
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => (
   //       <MockParent institutions={mockInstitutionList} mocks={[studiesMock, mock]}>
   //         {children}
@@ -545,7 +545,7 @@ describe("Implementation Requirements", () => {
 
   // This test is failing in CI
   // it("should limit 'Additional Info' to 200 characters", async () => {
-  //   const mockMatcher = jest.fn().mockImplementation(() => true);
+  //   const mockMatcher = vi.fn().mockImplementation(() => true);
   //   const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
   //     request: {
   //       query: REQUEST_ACCESS,
@@ -561,7 +561,7 @@ describe("Implementation Requirements", () => {
   //     },
   //   };
 
-  //   const { getByTestId, findByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId, findByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => (
   //       <MockParent institutions={mockInstitutionList} mocks={[studiesMock, submitMock]}>
   //         {children}
@@ -601,7 +601,7 @@ describe("Implementation Requirements", () => {
   // });
 
   // it("should limit 'Institution' to 100 characters", async () => {
-  //   const mockMatcher = jest.fn().mockImplementation(() => true);
+  //   const mockMatcher = vi.fn().mockImplementation(() => true);
   //   const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
   //     request: {
   //       query: REQUEST_ACCESS,
@@ -617,7 +617,7 @@ describe("Implementation Requirements", () => {
   //     },
   //   };
 
-  //   const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+  //   const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
   //     wrapper: ({ children }) => (
   //       <MockParent institutions={mockInstitutionList} mocks={[studiesMock, submitMock]}>
   //         {children}
@@ -655,7 +655,7 @@ describe("Implementation Requirements", () => {
   // });
 
   it("should not pre-select the user's current role if it's not a valid option", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const submitMock: MockedResponse<RequestAccessResp, RequestAccessInput> = {
       request: {
         query: REQUEST_ACCESS,
@@ -676,7 +676,7 @@ describe("Implementation Requirements", () => {
       role: "Admin", // Technically not even able to see this dialog
     };
 
-    const { getByTestId } = render(<FormDialog open onClose={jest.fn()} />, {
+    const { getByTestId } = render(<FormDialog open onClose={vi.fn()} />, {
       wrapper: ({ children }) => (
         <MockParent
           institutions={mockInstitutionList}

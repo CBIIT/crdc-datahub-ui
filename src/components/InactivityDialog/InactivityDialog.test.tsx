@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import InactivityDialog from "./InactivityDialog";
 
-const logoutMock = jest.fn();
+const logoutMock = vi.fn();
 
 type TestParentProps = {
   /**
@@ -50,15 +50,15 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.useRealTimers();
-    jest.clearAllMocks();
+    vi.useRealTimers();
+    vi.clearAllMocks();
   });
 
   it("should call the session-ttl endpoint every 10 seconds", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    const fetchSpy = jest.spyOn(window, "fetch").mockResolvedValueOnce({
-      json: jest.fn().mockResolvedValueOnce({ ttl: 10000000 }),
+    const fetchSpy = vi.spyOn(window, "fetch").mockResolvedValueOnce({
+      json: vi.fn().mockResolvedValueOnce({ ttl: 10000000 }),
     } as unknown as Response); // Component only uses the `json` method
 
     render(<InactivityDialog />, {
@@ -81,12 +81,12 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the logout function when the session has timed out without user interaction", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     logoutMock.mockResolvedValueOnce(true);
 
-    jest.spyOn(window, "fetch").mockResolvedValueOnce({
-      json: jest.fn().mockResolvedValueOnce({ ttl: 0 }),
+    vi.spyOn(window, "fetch").mockResolvedValueOnce({
+      json: vi.fn().mockResolvedValueOnce({ ttl: 0 }),
     } as unknown as Response); // Component only uses the `json` method
 
     render(<InactivityDialog />, {

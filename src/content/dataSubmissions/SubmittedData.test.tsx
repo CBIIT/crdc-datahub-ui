@@ -129,7 +129,7 @@ describe("SubmittedData > General", () => {
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any high level accessibility violations", async () => {
@@ -439,7 +439,7 @@ describe("SubmittedData > Table", () => {
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the placeholder text when no data is available", async () => {
@@ -840,7 +840,7 @@ describe("SubmittedData > Table", () => {
       },
     };
 
-    const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
+    const mockMatcherAllNodes = vi.fn().mockImplementation(() => true);
     const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
       maxUsageCount: 1,
       request: {
@@ -1048,7 +1048,7 @@ describe("SubmittedData > Table", () => {
       },
     };
 
-    const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
+    const mockMatcherAllNodes = vi.fn().mockImplementation(() => true);
     const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
       request: {
         query: GET_SUBMISSION_NODES,

@@ -3,7 +3,7 @@ import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import CopyTextButton from "./index";
 
-const mockWriteText = jest.fn();
+const mockWriteText = vi.fn();
 Object.assign(navigator, {
   clipboard: {
     writeText: mockWriteText,
@@ -24,7 +24,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the copy button with correct aria-label", () => {
@@ -38,7 +38,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should copy the text to clipboard and call onCopy when clicked", async () => {
-    const onCopy = jest.fn();
+    const onCopy = vi.fn();
     const { getByTestId } = render(
       <CopyTextButton title="Copy me" copyText="12345" onCopy={onCopy} />
     );
@@ -49,7 +49,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should not copy or call onCopy when copyText is empty or whitespace", async () => {
-    const onCopy = jest.fn();
+    const onCopy = vi.fn();
     const { getByTestId } = render(
       <CopyTextButton title="Copy me" copyText="   " onCopy={onCopy} />
     );
@@ -60,7 +60,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should disable the button when disabled prop is true", () => {
-    const onCopy = jest.fn();
+    const onCopy = vi.fn();
     const { getByTestId } = render(
       <CopyTextButton title="Copy me" copyText="foo" disabled onCopy={onCopy} />
     );
@@ -70,7 +70,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should not copy or call onCopy when disabled", async () => {
-    const onCopy = jest.fn();
+    const onCopy = vi.fn();
     const { getByTestId } = render(<CopyTextButton copyText="abc" disabled onCopy={onCopy} />);
 
     expect(getByTestId("copy-text-button")).toBeDisabled();

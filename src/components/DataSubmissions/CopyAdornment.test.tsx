@@ -3,7 +3,7 @@ import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import CopyAdornment from "./CopyAdornment";
 
-const mockWriteText = jest.fn();
+const mockWriteText = vi.fn();
 Object.assign(navigator, {
   clipboard: {
     writeText: mockWriteText,
@@ -26,7 +26,7 @@ describe("Accessibility", () => {
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the Submission ID and copy button", () => {
