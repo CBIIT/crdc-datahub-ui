@@ -2,7 +2,7 @@
 import "@testing-library/jest-dom";
 import crypto from "crypto";
 import * as matchers from "vitest-axe/matchers";
-import { expect } from "vitest";
+import { expect, vi } from "vitest";
 
 expect.extend(matchers);
 
@@ -73,11 +73,3 @@ vi.mock("recharts", () => ({
   ...vi.importActual("recharts"),
   ResponsiveContainer: MockResponsiveContainer,
 }));
-
-/**
- * Mocks the react-markdown package for testing
- * as Jest does not support ESM modules by default
- */
-vi.mock("react-markdown", () => ({ children }: { children: string }) => (
-  <div data-testid="react-markdown-mock">{children}</div>
-));
