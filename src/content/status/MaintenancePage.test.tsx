@@ -1,9 +1,9 @@
 import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import MaintenancePage from "./MaintenancePage";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", () => ({
   __esModule: true,
   default: (...p) => mockUsePageTitle(...p),
 }));

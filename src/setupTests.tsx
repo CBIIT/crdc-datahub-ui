@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import "@testing-library/jest-dom/vitest";
 import * as matchers from "vitest-axe/matchers";
+import { expect, vi } from "vitest";
 import "vitest-canvas-mock";
 import failOnConsole from "vitest-fail-on-console";
 import crypto from "crypto";
