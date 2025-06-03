@@ -484,6 +484,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   required
                   disabled={retrievingStudy}
                   readOnly={saving}
+                  error={!!errors.studyName}
                   inputProps={{
                     "aria-labelledby": "studyNameLabel",
                     "data-testid": "studyName-input",
@@ -497,6 +498,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   size="small"
                   disabled={retrievingStudy}
                   readOnly={saving}
+                  error={!!errors.studyAbbreviation}
                   inputProps={{
                     "aria-labelledby": "studyAbbreviationLabel",
                     "data-testid": "studyAbbreviation-input",
