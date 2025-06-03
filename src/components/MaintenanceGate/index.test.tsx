@@ -6,7 +6,7 @@ import { GraphQLError } from "graphql";
 import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import MaintenanceGate from "./index";
 
-jest.mock("../../content/status/MaintenancePage", () => ({
+vi.mock("../../content/status/MaintenancePage", () => ({
   __esModule: true,
   default: () => <p>MOCK-MAINTENANCE-PAGE</p>,
 }));

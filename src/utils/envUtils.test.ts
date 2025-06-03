@@ -74,11 +74,11 @@ describe("parseReleaseVersion cases", () => {
   });
 
   it("should return N/A when unable to get release version from build tag", async () => {
-    process.env.VITE_FE_VERSION = "0.0.0.000";
+    process.env.VITE_FE_VERSION = "0.0.0.000"; // NOTE: This is valid, but we're forcing an error below
 
     // NOTE: Previous safety checks should prevent this from happening,
     // so we're just mocking some improper `match` behavior here
-    vi.spyOn(String.prototype, "match").mockReturnValueOnce([undefined, undefined]);
+    vi.spyOn(String.prototype, "match").mockImplementation(() => [undefined, undefined]);
 
     const { parseReleaseVersion } = await import("./envUtils");
 

@@ -352,7 +352,7 @@ describe("ExportCrossValidationButton cases", () => {
 
     const fields = {
       DisplayID: vi.fn().mockImplementation((result: CrossValidationResult) => result.displayID),
-      ValidationType: jest
+      ValidationType: vi
         .fn()
         .mockImplementation((result: CrossValidationResult) => result.validationType),
       // Testing the fallback of falsy values
