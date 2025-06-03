@@ -1,12 +1,25 @@
 /* eslint-disable max-classes-per-file */
 import "@testing-library/jest-dom/vitest";
 import * as matchers from "vitest-axe/matchers";
+import { configureAxe } from "vitest-axe";
 import { expect, vi } from "vitest";
 import "vitest-canvas-mock";
 import failOnConsole from "vitest-fail-on-console";
 import crypto from "crypto";
 
 expect.extend(matchers);
+
+// See https://github.com/NickColley/jest-axe/issues/147
+configureAxe({
+  globalOptions: {
+    checks: [
+      {
+        id: "color-contrast",
+        enabled: false,
+      },
+    ],
+  },
+});
 
 /**
  * Makes the global.crypto.getRandomValues function available in Jest
