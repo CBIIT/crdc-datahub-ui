@@ -193,6 +193,10 @@ describe("Basic Functionality", () => {
 });
 
 describe("Implementation Requirements", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   it("should generate a token when the 'Create Token' button is clicked", async () => {
     let called = false;
     const mock: MockedResponse<GrantTokenResp> = {

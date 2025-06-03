@@ -14,18 +14,18 @@ import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import CollaboratorsTable from "./CollaboratorsTable";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
-vi.mock("../Contexts/AuthContext", () => ({
-  ...vi.importActual("../Contexts/AuthContext"),
+vi.mock("../Contexts/AuthContext", async () => ({
+  ...(await vi.importActual("../Contexts/AuthContext")),
   useAuthContext: vi.fn(),
 }));
 
-vi.mock("../Contexts/SubmissionContext", () => ({
-  ...vi.importActual("../Contexts/SubmissionContext"),
+vi.mock("../Contexts/SubmissionContext", async () => ({
+  ...(await vi.importActual("../Contexts/SubmissionContext")),
   useSubmissionContext: vi.fn(),
 }));
 
-vi.mock("../Contexts/CollaboratorsContext", () => ({
-  ...vi.importActual("../Contexts/CollaboratorsContext"),
+vi.mock("../Contexts/CollaboratorsContext", async () => ({
+  ...(await vi.importActual("../Contexts/CollaboratorsContext")),
   useCollaboratorsContext: vi.fn(),
 }));
 

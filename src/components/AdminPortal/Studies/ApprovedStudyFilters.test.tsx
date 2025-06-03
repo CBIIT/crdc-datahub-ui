@@ -227,7 +227,7 @@ describe("ApprovedStudyFilters Component", () => {
     });
 
     // Ensure 'accessType' is removed from searchParams
-    expect(getByTestId("search-params")).not.toContain("accessType=");
+    expect(getByTestId("search-params").textContent).not.toContain("accessType=");
   });
 
   it("allows users to type into the study input", async () => {
