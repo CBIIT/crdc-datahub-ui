@@ -7,8 +7,8 @@ import Header from "./index";
 import { ContextState, Context, Status } from "../Contexts/AuthContext";
 
 const mockUseMediaQuery = vi.fn();
-vi.mock("@mui/material", () => ({
-  ...vi.importActual("@mui/material"),
+vi.mock("@mui/material", async () => ({
+  ...(await vi.importActual("@mui/material")),
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 

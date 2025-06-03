@@ -3,8 +3,8 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import RequireAuth from "./index";
 
 const mockUseAuthContext = vi.fn();
-vi.mock("../Contexts/AuthContext", () => ({
-  ...vi.importActual("../Contexts/AuthContext"),
+vi.mock("../Contexts/AuthContext", async () => ({
+  ...(await vi.importActual("../Contexts/AuthContext")),
   useAuthContext: () => mockUseAuthContext(),
 }));
 

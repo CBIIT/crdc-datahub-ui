@@ -40,8 +40,8 @@ Object.defineProperty(global, "crypto", {
  * @see notistack documentation: https://notistack.com/getting-started
  */
 global.mockEnqueue = vi.fn();
-vi.mock("notistack", () => ({
-  ...vi.importActual("notistack"),
+vi.mock("notistack", async () => ({
+  ...(await vi.importActual("notistack")),
   useSnackbar: () => ({ enqueueSnackbar: global.mockEnqueue }),
 }));
 
@@ -84,8 +84,8 @@ global.DataTransfer = class DataTransfer {
  * @see Recharts documentation: https://recharts.org/en-US/guide
  */
 const MockResponsiveContainer = (props) => <div {...props} />;
-vi.mock("recharts", () => ({
-  ...vi.importActual("recharts"),
+vi.mock("recharts", async () => ({
+  ...(await vi.importActual("recharts")),
   ResponsiveContainer: MockResponsiveContainer,
 }));
 

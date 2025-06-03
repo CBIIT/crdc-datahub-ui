@@ -23,8 +23,8 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 );
 
 const mockDownloadBlob = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 

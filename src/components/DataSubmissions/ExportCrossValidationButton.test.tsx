@@ -103,8 +103,8 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
 };
 
 const mockDownloadBlob = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -220,7 +220,7 @@ describe("ExportCrossValidationButton cases", () => {
   ])(
     "should generate the correct filename for the submission using the name and current date",
     async ({ name, date, expected }) => {
-      vi.useFakeTimers().setSystemTime(date);
+      vi.useFakeTimers({ now: date }).setSystemTime(date);
 
       const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
         request: {

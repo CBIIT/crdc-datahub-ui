@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import FormDialog from "./FormDialog";
 
 const mockListAvailableModelVersions = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   listAvailableModelVersions: async (...args) => mockListAvailableModelVersions(...args),
 }));
 

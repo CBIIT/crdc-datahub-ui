@@ -27,8 +27,8 @@ const TestParent: FC<Props> = ({ dc, children }: Props) => (
   <DataCommonProvider displayName={dc}>{children ?? <TestChild />}</DataCommonProvider>
 );
 
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   fetchManifest: async () =>
     new Promise((r) => {
       r({});
@@ -52,7 +52,8 @@ describe("DataCommonContext > DataCommonProvider Tests", () => {
   });
 
   it("should render without crashing", () => {
-    render(<TestParent dc="XYZ" />);
+    const { container } = render(<TestParent dc="XYZ" />);
+    expect(container).toBeInTheDocument();
   });
 
   it("should set a error state if the DataCommon is not supported", () => {

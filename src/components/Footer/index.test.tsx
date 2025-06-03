@@ -3,8 +3,8 @@ import { BrowserRouter } from "react-router-dom";
 import Footer from "./index";
 
 const mockUseMediaQuery = vi.fn();
-vi.mock("@mui/material", () => ({
-  ...vi.importActual("@mui/material"),
+vi.mock("@mui/material", async () => ({
+  ...(await vi.importActual("@mui/material")),
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 

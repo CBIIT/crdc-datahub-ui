@@ -26,8 +26,8 @@ vi.mock(import("../../env"), async (importOriginal) => {
 });
 
 const mockDownloadBlob = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 

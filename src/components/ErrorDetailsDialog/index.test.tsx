@@ -9,8 +9,8 @@ type ParentProps = {
   children: React.ReactNode;
 };
 
-vi.mock("../NodeComparison", () => ({
-  ...vi.importActual("../NodeComparison"),
+vi.mock("../NodeComparison", async () => ({
+  ...(await vi.importActual("../NodeComparison")),
   __esModule: true,
   default: () => <div>MOCK NODE COMPARISON</div>,
 }));

@@ -23,8 +23,8 @@ import {
 import ModelSelection from "./index";
 
 const mockListAvailableModelVersions = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   listAvailableModelVersions: async (...args) => mockListAvailableModelVersions(...args),
 }));
 

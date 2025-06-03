@@ -31,8 +31,8 @@ const dummySubmissionData = {
 };
 
 let mockSubmissionData = dummySubmissionData;
-vi.mock("./SubmissionContext", () => ({
-  ...vi.importActual("./SubmissionContext"),
+vi.mock("./SubmissionContext", async () => ({
+  ...(await vi.importActual("./SubmissionContext")),
   useSubmissionContext: () => ({
     data: mockSubmissionData,
   }),

@@ -17,8 +17,8 @@ vi.mock("./pdf/Generate", () => ({
 }));
 
 const mockDownloadBlob = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -215,6 +215,7 @@ describe("Basic Functionality", () => {
 describe("Implementation Requirements", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.TZ = "UTC";
   });
 
   it("should have a tooltip on hover", async () => {

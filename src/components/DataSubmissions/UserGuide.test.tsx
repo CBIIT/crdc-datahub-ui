@@ -4,8 +4,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { axe } from "vitest-axe";
 import { UserGuide } from "./UserGuide";
 
-vi.mock("../../config/HeaderConfig", () => ({
-  ...vi.importActual("../../config/HeaderConfig"),
+vi.mock("../../config/HeaderConfig", async () => ({
+  ...(await vi.importActual("../../config/HeaderConfig")),
   DataSubmissionInstructionsLink: "/data-submission-instructions",
 }));
 

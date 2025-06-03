@@ -29,8 +29,8 @@ vi.mock("../../hooks/usePageTitle", () => ({
 }));
 
 const mockNavigate = vi.fn();
-vi.mock("react-router-dom", () => ({
-  ...vi.importActual("react-router-dom"),
+vi.mock("react-router-dom", async () => ({
+  ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
 
