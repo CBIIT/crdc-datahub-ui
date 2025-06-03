@@ -76,14 +76,6 @@ vi.mock("recharts", () => ({
 }));
 
 /**
- * Mocks the react-markdown package for testing
- * as Jest does not support ESM modules by default
- */
-vi.mock("react-markdown", () => ({ children }: { children: string }) => (
-  <div data-testid="react-markdown-mock">{children}</div>
-));
-
-/**
  * Prevents the console.error and console.warn from silently failing
  * in tests by throwing an error when called
  */

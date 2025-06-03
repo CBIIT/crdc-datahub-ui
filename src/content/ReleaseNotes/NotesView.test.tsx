@@ -24,7 +24,7 @@ describe("Basic Functionality", () => {
   it("should render the markdown content", () => {
     const { getByText } = render(<NotesView md="# Test markdown" />);
 
-    expect(getByText("# Test markdown")).toBeInTheDocument();
+    expect(getByText("Test markdown")).toBeInTheDocument();
   });
 
   it("should render an error message when no markdown is provided", () => {
