@@ -5,11 +5,17 @@ import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import UploaderToolDialog from "./index";
 
-vi.mock("../../env", () => ({
-  ...vi.importActual("../../env"),
-  VITE_UPLOADER_CLI: "mocked-cli-download-link",
-  VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_UPLOADER_CLI: "mocked-cli-download-link",
+      VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+    },
+  };
+});
 
 type ParentProps = {
   children: React.ReactNode;
