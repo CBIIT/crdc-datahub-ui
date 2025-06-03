@@ -1,6 +1,6 @@
 import { FC, memo } from "react";
 import { Box, Stack, Typography, styled } from "@mui/material";
-import { ReactComponent as MaintenanceIcon } from "../../assets/icons/maintenance.svg";
+import MaintenanceIcon from "../../assets/icons/maintenance.svg?react";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const StyledContainer = styled(Stack)({
