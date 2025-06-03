@@ -10,7 +10,7 @@
     "build": "vite build",
     "test": "TZ=UTC vitest",
     "test:ui": "vitest --ui",
-    "test:ci": "TZ=UTC CI=true vitest",
+    "test:ci": "TZ=UTC CI=true vitest --coverage",
     "lint": "eslint . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
