@@ -4,10 +4,16 @@ import * as utils from "./dataModelUtils";
 
 global.fetch = vi.fn();
 
-vi.mock("../env", () => ({
-  ...process.env,
-  VITE_DEV_TIER: undefined,
-}));
+vi.mock(import("../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_DEV_TIER: undefined,
+    },
+  };
+});
 
 describe("fetchManifest cases", () => {
   beforeEach(() => {
