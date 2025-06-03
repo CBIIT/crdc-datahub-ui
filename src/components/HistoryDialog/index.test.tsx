@@ -35,7 +35,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getByTestId } = render(<HistoryDialog {...BaseProps} onClose={onClose} />);
 
     userEvent.click(getByTestId("history-dialog-close"));
@@ -44,7 +44,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getAllByRole } = render(<HistoryDialog {...BaseProps} onClose={onClose} />);
 
     userEvent.click(getAllByRole("presentation")[1]);
@@ -67,7 +67,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call getTextColor with the correct status", () => {
-    const getTextColor = jest.fn();
+    const getTextColor = vi.fn();
     const history: HistoryBase<MockStatuses>[] = [
       { status: "uploaded", dateTime: new Date().toISOString(), userID: "test", reviewComment: "" },
     ];
@@ -90,7 +90,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should render a custom status wrapper if provided", async () => {
-    const getStatusWrapper = jest
+    const getStatusWrapper = vi
       .fn()
       .mockImplementation(() => ({ children }) => (
         <div data-testid="mock-wrapper-for-status">{children}</div>

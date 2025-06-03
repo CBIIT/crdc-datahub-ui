@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import Dialog from "./index";
 
@@ -17,7 +17,7 @@ describe("Accessibility", () => {
   it("should have no violations (no errors)", async () => {
     const { container } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} />
       </TestParent>
     );
 
@@ -29,7 +29,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} />
       </TestParent>
     );
 
@@ -37,10 +37,10 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the 'onClose' callback when the close button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={mockOnClose} />
+        <Dialog open onConfirm={vi.fn()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -54,10 +54,10 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the 'onClose' when the close icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={mockOnClose} />
+        <Dialog open onConfirm={vi.fn()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -71,10 +71,10 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={mockOnClose} />
+        <Dialog open onConfirm={vi.fn()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -88,10 +88,10 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the 'onConfirm' callback when the confirm button is clicked", async () => {
-    const mockOnConfirm = jest.fn();
+    const mockOnConfirm = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={mockOnConfirm} onClose={jest.fn()} />
+        <Dialog open onConfirm={mockOnConfirm} onClose={vi.fn()} />
       </TestParent>
     );
 
@@ -107,12 +107,7 @@ describe("Basic Functionality", () => {
   it("should forward button props to the close button", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog
-          open
-          onConfirm={jest.fn()}
-          onClose={jest.fn()}
-          closeButtonProps={{ disabled: true }}
-        />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} closeButtonProps={{ disabled: true }} />
       </TestParent>
     );
 
@@ -124,8 +119,8 @@ describe("Basic Functionality", () => {
       <TestParent>
         <Dialog
           open
-          onConfirm={jest.fn()}
-          onClose={jest.fn()}
+          onConfirm={vi.fn()}
+          onClose={vi.fn()}
           confirmButtonProps={{ disabled: true }}
         />
       </TestParent>
@@ -135,14 +130,14 @@ describe("Basic Functionality", () => {
   });
 
   it("should forward the header props to the header element", () => {
-    const mockOnHeaderClick = jest.fn();
+    const mockOnHeaderClick = vi.fn();
 
     const { getByTestId } = render(
       <TestParent>
         <Dialog
           open
-          onConfirm={jest.fn()}
-          onClose={jest.fn()}
+          onConfirm={vi.fn()}
+          onClose={vi.fn()}
           headerProps={{ className: "xyz-custom-prop", onClick: mockOnHeaderClick }}
         />
       </TestParent>
@@ -160,7 +155,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct header", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} header="custom header" />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} header="custom header" />
       </TestParent>
     );
 
@@ -170,7 +165,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct description", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} description="custom description" />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} description="custom description" />
       </TestParent>
     );
 
@@ -180,7 +175,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct close button text", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} closeText="custom dismiss" />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} closeText="custom dismiss" />
       </TestParent>
     );
 
@@ -190,7 +185,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct confirm button text", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} confirmText="custom confirm" />
+        <Dialog open onConfirm={vi.fn()} onClose={vi.fn()} confirmText="custom confirm" />
       </TestParent>
     );
 

@@ -172,7 +172,7 @@ describe("SearchParamsContext", () => {
   });
 
   it("throws an error when used outside of provider", () => {
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useSearchParamsContext cannot be used outside of the SearchParamsProvider component"
     );

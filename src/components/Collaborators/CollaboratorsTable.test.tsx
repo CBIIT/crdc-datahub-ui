@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { render, fireEvent, within, waitFor } from "@testing-library/react";
+import { Mock } from "vitest";
 import { MockedProvider } from "@apollo/client/testing";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import {
   Context as AuthContext,
@@ -13,24 +14,24 @@ import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import CollaboratorsTable from "./CollaboratorsTable";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
-jest.mock("../Contexts/AuthContext", () => ({
-  ...jest.requireActual("../Contexts/AuthContext"),
-  useAuthContext: jest.fn(),
+vi.mock("../Contexts/AuthContext", () => ({
+  ...vi.importActual("../Contexts/AuthContext"),
+  useAuthContext: vi.fn(),
 }));
 
-jest.mock("../Contexts/SubmissionContext", () => ({
-  ...jest.requireActual("../Contexts/SubmissionContext"),
-  useSubmissionContext: jest.fn(),
+vi.mock("../Contexts/SubmissionContext", () => ({
+  ...vi.importActual("../Contexts/SubmissionContext"),
+  useSubmissionContext: vi.fn(),
 }));
 
-jest.mock("../Contexts/CollaboratorsContext", () => ({
-  ...jest.requireActual("../Contexts/CollaboratorsContext"),
-  useCollaboratorsContext: jest.fn(),
+vi.mock("../Contexts/CollaboratorsContext", () => ({
+  ...vi.importActual("../Contexts/CollaboratorsContext"),
+  useCollaboratorsContext: vi.fn(),
 }));
 
-const mockUseAuthContext = useAuthContext as jest.Mock;
-const mockUseSubmissionContext = useSubmissionContext as jest.Mock;
-const mockUseCollaboratorsContext = useCollaboratorsContext as jest.Mock;
+const mockUseAuthContext = useAuthContext as Mock;
+const mockUseSubmissionContext = useSubmissionContext as Mock;
+const mockUseCollaboratorsContext = useCollaboratorsContext as Mock;
 
 const mockUser: User = {
   _id: "user-1",
@@ -77,9 +78,9 @@ const mockRemainingPotentialCollaborators: Collaborator[] = [
   },
 ];
 
-const mockHandleAddCollaborator = jest.fn();
-const mockHandleRemoveCollaborator = jest.fn();
-const mockHandleUpdateCollaborator = jest.fn();
+const mockHandleAddCollaborator = vi.fn();
+const mockHandleRemoveCollaborator = vi.fn();
+const mockHandleUpdateCollaborator = vi.fn();
 
 const baseAuthCtx: AuthContextState = {
   status: AuthStatus.LOADED,
@@ -113,7 +114,7 @@ const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
 
 describe("CollaboratorsTable Accessibility Tests", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
       user: mockUser,
@@ -149,7 +150,7 @@ describe("CollaboratorsTable Accessibility Tests", () => {
 
 describe("CollaboratorsTable Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
       user: mockUser,

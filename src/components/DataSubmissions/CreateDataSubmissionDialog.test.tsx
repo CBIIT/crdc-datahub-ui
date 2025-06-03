@@ -109,10 +109,10 @@ const TestParent: FC<ParentProps> = ({
 );
 
 describe("Basic Functionality", () => {
-  const handleCreate = jest.fn();
+  const handleCreate = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders dialog and form inputs correctly", async () => {
@@ -745,7 +745,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -797,7 +797,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -867,7 +867,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -933,7 +933,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -985,7 +985,7 @@ describe("Implementation Requirements", () => {
   it.each<UserRole>(["Data Commons Personnel"])(
     "should fetch all of the studies if the user's role is %s",
     async (role) => {
-      const mockMatcher = jest.fn().mockImplementation(() => true);
+      const mockMatcher = vi.fn().mockImplementation(() => true);
       const listApprovedStudiesMock: MockedResponse<
         ListApprovedStudiesResp,
         ListApprovedStudiesInput
@@ -1019,7 +1019,7 @@ describe("Implementation Requirements", () => {
         },
       };
 
-      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
         wrapper: (p) => (
           <TestParent
             mocks={[listApprovedStudiesMock]}
@@ -1038,7 +1038,7 @@ describe("Implementation Requirements", () => {
   );
 
   it("should fetch all of the studies if the user's assigned studies contains the 'All' study", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const listApprovedStudiesMock: MockedResponse<
       ListApprovedStudiesResp,
       ListApprovedStudiesInput
@@ -1065,7 +1065,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[listApprovedStudiesMock]}

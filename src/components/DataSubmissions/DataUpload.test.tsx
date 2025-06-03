@@ -1,6 +1,6 @@
 import { FC, useMemo } from "react";
 import { act, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
@@ -13,15 +13,15 @@ import {
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { DataUpload } from "./DataUpload";
 
-jest.mock("../../env", () => ({
-  ...jest.requireActual("../../env"),
+vi.mock("../../env", () => ({
+  ...vi.importActual("../../env"),
   VITE_BACKEND_API: "mocked-backend-api-url",
   VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
 }));
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", () => ({
+  ...vi.importActual("../../utils"),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 

@@ -1,5 +1,5 @@
 import { render, within } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import ReviewDialog from "./ApproveFormDialog";
 
@@ -50,7 +50,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the `onSubmit` function when the confirm button is clicked", () => {
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
 
     const { getByRole, getByTestId } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 
@@ -63,7 +63,7 @@ describe("Basic Functionality", () => {
   });
 
   it("calls the `onCancel` function when the cancel button is clicked", () => {
-    const mockOnCancel = jest.fn();
+    const mockOnCancel = vi.fn();
 
     const { getByRole } = render(<ReviewDialog open onCancel={mockOnCancel} />);
 
@@ -85,7 +85,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should not allow typing more than 500 characters in the review comment input field", () => {
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
 
     const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 
@@ -100,7 +100,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should not allow pasting more than 500 characters in the review comment input field", () => {
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
 
     const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 

@@ -43,7 +43,7 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 );
 
 describe("DataViewDetailsDialog via BaseComponent", () => {
-  const mockOnClose = jest.fn();
+  const mockOnClose = vi.fn();
   const props = {
     submissionID: "12345",
     nodeType: "Node1",
@@ -54,7 +54,7 @@ describe("DataViewDetailsDialog via BaseComponent", () => {
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders correctly when open", () => {

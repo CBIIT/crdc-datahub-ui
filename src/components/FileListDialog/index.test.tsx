@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { render, waitFor, within } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
@@ -102,7 +102,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -119,7 +119,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -136,7 +136,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -193,7 +193,7 @@ describe("Basic Functionality", () => {
       expect(getByTestId("generic-table")).toBeVisible();
     });
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     userEvent.click(getByTestId("download-file2-button"));
 
@@ -201,7 +201,7 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-file1-button")).toBeDisabled();
     expect(getByTestId("download-all-button")).toBeDisabled();
 
-    jest.advanceTimersByTime(3001); // Simulate the delay for the download to complete
+    vi.advanceTimersByTime(3001); // Simulate the delay for the download to complete
 
     await waitFor(() => {
       expect(getByTestId("download-file2-button")).toBeEnabled();
@@ -210,8 +210,8 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-file1-button")).toBeEnabled();
     expect(getByTestId("download-all-button")).toBeEnabled();
 
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("should disable the download all button when there are no files to download", async () => {
@@ -457,7 +457,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should open the presigned URL in a new tab", async () => {
-    jest.spyOn(global, "open").mockImplementation(() => null);
+    vi.spyOn(global, "open").mockImplementation(() => null);
 
     const mock: MockedResponse<DownloadMetadataFileResp, DownloadMetadataFileInput> = {
       request: {

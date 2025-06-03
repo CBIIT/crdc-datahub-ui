@@ -1,11 +1,11 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import { BrowserRouter as Router } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { UserGuide } from "./UserGuide";
 
-jest.mock("../../config/HeaderConfig", () => ({
-  ...jest.requireActual("../../config/HeaderConfig"),
+vi.mock("../../config/HeaderConfig", () => ({
+  ...vi.importActual("../../config/HeaderConfig"),
   DataSubmissionInstructionsLink: "/data-submission-instructions",
 }));
 

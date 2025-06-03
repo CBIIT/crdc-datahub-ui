@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { ExportCrossValidationButton } from "./ExportCrossValidationButton";
 import {
   CrossValidationResultsInput,
@@ -102,15 +102,15 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
   );
 };
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", () => ({
+  ...vi.importActual("../../utils"),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
 describe("ExportCrossValidationButton cases", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not have accessibility violations", async () => {
@@ -147,7 +147,7 @@ describe("ExportCrossValidationButton cases", () => {
   });
 
   it("should only execute the fetch query onClick", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       request: {
         query: SUBMISSION_CROSS_VALIDATION_RESULTS,
@@ -220,7 +220,7 @@ describe("ExportCrossValidationButton cases", () => {
   ])(
     "should generate the correct filename for the submission using the name and current date",
     async ({ name, date, expected }) => {
-      jest.useFakeTimers().setSystemTime(date);
+      vi.useFakeTimers().setSystemTime(date);
 
       const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
         request: {
@@ -242,7 +242,7 @@ describe("ExportCrossValidationButton cases", () => {
       };
 
       const fields = {
-        ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
+        ID: vi.fn().mockImplementation((result: QCResult) => result.submissionID),
       };
 
       const { getByTestId } = render(<ExportCrossValidationButton fields={fields} />, {
@@ -264,8 +264,8 @@ describe("ExportCrossValidationButton cases", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
     }
   );
 
@@ -351,12 +351,12 @@ describe("ExportCrossValidationButton cases", () => {
     };
 
     const fields = {
-      DisplayID: jest.fn().mockImplementation((result: CrossValidationResult) => result.displayID),
+      DisplayID: vi.fn().mockImplementation((result: CrossValidationResult) => result.displayID),
       ValidationType: jest
         .fn()
         .mockImplementation((result: CrossValidationResult) => result.validationType),
       // Testing the fallback of falsy values
-      NullValueField: jest.fn().mockImplementation(() => null),
+      NullValueField: vi.fn().mockImplementation(() => null),
     };
 
     const { getByTestId } = render(<ExportCrossValidationButton fields={fields} />, {

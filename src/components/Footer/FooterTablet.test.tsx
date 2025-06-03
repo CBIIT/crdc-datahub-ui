@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import FooterTablet from "./FooterTablet";
 
 describe("Accessibility", () => {

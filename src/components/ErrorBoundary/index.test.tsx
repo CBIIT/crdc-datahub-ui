@@ -8,11 +8,11 @@ const ThrowError = () => {
 describe("ErrorBoundary", () => {
   beforeEach(() => {
     // The error is propagated to the console by default
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should catch errors in its children and display a fallback UI", () => {

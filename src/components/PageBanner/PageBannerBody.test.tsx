@@ -2,7 +2,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import PageBannerBody from "./PageBannerBody";
 
 type Props = {

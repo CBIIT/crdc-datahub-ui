@@ -2,12 +2,12 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import PackageTable from "./PackageTable";
 import packageConfig from "../../config/PackageTableConfig";
 
-jest.mock("../../env", () => ({
-  ...jest.requireActual("../../env"),
+vi.mock("../../env", () => ({
+  ...vi.importActual("../../env"),
   VITE_UPLOADER_CLI: "https://github.com/.../fake-release/crdc-datahub-cli-uploader.zip",
   VITE_UPLOADER_CLI_WINDOWS:
     "https://github.com/.../fake-release/crdc-datahub-cli-uploader-windows.zip",

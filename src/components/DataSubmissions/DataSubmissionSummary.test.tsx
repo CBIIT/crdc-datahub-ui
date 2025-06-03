@@ -4,7 +4,7 @@ import { render, waitFor } from "@testing-library/react";
 import { isEqual } from "lodash";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import DataSubmissionSummary from "./DataSubmissionSummary";
 import HistoryIconMap from "./DataSubmissionIconMap";
 import {
@@ -46,10 +46,10 @@ const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  startPolling: jest.fn(),
-  stopPolling: jest.fn(),
-  refetch: jest.fn(),
-  updateQuery: jest.fn(),
+  startPolling: vi.fn(),
+  stopPolling: vi.fn(),
+  refetch: vi.fn(),
+  updateQuery: vi.fn(),
 };
 
 type SummaryProps = {
@@ -293,7 +293,7 @@ describe("DataSubmissionSummary Memoization Tests", () => {
       name: "Test Submission",
     };
 
-    const renderSpy = jest.fn();
+    const renderSpy = vi.fn();
 
     const MemoizedComponent = ({ dataSubmission }: SummaryProps) => {
       React.useEffect(() => {
@@ -333,7 +333,7 @@ describe("DataSubmissionSummary Memoization Tests", () => {
       name: "Updated Submission",
     };
 
-    const renderSpy = jest.fn();
+    const renderSpy = vi.fn();
 
     const MemoizedComponent = ({ dataSubmission }: SummaryProps) => {
       React.useEffect(() => {

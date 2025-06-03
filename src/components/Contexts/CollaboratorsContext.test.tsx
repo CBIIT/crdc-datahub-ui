@@ -31,8 +31,8 @@ const dummySubmissionData = {
 };
 
 let mockSubmissionData = dummySubmissionData;
-jest.mock("./SubmissionContext", () => ({
-  ...jest.requireActual("./SubmissionContext"),
+vi.mock("./SubmissionContext", () => ({
+  ...vi.importActual("./SubmissionContext"),
   useSubmissionContext: () => ({
     data: mockSubmissionData,
   }),
@@ -243,8 +243,8 @@ const TestParent: React.FC<TestParentProps> = ({ mocks = [], children }) => (
 
 describe("CollaboratorsContext", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should initialize with default current collaborator", () => {
@@ -448,7 +448,7 @@ describe("CollaboratorsContext", () => {
   });
 
   it("should throw an error when useCollaboratorsContext is used outside of CollaboratorsProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress expected console error
+    vi.spyOn(console, "error").mockImplementation(() => {}); // Suppress expected console error
 
     expect(() => {
       render(
@@ -458,7 +458,7 @@ describe("CollaboratorsContext", () => {
       );
     }).toThrow("useCollaboratorsContext must be used within a CollaboratorsProvider");
 
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 
   it("should handle null potential collaborators list", async () => {

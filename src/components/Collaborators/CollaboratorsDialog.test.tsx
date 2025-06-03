@@ -1,30 +1,31 @@
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";
+import { Mock } from "vitest";
 import { MockedProvider } from "@apollo/client/testing";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import CollaboratorsDialog from "./CollaboratorsDialog";
 
-jest.mock("../Contexts/AuthContext", () => ({
-  ...jest.requireActual("../Contexts/AuthContext"),
-  useAuthContext: jest.fn(),
+vi.mock("../Contexts/AuthContext", () => ({
+  ...vi.importActual("../Contexts/AuthContext"),
+  useAuthContext: vi.fn(),
 }));
 
-jest.mock("../Contexts/CollaboratorsContext", () => ({
-  ...jest.requireActual("../Contexts/CollaboratorsContext"),
-  useCollaboratorsContext: jest.fn(),
+vi.mock("../Contexts/CollaboratorsContext", () => ({
+  ...vi.importActual("../Contexts/CollaboratorsContext"),
+  useCollaboratorsContext: vi.fn(),
 }));
 
-jest.mock("../Contexts/SubmissionContext", () => ({
-  ...jest.requireActual("../Contexts/SubmissionContext"),
-  useSubmissionContext: jest.fn(),
+vi.mock("../Contexts/SubmissionContext", () => ({
+  ...vi.importActual("../Contexts/SubmissionContext"),
+  useSubmissionContext: vi.fn(),
 }));
 
-const mockUseAuthContext = useAuthContext as jest.Mock;
-const mockUseCollaboratorsContext = useCollaboratorsContext as jest.Mock;
-const mockUseSubmissionContext = useSubmissionContext as jest.Mock;
+const mockUseAuthContext = useAuthContext as Mock;
+const mockUseCollaboratorsContext = useCollaboratorsContext as Mock;
+const mockUseSubmissionContext = useSubmissionContext as Mock;
 
 const mockUser: User = {
   _id: "user-1",
@@ -66,10 +67,10 @@ const mockCollaborators = [
   },
 ];
 
-const mockSaveCollaborators = jest.fn();
-const mockLoadPotentialCollaborators = jest.fn();
-const mockResetCollaborators = jest.fn();
-const mockUpdateQuery = jest.fn();
+const mockSaveCollaborators = vi.fn();
+const mockLoadPotentialCollaborators = vi.fn();
+const mockResetCollaborators = vi.fn();
+const mockUpdateQuery = vi.fn();
 
 type Props = {
   children: React.ReactNode;
@@ -83,7 +84,7 @@ const TestParent: React.FC<Props> = ({ children }) => (
 
 describe("CollaboratorsDialog Accessibility Tests", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
       user: mockUser,
@@ -106,7 +107,7 @@ describe("CollaboratorsDialog Accessibility Tests", () => {
   it("has no accessibility violations", async () => {
     const { container } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -117,7 +118,7 @@ describe("CollaboratorsDialog Accessibility Tests", () => {
 
 describe("CollaboratorsDialog Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
       user: mockUser,
@@ -140,7 +141,7 @@ describe("CollaboratorsDialog Component", () => {
   it("renders the dialog when open is true", () => {
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -156,7 +157,7 @@ describe("CollaboratorsDialog Component", () => {
   it("does not render the dialog when open is false", () => {
     const { queryByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open={false} onClose={jest.fn()} onSave={jest.fn()} />
+        <CollaboratorsDialog open={false} onClose={vi.fn()} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -164,10 +165,10 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("calls onClose when close icon is clicked", () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -183,10 +184,10 @@ describe("CollaboratorsDialog Component", () => {
       status: AuthStatus.LOADED,
     });
 
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -197,10 +198,10 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("calls onSave when Save button is clicked", async () => {
-    const mockOnSave = jest.fn();
+    const mockOnSave = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={mockOnSave} />
       </TestParent>
     );
 
@@ -217,10 +218,10 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("calls resetCollaborators and onClose when Cancel button is clicked", () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -234,7 +235,7 @@ describe("CollaboratorsDialog Component", () => {
   it("loads potential collaborators on mount", () => {
     render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -251,7 +252,7 @@ describe("CollaboratorsDialog Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -263,7 +264,7 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("updates submission data correctly when previous data exists", async () => {
-    const mockOnSave = jest.fn();
+    const mockOnSave = vi.fn();
 
     mockUpdateQuery.mockImplementation((callback) => {
       const prev = { getSubmission: { otherData: "test" } };
@@ -279,7 +280,7 @@ describe("CollaboratorsDialog Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={mockOnSave} />
       </TestParent>
     );
 
@@ -296,7 +297,7 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("updates submission data correctly when previous data is undefined", async () => {
-    const mockOnSave = jest.fn();
+    const mockOnSave = vi.fn();
 
     mockUpdateQuery.mockImplementation((callback) => {
       const prev = undefined;
@@ -312,7 +313,7 @@ describe("CollaboratorsDialog Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={mockOnSave} />
       </TestParent>
     );
 
@@ -329,7 +330,7 @@ describe("CollaboratorsDialog Component", () => {
   });
 
   it("updates submission data correctly when getSubmission is undefined", async () => {
-    const mockOnSave = jest.fn();
+    const mockOnSave = vi.fn();
 
     mockUpdateQuery.mockImplementation((callback) => {
       const prev = { getSubmission: undefined };
@@ -345,7 +346,7 @@ describe("CollaboratorsDialog Component", () => {
 
     const { getByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={jest.fn()} onSave={mockOnSave} />
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={mockOnSave} />
       </TestParent>
     );
 
@@ -370,10 +371,10 @@ describe("CollaboratorsDialog Component", () => {
       status: AuthStatus.LOADED,
     });
 
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -391,10 +392,10 @@ describe("CollaboratorsDialog Component", () => {
       status: AuthStatus.LOADED,
     });
 
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
       </TestParent>
     );
 
@@ -418,10 +419,10 @@ describe("CollaboratorsDialog Component", () => {
         updateQuery: mockUpdateQuery,
       });
 
-      const mockOnClose = jest.fn();
+      const mockOnClose = vi.fn();
       const { getByTestId, queryByTestId } = render(
         <TestParent>
-          <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+          <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
         </TestParent>
       );
 
@@ -451,10 +452,10 @@ describe("CollaboratorsDialog Component", () => {
       updateQuery: mockUpdateQuery,
     });
 
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent>
-        <CollaboratorsDialog open onClose={mockOnClose} onSave={jest.fn()} />
+        <CollaboratorsDialog open onClose={mockOnClose} onSave={vi.fn()} />
       </TestParent>
     );
 
