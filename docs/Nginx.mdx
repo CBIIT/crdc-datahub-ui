@@ -65,6 +65,8 @@ http {
         # Frontend
         location / {
             allow all;
+            proxy_buffers 8 2048K;  
+            proxy_buffer_size 32K;
             proxy_pass http://localhost:3010/;
         }
     }

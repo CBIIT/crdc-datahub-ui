@@ -33,13 +33,14 @@ export const decorators: Decorator[] = [
     GlobalStyles: CssBaseline,
   }),
   (Story, context) => {
+    const useGlobalRouter = context.parameters.router?.useGlobalRouter ?? true;
     const initialEntries = context.parameters.router?.initialEntries || [{ pathname: "/" }];
 
-    return (
+    return useGlobalRouter ? (
       <MemoryRouter initialEntries={initialEntries}>
         <Story />
       </MemoryRouter>
-    );
+    ) : <Story />;
   },
   (Story) => (
     <SnackbarProvider
