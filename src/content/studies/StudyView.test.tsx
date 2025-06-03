@@ -22,15 +22,14 @@ import {
 import StudyView from "./StudyView";
 
 const mockUsePageTitle = vi.fn();
-vi.mock("../../hooks/usePageTitle", () => ({
-  ...vi.importActual("../../hooks/usePageTitle"),
-  __esModule: true,
+vi.mock("../../hooks/usePageTitle", async () => ({
+  ...(await vi.importActual("../../hooks/usePageTitle")),
   default: (...p) => mockUsePageTitle(...p),
 }));
 
 const mockNavigate = vi.fn();
-vi.mock("react-router-dom", () => ({
-  ...vi.importActual("react-router-dom"),
+vi.mock("react-router-dom", async () => ({
+  ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
 
