@@ -235,7 +235,9 @@ describe("GenericTable", () => {
         tableProps: { sx: { backgroundColor: "red" } },
       });
 
-      expect(container.querySelector("table")).toHaveStyle("background-color: red");
+      expect(container.querySelector("table")).toHaveStyle({
+        "background-color": "rgb(255, 0, 0)",
+      });
     });
 
     it("applies borderBottom style conditionally based on row position", () => {

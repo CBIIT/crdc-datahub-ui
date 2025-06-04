@@ -1,5 +1,6 @@
 import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { axe } from "vitest-axe";
 import HistoryDialog, { IconType } from "./index";
 
 type MockStatuses = "uploaded" | "downloaded" | "error";
@@ -21,13 +22,13 @@ const BaseProps: React.ComponentProps<typeof HistoryDialog> = {
 };
 
 // TODO: Fix this failing in CI
-// describe("Accessibility", () => {
-//   it("should have no violations", async () => {
-//     const { container } = render(<HistoryDialog {...BaseProps} />);
+describe("Accessibility", () => {
+  it.skip("should have no violations", async () => {
+    const { container } = render(<HistoryDialog {...BaseProps} />);
 
-//     expect(await axe(container)).toHaveNoViolations();
-//   });
-// });
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
 
 describe("Basic Functionality", () => {
   it("should render without crashing", () => {

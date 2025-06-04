@@ -151,9 +151,11 @@ describe("Basic Functionality", () => {
       },
     };
 
-    render(<PermissionPanel />, {
+    const { container } = render(<PermissionPanel />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
+
+    expect(container).toBeInTheDocument();
   });
 
   it("should cache the default PBAC data by default", async () => {

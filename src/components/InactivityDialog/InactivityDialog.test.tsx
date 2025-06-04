@@ -100,5 +100,3 @@ describe("Basic Functionality", () => {
     });
   });
 });
-
-describe("Session Timeout Dialog", () => {});
