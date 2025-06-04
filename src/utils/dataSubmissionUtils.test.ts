@@ -16,7 +16,7 @@ const baseSubmission: Submission = {
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
-  status: "New",
+  status: "In Progress",
   metadataValidationStatus: null,
   crossSubmissionStatus: null,
   otherSubmissions: null,
@@ -65,6 +65,22 @@ const baseUser: User = {
 const baseQCResults: QCResult[] = [];
 
 describe("General Submit", () => {
+  it("should disable submit without isAdminOverride when Submission status is 'New'", () => {
+    const submission: Submission = {
+      ...baseSubmission,
+      status: "New",
+    };
+    const result = utils.shouldEnableSubmit(
+      { getSubmission: submission, batchStatusList: null, submissionStats: null },
+      baseQCResults,
+      baseUser
+    );
+
+    expect(result._identifier).toBe("Submission should not be 'New' status");
+    expect(result.enabled).toBe(false);
+    expect(result.isAdminOverride).toBe(false);
+  });
+
   it("should disable submit without isAdminOverride when user does not have the admin submit permission but there are validation errors", () => {
     const submission: Submission = {
       ...baseSubmission,
