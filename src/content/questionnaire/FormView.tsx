@@ -742,15 +742,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Approve
                   </StyledExtendedLoadingButton>
-                  <StyledLoadingButton
-                    id="submission-form-inquire-button"
-                    variant="contained"
-                    color="error"
-                    size="large"
-                    onClick={handleInquireForm}
-                  >
-                    Request Additional Information
-                  </StyledLoadingButton>
                   <StyledExtendedLoadingButton
                     id="submission-form-reject-button"
                     variant="contained"
@@ -760,6 +751,15 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Reject
                   </StyledExtendedLoadingButton>
+                  <StyledLoadingButton
+                    id="submission-form-inquire-button"
+                    variant="contained"
+                    color="info"
+                    size="large"
+                    onClick={handleInquireForm}
+                  >
+                    Request Additional Information
+                  </StyledLoadingButton>
                 </>
               )}
 

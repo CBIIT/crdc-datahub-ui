@@ -83,7 +83,7 @@ const components: Components = {
       },
       containedInfo: {
         border: "1.5px solid #6B7294",
-        fontWeight: 500,
+        fontWeight: 700,
         "&:hover": {
           border: "1.5px solid #6B7294",
           background: "#C0DAF3",
