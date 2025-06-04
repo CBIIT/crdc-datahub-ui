@@ -69,6 +69,8 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
         title="Click to export this Submission Request as a PDF."
         placement="top"
         data-testid="export-submission-request-tooltip"
+        disableInteractive
+        arrow
       >
         <span>
           <Button
@@ -83,7 +85,7 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
             ref={ref}
             {...buttonProps}
           >
-            PDF <StyledDownloadIcon />
+            Download PDF <StyledDownloadIcon />
           </Button>
         </span>
       </StyledTooltip>

@@ -27,7 +27,6 @@ import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import ExportRequestButton from "../../components/ExportRequestButton";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 import CancelApplicationButton from "../../components/CancelApplicationButton";
@@ -761,10 +760,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                     Request Additional Information
                   </StyledLoadingButton>
                 </>
-              )}
-
-              {activeSection === "REVIEW" && (
-                <ExportRequestButton disabled={!allSectionsComplete} />
               )}
             </StyledControls>
           </StyledContent>

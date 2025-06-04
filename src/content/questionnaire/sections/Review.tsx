@@ -19,6 +19,7 @@ import DataTypes from "../../../config/DataTypesConfig";
 import SectionMetadata from "../../../config/SectionMetadata";
 import { repositoryDataTypesOptions } from "../../../components/Questionnaire/Repository";
 import { StyledDescription } from "../../../components/Questionnaire/SectionGroup";
+import ExportRequestButton from "../../../components/ExportRequestButton";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
@@ -96,8 +97,8 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
     <FormContainer
       ref={formContainerRef}
       description={showReviewTitle ? "Review" : SectionOption.title}
+      descriptionAdornment={<ExportRequestButton />}
       formRef={formRef}
-      hideReturnToSubmissions={false}
     >
       {/* Principal Investigator and Contact Information Section */}
       <ReviewSection idPrefix="review-section-a" title={SectionMetadata.A.title}>
