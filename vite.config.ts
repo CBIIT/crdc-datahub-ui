@@ -5,7 +5,7 @@ import viteTsConfigPaths from "vite-tsconfig-paths";
 import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
-  base: "./",
+  base: "/",
   plugins: [
     react({
       jsxImportSource: "@emotion/react",
@@ -28,6 +28,8 @@ export default defineConfig({
   },
   build: {
     outDir: "build",
+    manifest: true,
+    sourcemap: true,
   },
   test: {
     globals: true,
