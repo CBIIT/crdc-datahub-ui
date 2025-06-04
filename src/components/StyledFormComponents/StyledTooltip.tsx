@@ -1,6 +1,6 @@
-import { Tooltip as MuiToolTip, TooltipProps, styled } from "@mui/material";
+import { Tooltip as MuiToolTip, Tooltip, styled } from "@mui/material";
 
-type TooltipPropsWithDynamic = TooltipProps & {
+type TooltipPropsWithDynamic = React.ComponentProps<typeof Tooltip> & {
   /**
    * Indicates when text content within tooltip is dynamic. This
    * increases the maxWidth of the tooltip.
@@ -31,5 +31,30 @@ const StyledTooltip = styled(
     boxShadow: "0px 4px 10px 0px rgba(0, 0, 0, 0.15)",
   },
 }));
+
+StyledTooltip.defaultProps = {
+  PopperProps: {
+    modifiers: [
+      {
+        name: "flip",
+        enabled: true,
+        options: {
+          boundary: "viewport",
+          fallbackPlacements: ["top", "bottom", "right", "left"],
+          padding: 8,
+        },
+      },
+      {
+        name: "preventOverflow",
+        enabled: true,
+        options: {
+          boundary: "viewport",
+          tether: false,
+          padding: 8,
+        },
+      },
+    ],
+  },
+};
 
 export default StyledTooltip;
