@@ -32,6 +32,7 @@ export const TOOLTIP_TEXT = {
     },
     SUBMIT: {
       DISABLED: {
+        EMPTY_SUBMISSION: "Empty submission - no data has been uploaded yet.",
         VALIDATION_RUNNING:
           "Validation is in progress. Please wait until it completes and address any issues before submitting.",
         NEW_DATA_OR_VALIDATION_ERRORS:
