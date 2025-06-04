@@ -268,6 +268,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const SubmissionShouldNotBeNewStatus: Story = {
+  name: "Submission should not be 'New' status",
+  args: { submissionStatus: "New" },
+};
+
 export const MetadataValidationShouldBeInitializedForDeleteIntention: Story = {
   name: "Metadata validation should be initialized for 'Delete' intention",
   args: { intention: "Delete", metadataValidationStatus: null },
