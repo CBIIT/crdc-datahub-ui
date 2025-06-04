@@ -15,6 +15,7 @@ The following table outlines the conditions for which a Data Submission must mee
 
 | Requirement                                                                       | Description                                                                                                             | Admin Submit | Regular Submit |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------ | -------------- |
+| Submission status must not be 'New'                                               | The submission status must not be 'New'.                                                                                | ❌           | ❌             |
 | Validation must not be running                                                    | The `metadataValidationStatus` and `fileValidationStatus` should not be `Validating`.                                   | ❌           | ❌             |
 | No uploading batches                                                              | There should be no batches with status `Uploading` for the submission.                                                  | ❌           | ❌             |
 | Submission Status                                                                 | The submission status must be one of: `In Progress`, `Withdrawn`, or `Rejected` to submit                               | ❌           | ❌             |
