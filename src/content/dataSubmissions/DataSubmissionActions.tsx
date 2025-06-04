@@ -107,7 +107,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   Submit: {
     hasPermission: (user, submission) =>
       hasPermission(user, "data_submission", "create", submission),
-    statuses: ["In Progress", "Withdrawn", "Rejected"],
+    statuses: ["New", "In Progress", "Withdrawn", "Rejected"],
   },
   AdminSubmit: {
     hasPermission: (user, submission) =>

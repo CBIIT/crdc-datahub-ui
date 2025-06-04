@@ -41,6 +41,12 @@ export type AdminOverrideCondition = Omit<SubmitButtonCondition, "required">;
  */
 export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   {
+    _identifier: "Submission should not be 'New' status",
+    check: ({ getSubmission: s }) => s.status !== "New",
+    tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.EMPTY_SUBMISSION,
+    required: true,
+  },
+  {
     _identifier: "Validation should not currently be running",
     check: ({ getSubmission: s }) =>
       s.metadataValidationStatus !== "Validating" && s.fileValidationStatus !== "Validating",
