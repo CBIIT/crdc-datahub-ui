@@ -1,10 +1,23 @@
 import { Tooltip as MuiToolTip, TooltipProps, styled } from "@mui/material";
 
-const StyledTooltip = styled((props: TooltipProps) => (
-  <MuiToolTip classes={{ popper: props.className }} {...props} />
-))(() => ({
+type TooltipPropsWithDynamic = TooltipProps & {
+  /**
+   * Indicates when text content within tooltip is dynamic. This
+   * increases the maxWidth of the tooltip.
+   *
+   * NOTE: It is is false by default
+   */
+  dynamic?: boolean;
+};
+
+const StyledTooltip = styled(
+  ({ dynamic, ...tooltipProps }: TooltipPropsWithDynamic) => (
+    <MuiToolTip classes={{ popper: tooltipProps.className }} {...tooltipProps} />
+  ),
+  { shouldForwardProp: (prop) => prop !== "dynamic" }
+)(({ dynamic = false }) => ({
   "& .MuiTooltip-tooltip": {
-    maxWidth: "412px",
+    maxWidth: dynamic ? "1000px" : "412px",
     minHeight: "43px",
     color: "#2B528B",
     border: "1px solid #2B528B",
