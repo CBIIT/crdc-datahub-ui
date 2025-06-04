@@ -271,5 +271,5 @@ describe("Basic Functionality", () => {
   });
 
   // NOTE: Disabled until we have more than one type available
-  // it("should refetch the URL when the type changes");
+  it.skip("should refetch the URL when the type changes");
 });

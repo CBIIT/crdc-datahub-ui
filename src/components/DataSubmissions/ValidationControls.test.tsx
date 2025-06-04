@@ -178,14 +178,16 @@ describe("Basic Functionality", () => {
   });
 
   it("should render without crashing", () => {
-    render(
-      <TestParent
-        authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
-        submission={null}
-      >
-        <ValidationControls />
-      </TestParent>
-    );
+    expect(() =>
+      render(
+        <TestParent
+          authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+          submission={null}
+        >
+          <ValidationControls />
+        </TestParent>
+      )
+    ).not.toThrow();
   });
 
   it("should show a success snackbar when validation is successful", async () => {

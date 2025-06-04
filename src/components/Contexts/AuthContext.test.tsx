@@ -53,7 +53,7 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should render without crashing", () => {
-    render(<TestParent />);
+    expect(() => render(<TestParent />)).not.toThrow();
   });
 
   it("should restore the user from localStorage cache", async () => {

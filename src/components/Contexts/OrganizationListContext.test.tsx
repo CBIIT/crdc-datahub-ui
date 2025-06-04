@@ -80,7 +80,7 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
   ];
 
   it("should render without crashing", () => {
-    render(<TestParent mocks={emptyMocks} />);
+    expect(() => render(<TestParent mocks={emptyMocks} />)).not.toThrow();
   });
 
   it("should handle loading state correctly", async () => {

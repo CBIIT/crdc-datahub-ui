@@ -168,19 +168,21 @@ describe("Basic Functionality", () => {
   });
 
   it("should render without crashing", () => {
-    render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
-        <CrossValidationButton
-          submission={{
-            ...baseSubmission,
-            _id: "smoke-test-id",
-            status: null,
-            otherSubmissions: null,
-            crossSubmissionStatus: null,
-          }}
-        />
-      </TestParent>
-    );
+    expect(() =>
+      render(
+        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+          <CrossValidationButton
+            submission={{
+              ...baseSubmission,
+              _id: "smoke-test-id",
+              status: null,
+              otherSubmissions: null,
+              crossSubmissionStatus: null,
+            }}
+          />
+        </TestParent>
+      )
+    ).not.toThrow();
   });
 
   it("should initiate cross validation when clicked", async () => {

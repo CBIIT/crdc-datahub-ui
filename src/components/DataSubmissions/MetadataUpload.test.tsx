@@ -253,14 +253,16 @@ describe("Basic Functionality", () => {
   });
 
   it("should render without crashing", () => {
-    render(
-      <TestParent
-        authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
-        submission={null}
-      >
-        <MetadataUpload onCreateBatch={null} onUpload={null} readOnly />
-      </TestParent>
-    );
+    expect(() =>
+      render(
+        <TestParent
+          authCtx={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}
+          submission={null}
+        >
+          <MetadataUpload onCreateBatch={null} onUpload={null} readOnly />
+        </TestParent>
+      )
+    ).not.toThrow();
   });
 
   it("should show an alert when navigating away WITH selected files", () => {
