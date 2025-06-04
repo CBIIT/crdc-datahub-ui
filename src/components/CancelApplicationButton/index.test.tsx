@@ -551,6 +551,27 @@ describe("Implementation Requirements", () => {
     });
   });
 
+  it("should not be rendered when the user is not the applicant", async () => {
+    const { queryByTestId } = render(<Button />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+          application={{
+            ...baseApp,
+            status: "In Progress",
+            applicant: { ...baseApp.applicant, applicantID: "NOT THE CURRENT USER" },
+          }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(queryByTestId("cancel-application-button")).not.toBeInTheDocument();
+    });
+  });
+
   // NOTE: This is just a sanity check against component logic, and does not
   // cover all of the requirements. See the hasPermission checks for that.
   it.each<ApplicationStatus>(["Canceled", "Deleted"])(
