@@ -684,6 +684,20 @@ const FormView: FC<Props> = ({ section }: Props) => {
               >
                 Back
               </StyledLoadingButton>
+
+              {activeSection === "REVIEW" &&
+                hasPermission(user, "submission_request", "submit", data) && (
+                  <StyledExtendedLoadingButton
+                    id="submission-form-submit-button"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    size="large"
+                    onClick={handleSubmitForm}
+                  >
+                    Submit
+                  </StyledExtendedLoadingButton>
+                )}
               {activeSection !== "REVIEW" && formMode === "Edit" && (
                 <StyledLoadingButton
                   id="submission-form-save-button"
@@ -695,6 +709,9 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   Save
                 </StyledLoadingButton>
               )}
+
+              <CancelApplicationButton onCancel={handleOnCancel} />
+
               {activeSection !== "REVIEW" && (
                 <StyledLoadingButton
                   id="submission-form-next-button"
@@ -713,22 +730,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   Next
                 </StyledLoadingButton>
               )}
-
-              {activeSection === "REVIEW" &&
-                hasPermission(user, "submission_request", "submit", data) && (
-                  <StyledExtendedLoadingButton
-                    id="submission-form-submit-button"
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    size="large"
-                    onClick={handleSubmitForm}
-                  >
-                    Submit
-                  </StyledExtendedLoadingButton>
-                )}
-
-              {activeSection === "REVIEW" && <CancelApplicationButton onCancel={handleOnCancel} />}
 
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>
