@@ -31,7 +31,7 @@ const components: Components = {
             opacity: 0.4,
           },
           "&.MuiButton-containedInfo": {
-            fontWeight: 500,
+            fontWeight: 700,
             color: "#EDEDED",
             background: "#B1B1B1",
             border: "1.5px solid #6B7294",
