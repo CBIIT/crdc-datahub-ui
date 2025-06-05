@@ -238,7 +238,10 @@ describe("Basic Functionality", () => {
     userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
     userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
-    userEvent.click(getByText("Download"));
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(getByText("Download"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
