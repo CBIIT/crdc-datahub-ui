@@ -3,7 +3,7 @@ import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { render, waitFor, within } from "../../test-utils";
+import { act, render, waitFor, within } from "../../test-utils";
 import InstitutionView from "./InstitutionView";
 import {
   GET_INSTITUTION,
@@ -264,7 +264,11 @@ describe("InstitutionView Component", () => {
     userEvent.type(nameInput, "New Institution");
 
     expect(mockNavigate).not.toHaveBeenCalled();
-    userEvent.click(saveButton);
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(saveButton);
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -301,7 +305,11 @@ describe("InstitutionView Component", () => {
     userEvent.click(within(listbox).getByText("Inactive"));
 
     expect(mockNavigate).not.toHaveBeenCalled();
-    userEvent.click(getByTestId("save-button"));
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(getByTestId("save-button"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
