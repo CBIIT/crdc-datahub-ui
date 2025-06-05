@@ -6,8 +6,12 @@ import { expect, vi } from "vitest";
 import "vitest-canvas-mock";
 import failOnConsole from "vitest-fail-on-console";
 import crypto from "crypto";
+import { config } from "react-transition-group";
 
 expect.extend(matchers);
+
+// Disable transitions
+config.disabled = true;
 
 // See https://github.com/NickColley/jest-axe/issues/147
 configureAxe({
