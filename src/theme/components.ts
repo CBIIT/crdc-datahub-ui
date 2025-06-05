@@ -6,6 +6,9 @@ const components: Components = {
       disableElevation: true,
     },
     styleOverrides: {
+      text: {
+        textTransform: "none",
+      },
       contained: {
         display: "flex",
         justifyContent: "center",
