@@ -6,7 +6,6 @@ import {
   Box,
   Container,
   MenuItem,
-  Popper,
   Stack,
   TextField,
   Typography,
@@ -133,10 +132,6 @@ const StyledPaper = styled(BasePaper)({
   "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
 });
 
-const StyledPopper = styled(Popper)({
-  width: "463px !important",
-});
-
 const StyledTag = styled("div")({
   position: "absolute",
   paddingLeft: "12px",
@@ -226,6 +221,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     control,
   } = useForm<FormInput>();
   const studiesField = watch("studies");
+
+  const [autocompleteMinWidth, setAutocompleteMinWidth] = useState<number | null>(null);
 
   const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
     context: { clientName: "backend" },
@@ -595,12 +592,25 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
                         return <StyledTag>{value?.length} studies selected</StyledTag>;
                       }}
+                      onOpen={(event) => {
+                        setAutocompleteMinWidth(
+                          (event.currentTarget as HTMLElement)?.offsetWidth || null
+                        );
+                      }}
+                      slotProps={{
+                        popper: {
+                          sx: {
+                            width: autocompleteMinWidth
+                              ? `${autocompleteMinWidth}px !important`
+                              : "auto !important",
+                          },
+                        },
+                      }}
                       options={studyOptions}
                       getOptionLabel={(option: string) => formattedStudyMap[option]}
                       onChange={(_, data: string[]) => field.onChange(data)}
                       loading={approvedStudiesLoading}
                       PaperComponent={StyledPaper}
-                      PopperComponent={StyledPopper}
                       disableCloseOnSelect
                       multiple
                     />

@@ -3,7 +3,7 @@ import { debounce, sortBy } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import StyledOutlinedInput from "../../StyledFormComponents/StyledOutlinedInput";
-import BaseSelect from "../../StyledFormComponents/StyledSelect";
+import StyledSelect from "../../StyledFormComponents/StyledSelect";
 import { useSearchParamsContext } from "../../Contexts/SearchParamsContext";
 import { Status, useOrganizationListContext } from "../../Contexts/OrganizationListContext";
 import SuspenseLoader from "../../SuspenseLoader";
@@ -25,12 +25,6 @@ const StyledFormControl = styled(FormControl)({
   marginRight: 0,
   minWidth: "250px",
   maxWidth: "250px",
-});
-
-const StyledSelect = styled(BaseSelect)({
-  "& .MuiPaper-root": {
-    width: "250px",
-  },
 });
 
 const initialTouchedFields: TouchedState = {
@@ -70,6 +64,7 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
     "dbGaPID",
     "accessType",
   ]);
+  const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
   const debouncedOnChangeRef = useRef(
     debounce((form: FilterForm) => onChange?.(form), 500)
@@ -224,7 +219,13 @@ const ApprovedStudyFilters = ({ onChange }: Props) => {
               <StyledSelect
                 {...field}
                 value={field.value}
-                MenuProps={{ disablePortal: true }}
+                onOpen={(event) =>
+                  setSelectMinWidth((event.currentTarget as HTMLElement)?.offsetWidth || null)
+                }
+                MenuProps={{
+                  disablePortal: true,
+                  sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                }}
                 inputProps={{ id: "programID-filter" }}
                 data-testid="programID-select"
                 onChange={(e) => {
