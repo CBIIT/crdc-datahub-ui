@@ -5,15 +5,14 @@ import Controller from "./Controller";
 vi.spyOn(Logger, "error").mockImplementation(() => vi.fn());
 
 const mockFetchReleaseNotes = vi.fn();
-vi.mock("../../utils", () => ({
-  ...vi.importActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   fetchReleaseNotes: async (...p) => mockFetchReleaseNotes(...p),
 }));
 
 const mockUsePageTitle = vi.fn();
-vi.mock("../../hooks/usePageTitle", () => ({
-  ...vi.importActual("../../hooks/usePageTitle"),
-  __esModule: true,
+vi.mock("../../hooks/usePageTitle", async () => ({
+  ...(await vi.importActual("../../hooks/usePageTitle")),
   default: (...p) => mockUsePageTitle(...p),
 }));
 
