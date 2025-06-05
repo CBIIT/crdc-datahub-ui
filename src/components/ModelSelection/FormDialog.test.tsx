@@ -37,6 +37,8 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Cancel' button is clicked", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
     const mockOnClose = vi.fn();
 
     const { getByTestId } = render(
@@ -59,6 +61,8 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
     const mockOnClose = vi.fn();
 
     const { getByTestId } = render(
@@ -81,6 +85,8 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
     const mockOnClose = vi.fn();
 
     const { getByTestId } = render(
@@ -103,6 +109,8 @@ describe("Basic Functionality", () => {
   });
 
   it("should fetch available model versions when the dialog opens", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
     expect(mockListAvailableModelVersions).not.toHaveBeenCalled();
 
     const { rerender } = render(
@@ -267,11 +275,13 @@ describe("Implementation Requirements", () => {
   });
 
   it("should have the correct title, description, and button text", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
+
     const { getByTestId } = render(
       <FormDialog
         open
         dataCommons="MOCK-DC-TEST"
-        modelVersion="XYZ"
+        modelVersion=""
         onSubmitForm={vi.fn()}
         onClose={vi.fn()}
       />
