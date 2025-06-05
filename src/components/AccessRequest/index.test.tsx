@@ -1,8 +1,8 @@
-import { render, waitFor } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
+import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,

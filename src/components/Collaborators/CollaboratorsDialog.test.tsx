@@ -1,8 +1,8 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
 import { Mock } from "vitest";
 import { MockedProvider } from "@apollo/client/testing";
 import { axe } from "vitest-axe";
+import { render, fireEvent, waitFor } from "../../test-utils";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";

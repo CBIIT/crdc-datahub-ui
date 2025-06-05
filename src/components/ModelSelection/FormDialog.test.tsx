@@ -1,6 +1,6 @@
-import { render, waitFor, within } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render, waitFor, within } from "../../test-utils";
 import FormDialog from "./FormDialog";
 
 const mockListAvailableModelVersions = vi.fn();

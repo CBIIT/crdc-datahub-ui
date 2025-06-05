@@ -1,10 +1,10 @@
 import { FC, useMemo } from "react";
-import { act, render, waitFor } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { act, render, waitFor } from "../../test-utils";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
@@ -481,7 +481,7 @@ describe("Implementation Requirements", () => {
     { input: "CRDCDH-1234", expected: "cli-config-CRDCDH-1234.yml" },
     { input: "SPACE-AT-END ", expected: "cli-config-SPACE-AT-END.yml" },
   ])(
-    "should safely name the Uploader CLI config file based on the submission name",
+    "should safely name the Uploader CLI config file based on the submission name '%s'",
     async ({ input, expected }) => {
       const mocks: MockedResponse<RetrieveCLIConfigResp>[] = [
         {

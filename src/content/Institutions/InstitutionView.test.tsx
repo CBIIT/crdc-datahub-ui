@@ -1,9 +1,9 @@
 import React from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { render, waitFor, within } from "../../test-utils";
 import InstitutionView from "./InstitutionView";
 import {
   GET_INSTITUTION,

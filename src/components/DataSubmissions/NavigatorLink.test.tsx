@@ -1,7 +1,7 @@
 import React from "react";
-import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
+import { render } from "../../test-utils";
 import NavigatorLink, { NavigatorLinkProps } from "./NavigatorLink";
 
 type TestParentProps = {

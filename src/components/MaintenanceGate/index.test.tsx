@@ -1,8 +1,8 @@
 import { MockedResponse, MockedProvider } from "@apollo/client/testing";
 import { FC } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import MaintenanceGate from "./index";
 

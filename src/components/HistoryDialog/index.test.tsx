@@ -1,6 +1,6 @@
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
+import { render, waitFor, within } from "../../test-utils";
 import HistoryDialog, { IconType } from "./index";
 
 type MockStatuses = "uploaded" | "downloaded" | "error";

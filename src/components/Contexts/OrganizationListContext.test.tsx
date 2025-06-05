@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import {
   OrganizationProvider,
   Status as OrgStatus,

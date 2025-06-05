@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { render } from "../../test-utils";
 import LoginController from "./Controller";
 
 vi.mock(import("../../env"), async (importOriginal) => {

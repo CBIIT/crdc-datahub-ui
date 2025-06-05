@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "../test-utils";
 import { useLocalStorage } from "./useLocalStorage";
 
 type LocalStorageMock = {

@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook } from "../test-utils";
 import * as Auth from "../components/Contexts/AuthContext";
 import useProfileFields, { FieldState } from "./useProfileFields";
 

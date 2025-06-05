@@ -1,8 +1,8 @@
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import { render } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
+import { render } from "../test-utils";
 import HomePage from "./index";
 import { ContextState, Context, Status } from "../components/Contexts/AuthContext";
 

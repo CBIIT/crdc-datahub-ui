@@ -1,4 +1,4 @@
-import { act, render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "../../test-utils";
 import { Logger } from "../../utils";
 import Controller from "./Controller";
 

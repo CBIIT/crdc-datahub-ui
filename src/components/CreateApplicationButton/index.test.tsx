@@ -1,9 +1,9 @@
-import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
 import CreateApplicationButton from "./index";
 import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";

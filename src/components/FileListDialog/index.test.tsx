@@ -1,10 +1,10 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor, within } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor, within } from "../../test-utils";
 import Dialog from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 import {

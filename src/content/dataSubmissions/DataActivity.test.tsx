@@ -1,9 +1,9 @@
 import { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import { render, waitFor } from "@testing-library/react";
+import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import DataActivity from "./DataActivity";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import * as SubmissionCtx from "../../components/Contexts/SubmissionContext";

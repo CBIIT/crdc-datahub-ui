@@ -1,6 +1,6 @@
-import { render, within } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render, within } from "../../test-utils";
 import ReviewDialog from "./ApproveFormDialog";
 
 describe("Accessibility", () => {

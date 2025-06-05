@@ -1,7 +1,7 @@
 import React from "react";
-import { render, waitFor } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render, waitFor } from "../../test-utils";
 import TruncatedText from "./index";
 
 describe("Accessibility", () => {

@@ -1,10 +1,10 @@
 import React, { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
-import { render, waitFor } from "@testing-library/react";
 import { isEqual } from "lodash";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
+import { render, waitFor } from "../../test-utils";
 import DataSubmissionSummary from "./DataSubmissionSummary";
 import HistoryIconMap from "./DataSubmissionIconMap";
 import {

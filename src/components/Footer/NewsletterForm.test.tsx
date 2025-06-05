@@ -1,7 +1,7 @@
-import { render, waitFor, within } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
+import { render, waitFor, within } from "../../test-utils";
 import NewsletterForm from "./NewsletterForm";
 
 vi.stubGlobal("open", vi.fn());

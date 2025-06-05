@@ -1,5 +1,5 @@
-import { render, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { render, waitFor } from "../../test-utils";
 import RequireAuth from "./index";
 
 const mockUseAuthContext = vi.fn();

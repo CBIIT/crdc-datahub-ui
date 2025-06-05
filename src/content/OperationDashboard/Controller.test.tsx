@@ -1,8 +1,8 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import Controller from "./Controller";
 import {
   Context as AuthContext,

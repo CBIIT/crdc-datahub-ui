@@ -1,8 +1,8 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { fireEvent, render, waitFor, within } from "../../test-utils";
 import UploaderConfigDialog from "./index";
 
 type ParentProps = {

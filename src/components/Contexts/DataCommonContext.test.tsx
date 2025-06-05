@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor } from "../../test-utils";
 import { useDataCommonContext, Status as DCStatus, DataCommonProvider } from "./DataCommonContext";
 import { DataCommons } from "../../config/DataCommons";
 

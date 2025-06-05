@@ -1,7 +1,7 @@
 import React from "react";
-import { act, fireEvent, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
+import { act, fireEvent, render, renderHook, waitFor } from "../../test-utils";
 import { useCollaboratorsContext, CollaboratorsProvider } from "./CollaboratorsContext";
 import {
   LIST_POTENTIAL_COLLABORATORS,

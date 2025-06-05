@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { act, render, renderHook, waitFor } from "../../test-utils";
 import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 import { query as GET_APP } from "../../graphql/getApplication";
 import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";

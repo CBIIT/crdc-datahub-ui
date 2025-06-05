@@ -1,7 +1,7 @@
 import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
-import { render, fireEvent, waitFor } from "@testing-library/react";
 import { axe } from "vitest-axe";
+import { render, fireEvent, waitFor } from "../../test-utils";
 import ReviewCommentsDialog from "./index";
 import theme from "../../theme";
 

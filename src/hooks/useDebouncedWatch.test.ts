@@ -1,6 +1,6 @@
-import { renderHook } from "@testing-library/react";
 import { Mock } from "vitest";
 import { useFormContext } from "react-hook-form";
+import { renderHook } from "../test-utils";
 import { useDebouncedWatch } from "./useDebouncedWatch";
 
 type FormValues = {

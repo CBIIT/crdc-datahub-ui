@@ -1,9 +1,9 @@
 import { FC, ReactNode, useMemo } from "react";
 import { MockedResponse, MockedProvider } from "@apollo/client/testing";
-import { render, waitFor } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,

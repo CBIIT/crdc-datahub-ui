@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import { BrowserRouter } from "react-router-dom";
+import { render, waitFor } from "../../test-utils";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import InactivityDialog from "./InactivityDialog";
 

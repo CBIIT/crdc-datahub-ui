@@ -1,9 +1,9 @@
 import { FC, useMemo } from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor, within } from "../../test-utils";
 import Filters from "./CrossValidationFilters";
 import {
   LIST_BATCHES,

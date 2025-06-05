@@ -1,8 +1,8 @@
 import React, { FC, useMemo } from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
+import { render, waitFor, within } from "../../test-utils";
 import DataSubmissionListFilters from "./DataSubmissionListFilters";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 import {

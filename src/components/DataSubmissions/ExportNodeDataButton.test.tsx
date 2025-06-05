@@ -1,9 +1,9 @@
 import { FC } from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
 import { axe } from "vitest-axe";
+import { GraphQLError } from "graphql";
+import { render, fireEvent, waitFor } from "../../test-utils";
 import { ExportNodeDataButton } from "./ExportNodeDataButton";
 import {
   GET_SUBMISSION_NODES,

@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
+import { render } from "../../test-utils";
 import ValidationStatistics from "./ValidationStatistics";
 
 const baseSubmission: Omit<Submission, "_id"> = {

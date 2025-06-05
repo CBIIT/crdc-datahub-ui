@@ -1,9 +1,9 @@
 import React, { FC, useMemo } from "react";
-import { act, render, waitFor } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { act, render, waitFor } from "../../test-utils";
 import ListView from "./ListView";
 import {
   LIST_APPLICATIONS,

@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
+import { render } from "../../test-utils";
 import MaintenancePage from "./MaintenancePage";
 
 const mockUsePageTitle = vi.fn();

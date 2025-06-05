@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { render, waitFor, within } from "../../test-utils";
 import SubmittedDataFilters from "./SubmittedDataFilters";
 import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
 

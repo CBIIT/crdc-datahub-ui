@@ -1,5 +1,5 @@
 import { axe } from "vitest-axe";
-import { render } from "@testing-library/react";
+import { render } from "../../test-utils";
 import Banner from "./index";
 
 it("should not have any accessibility violations", async () => {

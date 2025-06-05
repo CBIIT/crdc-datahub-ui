@@ -1,6 +1,6 @@
-import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render } from "../../test-utils";
 import CopyAdornment from "./CopyAdornment";
 
 const mockWriteText = vi.fn();
