@@ -87,6 +87,9 @@ const CancelApplicationButton = ({ disabled, onCancel, ...rest }: Props) => {
   );
 
   const canSeeButton = useMemo<boolean>(() => {
+    if (data?.applicant?.applicantID !== user?._id) {
+      return false;
+    }
     if (!hasPermission(user, "submission_request", "cancel", data)) {
       return false;
     }
