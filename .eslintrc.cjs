@@ -110,7 +110,12 @@ const config = {
     "import/no-extraneous-dependencies": [
       "error",
       {
-        devDependencies: ["**/*.d.ts", "**/*.{stories,test}.{ts,tsx}", "**/setupTests.{ts,tsx}"],
+        devDependencies: [
+          "**/*.d.ts",
+          "**/*.{stories,test}.{ts,tsx}",
+          "**/setupTests.{ts,tsx}",
+          "**/customRender.tsx",
+        ],
         optionalDependencies: false,
       },
     ],
