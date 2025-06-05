@@ -105,6 +105,7 @@ const TruncatedText: FC<Props> = ({
       disableInteractive={disableInteractiveTooltip}
       data-testid="truncated-text-tooltip"
       arrow={arrow}
+      dynamic
     >
       <StyledTextWrapper
         truncated={isTruncated}
