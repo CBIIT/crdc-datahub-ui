@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { render } from "../../test-utils";
 import PackageTable from "./PackageTable";
@@ -70,8 +69,6 @@ describe("Basic Functionality", () => {
       expect(textDownload).toHaveAttribute("href", pkg.downloadURL);
       expect(textDownload).toHaveAttribute("download");
       expect(textDownload).toHaveAttribute("target", "_self");
-
-      userEvent.click(textDownload);
 
       const iconDownload = getByTestId(`package-table-icon-download-${pkg.fileName}`);
       expect(iconDownload).toBeVisible();

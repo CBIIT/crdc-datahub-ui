@@ -112,29 +112,3 @@ exports[`Snapshots > should match the snapshot 1`] = `
   </div>
 </div>
 `;
-
-exports[`Snapshots should match the snapshot 1`] = `
-<div>
-  <div
-    class="MuiStack-root css-pifray-MuiStack-root"
-  >
-    <div
-      class="MuiBox-root css-1ao5c25"
-    >
-      <svg>
-        maintenance.svg
-      </svg>
-      <p
-        class="MuiTypography-root MuiTypography-body1 css-moeelo-MuiTypography-root"
-      >
-        Website Maintenance
-      </p>
-      <p
-        class="MuiTypography-root MuiTypography-body1 css-wd1mvi-MuiTypography-root"
-      >
-        The CRDC Submission Portal site is currently undergoing scheduled maintenance. Please check back soon. We appreciate your patience.
-      </p>
-    </div>
-  </div>
-</div>
-`;
