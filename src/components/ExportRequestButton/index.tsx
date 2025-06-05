@@ -1,11 +1,17 @@
 import { forwardRef, memo, useState } from "react";
 import { styled, Button, ButtonProps } from "@mui/material";
 import { useSnackbar } from "notistack";
-import DownloadIcon from "../../assets/icons/download_icon.svg?react";
+import DownloadIcon from "../../assets/icons/download_icon_filled.svg?react";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import { GenerateDocument } from "./pdf/Generate";
 import { downloadBlob, FormatDate, Logger } from "../../utils";
+
+const StyledButton = styled(Button)({
+  color: "#156071",
+  fontSize: "16px",
+  fontWeight: 600,
+});
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -69,22 +75,23 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
         title="Click to export this Submission Request as a PDF."
         placement="top"
         data-testid="export-submission-request-tooltip"
+        disableInteractive
+        arrow
       >
         <span>
-          <Button
+          <StyledButton
             onClick={handleClick}
             disabled={loading || disabled || status !== FormStatus.LOADED}
             data-testid="export-submission-request-button"
             aria-label="Export Submission Request to PDF"
-            variant="contained"
-            color="info"
+            variant="text"
             type="button"
             size="large"
             ref={ref}
             {...buttonProps}
           >
-            PDF <StyledDownloadIcon />
-          </Button>
+            Download PDF <StyledDownloadIcon />
+          </StyledButton>
         </span>
       </StyledTooltip>
     );

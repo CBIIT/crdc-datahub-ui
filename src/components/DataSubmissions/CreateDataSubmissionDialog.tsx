@@ -223,6 +223,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const [error, setError] = useState<boolean>(false);
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
+  const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
 
   const shouldFetchAllStudies = useMemo<boolean>(
     () =>
@@ -470,7 +471,13 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   <StyledSelect
                     {...field}
                     value={field.value || ""}
-                    MenuProps={{ disablePortal: true }}
+                    onOpen={(event) =>
+                      setSelectMinWidth((event.currentTarget as HTMLElement)?.offsetWidth || null)
+                    }
+                    MenuProps={{
+                      disablePortal: true,
+                      sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                    }}
                     aria-describedby="submission-study-abbreviation-helper-text"
                     inputProps={{ "aria-labelledby": "study" }}
                     data-testid="create-data-submission-dialog-study-id-input"

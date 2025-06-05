@@ -1,7 +1,7 @@
 import { memo, ReactNode, useMemo } from "react";
 import { isEqual } from "lodash";
 import { styled, Typography } from "@mui/material";
-import Tooltip from "../Tooltip";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledContainerTypography = styled(Typography)<{ component: React.ElementType }>({
   wordWrap: "break-word",
@@ -76,17 +76,18 @@ const SummaryList = <T,>({
       {data.length > 1 && (
         <>
           {" and "}
-          <Tooltip
+          <StyledTooltip
             title={tooltipContent}
             placement="top"
             open={undefined}
             disableHoverListener={false}
             arrow
+            dynamic
           >
             <StyledTypography component="span" data-testid="study-list-other-count">
               other {data.length - 1}
             </StyledTypography>
-          </Tooltip>
+          </StyledTooltip>
         </>
       )}
     </StyledContainerTypography>

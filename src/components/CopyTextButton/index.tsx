@@ -1,6 +1,6 @@
 import { forwardRef, memo } from "react";
 import { IconButton, IconButtonProps, styled, TooltipProps } from "@mui/material";
-import Tooltip from "../Tooltip";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import CopyIconSvg from "../../assets/icons/copy_icon_2.svg?react";
 
 const StyledCopyIDButton = styled(IconButton)(({ theme }) => ({
@@ -65,16 +65,17 @@ const CopyTextButton = ({
   };
 
   return title && !disabled ? (
-    <Tooltip
+    <StyledTooltip
       placement="top"
       title={title}
       open={undefined}
       disableHoverListener={!title}
       arrow
+      dynamic
       {...tooltipProps}
     >
       <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
-    </Tooltip>
+    </StyledTooltip>
   ) : (
     <CopyButton onClick={handleCopyText} disabled={disabled} {...rest} />
   );

@@ -27,7 +27,6 @@ import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import ExportRequestButton from "../../components/ExportRequestButton";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
 import CancelApplicationButton from "../../components/CancelApplicationButton";
@@ -684,6 +683,20 @@ const FormView: FC<Props> = ({ section }: Props) => {
               >
                 Back
               </StyledLoadingButton>
+
+              {activeSection === "REVIEW" &&
+                hasPermission(user, "submission_request", "submit", data) && (
+                  <StyledExtendedLoadingButton
+                    id="submission-form-submit-button"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    size="large"
+                    onClick={handleSubmitForm}
+                  >
+                    Submit
+                  </StyledExtendedLoadingButton>
+                )}
               {activeSection !== "REVIEW" && formMode === "Edit" && (
                 <StyledLoadingButton
                   id="submission-form-save-button"
@@ -695,6 +708,9 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   Save
                 </StyledLoadingButton>
               )}
+
+              <CancelApplicationButton onCancel={handleOnCancel} />
+
               {activeSection !== "REVIEW" && (
                 <StyledLoadingButton
                   id="submission-form-next-button"
@@ -714,22 +730,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                 </StyledLoadingButton>
               )}
 
-              {activeSection === "REVIEW" &&
-                hasPermission(user, "submission_request", "submit", data) && (
-                  <StyledExtendedLoadingButton
-                    id="submission-form-submit-button"
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    size="large"
-                    onClick={handleSubmitForm}
-                  >
-                    Submit
-                  </StyledExtendedLoadingButton>
-                )}
-
-              {activeSection === "REVIEW" && <CancelApplicationButton onCancel={handleOnCancel} />}
-
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>
                   <StyledExtendedLoadingButton
@@ -741,15 +741,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Approve
                   </StyledExtendedLoadingButton>
-                  <StyledLoadingButton
-                    id="submission-form-inquire-button"
-                    variant="contained"
-                    color="error"
-                    size="large"
-                    onClick={handleInquireForm}
-                  >
-                    Request Additional Information
-                  </StyledLoadingButton>
                   <StyledExtendedLoadingButton
                     id="submission-form-reject-button"
                     variant="contained"
@@ -759,11 +750,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Reject
                   </StyledExtendedLoadingButton>
+                  <StyledLoadingButton
+                    id="submission-form-inquire-button"
+                    variant="contained"
+                    color="info"
+                    size="large"
+                    onClick={handleInquireForm}
+                  >
+                    Request Additional Information
+                  </StyledLoadingButton>
                 </>
-              )}
-
-              {activeSection === "REVIEW" && (
-                <ExportRequestButton disabled={!allSectionsComplete} />
               )}
             </StyledControls>
           </StyledContent>
