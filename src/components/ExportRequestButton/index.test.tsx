@@ -138,7 +138,6 @@ describe("Basic Functionality", () => {
   });
 
   it("should disable the button when building the document", async () => {
-    vi.useFakeTimers();
     mockGenerate.mockImplementation(
       () =>
         new Promise((res) => {
@@ -254,6 +253,13 @@ describe("Implementation Requirements", () => {
   );
 
   it("should format the PDF filename as 'CRDCSubmissionPortal-Request-{studyAbbr}-{submittedDate}.pdf'", async () => {
+    mockGenerate.mockImplementation(
+      () =>
+        new Promise((res) => {
+          res("mock-data");
+        })
+    );
+
     const mockFormObject: Partial<Application> = {
       status: "Submitted",
       updatedAt: "2024-09-30T09:10:00.000Z",
@@ -280,7 +286,7 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
       expect(mockDownloadBlob).toHaveBeenCalledWith(
-        undefined,
+        "mock-data",
         "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
         "application/pdf"
       );
@@ -290,6 +296,13 @@ describe("Implementation Requirements", () => {
   it.each(["", null, undefined])(
     "should fallback to the study name if the abbreviation is not provided",
     async (abbreviation) => {
+      mockGenerate.mockImplementation(
+        () =>
+          new Promise((res) => {
+            res("mock-data");
+          })
+      );
+
       const mockFormObject: Partial<Application> = {
         status: "Submitted",
         updatedAt: "2024-09-30T09:10:00.000Z",
@@ -316,7 +329,7 @@ describe("Implementation Requirements", () => {
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
         expect(mockDownloadBlob).toHaveBeenCalledWith(
-          undefined,
+          "mock-data",
           "CRDCSubmissionPortal-Request-Test Study-2024-09-30.pdf",
           "application/pdf"
         );
@@ -325,6 +338,13 @@ describe("Implementation Requirements", () => {
   );
 
   it("should use the updatedAt date if the status is 'In Progress'", async () => {
+    mockGenerate.mockImplementation(
+      () =>
+        new Promise((res) => {
+          res("mock-data");
+        })
+    );
+
     const mockFormObject: Partial<Application> = {
       status: "In Progress",
       updatedAt: "2024-09-30T09:10:00.000Z",
@@ -351,7 +371,7 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
       expect(mockDownloadBlob).toHaveBeenCalledWith(
-        undefined,
+        "mock-data",
         "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
         "application/pdf"
       );
