@@ -122,100 +122,9 @@ describe("Accessibility", () => {
   });
 });
 
-describe("Basic Functionality", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.clearAllTimers();
-  });
-
-  it("should render without crashing", () => {
-    expect(() =>
-      render(<ExportRequestButton />, { wrapper: (p) => <TestParent {...p} /> })
-    ).not.toThrow();
-  });
-
-  it("should disable the button when building the document", async () => {
-    vi.useFakeTimers();
-    mockGenerate.mockImplementation(
-      () =>
-        new Promise((res) => {
-          setTimeout(() => {
-            res("mock pdf data"); // NOTE: This is a placeholder value.
-          }, 1000);
-        })
-    );
-
-    const { getByTestId } = render(<ExportRequestButton />, {
-      wrapper: (p) => <TestParent {...p} />,
-    });
-
-    userEvent.click(getByTestId("export-submission-request-button"));
-
-    await waitFor(() => {
-      expect(getByTestId("export-submission-request-button")).toBeDisabled();
-    });
-
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
-  });
-
-  it("should disable the button when the disabled prop is passed", () => {
-    const { getByTestId } = render(<ExportRequestButton disabled />, {
-      wrapper: (p) => <TestParent {...p} />,
-    });
-
-    expect(getByTestId("export-submission-request-button")).toBeDisabled();
-  });
-
-  it("should disable the button when the FormContext is not loaded", () => {
-    const { getByTestId } = render(<ExportRequestButton />, {
-      wrapper: (p) => <TestParent formStatus={FormStatus.LOADING} {...p} />,
-    });
-
-    expect(getByTestId("export-submission-request-button")).toBeDisabled();
-  });
-
-  it("should display an error message on failed export", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => null);
-
-    mockGenerate.mockRejectedValue(new Error("mock error"));
-
-    const { getByTestId } = render(<ExportRequestButton />, {
-      wrapper: (p) => <TestParent {...p} />,
-    });
-
-    userEvent.click(getByTestId("export-submission-request-button"));
-
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while exporting the Submission Request to PDF.",
-        { variant: "error" }
-      );
-    });
-  });
-
-  it("should display an error message if no print region is found", async () => {
-    const { getByTestId } = render(<ExportRequestButton />, {
-      wrapper: (p) => <TestParent printRegion={null} {...p} />,
-    });
-
-    userEvent.click(getByTestId("export-submission-request-button"));
-
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "An error occurred while exporting the Submission Request to PDF.",
-        { variant: "error" }
-      );
-    });
-  });
-});
-
 describe("Implementation Requirements", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.TZ = "UTC";
   });
 
   it("should have a tooltip on hover", async () => {
@@ -354,6 +263,96 @@ describe("Implementation Requirements", () => {
         undefined,
         "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
         "application/pdf"
+      );
+    });
+  });
+});
+
+describe("Basic Functionality", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.clearAllTimers();
+  });
+
+  it("should render without crashing", () => {
+    expect(() =>
+      render(<ExportRequestButton />, { wrapper: (p) => <TestParent {...p} /> })
+    ).not.toThrow();
+  });
+
+  it("should disable the button when building the document", async () => {
+    vi.useFakeTimers();
+    mockGenerate.mockImplementation(
+      () =>
+        new Promise((res) => {
+          setTimeout(() => {
+            res("mock pdf data"); // NOTE: This is a placeholder value.
+          }, 1000);
+        })
+    );
+
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => <TestParent {...p} />,
+    });
+
+    userEvent.click(getByTestId("export-submission-request-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("export-submission-request-button")).toBeDisabled();
+    });
+
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+  });
+
+  it("should disable the button when the disabled prop is passed", () => {
+    const { getByTestId } = render(<ExportRequestButton disabled />, {
+      wrapper: (p) => <TestParent {...p} />,
+    });
+
+    expect(getByTestId("export-submission-request-button")).toBeDisabled();
+  });
+
+  it("should disable the button when the FormContext is not loaded", () => {
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => <TestParent formStatus={FormStatus.LOADING} {...p} />,
+    });
+
+    expect(getByTestId("export-submission-request-button")).toBeDisabled();
+  });
+
+  it("should display an error message on failed export", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => null);
+
+    mockGenerate.mockRejectedValue(new Error("mock error"));
+
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => <TestParent {...p} />,
+    });
+
+    userEvent.click(getByTestId("export-submission-request-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "An error occurred while exporting the Submission Request to PDF.",
+        { variant: "error" }
+      );
+    });
+  });
+
+  it("should display an error message if no print region is found", async () => {
+    const { getByTestId } = render(<ExportRequestButton />, {
+      wrapper: (p) => <TestParent printRegion={null} {...p} />,
+    });
+
+    userEvent.click(getByTestId("export-submission-request-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "An error occurred while exporting the Submission Request to PDF.",
+        { variant: "error" }
       );
     });
   });
