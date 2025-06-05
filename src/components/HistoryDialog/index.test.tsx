@@ -21,9 +21,8 @@ const BaseProps: React.ComponentProps<typeof HistoryDialog> = {
   onClose: () => {},
 };
 
-// TODO: Fix this failing in CI
 describe("Accessibility", () => {
-  it.skip("should have no violations", async () => {
+  it("should have no violations", async () => {
     const { container } = render(<HistoryDialog {...BaseProps} />);
 
     expect(await axe(container)).toHaveNoViolations();
@@ -265,19 +264,27 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByTestId } = render(<HistoryDialog {...BaseProps} history={history} />);
-
-    expect(within(getByTestId("history-item-0")).getByTestId("history-item-0-name")).toHaveStyle(
-      "color: RGBA(255, 255, 255, 1)"
+    const { getByTestId } = render(
+      <HistoryDialog {...BaseProps} history={history} getTextColor={undefined} />
     );
 
-    expect(within(getByTestId("history-item-1")).getByTestId("history-item-1-name")).toHaveStyle({
-      color: "RGBA(151, 181, 206, 1)",
-    });
+    expect(within(getByTestId("history-item-0")).getByTestId("truncated-text-wrapper")).toHaveStyle(
+      {
+        color: "rgba(255, 255, 255, 1)",
+      }
+    );
 
-    expect(within(getByTestId("history-item-2")).getByTestId("history-item-2-name")).toHaveStyle({
-      color: "RGBA(151, 181, 206, 1)",
-    });
+    expect(within(getByTestId("history-item-1")).getByTestId("truncated-text-wrapper")).toHaveStyle(
+      {
+        color: "rgba(151, 181, 206, 1)",
+      }
+    );
+
+    expect(within(getByTestId("history-item-2")).getByTestId("truncated-text-wrapper")).toHaveStyle(
+      {
+        color: "rgba(151, 181, 206, 1)",
+      }
+    );
   });
 
   it("should not render the name for each history item if not provided", () => {
