@@ -254,6 +254,10 @@ describe("GenericTable", () => {
   });
 
   describe("Early Return Conditions", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
     it("does not invoke data fetching when onFetchData is not provided", () => {
       const { getByText } = setup({
         ...defaultProps,
