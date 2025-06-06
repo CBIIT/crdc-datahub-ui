@@ -5,7 +5,6 @@ import { configureAxe } from "vitest-axe";
 import { expect, vi } from "vitest";
 import "vitest-canvas-mock";
 import failOnConsole from "vitest-fail-on-console";
-import crypto from "crypto";
 import { config } from "react-transition-group";
 
 expect.extend(matchers);
@@ -22,17 +21,6 @@ configureAxe({
         enabled: false,
       },
     ],
-  },
-});
-
-/**
- * Makes the global.crypto.getRandomValues function available in Jest
- *
- * @see https://stackoverflow.com/a/63749793
- */
-Object.defineProperty(global, "crypto", {
-  value: {
-    getRandomValues: (arr) => crypto.randomBytes(arr.length),
   },
 });
 
