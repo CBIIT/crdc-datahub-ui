@@ -730,7 +730,7 @@ describe("StudyView Component", () => {
 
   it("does not set form values for fields that are null", async () => {
     const studyId = "study-with-null-fields";
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
         variables: { _id: studyId },
@@ -741,11 +741,15 @@ describe("StudyView Component", () => {
             _id: studyId,
             studyName: "Study With Null Fields",
             studyAbbreviation: null,
-            PI: null,
             dbGaPID: "db123456",
-            ORCID: "0000-0001-2345-6789",
-            openAccess: true,
             controlledAccess: false,
+            openAccess: true,
+            PI: null,
+            ORCID: "0000-0001-2345-6789",
+            createdAt: "",
+            useProgramPC: false,
+            primaryContact: null,
+            programs: [],
           },
         },
       },
