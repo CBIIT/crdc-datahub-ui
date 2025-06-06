@@ -38,7 +38,7 @@ export default defineConfig({
     globalSetup: "./src/vitest.global-setup.ts",
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
+      reporter: ["lcov", "json", "html"],
     },
   },
   optimizeDeps: {
