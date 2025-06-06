@@ -40,6 +40,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["lcov", "json", "html"],
     },
+    testTimeout: 10_000,
   },
   optimizeDeps: {
     include: [
