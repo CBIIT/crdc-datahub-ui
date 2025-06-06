@@ -1110,7 +1110,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, findByRole } = render(
+    const { rerender, getByRole, getByTestId, findByRole } = render(
       <Button
         application={{
           ...baseApp,
@@ -1142,6 +1142,17 @@ describe("Implementation Requirements", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
 
     userEvent.type(input, "X".repeat(550));
+
+    // NOTE: Force rerender to ensure the input is re-evaluated for maxLength
+    rerender(
+      <Button
+        application={{
+          ...baseApp,
+          status,
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />
+    );
 
     // NOTE: the button is still enabled because of the maxLength on the input field
     await waitFor(() => {
