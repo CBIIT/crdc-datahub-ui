@@ -1,5 +1,9 @@
 # Release Notes
 
+## 3.4.0
+
+N/A
+
 ## 3.3.0
 
 N/A
