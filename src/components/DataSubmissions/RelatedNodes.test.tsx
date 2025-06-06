@@ -321,6 +321,8 @@ describe("RelatedNodes", () => {
             getRelatedNodes: {
               properties: ["child_node_id", "child_node_type"],
               IDPropName: "sample_id",
+              nodes: null,
+              total: null,
             },
           },
         },
