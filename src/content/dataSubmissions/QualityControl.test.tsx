@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
+import { fireEvent, render, waitFor, within } from "../../test-utils";
 import {
   LIST_BATCHES,
   ListBatchesInput,
@@ -288,7 +288,7 @@ describe("General", () => {
       );
     });
 
-    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+    fireEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
 
     await waitFor(() => {
       expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
