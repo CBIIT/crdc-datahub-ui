@@ -1,6 +1,6 @@
 import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
-import { render, within } from "../../test-utils";
+import { render, waitFor, within } from "../../test-utils";
 import ReviewDialog from "./ApproveFormDialog";
 
 describe("Accessibility", () => {
@@ -84,7 +84,7 @@ describe("Implementation Requirements", () => {
     expect(getByRole("button", { name: /Confirm to Approve/i })).not.toBeDisabled();
   });
 
-  it("should not allow typing more than 500 characters in the review comment input field", () => {
+  it("should not allow typing more than 500 characters in the review comment input field", async () => {
     const mockOnSubmit = vi.fn();
 
     const { rerender, getByTestId, getByRole } = render(
@@ -93,7 +93,11 @@ describe("Implementation Requirements", () => {
 
     userEvent.type(getByTestId("review-comment"), "X".repeat(550));
 
-    expect(within(getByTestId("review-comment")).getByRole("textbox")).toHaveValue("X".repeat(500));
+    await waitFor(() => {
+      expect(within(getByTestId("review-comment")).getByRole("textbox")).toHaveValue(
+        "X".repeat(500)
+      );
+    });
 
     // Rerender to re-evaluate button state
     rerender(<ReviewDialog open onSubmit={mockOnSubmit} />);
