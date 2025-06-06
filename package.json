@@ -10,7 +10,7 @@
     "build": "vite build",
     "test": "TZ=UTC vitest",
     "test:ui": "vitest --ui --coverage",
-    "test:ci": "TZ=UTC CI=true vitest src/components/Questionnaire --reporter verbose --minWorkers=2 --maxWorkers=2 --maxConcurrency=2",
+    "test:ci": "TZ=UTC CI=true vitest src/components --reporter verbose --minWorkers=2 --maxWorkers=2 --maxConcurrency=2",
     "lint": "eslint . --ignore-path .gitignore",
     "lint:ci": "eslint . --ignore-path .gitignore --max-warnings 0",
     "lint:fix": "eslint --fix . --ignore-path .gitignore",
