@@ -89,7 +89,8 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 
-    userEvent.type(getByTestId("review-comment"), "X".repeat(550));
+    const input = within(getByTestId("review-comment")).getByRole("textbox");
+    userEvent.paste(input, "X".repeat(550));
 
     expect(within(getByTestId("review-comment")).getByRole("textbox")).toHaveValue("X".repeat(500));
 
