@@ -19,6 +19,22 @@ import {
   ListApprovedStudiesResp,
 } from "../../graphql";
 
+const baseApprovedStudy: ApprovedStudy = {
+  _id: "",
+  originalOrg: "",
+  studyName: "",
+  studyAbbreviation: "",
+  dbGaPID: "",
+  controlledAccess: false,
+  openAccess: false,
+  PI: "",
+  ORCID: "",
+  programs: [],
+  primaryContact: null,
+  useProgramPC: false,
+  createdAt: "",
+};
+
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
     _id: "study1",
@@ -1000,6 +1016,7 @@ describe("Implementation Requirements", () => {
               total: 1,
               studies: [
                 {
+                  ...baseApprovedStudy,
                   _id: "study1",
                   studyName: "study-1-from-api",
                   studyAbbreviation: "study-1-from-api-abbr",
@@ -1007,13 +1024,14 @@ describe("Implementation Requirements", () => {
                   controlledAccess: false,
                 },
                 {
+                  ...baseApprovedStudy,
                   _id: "study2",
                   studyName: "study-2-from-api",
                   studyAbbreviation: "study-2-from-api-abbr",
                   dbGaPID: "",
                   controlledAccess: false,
                 },
-              ] as ApprovedStudy[],
+              ],
             },
           },
         },
@@ -1053,13 +1071,14 @@ describe("Implementation Requirements", () => {
             total: 1,
             studies: [
               {
+                ...baseApprovedStudy,
                 _id: "study1",
                 studyName: "study-1-from-api",
                 studyAbbreviation: "study-1-from-api-abbr",
                 dbGaPID: "",
                 controlledAccess: false,
               },
-            ] as ApprovedStudy[],
+            ],
           },
         },
       },
