@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedProviderProps, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import { InstitutionProvider, useInstitutionList } from "./InstitutionListContext";
 import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
 
@@ -31,11 +31,11 @@ const TestParent: FC<Props> = ({ mocks = [], mockProps = {}, children }: Props) 
 
 describe("useInstitutionList", () => {
   it("should throw an exception when used outside of a InstitutionProvider", async () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useInstitutionList cannot be used outside of the InstitutionProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 
   it("should render without crashing (no data)", async () => {

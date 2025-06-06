@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { render, waitFor, within } from "../../test-utils";
 import SubmittedDataFilters from "./SubmittedDataFilters";
 import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
 
@@ -19,8 +19,8 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 
 describe("SubmittedDataFilters cases", () => {
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   const baseStatistic: SubmissionStatistic = {
@@ -235,7 +235,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should immediately dispatch NodeType and Status filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -262,7 +262,7 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
@@ -282,7 +282,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should debounce the submittedID field input", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -309,14 +309,14 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "id1");
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), " abc 9912");
 
     expect(mockOnChange).not.toHaveBeenCalled(); // Not called before advancing timers
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(mockOnChange).toHaveBeenCalledWith({
       nodeType: expect.any(String),
@@ -326,7 +326,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should dispatch an empty submittedID field input immediately", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -353,11 +353,11 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "valid id here");
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     expect(mockOnChange).toHaveBeenCalledWith({
       nodeType: expect.any(String),
@@ -375,7 +375,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should not dispatch a submittedID field with less than 3 characters", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -402,12 +402,12 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "1");
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "2");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(mockOnChange).not.toHaveBeenCalled();
   });

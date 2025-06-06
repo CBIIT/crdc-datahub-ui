@@ -1,8 +1,9 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { MockedFunction } from "vitest";
+import { renderHook, waitFor } from "../test-utils";
 import { useColumnVisibility } from "./useColumnVisibility";
 import { useLocalStorage } from "./useLocalStorage";
 
-jest.mock("./useLocalStorage");
+vi.mock("./useLocalStorage");
 
 type Column<C> = C & { hideable?: boolean };
 
@@ -11,7 +12,7 @@ interface ColumnType {
   hideable?: boolean;
 }
 
-const mockUseLocalStorage = useLocalStorage as jest.MockedFunction<typeof useLocalStorage>;
+const mockUseLocalStorage = useLocalStorage as MockedFunction<typeof useLocalStorage>;
 
 describe("useColumnVisibility Hook", () => {
   const getColumnKey = (column: Column<ColumnType>): string => column.name;
@@ -25,7 +26,7 @@ describe("useColumnVisibility Hook", () => {
   const localStorageKey = "columnVisibility";
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should initialize with all columns visible when localStorage is empty", () => {
@@ -35,7 +36,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: true,
     };
 
-    mockUseLocalStorage.mockReturnValue([defaultVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([defaultVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({
@@ -62,7 +63,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: false,
     };
 
-    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({
@@ -83,7 +84,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: true,
     };
 
-    const setVisibilityModelMock = jest.fn();
+    const setVisibilityModelMock = vi.fn();
 
     mockUseLocalStorage.mockReturnValue([initialVisibilityModel, setVisibilityModelMock]);
 
@@ -141,7 +142,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: false,
     };
 
-    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({
@@ -168,7 +169,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: false,
     };
 
-    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({
@@ -195,7 +196,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: true, // isHideable: true, model[key] undefined, so true
     };
 
-    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({
@@ -222,7 +223,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: false, // isHideable: true
     };
 
-    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({
@@ -249,7 +250,7 @@ describe("useColumnVisibility Hook", () => {
       Column3: false, // isHideable: true
     };
 
-    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, jest.fn()]);
+    mockUseLocalStorage.mockReturnValue([storedVisibilityModel, vi.fn()]);
 
     const { result } = renderHook(() =>
       useColumnVisibility({

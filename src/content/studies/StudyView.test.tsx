@@ -1,10 +1,10 @@
 import React, { FC } from "react";
-import { act, render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { ApolloError } from "@apollo/client";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { act, render, waitFor, within } from "../../test-utils";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
@@ -21,16 +21,15 @@ import {
 } from "../../graphql";
 import StudyView from "./StudyView";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
-  __esModule: true,
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", async () => ({
+  ...(await vi.importActual("../../hooks/usePageTitle")),
   default: (...p) => mockUsePageTitle(...p),
 }));
 
-const mockNavigate = jest.fn();
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => ({
+  ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
 
@@ -81,8 +80,8 @@ const TestParent: FC<ParentProps> = ({
 
 describe("StudyView Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("renders without crashing", () => {
@@ -731,7 +730,7 @@ describe("StudyView Component", () => {
 
   it("does not set form values for fields that are null", async () => {
     const studyId = "study-with-null-fields";
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
         variables: { _id: studyId },
@@ -742,11 +741,15 @@ describe("StudyView Component", () => {
             _id: studyId,
             studyName: "Study With Null Fields",
             studyAbbreviation: null,
-            PI: null,
             dbGaPID: "db123456",
-            ORCID: "0000-0001-2345-6789",
-            openAccess: true,
             controlledAccess: false,
+            openAccess: true,
+            PI: null,
+            ORCID: "0000-0001-2345-6789",
+            createdAt: "",
+            useProgramPC: false,
+            primaryContact: null,
+            programs: [],
           },
         },
       },

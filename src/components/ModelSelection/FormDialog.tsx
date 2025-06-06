@@ -102,7 +102,12 @@ const FormDialog: FC<Props> = ({ dataCommons, modelVersion, onSubmitForm, onClos
     }
 
     listAvailableModelVersions(dataCommons).then((versions) => {
-      setOptions(versions);
+      // If no versions are available, default to the current model version
+      if (versions?.length > 0) {
+        setOptions(versions);
+      } else {
+        setOptions([modelVersion]);
+      }
     });
   }, [dataCommons, rest?.open]);
 

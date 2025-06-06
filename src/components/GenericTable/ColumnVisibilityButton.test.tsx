@@ -1,6 +1,7 @@
-import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { Mock } from "vitest";
+import { axe } from "vitest-axe";
+import { render, waitFor } from "../../test-utils";
 import ColumnVisibilityButton from "./ColumnVisibilityButton";
 
 const columns: Column[] = [
@@ -13,7 +14,7 @@ const getColumnKey = (column: Column) => column.fieldKey ?? column.field;
 const getColumnLabel = (column: Column) => column.label;
 
 let columnVisibilityModel: { [key: string]: boolean };
-let setColumnVisibilityModel: jest.Mock;
+let setColumnVisibilityModel: Mock;
 
 type Column = {
   field: string;
@@ -29,7 +30,7 @@ describe("Accessibility", () => {
       age: true,
       email: true,
     };
-    setColumnVisibilityModel = jest.fn((model) => {
+    setColumnVisibilityModel = vi.fn((model) => {
       columnVisibilityModel = model;
     });
   });
@@ -76,7 +77,7 @@ describe("ColumnVisibilityButton", () => {
       age: true,
       email: true,
     };
-    setColumnVisibilityModel = jest.fn((model) => {
+    setColumnVisibilityModel = vi.fn((model) => {
       columnVisibilityModel = model;
     });
   });

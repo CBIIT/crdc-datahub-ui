@@ -1,6 +1,6 @@
-import { axe } from "jest-axe";
-import { render, waitFor, within } from "@testing-library/react";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render, waitFor, within } from "../../test-utils";
 import NodeChart from "./index";
 
 const mockData: PieSectorDataItem[] = [

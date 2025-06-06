@@ -35,10 +35,12 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/setupTests.tsx"],
+    globalSetup: "./src/vitest.global-setup.ts",
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
+      reporter: ["lcov", "json", "html"],
     },
+    testTimeout: 10_000,
   },
   optimizeDeps: {
     include: [

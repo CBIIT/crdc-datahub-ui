@@ -1,7 +1,7 @@
 import React from "react";
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render, waitFor } from "../../test-utils";
 import TruncatedText from "./index";
 
 describe("Accessibility", () => {
@@ -139,7 +139,7 @@ describe("Basic Functionality", () => {
 
     const textWrapper = getByTestId("truncated-text-wrapper");
 
-    expect(textWrapper).toHaveStyle("color: red");
+    expect(textWrapper).toHaveStyle({ color: "rgb(255, 0, 0)" });
     expect(textWrapper).toHaveStyle("margin-top: 90px");
   });
 
@@ -150,7 +150,7 @@ describe("Basic Functionality", () => {
 
     const textLabel = getByTestId("truncated-text-label");
 
-    expect(textLabel).toHaveStyle("color: red");
+    expect(textLabel).toHaveStyle({ color: "rgb(255, 0, 0)" });
     expect(textLabel).toHaveStyle("margin-top: 90px");
   });
 

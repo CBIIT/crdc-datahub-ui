@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { act, render, renderHook, waitFor } from "../../test-utils";
 import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 import { query as GET_APP } from "../../graphql/getApplication";
 import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";
@@ -148,11 +148,11 @@ const TestParent: FC<Props> = ({ mocks, appId, children }: Props) => (
 
 describe("FormContext > useFormContext Tests", () => {
   it("should throw an exception when used outside of a FormProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "FormContext cannot be used outside of the FormProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 
@@ -425,7 +425,7 @@ describe("approveForm Tests", () => {
   it("should send an approve request to the API", async () => {
     const appId = "556ac14a-f247-42e8-8878-8468060fb49a";
 
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<ApproveAppResp, ApproveAppInput> = {
       request: {
         query: APPROVE_APP,
@@ -510,7 +510,7 @@ describe("approveForm Tests", () => {
       },
     };
 
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<ApproveAppResp, ApproveAppInput> = {
       request: {
         query: APPROVE_APP,
@@ -642,7 +642,7 @@ describe("inquireForm Tests", () => {
   };
 
   it("should send an inquire request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<InquireAppResp> = {
       request: {
         query: INQUIRE_APP,
@@ -757,7 +757,7 @@ describe("rejectForm Tests", () => {
   };
 
   it("should send an reject request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<RejectAppResp> = {
       request: {
         query: REJECT_APP,
@@ -872,7 +872,7 @@ describe("reopenForm Tests", () => {
   };
 
   it("should send a reopen request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<ReopenAppResp> = {
       request: {
         query: REOPEN_APP,

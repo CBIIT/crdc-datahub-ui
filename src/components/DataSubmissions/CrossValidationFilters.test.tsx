@@ -1,9 +1,9 @@
 import { FC, useMemo } from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor, within } from "../../test-utils";
 import Filters from "./CrossValidationFilters";
 import {
   LIST_BATCHES,
@@ -100,8 +100,8 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
 
 describe("CrossValidationFilters cases", () => {
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("should not have accessibility violations", async () => {
@@ -528,7 +528,7 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should immediately dispatch Batch ID filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
@@ -569,7 +569,7 @@ describe("CrossValidationFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const batchBox = within(getByTestId("cross-validation-batchID-filter")).getByRole("button");
 
@@ -596,7 +596,7 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should immediately dispatch NodeID ID filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
@@ -651,7 +651,7 @@ describe("CrossValidationFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const nodeBox = within(getByTestId("cross-validation-nodeType-filter")).getByRole("button");
 
@@ -678,7 +678,7 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should immediately dispatch Severity filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
@@ -716,7 +716,7 @@ describe("CrossValidationFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const severityBox = within(getByTestId("cross-validation-status-filter")).getByRole("button");
 

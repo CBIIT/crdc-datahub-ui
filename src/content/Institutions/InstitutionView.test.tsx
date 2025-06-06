@@ -1,9 +1,9 @@
 import React from "react";
-import { render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { act, render, waitFor, within } from "../../test-utils";
 import InstitutionView from "./InstitutionView";
 import {
   GET_INSTITUTION,
@@ -18,16 +18,15 @@ import {
 } from "../../graphql";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
-  __esModule: true,
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", async () => ({
+  ...(await vi.importActual("../../hooks/usePageTitle")),
   default: (p) => mockUsePageTitle(p),
 }));
 
-const mockNavigate = jest.fn();
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => ({
+  ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
 
@@ -139,7 +138,7 @@ describe("Accessibility", () => {
 
 describe("InstitutionView Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders without crashing", () => {
@@ -265,7 +264,11 @@ describe("InstitutionView Component", () => {
     userEvent.type(nameInput, "New Institution");
 
     expect(mockNavigate).not.toHaveBeenCalled();
-    userEvent.click(saveButton);
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(saveButton);
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -302,7 +305,11 @@ describe("InstitutionView Component", () => {
     userEvent.click(within(listbox).getByText("Inactive"));
 
     expect(mockNavigate).not.toHaveBeenCalled();
-    userEvent.click(getByTestId("save-button"));
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(getByTestId("save-button"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(

@@ -1,9 +1,9 @@
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -151,7 +151,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -302,7 +302,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onDelete callback when the delete operation is successful", async () => {
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
     const mocks: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput>[] = [
       {
         request: {
@@ -340,7 +340,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should be disabled when a deletion operation is in progress", () => {
@@ -423,7 +423,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should delete the selected nodes only when the 'Delete' button is clicked in the dialog", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput>[] = [
       {
         request: {
@@ -597,7 +597,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should use the proper pluralization for the delete confirmation snackbar message",
     async (selectedItems, expected) => {
-      const mockOnDelete = jest.fn();
+      const mockOnDelete = vi.fn();
       const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
         request: {
           query: DELETE_DATA_RECORDS,
@@ -660,7 +660,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should have different verbiage when the nodeType is 'data file'",
     async ({ selectedItems, dialogTitle, dialogBody, snackbarMessage }) => {
-      const mockOnDelete = jest.fn();
+      const mockOnDelete = vi.fn();
       const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
         request: {
           query: DELETE_DATA_RECORDS,

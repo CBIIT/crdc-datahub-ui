@@ -1,10 +1,10 @@
 import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor, within } from "@testing-library/react";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   CrossValidationResultsInput,
   CrossValidationResultsResp,
@@ -157,7 +157,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
 
 describe("General", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any accessibility violations", async () => {
@@ -231,7 +231,7 @@ describe("General", () => {
   });
 
   it("should not send batchIDs or nodeTypes when the filter is set to 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       request: {
         query: SUBMISSION_CROSS_VALIDATION_RESULTS,
@@ -264,7 +264,7 @@ describe("General", () => {
 
   // NOTE: This test heavily depends on CrossValidationFilters test-ids
   it("should send batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       maxUsageCount: 3, // Init + 2 Filter changes
       request: {
@@ -471,7 +471,7 @@ describe("General", () => {
 
 describe("Table", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the placeholder text when no data is available", async () => {

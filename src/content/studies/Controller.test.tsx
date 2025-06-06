@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,

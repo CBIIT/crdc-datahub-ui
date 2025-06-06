@@ -4,7 +4,9 @@
     "module": "ESNext",
     "types": [
       "vite/client",
-      "vite-plugin-svgr/client"
+      "vite-plugin-svgr/client",
+      "vitest/globals",
+      "vitest/jsdom",
     ],
     "lib": [
       "dom",

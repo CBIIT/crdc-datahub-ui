@@ -1,5 +1,6 @@
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { axe } from "vitest-axe";
+import { render, waitFor, within } from "../../test-utils";
 import HistoryDialog, { IconType } from "./index";
 
 type MockStatuses = "uploaded" | "downloaded" | "error";
@@ -20,14 +21,13 @@ const BaseProps: React.ComponentProps<typeof HistoryDialog> = {
   onClose: () => {},
 };
 
-// TODO: Fix this failing in CI
-// describe("Accessibility", () => {
-//   it("should have no violations", async () => {
-//     const { container } = render(<HistoryDialog {...BaseProps} />);
+describe("Accessibility", () => {
+  it("should have no violations", async () => {
+    const { container } = render(<HistoryDialog {...BaseProps} />);
 
-//     expect(await axe(container)).toHaveNoViolations();
-//   });
-// });
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
 
 describe("Basic Functionality", () => {
   it("should render without crashing", () => {
@@ -35,7 +35,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getByTestId } = render(<HistoryDialog {...BaseProps} onClose={onClose} />);
 
     userEvent.click(getByTestId("history-dialog-close"));
@@ -44,7 +44,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getAllByRole } = render(<HistoryDialog {...BaseProps} onClose={onClose} />);
 
     userEvent.click(getAllByRole("presentation")[1]);
@@ -67,7 +67,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call getTextColor with the correct status", () => {
-    const getTextColor = jest.fn();
+    const getTextColor = vi.fn();
     const history: HistoryBase<MockStatuses>[] = [
       { status: "uploaded", dateTime: new Date().toISOString(), userID: "test", reviewComment: "" },
     ];
@@ -90,7 +90,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should render a custom status wrapper if provided", async () => {
-    const getStatusWrapper = jest
+    const getStatusWrapper = vi
       .fn()
       .mockImplementation(() => ({ children }) => (
         <div data-testid="mock-wrapper-for-status">{children}</div>
@@ -264,19 +264,27 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByTestId } = render(<HistoryDialog {...BaseProps} history={history} />);
-
-    expect(within(getByTestId("history-item-0")).getByTestId("history-item-0-name")).toHaveStyle(
-      "color: RGBA(255, 255, 255, 1)"
+    const { getByTestId } = render(
+      <HistoryDialog {...BaseProps} history={history} getTextColor={undefined} />
     );
 
-    expect(within(getByTestId("history-item-1")).getByTestId("history-item-1-name")).toHaveStyle({
-      color: "RGBA(151, 181, 206, 1)",
-    });
+    expect(within(getByTestId("history-item-0")).getByTestId("truncated-text-wrapper")).toHaveStyle(
+      {
+        color: "rgba(255, 255, 255, 1)",
+      }
+    );
 
-    expect(within(getByTestId("history-item-2")).getByTestId("history-item-2-name")).toHaveStyle({
-      color: "RGBA(151, 181, 206, 1)",
-    });
+    expect(within(getByTestId("history-item-1")).getByTestId("truncated-text-wrapper")).toHaveStyle(
+      {
+        color: "rgba(151, 181, 206, 1)",
+      }
+    );
+
+    expect(within(getByTestId("history-item-2")).getByTestId("truncated-text-wrapper")).toHaveStyle(
+      {
+        color: "rgba(151, 181, 206, 1)",
+      }
+    );
   });
 
   it("should not render the name for each history item if not provided", () => {

@@ -10,9 +10,10 @@ const config = {
     "airbnb-typescript",
     "prettier",
     "react-app",
-    "react-app/jest",
     "plugin:storybook/recommended",
     "plugin:compat/recommended",
+    "plugin:@vitest/legacy-recommended",
+    "plugin:testing-library/react",
   ],
   globals: {
     window: true,
@@ -27,7 +28,7 @@ const config = {
     project: "./tsconfig.json",
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "jsx-a11y", "prettier", "compat"],
+  plugins: ["react", "@typescript-eslint", "jsx-a11y", "prettier", "compat", "@vitest"],
   settings: {
     react: {
       pragma: "React",
@@ -109,12 +110,17 @@ const config = {
     "import/no-extraneous-dependencies": [
       "error",
       {
-        devDependencies: ["**/*.{stories,test}.{ts,tsx}", "**/setupTests.{ts,tsx}"],
+        devDependencies: [
+          "**/*.d.ts",
+          "**/*.{stories,test}.{ts,tsx}",
+          "**/setupTests.{ts,tsx}",
+          "**/customRender.tsx",
+        ],
         optionalDependencies: false,
       },
     ],
 
-    /* jest and testing-library rules */
+    /* testing-library rules */
     "testing-library/prefer-screen-queries": "off",
     "testing-library/no-wait-for-multiple-assertions": "off",
     "testing-library/no-node-access": "off",

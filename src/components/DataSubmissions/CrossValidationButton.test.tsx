@@ -1,9 +1,9 @@
 import { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
@@ -70,10 +70,10 @@ const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
-  startPolling: jest.fn(),
-  stopPolling: jest.fn(),
-  refetch: jest.fn(),
-  updateQuery: jest.fn(),
+  startPolling: vi.fn(),
+  stopPolling: vi.fn(),
+  refetch: vi.fn(),
+  updateQuery: vi.fn(),
 };
 
 const baseUser: Omit<User, "role"> = {
@@ -164,23 +164,25 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
-    render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
-        <CrossValidationButton
-          submission={{
-            ...baseSubmission,
-            _id: "smoke-test-id",
-            status: null,
-            otherSubmissions: null,
-            crossSubmissionStatus: null,
-          }}
-        />
-      </TestParent>
-    );
+    expect(() =>
+      render(
+        <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Admin" } }}>
+          <CrossValidationButton
+            submission={{
+              ...baseSubmission,
+              _id: "smoke-test-id",
+              status: null,
+              otherSubmissions: null,
+              crossSubmissionStatus: null,
+            }}
+          />
+        </TestParent>
+      )
+    ).not.toThrow();
   });
 
   it("should initiate cross validation when clicked", async () => {
@@ -338,7 +340,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should be named 'Cross Validate'", () => {

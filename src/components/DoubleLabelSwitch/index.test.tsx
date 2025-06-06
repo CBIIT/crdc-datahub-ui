@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { render } from "../../test-utils";
 import DoubleLabelSwitch from "./index";
 
 describe("DoubleLabelSwitch", () => {
@@ -39,7 +39,7 @@ describe("DoubleLabelSwitch", () => {
   });
 
   it("calls onChange handler when the switch is toggled", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <DoubleLabelSwitch leftLabel="Off" rightLabel="On" checked={false} onChange={onChange} />
     );

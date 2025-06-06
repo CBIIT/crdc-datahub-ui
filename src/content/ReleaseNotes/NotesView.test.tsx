@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
+import { render } from "../../test-utils";
 import NotesView from "./NotesView";
 
 describe("Accessibility", () => {
@@ -24,7 +24,7 @@ describe("Basic Functionality", () => {
   it("should render the markdown content", () => {
     const { getByText } = render(<NotesView md="# Test markdown" />);
 
-    expect(getByText("# Test markdown")).toBeInTheDocument();
+    expect(getByText("Test markdown")).toBeInTheDocument();
   });
 
   it("should render an error message when no markdown is provided", () => {
