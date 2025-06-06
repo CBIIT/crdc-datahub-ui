@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
-import { within } from "@storybook/testing-library";
+import { within } from "@storybook/test";
 import Dialog from "./index";
 import {
   LIST_APPROVED_STUDIES,

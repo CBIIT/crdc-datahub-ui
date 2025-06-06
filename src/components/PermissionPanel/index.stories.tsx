@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { MockedResponse } from "@apollo/client/testing";
-import { userEvent, within } from "@storybook/testing-library";
+import { userEvent, within } from "@storybook/test";
 import PermissionPanel from "./index";
 import {
   RetrievePBACDefaultsResp,

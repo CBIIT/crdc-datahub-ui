@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn } from "@storybook/test";
+import { screen, userEvent, waitFor, within, expect, fn } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
-import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
 import Button from "./index";
