@@ -1,19 +1,20 @@
 describe("parseReleaseVersion cases", () => {
-  const originalEnv = process.env;
-
   beforeEach(() => {
-    jest.resetModules();
-
-    // Reset the environment variables back to their original values
-    process.env = { ...originalEnv };
+    vi.resetModules();
+    vi.resetAllMocks();
   });
 
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
+  it("should return the correct version when VITE_FE_VERSION is valid", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "3.1.0.472",
+        },
+      };
+    });
 
-  it("should return the correct version when REACT_APP_FE_VERSION is valid", async () => {
-    process.env.REACT_APP_FE_VERSION = "3.1.0.472";
     const { parseReleaseVersion } = await import("./envUtils");
     expect(parseReleaseVersion()).toBe("3.1.0");
   });
@@ -32,53 +33,112 @@ describe("parseReleaseVersion cases", () => {
   ])(
     "should correctly parse the release version of %p from the value of %p",
     async (expected, version) => {
-      process.env.REACT_APP_FE_VERSION = version;
+      vi.doMock("../env", async () => {
+        const actual = await vi.importActual<typeof import("../env")>("../env");
+        return {
+          default: {
+            ...actual.default,
+            VITE_FE_VERSION: version,
+          },
+        };
+      });
+
       const { parseReleaseVersion } = await import("./envUtils");
       expect(parseReleaseVersion()).toBe(expected);
     }
   );
 
-  it("should return N/A when REACT_APP_FE_VERSION is not set", async () => {
-    delete process.env.REACT_APP_FE_VERSION;
+  it("should return N/A when VITE_FE_VERSION is not set", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: undefined,
+        },
+      };
+    });
+
     const { parseReleaseVersion } = await import("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
   });
 
-  it("should return N/A when REACT_APP_FE_VERSION is not a string", async () => {
-    process.env.REACT_APP_FE_VERSION = 0 as unknown as string; // NOTE: Env variables can officially only be strings
+  it("should return N/A when VITE_FE_VERSION is not a string", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: 0 as unknown as string, // Mocking invalid type for test
+        },
+      };
+    });
     const { parseReleaseVersion } = await import("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
   });
 
-  it("should return N/A when REACT_APP_FE_VERSION is not in the expected format (1/3)", async () => {
-    process.env.REACT_APP_FE_VERSION = "invalid";
+  it("should return N/A when VITE_FE_VERSION is not in the expected format (1/3)", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "invalid",
+        },
+      };
+    });
     const { parseReleaseVersion } = await import("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
   });
 
-  it("should return N/A when REACT_APP_FE_VERSION is not in the expected format (2/3)", async () => {
-    process.env.REACT_APP_FE_VERSION = "mvp-2.213";
+  it("should return N/A when VITE_FE_VERSION is not in the expected format (2/3)", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "mvp-2.213",
+        },
+      };
+    });
     const { parseReleaseVersion } = await import("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
   });
 
-  it("should return N/A when REACT_APP_FE_VERSION is not in the expected format (3/3)", async () => {
-    process.env.REACT_APP_FE_VERSION = "test-branch.214";
+  it("should return N/A when VITE_FE_VERSION is not in the expected format (3/3)", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "test-branch.214",
+        },
+      };
+    });
     const { parseReleaseVersion } = await import("./envUtils");
 
     expect(parseReleaseVersion()).toBe("N/A");
   });
 
   it("should return N/A when unable to get release version from build tag", async () => {
-    process.env.REACT_APP_FE_VERSION = "0.0.0.000";
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "0.0.0.000", // This is valid, but we want to force an error below
+        },
+      };
+    });
 
-    // NOTE: Previous safety checks should prevent this from happening,
-    // so we're just mocking some improper `match` behavior here
-    jest.spyOn(String.prototype, "match").mockReturnValueOnce([undefined, undefined]);
+    // NOTE: Vitest does not allow vi.spyOn combined with vi.doMock
+    // so we must override the String.prototype.match method directly
+    // eslint-disable-next-line no-extend-native
+    String.prototype.match = vi.fn(() => null);
 
     const { parseReleaseVersion } = await import("./envUtils");
 
@@ -87,21 +147,22 @@ describe("parseReleaseVersion cases", () => {
 });
 
 describe("buildReleaseNotesUrl cases", () => {
-  const originalEnv = process.env;
-
   beforeEach(() => {
-    jest.resetModules();
-
-    // Reset the environment variables back to their original values
-    process.env = { ...originalEnv };
+    vi.resetModules();
+    vi.resetAllMocks();
   });
 
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
+  it("should return the correct URL when VITE_FE_VERSION is valid", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "3.1.0.472",
+        },
+      };
+    });
 
-  it("should return the correct URL when REACT_APP_FE_VERSION is valid", async () => {
-    process.env.REACT_APP_FE_VERSION = "3.1.0.472";
     const { buildReleaseNotesUrl } = await import("./envUtils");
 
     expect(buildReleaseNotesUrl()).toBe(
@@ -109,8 +170,17 @@ describe("buildReleaseNotesUrl cases", () => {
     );
   });
 
-  it("should return the fallback URL when REACT_APP_FE_VERSION is not set", async () => {
-    delete process.env.REACT_APP_FE_VERSION;
+  it("should return the fallback URL when VITE_FE_VERSION is not set", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: undefined,
+        },
+      };
+    });
+
     const { buildReleaseNotesUrl } = await import("./envUtils");
 
     expect(buildReleaseNotesUrl()).toBe(
@@ -118,8 +188,17 @@ describe("buildReleaseNotesUrl cases", () => {
     );
   });
 
-  it("should return the fallback URL when REACT_APP_FE_VERSION is not a string", async () => {
-    process.env.REACT_APP_FE_VERSION = 0 as unknown as string; // NOTE: Env variables can officially only be strings
+  it("should return the fallback URL when VITE_FE_VERSION is not a string", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: 0 as unknown as string, // NOTE: Env variables can officially only be strings
+        },
+      };
+    });
+
     const { buildReleaseNotesUrl } = await import("./envUtils");
 
     expect(buildReleaseNotesUrl()).toBe(
@@ -127,8 +206,17 @@ describe("buildReleaseNotesUrl cases", () => {
     );
   });
 
-  it("should return the fallback URL when REACT_APP_FE_VERSION is not in the expected format", async () => {
-    process.env.REACT_APP_FE_VERSION = "invalid";
+  it("should return the fallback URL when VITE_FE_VERSION is not in the expected format", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_FE_VERSION: "invalid",
+        },
+      };
+    });
+
     const { buildReleaseNotesUrl } = await import("./envUtils");
 
     expect(buildReleaseNotesUrl()).toBe(
@@ -138,63 +226,111 @@ describe("buildReleaseNotesUrl cases", () => {
 });
 
 describe("getFilteredDataCommons cases", () => {
-  const originalEnv = process.env;
-
   beforeEach(() => {
-    jest.resetModules();
-
-    // Reset the environment variables back to their original values
-    process.env = { ...originalEnv };
+    vi.resetModules();
+    vi.resetAllMocks();
   });
 
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
-  it("should return an empty array when REACT_APP_HIDDEN_MODELS is not set", async () => {
-    delete process.env.REACT_APP_HIDDEN_MODELS;
+  it("should return an empty array when VITE_HIDDEN_MODELS is not set", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: undefined,
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual([]);
   });
 
-  it("should return an empty array when REACT_APP_HIDDEN_MODELS is not a string", async () => {
-    process.env.REACT_APP_HIDDEN_MODELS = 0 as unknown as string; // NOTE: Officially only be strings
+  it("should return an empty array when VITE_HIDDEN_MODELS is not a string", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: 0 as unknown as string, // NOTE: Officially only be strings
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual([]);
   });
 
-  it("should return an empty array when REACT_APP_HIDDEN_MODELS is an empty string", async () => {
-    process.env.REACT_APP_HIDDEN_MODELS = "";
+  it("should return an empty array when VITE_HIDDEN_MODELS is an empty string", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: "",
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual([]);
   });
 
-  it("should return an empty array when REACT_APP_HIDDEN_MODELS is an CSV of nothing", async () => {
-    process.env.REACT_APP_HIDDEN_MODELS = ",,,";
+  it("should return an empty array when VITE_HIDDEN_MODELS is an CSV of nothing", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: ",,,",
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual([]);
   });
 
-  it("should return an array of hidden Data Commons when REACT_APP_HIDDEN_MODELS is set", async () => {
-    process.env.REACT_APP_HIDDEN_MODELS = "dc1,dc2,dc3";
+  it("should return an array of hidden Data Commons when VITE_HIDDEN_MODELS is set", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: "dc1,dc2,dc3",
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual(["dc1", "dc2", "dc3"]);
   });
 
-  it("should return an array of 1 when REACT_APP_HIDDEN_MODELS is set to a single Data Commons", async () => {
-    process.env.REACT_APP_HIDDEN_MODELS = "dc1";
+  it("should return an array of 1 when VITE_HIDDEN_MODELS is set to a single Data Commons", async () => {
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: "dc1",
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual(["dc1"]);
   });
 
   it("should filter out empty Data Commons from the list", async () => {
-    process.env.REACT_APP_HIDDEN_MODELS = "dc1,,dc3";
+    vi.doMock("../env", async () => {
+      const actual = await vi.importActual<typeof import("../env")>("../env");
+      return {
+        default: {
+          ...actual.default,
+          VITE_HIDDEN_MODELS: "dc1,,dc3",
+        },
+      };
+    });
 
     const { getFilteredDataCommons } = await import("./envUtils");
     expect(getFilteredDataCommons()).toEqual(["dc1", "dc3"]);

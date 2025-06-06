@@ -1,7 +1,7 @@
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import { MemoryRouter } from "react-router-dom";
 import { FC, useMemo } from "react";
+import { render } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,

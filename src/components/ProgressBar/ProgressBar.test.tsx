@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
+import { render } from "../../test-utils";
 import config from "../../config/SectionConfig";
 import ProgressBar from "./ProgressBar";
 import {

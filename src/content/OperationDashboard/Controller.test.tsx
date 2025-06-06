@@ -1,8 +1,8 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
 import { GraphQLError } from "graphql";
+import { render, waitFor } from "../../test-utils";
 import Controller from "./Controller";
 import {
   Context as AuthContext,
@@ -11,9 +11,9 @@ import {
 } from "../../components/Contexts/AuthContext";
 import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", () => ({
+  ...vi.importActual("../../hooks/usePageTitle"),
   __esModule: true,
   default: (p) => mockUsePageTitle(p),
 }));
@@ -126,7 +126,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should default to the 'Submission' type if none is provided", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
       request: {
         query: GET_DASHBOARD_URL,
@@ -151,13 +151,13 @@ describe("Basic Functionality", () => {
   it("should use the 'type' query parameter if provided", async () => {
     // NOTE: We're ignoring MUI warnings about out-of-range values.
     // Once we have other options available besides 'Submission', we can remove the out-of-range value.
-    jest.spyOn(console, "warn").mockImplementation((e) => {
+    vi.spyOn(console, "warn").mockImplementation((e) => {
       if (!e.includes("out-of-range value")) {
         throw new Error(e);
       }
     });
 
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<GetDashboardURLResp, GetDashboardURLInput> = {
       request: {
         query: GET_DASHBOARD_URL,
@@ -185,7 +185,7 @@ describe("Basic Functionality", () => {
 
     expect(mockMatcher).toHaveBeenCalledWith({ type: "Organization" });
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should show a loading spinner when the AuthCtx is loading", async () => {
@@ -271,5 +271,5 @@ describe("Basic Functionality", () => {
   });
 
   // NOTE: Disabled until we have more than one type available
-  // it("should refetch the URL when the type changes");
+  it.skip("should refetch the URL when the type changes");
 });

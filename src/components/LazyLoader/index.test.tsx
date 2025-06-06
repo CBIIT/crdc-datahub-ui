@@ -1,5 +1,5 @@
 import { FC, lazy } from "react";
-import { render } from "@testing-library/react";
+import { render } from "../../test-utils";
 import LazyLoader from "./index";
 
 const MockComponent: FC = () => <div>Mock Component</div>;

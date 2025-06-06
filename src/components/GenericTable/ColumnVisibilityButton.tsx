@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from "react";
 import { IconButton, Stack, styled } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { ReactComponent as TableColumnsIcon } from "../../assets/icons/table_columns_icon.svg";
+import TableColumnsIcon from "../../assets/icons/table_columns_icon.svg?react";
 import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
 import Tooltip from "../Tooltip";
 

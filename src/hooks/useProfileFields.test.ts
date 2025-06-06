@@ -1,10 +1,10 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook } from "../test-utils";
 import * as Auth from "../components/Contexts/AuthContext";
 import useProfileFields, { FieldState } from "./useProfileFields";
 
 describe("Users View", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // NOTE: This is mostly a sanity check to ensure we're ignoring the signed-in user's role
@@ -14,7 +14,7 @@ describe("Users View", () => {
       const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -29,7 +29,7 @@ describe("Users View", () => {
     const user = { _id: "User-A", role: "Submitter" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -51,7 +51,7 @@ describe("Users View", () => {
     const user = { _id: "User-A", role: "Admin", permissions: ["user:manage"] } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -69,7 +69,7 @@ describe("Users View", () => {
     const user = { _id: "User-A", role: "Admin", permissions: ["user:manage"] } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -87,7 +87,7 @@ describe("Users View", () => {
     const user = { _id: "User-A", role: "Admin", permissions: ["user:manage"] } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -98,7 +98,7 @@ describe("Users View", () => {
     const user = { _id: "User-A", role: "Admin" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "I-Am-User-B", role: "Submitter" };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -112,7 +112,7 @@ describe("Users View", () => {
       const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -129,7 +129,7 @@ describe("Users View", () => {
       const user = { _id: "User-A", role, permissions: [] } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -148,14 +148,14 @@ describe("Users View", () => {
 
 describe("Profile View", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return UNLOCKED for firstName and lastName when viewing own profile", () => {
     const user = { _id: "User-A", role: "User" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "User" };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -167,7 +167,7 @@ describe("Profile View", () => {
     const user = { _id: "User-A", role: "User" } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "User" };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -181,7 +181,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -195,7 +195,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role, permissions: ["user:manage"] } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role: "Federal Lead" };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -212,7 +212,7 @@ describe("Profile View", () => {
         role: "Federal Lead",
       };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "users"));
 
@@ -229,7 +229,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -243,7 +243,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -257,7 +257,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -271,7 +271,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -291,7 +291,7 @@ describe("Profile View", () => {
     const user = { _id: "User-A", role } as User;
     const profileOf: Pick<User, "_id" | "role"> = { _id: "User-A", role };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -312,7 +312,7 @@ describe("Profile View", () => {
       const user = { _id: "User-A", role } as User;
       const profileOf: Pick<User, "_id" | "role"> = { _id: "Not-User-B", role: "Submitter" };
 
-      jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
       const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 
@@ -337,7 +337,7 @@ describe("Profile View", () => {
       role: "Data Commons Personnel",
     };
 
-    jest.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
+    vi.spyOn(Auth, "useAuthContext").mockReturnValue({ user } as Auth.ContextState);
 
     const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
 

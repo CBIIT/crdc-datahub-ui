@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { Logger, secondsToMinuteString } from "../../utils";
-import CloseIcon from "../../assets/icons/close_icon.svg";
+import CloseIcon from "../../assets/icons/close_icon.svg?url";
 
 const InactivityWarningDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -198,7 +198,7 @@ const InactivityDialog: FC = () => {
   };
 
   useEffect(() => {
-    let ID: NodeJS.Timer;
+    let ID: ReturnType<typeof setInterval>;
     if (isLoggedIn) {
       ID = setInterval(loadData, 10 * 1000);
     } else {

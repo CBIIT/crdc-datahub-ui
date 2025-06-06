@@ -3,9 +3,13 @@ import { Box } from "@mui/material";
 // eslint-disable-next-line import/no-extraneous-dependencies -- Required to use legacy version from DMN
 import { Provider } from "react-redux";
 import { ReduxDataDictionary } from "data-model-navigator";
+import _ from "lodash";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { Status, useDataCommonContext } from "../../components/Contexts/DataCommonContext";
 import useBuildReduxStore from "../../hooks/useBuildReduxStore";
+
+// NOTE: This is required for Model Navigator to work
+globalThis._ = _;
 
 type ModelNavigatorProps = {
   /**

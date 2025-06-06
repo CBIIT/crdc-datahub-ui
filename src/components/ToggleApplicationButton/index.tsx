@@ -4,8 +4,8 @@ import { Box, ButtonProps, IconButton, IconButtonProps, styled } from "@mui/mate
 import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
-import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_circular_back.svg";
-import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
+import RestoreIcon from "../../assets/icons/filled_circular_back.svg?react";
+import DeleteIcon from "../../assets/icons/filled_circular_delete.svg?react";
 import DeleteDialog from "../DeleteDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";

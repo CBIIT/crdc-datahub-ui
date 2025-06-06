@@ -7,7 +7,7 @@ import { AuthProvider } from "./components/Contexts/AuthContext";
 import { AnalyticsProvider } from "./components/Contexts/AnalyticsContext";
 import env from "./env";
 
-if (env.REACT_APP_DEV_TIER === "dev" || env.REACT_APP_DEV_TIER === "dev2") {
+if (env.VITE_DEV_TIER === "dev" || env.VITE_DEV_TIER === "dev2") {
   import("@axe-core/react").then(({ default: axe }) => axe(React, ReactDOM, 1500));
 }
 
@@ -17,7 +17,7 @@ root.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
       <AuthProvider>
-        <AnalyticsProvider GA_MEASUREMENT_ID={env.REACT_APP_GA_TRACKING_ID}>
+        <AnalyticsProvider GA_MEASUREMENT_ID={env.VITE_GA_TRACKING_ID}>
           <App />
         </AnalyticsProvider>
       </AuthProvider>

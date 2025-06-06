@@ -14,7 +14,7 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { isEqual } from "lodash";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
-import { ReactComponent as RemoveIconSvg } from "../../assets/icons/remove_icon.svg";
+import RemoveIconSvg from "../../assets/icons/remove_icon.svg?react";
 import AddRemoveButton from "../AddRemoveButton";
 import TruncatedText from "../TruncatedText";
 import StyledFormSelect from "../StyledFormComponents/StyledSelect";

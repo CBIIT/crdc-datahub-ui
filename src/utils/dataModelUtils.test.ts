@@ -1,16 +1,23 @@
+import { Mock } from "vitest";
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import * as utils from "./dataModelUtils";
 
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
-jest.mock("../env", () => ({
-  ...process.env,
-  REACT_APP_DEV_TIER: undefined,
-}));
+vi.mock(import("../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_DEV_TIER: undefined,
+    },
+  };
+});
 
 describe("fetchManifest cases", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
@@ -47,7 +54,7 @@ describe("fetchManifest cases", () => {
       },
     };
 
-    (fetch as jest.Mock).mockImplementationOnce(() =>
+    (fetch as Mock).mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.resolve(fakeManifest) })
     );
 
@@ -70,7 +77,7 @@ describe("fetchManifest cases", () => {
       },
     };
 
-    (fetch as jest.Mock).mockImplementationOnce(() =>
+    (fetch as Mock).mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.resolve(fakeManifest) })
     );
 
@@ -83,7 +90,7 @@ describe("fetchManifest cases", () => {
   });
 
   it("should throw an error if fetch fails", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
+    (fetch as Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
 
     await expect(utils.fetchManifest()).rejects.toThrow("Unable to fetch or parse manifest");
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -91,7 +98,7 @@ describe("fetchManifest cases", () => {
 
   // NOTE: We're asserting that JSON.parse does not throw an error here
   it("should throw a controlled error if fetch returns invalid JSON", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() =>
+    (fetch as Mock).mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.reject(new Error("JSON error")) })
     );
 
@@ -99,10 +106,10 @@ describe("fetchManifest cases", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it("should fall back to prod tier if REACT_APP_DEV_TIER is not defined", async () => {
+  it("should fall back to prod tier if VITE_DEV_TIER is not defined", async () => {
     const fakeManifest = { key: "value" };
 
-    (fetch as jest.Mock).mockImplementationOnce(() =>
+    (fetch as Mock).mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.resolve(fakeManifest) })
     );
 
@@ -114,7 +121,7 @@ describe("fetchManifest cases", () => {
 
 describe("listAvailableModelVersions", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
@@ -132,7 +139,7 @@ describe("listAvailableModelVersions", () => {
   });
 
   it("should catch fetchManifest exception and return empty array", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
+    (fetch as Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
 
     const versions = await utils.listAvailableModelVersions("CDS");
 
@@ -181,7 +188,7 @@ describe("listAvailableModelVersions", () => {
 });
 
 describe("buildAssetUrls cases", () => {
-  it("should build asset URLs using prod tier when REACT_APP_DEV_TIER is not defined", () => {
+  it("should build asset URLs using prod tier when VITE_DEV_TIER is not defined", () => {
     const dc: DataCommon = {
       name: "test-name",
       assets: {

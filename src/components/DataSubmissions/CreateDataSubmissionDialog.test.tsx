@@ -1,9 +1,9 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { render, waitFor, within } from "../../test-utils";
 import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
 import {
   Context as AuthCtx,
@@ -18,6 +18,22 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+
+const baseApprovedStudy: ApprovedStudy = {
+  _id: "",
+  originalOrg: "",
+  studyName: "",
+  studyAbbreviation: "",
+  dbGaPID: "",
+  controlledAccess: false,
+  openAccess: false,
+  PI: "",
+  ORCID: "",
+  programs: [],
+  primaryContact: null,
+  useProgramPC: false,
+  createdAt: "",
+};
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
@@ -109,10 +125,10 @@ const TestParent: FC<ParentProps> = ({
 );
 
 describe("Basic Functionality", () => {
-  const handleCreate = jest.fn();
+  const handleCreate = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders dialog and form inputs correctly", async () => {
@@ -745,7 +761,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -797,7 +813,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -867,7 +883,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -933,7 +949,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -985,7 +1001,7 @@ describe("Implementation Requirements", () => {
   it.each<UserRole>(["Data Commons Personnel"])(
     "should fetch all of the studies if the user's role is %s",
     async (role) => {
-      const mockMatcher = jest.fn().mockImplementation(() => true);
+      const mockMatcher = vi.fn().mockImplementation(() => true);
       const listApprovedStudiesMock: MockedResponse<
         ListApprovedStudiesResp,
         ListApprovedStudiesInput
@@ -1000,6 +1016,7 @@ describe("Implementation Requirements", () => {
               total: 1,
               studies: [
                 {
+                  ...baseApprovedStudy,
                   _id: "study1",
                   studyName: "study-1-from-api",
                   studyAbbreviation: "study-1-from-api-abbr",
@@ -1007,19 +1024,20 @@ describe("Implementation Requirements", () => {
                   controlledAccess: false,
                 },
                 {
+                  ...baseApprovedStudy,
                   _id: "study2",
                   studyName: "study-2-from-api",
                   studyAbbreviation: "study-2-from-api-abbr",
                   dbGaPID: "",
                   controlledAccess: false,
                 },
-              ] as ApprovedStudy[],
+              ],
             },
           },
         },
       };
 
-      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
         wrapper: (p) => (
           <TestParent
             mocks={[listApprovedStudiesMock]}
@@ -1038,7 +1056,7 @@ describe("Implementation Requirements", () => {
   );
 
   it("should fetch all of the studies if the user's assigned studies contains the 'All' study", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const listApprovedStudiesMock: MockedResponse<
       ListApprovedStudiesResp,
       ListApprovedStudiesInput
@@ -1053,19 +1071,20 @@ describe("Implementation Requirements", () => {
             total: 1,
             studies: [
               {
+                ...baseApprovedStudy,
                 _id: "study1",
                 studyName: "study-1-from-api",
                 studyAbbreviation: "study-1-from-api-abbr",
                 dbGaPID: "",
                 controlledAccess: false,
               },
-            ] as ApprovedStudy[],
+            ],
           },
         },
       },
     };
 
-    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[listApprovedStudiesMock]}

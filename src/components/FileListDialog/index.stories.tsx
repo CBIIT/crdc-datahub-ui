@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
-import { userEvent, within } from "@storybook/testing-library";
-import { fn } from "@storybook/test";
+import { fn, userEvent, within } from "@storybook/test";
 import Dialog from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 import {

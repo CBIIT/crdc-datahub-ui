@@ -8,7 +8,7 @@ import {
   styled,
 } from "@mui/material";
 import Tooltip from "../Tooltip";
-import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
+import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?url";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -21,7 +21,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
 }));
 
 const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
-  backgroundImage: `url(${checkboxCheckedIcon})`,
+  backgroundImage: `url("${checkboxCheckedIcon}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",

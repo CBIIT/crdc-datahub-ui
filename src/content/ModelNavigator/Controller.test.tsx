@@ -1,16 +1,16 @@
 import { FC } from "react";
 import { createMemoryRouter, MemoryRouter, Route, RouterProvider, Routes } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor } from "../../test-utils";
 import Controller from "./Controller";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", () => ({
+  ...vi.importActual("../../hooks/usePageTitle"),
   __esModule: true,
   default: (p: string) => mockUsePageTitle(p),
 }));
 
-jest.mock("./NavigatorView", () => ({
+vi.mock("./NavigatorView", () => ({
   __esModule: true,
   default: ({ version }: { version?: string }) => <div>MOCK NAVIGATOR VIEW {version}</div>,
 }));

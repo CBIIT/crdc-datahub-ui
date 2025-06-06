@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { render, waitFor } from "../../test-utils";
 import DataViewDetails from "./DataViewDetails";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 import { GET_NODE_DETAIL, GET_RELATED_NODES } from "../../graphql";

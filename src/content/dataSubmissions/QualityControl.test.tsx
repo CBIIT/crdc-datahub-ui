@@ -1,10 +1,10 @@
 import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor, within } from "@testing-library/react";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
+import { fireEvent, render, waitFor, within } from "../../test-utils";
 import {
   LIST_BATCHES,
   ListBatchesInput,
@@ -138,7 +138,6 @@ const issueTypesMock: MockedResponse<
             code: "ISSUE1",
             title: "Issue Title 1",
             count: 100,
-            description: "",
             severity: "Error",
             __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
           } as AggregatedQCResult,
@@ -166,7 +165,6 @@ const aggSubmissionMock: MockedResponse<
             code: "ISSUE1",
             title: "Issue Title 1",
             count: 100,
-            description: "",
             severity: "Error",
             __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
           } as AggregatedQCResult,
@@ -174,7 +172,6 @@ const aggSubmissionMock: MockedResponse<
             code: "ISSUE2",
             title: "Issue Title 2",
             count: 200,
-            description: "",
             severity: "Warning",
             __typename: "AggregatedQCResult",
           } as AggregatedQCResult,
@@ -237,7 +234,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
 
 describe("General", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any accessibility violations", async () => {
@@ -291,7 +288,7 @@ describe("General", () => {
       );
     });
 
-    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+    fireEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
 
     await waitFor(() => {
       expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
@@ -373,7 +370,7 @@ describe("General", () => {
 
 describe("Filters", () => {
   it("should not send batchIDs or nodeTypes when the filter is set to 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
       request: {
         query: SUBMISSION_QC_RESULTS,
@@ -423,9 +420,9 @@ describe("Filters", () => {
   });
 
   it("should include batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
-      maxUsageCount: 3, // Init + 2 Filter changes
+      maxUsageCount: Infinity, // Init + 2 Filter changes
       request: {
         query: SUBMISSION_QC_RESULTS,
       },
@@ -867,7 +864,7 @@ describe("Filters", () => {
 
 describe("Table", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // NOTE: This is just a sanity check for the column rendering

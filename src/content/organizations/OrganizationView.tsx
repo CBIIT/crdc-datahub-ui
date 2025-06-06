@@ -16,7 +16,7 @@ import { cloneDeep } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import programIcon from "../../assets/icons/program_icon.svg";
+import programIcon from "../../assets/icons/program_icon.svg?url";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import {
   CREATE_ORG,

@@ -1,6 +1,6 @@
-import { render, within } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { render, within } from "../../test-utils";
 import ReviewDialog from "./ApproveFormDialog";
 
 describe("Accessibility", () => {
@@ -50,7 +50,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the `onSubmit` function when the confirm button is clicked", () => {
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
 
     const { getByRole, getByTestId } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 
@@ -63,7 +63,7 @@ describe("Basic Functionality", () => {
   });
 
   it("calls the `onCancel` function when the cancel button is clicked", () => {
-    const mockOnCancel = jest.fn();
+    const mockOnCancel = vi.fn();
 
     const { getByRole } = render(<ReviewDialog open onCancel={mockOnCancel} />);
 
@@ -84,23 +84,25 @@ describe("Implementation Requirements", () => {
     expect(getByRole("button", { name: /Confirm to Approve/i })).not.toBeDisabled();
   });
 
-  it("should not allow typing more than 500 characters in the review comment input field", () => {
-    const mockOnSubmit = jest.fn();
+  it("should not allow typing more than 500 characters in the review comment input field", async () => {
+    const mockOnSubmit = vi.fn();
 
     const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 
-    userEvent.type(getByTestId("review-comment"), "X".repeat(550));
+    userEvent.type(getByTestId("review-comment"), "X".repeat(550), { delay: 0 });
 
     expect(within(getByTestId("review-comment")).getByRole("textbox")).toHaveValue("X".repeat(500));
 
-    userEvent.click(getByRole("button", { name: /Confirm to Approve/i }));
+    userEvent.click(getByRole("button", { name: /Confirm to Approve/i }), null, {
+      skipPointerEventsCheck: true,
+    });
 
     expect(mockOnSubmit).toHaveBeenCalledWith(expect.stringMatching(/^X{500}$/));
     expect(mockOnSubmit).toHaveBeenCalledTimes(1);
   });
 
   it("should not allow pasting more than 500 characters in the review comment input field", () => {
-    const mockOnSubmit = jest.fn();
+    const mockOnSubmit = vi.fn();
 
     const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
 

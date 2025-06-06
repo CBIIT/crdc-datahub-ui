@@ -1,4 +1,4 @@
-import type { StorybookConfig } from "@storybook/react-webpack5";
+import type { StorybookConfig } from "@storybook/react-vite";
 
 const config: StorybookConfig = {
   stories: ["../**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -6,17 +6,17 @@ const config: StorybookConfig = {
     "@storybook/addon-a11y",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
-    "@storybook/preset-create-react-app",
     "storybook-addon-apollo-client",
     "storybook-addon-pseudo-states",
   ],
   framework: {
-    name: "@storybook/react-webpack5",
+    name: "@storybook/react-vite",
     options: {},
   },
   staticDirs: ["../public"],
   core: {
     disableTelemetry: true,
+    builder: "@storybook/builder-vite",
   },
   typescript: {
     reactDocgen: "react-docgen-typescript",

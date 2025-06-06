@@ -1,12 +1,12 @@
-import New from "../../assets/history/new.svg";
-import InProgress from "../../assets/history/in_progress.svg";
-import Submitted from "../../assets/history/submitted.svg";
-import Released from "../../assets/history/dataSubmission/released.svg";
-import Withdrawn from "../../assets/history/withdrawn.svg";
-import Rejected from "../../assets/history/rejected.svg";
-import Completed from "../../assets/history/dataSubmission/completed.svg";
-import Canceled from "../../assets/history/canceled.svg";
-import Deleted from "../../assets/history/deleted.svg";
+import New from "../../assets/history/new.svg?url";
+import InProgress from "../../assets/history/in_progress.svg?url";
+import Submitted from "../../assets/history/submitted.svg?url";
+import Released from "../../assets/history/dataSubmission/released.svg?url";
+import Withdrawn from "../../assets/history/withdrawn.svg?url";
+import Rejected from "../../assets/history/rejected.svg?url";
+import Completed from "../../assets/history/dataSubmission/completed.svg?url";
+import Canceled from "../../assets/history/canceled.svg?url";
+import Deleted from "../../assets/history/deleted.svg?url";
 import { IconType } from "../HistoryDialog";
 
 /**

@@ -1,26 +1,25 @@
-import { act, render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "../../test-utils";
 import { Logger } from "../../utils";
 import Controller from "./Controller";
 
-jest.spyOn(Logger, "error").mockImplementation(() => jest.fn());
+vi.spyOn(Logger, "error").mockImplementation(() => vi.fn());
 
-const mockFetchReleaseNotes = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockFetchReleaseNotes = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   fetchReleaseNotes: async (...p) => mockFetchReleaseNotes(...p),
 }));
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
-  __esModule: true,
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", async () => ({
+  ...(await vi.importActual("../../hooks/usePageTitle")),
   default: (...p) => mockUsePageTitle(...p),
 }));
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
-    jest.clearAllTimers();
+    vi.resetAllMocks();
+    vi.clearAllTimers();
   });
 
   it("should set the page title 'Release Notes'", async () => {
@@ -32,7 +31,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should render the loader when fetching release notes", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     mockFetchReleaseNotes.mockImplementation(
       () =>
@@ -59,7 +58,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should render the notes when release notes are fetched", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     mockFetchReleaseNotes.mockImplementation(
       () =>
@@ -75,7 +74,7 @@ describe("Basic Functionality", () => {
     expect(queryByText(/Mock Markdown Data/)).not.toBeInTheDocument();
 
     act(() => {
-      jest.advanceTimersByTime(500); // Trigger promise resolution
+      vi.advanceTimersByTime(500); // Trigger promise resolution
     });
 
     await waitFor(() => {
@@ -84,7 +83,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should report the error if fetching release notes fails", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     mockFetchReleaseNotes.mockImplementation(
       () =>

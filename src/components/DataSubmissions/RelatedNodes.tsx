@@ -11,8 +11,8 @@ import {
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
 import { capitalizeFirstLetter, coerceToString, moveToFrontOfArray, safeParse } from "../../utils";
-import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
-import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
+import ChevronLeft from "../../assets/icons/chevron_left.svg?react";
+import ChevronRight from "../../assets/icons/chevron_right.svg?react";
 
 const StyledTabs = styled(Tabs)(() => ({
   position: "relative",

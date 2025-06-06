@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { CSSProperties } from "react";
 import { FormatDate } from "../../utils";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledDialog = styled(Dialog, {
   shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme",

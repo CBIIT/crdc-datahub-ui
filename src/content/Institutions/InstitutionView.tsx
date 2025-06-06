@@ -6,7 +6,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import institutionIcon from "../../assets/icons/institutions_icon.svg";
+import institutionIcon from "../../assets/icons/institutions_icon.svg?url";
 import usePageTitle from "../../hooks/usePageTitle";
 import StyledAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";

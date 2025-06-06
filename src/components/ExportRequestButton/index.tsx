@@ -1,7 +1,7 @@
 import { forwardRef, memo, useState } from "react";
 import { styled, Button, ButtonProps } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon_filled.svg";
+import DownloadIcon from "../../assets/icons/download_icon_filled.svg?react";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import { GenerateDocument } from "./pdf/Generate";

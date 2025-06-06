@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react";
 import { IconButton, IconButtonProps, styled, TooltipProps } from "@mui/material";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import CopyIconSvg from "../../assets/icons/copy_icon_2.svg?react";
 
 const StyledCopyIDButton = styled(IconButton)(({ theme }) => ({
   display: "inline-flex",

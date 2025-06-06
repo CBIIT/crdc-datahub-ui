@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon.svg";
+import DownloadIcon from "../../assets/icons/download_icon.svg?react";
 import packageConfig from "../../config/PackageTableConfig";
 
 const StyledTableContainer = styled(TableContainer)({
