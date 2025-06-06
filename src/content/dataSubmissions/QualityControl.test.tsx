@@ -138,7 +138,6 @@ const issueTypesMock: MockedResponse<
             code: "ISSUE1",
             title: "Issue Title 1",
             count: 100,
-            description: "",
             severity: "Error",
             __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
           } as AggregatedQCResult,
@@ -166,7 +165,6 @@ const aggSubmissionMock: MockedResponse<
             code: "ISSUE1",
             title: "Issue Title 1",
             count: 100,
-            description: "",
             severity: "Error",
             __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
           } as AggregatedQCResult,
@@ -174,7 +172,6 @@ const aggSubmissionMock: MockedResponse<
             code: "ISSUE2",
             title: "Issue Title 2",
             count: 200,
-            description: "",
             severity: "Warning",
             __typename: "AggregatedQCResult",
           } as AggregatedQCResult,
@@ -425,7 +422,7 @@ describe("Filters", () => {
   it("should include batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
     const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
-      maxUsageCount: 3, // Init + 2 Filter changes
+      maxUsageCount: Infinity, // Init + 2 Filter changes
       request: {
         query: SUBMISSION_QC_RESULTS,
       },
