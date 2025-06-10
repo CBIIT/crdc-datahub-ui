@@ -1,8 +1,67 @@
 # Release Notes
 
-## 3.3.0
+## 3.3.0 (Released 07/XX/2025)
 
-N/A
+#### Submission Request
+
+- Users must provide consent before initiating a submission request.
+- Requests can now be canceled directly from within the form.
+- A reason is required when canceling or restoring a request.
+- User Experience - Improved visual distinction between 'Yes' and 'No' selections.
+
+#### Data Submission
+
+- Enhanced data update functionality with clearer new vs. existing data comparison and overwrite options.
+- The system now automatically creates composite key fields in data submissions.
+- Data Curators can now update the Data Model Version for existing submissions upon request.
+- System now accepts file names that include sub-folder paths.
+- Validation - Changing the Data Model Version now automatically resets existing validation results.
+- Validation - The system now enforces a consistent file ID format.
+- Validation - Studies without a program are now assigned to ‘NA’ and will fail validation if a program node is submitted.
+- Validation – Support string pattern validation in data submissions, such as dbGaPID.
+- Validation – The system now accepts case-insensitive input for permissive values in data submissions.
+- Validation – The system now validates submitted Program and Study Names against the official names maintained by the system.
+- The system now supports multiple parent nodes in list format.
+- Submitters can now download the metadata files they originally uploaded.
+- The Data file size info is now provided for each data submission.
+- Users can now view standard node category mappings for each data model in the Data Model Navigator.
+- Provides a reason when the "Submit" button is disabled.
+- The Data Submission Dashboard now displays full Program and Study names for reference.
+- Improved visual distinction of data upload status in the Data Activities tab.
+- The term “Primary Contact” for data submission has been renamed to “Data Concierge”.
+
+#### Data Commons
+
+- Generated TSV Metadata files for Downstream Commons now include Concept Codes.
+- A comprehensive release package manifest is now included with data submission releases to the downstream Data Commons.
+
+#### Uploader CLI Tool Enhancements
+
+- Automatically injects file IDs into child node templates.
+- Detects and reports crashes to accurately reflect upload status.
+- Improved support for backward compatibility checks.
+
+#### Email Notifications
+
+- New – Trigger an Email notification to Data Commons Personnel when a Data Submission is created.
+- Update – Update Submission Request Cancel/Restore email notification to include reason.
+- Update - Update content of Request Access email notification to include more information.
+
+#### User Account Management
+
+- Users requesting the Submitter role must now provide their host institution.
+- User profiles now display more information, including permissions and email notification settings.
+- Federal Leads can now manage other Federal Lead accounts.
+- NIH account users are no longer auto-deactivated due to inactivity.
+
+#### Internal & Administrative Tooling
+
+- Operations Dashboard – Added data submission metrics by institutions.
+- Operations Dashboard – Added interactive charts with click-to-drilldown functionality.
+- Displays a warning when removing the 'Data Commons Personnel' role from a user.
+- Manage Studies – Enhanced to display additional study information.
+- Introduced a new Manage Institutions tool.
+- PBAC – Automatically enables view permissions when required by higher-level roles.
 
 ## 3.2.2 (Released 05/13/2025)
 
