@@ -1,6 +1,6 @@
 # Release Notes
 
-## 3.3.0 (Released 07/XX/2025)
+## 3.3.0 (Released 07/09/2025)
 
 #### Submission Request
 
