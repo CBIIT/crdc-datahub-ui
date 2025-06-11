@@ -54,7 +54,7 @@ export const SearchParamsProvider: React.FC<ProviderProps> = ({ children }) => {
     if (!setSearchParamsBase) {
       return;
     }
-    setSearchParamsBase(newSearchParams, { replace: true, ...options });
+    setSearchParamsBase(newSearchParams, { replace: true, preventScrollReset: true, ...options });
   };
 
   const value = useMemo(

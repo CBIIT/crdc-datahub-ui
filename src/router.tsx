@@ -91,6 +91,16 @@ const routes: RouteObject[] = [
             ),
           },
           {
+            path: "/data-explorer/:studyId",
+            element: (
+              <RequireAuth
+                component={<DataExplorer />}
+                redirectPath="/data-explorer"
+                redirectName="Data Explorer"
+              />
+            ),
+          },
+          {
             path: "/submission-request/:appId/:section?",
             element: (
               <RequireAuth
