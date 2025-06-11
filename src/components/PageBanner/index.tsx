@@ -22,7 +22,6 @@ const StyledBannerContentContainer = styled(Container)(({ padding }: { padding?:
 }));
 
 const StyledBannerTitle = styled("h1")({
-  maxWidth: "611px",
   height: "79px",
   display: "flex",
   flexDirection: "column",

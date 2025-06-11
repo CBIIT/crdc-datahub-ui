@@ -1,5 +1,5 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Box, Breadcrumbs, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Container, Typography } from "@mui/material";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -14,6 +14,10 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import { GET_APPROVED_STUDY, GetApprovedStudyInput, GetApprovedStudyResp } from "../../graphql";
 import { Logger } from "../../utils";
 import SuspenseLoader from "../../components/SuspenseLoader";
+
+const StyledContainer = styled(Container)({
+  marginTop: "-62px",
+});
 
 const StyledBreadcrumbsBox = styled(Box)({
   height: "50px",
@@ -162,41 +166,44 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         // TODO: approval for this text?
         subTitle="The list below shows studies associated with your account. Select a study to view metadata that has already been released and completed."
         bannerSrc={bannerPng}
+        padding="57px 0 0 25px"
       />
 
       {/* Page Filters & Table */}
-      <StyledFilterTableWrapper>
-        <DataExplorerFilters
-          columns={columns}
-          // TODO: this comes from the API
-          nodeTypes={["node-participant", "node-sample", "node-assay"]}
-          defaultValues={defaultValues}
-          columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={setColumnVisibilityModel}
-          onChange={handleFilterChange}
-        />
+      <StyledContainer maxWidth="xl">
+        <StyledFilterTableWrapper>
+          <DataExplorerFilters
+            columns={columns}
+            // TODO: this comes from the API
+            nodeTypes={["node-participant", "node-sample", "node-assay"]}
+            defaultValues={defaultValues}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={setColumnVisibilityModel}
+            onChange={handleFilterChange}
+          />
 
-        <GenericTable
-          ref={tableRef}
-          columns={visibleColumns}
-          data={data || []}
-          total={totalData || 0}
-          loading={loading}
-          defaultRowsPerPage={20}
-          defaultOrder="desc"
-          disableUrlParams={false}
-          position="bottom"
-          onFetchData={handleFetchData}
-          containerProps={{
-            sx: {
-              marginBottom: "8px",
-              border: 0,
-              borderTopLeftRadius: 0,
-              borderTopRightRadius: 0,
-            },
-          }}
-        />
-      </StyledFilterTableWrapper>
+          <GenericTable
+            ref={tableRef}
+            columns={visibleColumns}
+            data={data || []}
+            total={totalData || 0}
+            loading={loading}
+            defaultRowsPerPage={20}
+            defaultOrder="desc"
+            disableUrlParams={false}
+            position="bottom"
+            onFetchData={handleFetchData}
+            containerProps={{
+              sx: {
+                marginBottom: "8px",
+                border: 0,
+                borderTopLeftRadius: 0,
+                borderTopRightRadius: 0,
+              },
+            }}
+          />
+        </StyledFilterTableWrapper>
+      </StyledContainer>
     </Box>
   );
 };
