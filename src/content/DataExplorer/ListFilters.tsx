@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import { Box, FormControl, Grid, MenuItem, Stack, styled } from "@mui/material";
+import { Box, FormControl, Grid, IconButton, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { ListReleasedStudiesInput, ListReleasedStudiesResp } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
@@ -9,6 +10,7 @@ import { isStringLengthBetween } from "../../utils";
 import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
 import { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 const StyledFilters = styled("div")({
   paddingTop: "19px",
@@ -57,6 +59,18 @@ const StyledActionWrapper = styled(Box)({
   alignItems: "center",
 });
 
+const StyledRefreshIcon = styled(RefreshIcon)({
+  transform: "scale(-1, 1)",
+  color: "#346798",
+  fontSize: "31px",
+});
+
+const StyledIconButton = styled(IconButton)({
+  padding: 0,
+  border: "1px solid #D0D0D0",
+  borderRadius: "5px",
+});
+
 const initialTouchedFields: TouchedState = {
   name: false,
   dbGaPID: false,
@@ -99,12 +113,9 @@ const ListFilters = ({
 
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    searchParams.delete("program");
-    searchParams.delete("status");
-    searchParams.delete("dataCommons");
     searchParams.delete("name");
     searchParams.delete("dbGaPID");
-    searchParams.delete("submitterName");
+    searchParams.delete("dataCommons");
     setSearchParams(newSearchParams);
     reset({ ...defaultValues });
   };
@@ -201,14 +212,20 @@ const ListFilters = ({
 
         <ActionButtonsContainer>
           <StyledActionWrapper>
-            <ColumnVisibilityButton
-              columns={columns}
-              getColumnKey={(column) => column.fieldKey ?? column.field}
-              getColumnLabel={(column) => column.label?.toString()}
-              columnVisibilityModel={columnVisibilityModel}
-              onColumnVisibilityModelChange={onColumnVisibilityModelChange}
-              data-testid="column-visibility-button"
-            />
+            <StyledTooltip
+              open={undefined}
+              title="Reset filters."
+              placement="top"
+              disableHoverListener={false}
+            >
+              <StyledIconButton
+                onClick={handleResetFilters}
+                data-testid="reset-filters-button"
+                aria-label="Reset filters button"
+              >
+                <StyledRefreshIcon />
+              </StyledIconButton>
+            </StyledTooltip>
           </StyledActionWrapper>
         </ActionButtonsContainer>
       </Stack>
