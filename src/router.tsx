@@ -14,6 +14,7 @@ const Home = LazyLoader(lazy(() => import("./content")));
 const Login = LazyLoader(lazy(() => import("./content/Login/Controller")));
 const Questionnaire = LazyLoader(lazy(() => import("./content/questionnaire/Controller")));
 const DataSubmissions = LazyLoader(lazy(() => import("./content/dataSubmissions/Controller")));
+const DataExplorer = LazyLoader(lazy(() => import("./content/DataExplorer/Controller")));
 const Users = LazyLoader(lazy(() => import("./content/users/Controller")));
 const ModelNavigator = LazyLoader(lazy(() => import("./content/ModelNavigator/Controller")));
 const ReleaseNotes = LazyLoader(lazy(() => import("./content/ReleaseNotes/Controller")));
@@ -76,6 +77,16 @@ const routes: RouteObject[] = [
                 component={<DataSubmissions />}
                 redirectPath="/data-submission"
                 redirectName="Data Submission"
+              />
+            ),
+          },
+          {
+            path: "/data-explorer",
+            element: (
+              <RequireAuth
+                component={<DataExplorer />}
+                redirectPath="/data-explorer"
+                redirectName="Data Explorer"
               />
             ),
           },
