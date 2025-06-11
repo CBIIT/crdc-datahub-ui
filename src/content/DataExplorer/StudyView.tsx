@@ -1,7 +1,6 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Box, Breadcrumbs, Container, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Container, Typography, styled } from "@mui/material";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import styled from "@emotion/styled";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useQuery } from "@apollo/client";
 import usePageTitle from "../../hooks/usePageTitle";
