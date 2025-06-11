@@ -593,9 +593,10 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         return <StyledTag>{value?.length} studies selected</StyledTag>;
                       }}
                       onOpen={(event) => {
-                        setAutocompleteMinWidth(
-                          (event.currentTarget as HTMLElement)?.offsetWidth || null
-                        );
+                        // Necessary, due to this event being able to be triggered by popupIndicator
+                        const inputBase: HTMLElement =
+                          event?.currentTarget?.closest(".MuiInputBase-root");
+                        setAutocompleteMinWidth(inputBase?.offsetWidth || null);
                       }}
                       slotProps={{
                         popper: {
