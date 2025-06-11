@@ -54,10 +54,10 @@ const columns: Column<T>[] = [
 ];
 
 type StudyViewProps = {
-  studyId: string;
+  _id: string;
 };
 
-const StudyView: FC<StudyViewProps> = ({ studyId }) => {
+const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   usePageTitle(`Data Explorer - ${studyId}`);
 
   const { searchParams } = useSearchParamsContext();
