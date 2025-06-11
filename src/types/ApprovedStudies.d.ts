@@ -59,3 +59,8 @@ type ApprovedStudyOfMyOrganization = Pick<
 >;
 
 type AccessType = "All" | "Controlled" | "Open";
+
+type ReleasedStudy = Pick<ApprovedStudy, "_id" | "studyName" | "dbGaPID" | "studyAbbreviation"> & {
+  dataCommons: string;
+  dataCommonsDisplayNames: string;
+};
