@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -193,6 +193,8 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
   const [showMultipleProgramsWarning, setShowMultipleProgramsWarning] = useState<boolean>(false);
+  const [autocompleteMinWidth, setAutocompleteMinWidth] = useState<number | null>(null);
+  const autocompleteRef = useRef<HTMLElement | null>(null);
 
   const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
@@ -221,8 +223,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     control,
   } = useForm<FormInput>();
   const studiesField = watch("studies");
-
-  const [autocompleteMinWidth, setAutocompleteMinWidth] = useState<number | null>(null);
 
   const { data: activeDCPs } = useQuery<ListActiveDCPsResp>(LIST_ACTIVE_DCPS, {
     context: { clientName: "backend" },
@@ -573,6 +573,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   render={({ field }) => (
                     <StyledAutocomplete
                       {...field}
+                      ref={autocompleteRef}
                       renderInput={({ inputProps, ...params }) => (
                         <TextField
                           {...params}
@@ -593,10 +594,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                         return <StyledTag>{value?.length} studies selected</StyledTag>;
                       }}
                       onOpen={(event) => {
-                        // Necessary, due to this event being able to be triggered by popupIndicator
-                        const inputBase: HTMLElement =
-                          event?.currentTarget?.closest(".MuiInputBase-root");
-                        setAutocompleteMinWidth(inputBase?.offsetWidth || null);
+                        setAutocompleteMinWidth(
+                          autocompleteRef.current ? autocompleteRef.current?.offsetWidth : null
+                        );
                       }}
                       slotProps={{
                         popper: {
