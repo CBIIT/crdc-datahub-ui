@@ -1,8 +1,9 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Box, Breadcrumbs, Typography } from "@mui/material";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { useQuery } from "@apollo/client";
 import usePageTitle from "../../hooks/usePageTitle";
 import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
@@ -10,6 +11,9 @@ import GenericTable, { Column } from "../../components/GenericTable";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import { GET_APPROVED_STUDY, GetApprovedStudyInput, GetApprovedStudyResp } from "../../graphql";
+import { Logger } from "../../utils";
+import SuspenseLoader from "../../components/SuspenseLoader";
 
 const StyledBreadcrumbsBox = styled(Box)({
   height: "50px",
@@ -61,6 +65,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   usePageTitle(`Data Explorer - ${studyId}`);
 
   const { searchParams } = useSearchParamsContext();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
@@ -70,6 +75,21 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   const filtersRef = useRef<FilterForm>();
 
   const dataCommons = searchParams.get("dataCommons");
+
+  const { data: studyData, loading: studyLoading } = useQuery<
+    GetApprovedStudyResp<true>,
+    GetApprovedStudyInput
+  >(GET_APPROVED_STUDY, {
+    variables: { _id: studyId, partial: true },
+    skip: !studyId,
+    fetchPolicy: "cache-first",
+    onError: (error) => {
+      Logger.error("Error fetching study data:", error);
+      navigate("/data-explorer", {
+        state: { error: "Oops! An error occurred while fetching the study data." },
+      });
+    },
+  });
 
   const columnVisibilityKey = useMemo<string>(
     () => `dataExplorerColumns:${studyId}:${dataCommons}:${filtersRef.current?.nodeType}`,
@@ -108,9 +128,17 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [filtersRef.current]
   );
 
-  if (!studyId || !dataCommons) {
-    // TODO: Use integrated data-explorer error display
-    return <Navigate to="/data-explorer" replace />;
+  if (studyLoading) {
+    return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
+  }
+
+  if (!studyId || !studyData?.getApprovedStudy?._id || !dataCommons) {
+    return (
+      <Navigate
+        to="/data-explorer"
+        state={{ error: "Oops! An invalid study or data commons was provided." }}
+      />
+    );
   }
 
   return (
@@ -121,14 +149,16 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
           <StyledBreadcrumb color="#005EA2">
             <StyledLink to="/data-explorer">Data Explorer</StyledLink>
           </StyledBreadcrumb>
-          <StyledBreadcrumb color="#1B1B1B">todo: studyAbbr</StyledBreadcrumb>
+          <StyledBreadcrumb color="#1B1B1B">
+            {studyData?.getApprovedStudy?.studyAbbreviation}
+          </StyledBreadcrumb>
         </Breadcrumbs>
       </StyledBreadcrumbsBox>
 
       {/* Header Banner */}
       <PageBanner
         // TODO: study abbreviation supposed to be different font
-        title="Data Explorer for Study - studyAbbr"
+        title={`Data Explorer for Study - ${studyData?.getApprovedStudy?.studyAbbreviation}`}
         // TODO: approval for this text?
         subTitle="The list below shows studies associated with your account. Select a study to view metadata that has already been released and completed."
         bannerSrc={bannerPng}
