@@ -13,9 +13,9 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 
 const StyledFilters = styled("div")({
-  paddingTop: "19px",
+  paddingTop: "13px",
   paddingBottom: "15px",
-  paddingLeft: "38px",
+  paddingLeft: "33px",
   paddingRight: "26px",
 });
 
@@ -23,14 +23,13 @@ const StyledFormControl = styled(FormControl)({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  gap: "15px",
+  gap: "8px",
 });
 
 const StyledInlineLabel = styled("label")({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "16px",
-  minWidth: "100px",
   textAlign: "right",
 });
 
@@ -126,89 +125,83 @@ const ListFilters = ({
 
   return (
     <StyledFilters data-testid="data-submission-list-filters">
-      <Stack direction="row" alignItems="center" gap="12px">
-        <Grid container spacing={2} rowSpacing="9px">
-          <Grid item xs={4}>
-            <StyledFormControl>
-              <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
-              <StyledTextField
-                {...register("name", {
-                  setValueAs: (val) => val?.trim(),
-                  onChange: () => handleFilterChange("name"),
-                  onBlur: (e) =>
-                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
-                })}
-                size="small"
-                placeholder="Minimum 3 characters required"
-                inputProps={{
-                  "aria-labelledby": "name-filter",
-                  "data-testid": "name-input",
-                }}
-                required
-              />
-            </StyledFormControl>
-          </Grid>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" gap="35px">
+          <StyledFormControl>
+            <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
+            <StyledTextField
+              {...register("name", {
+                setValueAs: (val) => val?.trim(),
+                onChange: () => handleFilterChange("name"),
+                onBlur: (e) =>
+                  isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
+              })}
+              size="small"
+              placeholder="Minimum 3 characters required"
+              inputProps={{
+                "aria-labelledby": "name-filter",
+                "data-testid": "name-input",
+              }}
+              required
+            />
+          </StyledFormControl>
 
-          <Grid item xs={4}>
-            <StyledFormControl>
-              <StyledInlineLabel htmlFor="study-filter">dbGapID</StyledInlineLabel>
-              <StyledTextField
-                {...register("dbGaPID", {
-                  setValueAs: (val) => val?.trim(),
-                  onChange: () => handleFilterChange("dbGaPID"),
-                  onBlur: (e) =>
-                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
-                })}
-                size="small"
-                placeholder="Minimum 3 characters required"
-                inputProps={{
-                  "aria-labelledby": "dbGaPID-filter",
-                  "data-testid": "dbGaPID-input",
-                }}
-                required
-              />
-            </StyledFormControl>
-          </Grid>
+          <StyledFormControl>
+            <StyledInlineLabel htmlFor="study-filter">dbGaP ID</StyledInlineLabel>
+            <StyledTextField
+              {...register("dbGaPID", {
+                setValueAs: (val) => val?.trim(),
+                onChange: () => handleFilterChange("dbGaPID"),
+                onBlur: (e) =>
+                  isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
+              })}
+              size="small"
+              placeholder="Minimum 3 characters required"
+              inputProps={{
+                "aria-labelledby": "dbGaPID-filter",
+                "data-testid": "dbGaPID-input",
+              }}
+              required
+            />
+          </StyledFormControl>
 
-          <Grid item xs={4}>
-            <StyledFormControl>
-              <StyledInlineLabel htmlFor="data-commons-filter">
-                Data
-                <br />
-                Commons
-              </StyledInlineLabel>
-              <Controller
-                name="dataCommons"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    value={field.value}
-                    MenuProps={{ disablePortal: true }}
-                    inputProps={{
-                      id: "data-commons-filter",
-                      "data-testid": "data-commons-select-input",
-                    }}
-                    data-testid="data-commons-select"
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFilterChange("dataCommons");
-                    }}
-                  >
-                    <MenuItem value="All" data-testid="data-commons-option-All">
-                      All
+          <StyledFormControl>
+            <StyledInlineLabel htmlFor="data-commons-filter">
+              Data
+              <br />
+              Commons
+            </StyledInlineLabel>
+            <Controller
+              name="dataCommons"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  value={field.value}
+                  MenuProps={{ disablePortal: true }}
+                  inputProps={{
+                    id: "data-commons-filter",
+                    "data-testid": "data-commons-select-input",
+                  }}
+                  data-testid="data-commons-select"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("dataCommons");
+                  }}
+                >
+                  <MenuItem value="All" data-testid="data-commons-option-All">
+                    All
+                  </MenuItem>
+                  {data?.dataCommons?.map((dc, index) => (
+                    <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
+                      {data?.dataCommons?.[index]}
                     </MenuItem>
-                    {data?.dataCommons?.map((dc, index) => (
-                      <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
-                        {data?.dataCommons?.[index]}
-                      </MenuItem>
-                    ))}
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-          </Grid>
-        </Grid>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
 
         <ActionButtonsContainer>
           <StyledActionWrapper>
