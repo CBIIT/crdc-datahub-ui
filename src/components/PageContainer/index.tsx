@@ -44,6 +44,8 @@ const StyledDescriptionContainer = styled("div")({
 const StyledDescription = styled(Typography)({
   fontWeight: 400,
   fontSize: "16px",
+  fontFamily: "Inter",
+  color: "#453E3E",
 });
 
 export type PageContainerProps = {
