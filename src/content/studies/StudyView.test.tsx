@@ -127,10 +127,10 @@ describe("StudyView Component", () => {
   });
 
   it("should set the page title as 'Edit Study' with the ID displaying", async () => {
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: "test-id" },
+        variables: { _id: "test-id", partial: false },
       },
       result: {
         data: {
@@ -143,6 +143,10 @@ describe("StudyView Component", () => {
             ORCID: "0000-0001-2345-6789",
             openAccess: true,
             controlledAccess: false,
+            programs: [],
+            useProgramPC: false,
+            primaryContact: null,
+            createdAt: "",
           },
         },
       },
@@ -160,10 +164,10 @@ describe("StudyView Component", () => {
   });
 
   it("should show a loading spinner while retrieving approved study is loading", async () => {
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: "test-id" },
+        variables: { _id: "test-id", partial: false },
       },
       result: {
         data: {
@@ -176,6 +180,10 @@ describe("StudyView Component", () => {
             ORCID: "0000-0001-2345-6789",
             openAccess: true,
             controlledAccess: false,
+            programs: [],
+            primaryContact: null,
+            useProgramPC: false,
+            createdAt: "",
           },
         },
       },
@@ -376,7 +384,7 @@ describe("StudyView Component", () => {
     const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: studyId },
+        variables: { _id: studyId, partial: false },
       },
       result: {
         data: {
@@ -538,7 +546,7 @@ describe("StudyView Component", () => {
     const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: studyId },
+        variables: { _id: studyId, partial: false },
       },
       result: {
         data: {
@@ -710,7 +718,7 @@ describe("StudyView Component", () => {
     const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: studyId },
+        variables: { _id: studyId, partial: false },
       },
       error: new ApolloError({ errorMessage: null }),
     };
@@ -733,7 +741,7 @@ describe("StudyView Component", () => {
     const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: studyId },
+        variables: { _id: studyId, partial: false },
       },
       result: {
         data: {
@@ -862,7 +870,7 @@ describe("StudyView Component", () => {
     const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
-        variables: { _id: studyId },
+        variables: { _id: studyId, partial: false },
       },
       result: {
         data: {
