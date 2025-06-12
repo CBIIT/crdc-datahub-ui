@@ -89,16 +89,16 @@ const routes: RouteObject[] = [
                 redirectName="Data Explorer"
               />
             ),
-          },
-          {
-            path: "/data-explorer/:studyId",
-            element: (
-              <RequireAuth
-                component={<DataExplorer />}
-                redirectPath="/data-explorer"
-                redirectName="Data Explorer"
-              />
-            ),
+            children: [
+              {
+                index: true,
+                element: null,
+              },
+              {
+                path: ":studyId",
+                element: null,
+              },
+            ],
           },
           {
             path: "/submission-request/:appId/:section?",
