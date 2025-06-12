@@ -12,7 +12,7 @@ import Tooltip from "../Tooltip";
 const StyledFilters = styled("div")({
   paddingTop: "19px",
   paddingBottom: "15px",
-  paddingLeft: "38px",
+  paddingLeft: "26px",
   paddingRight: "26px",
 });
 
@@ -27,7 +27,6 @@ const StyledInlineLabel = styled("label")({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "16px",
-  minWidth: "100px",
   textAlign: "right",
 });
 

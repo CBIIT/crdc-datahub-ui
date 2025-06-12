@@ -51,15 +51,6 @@ const StyledFilterTableWrapper = styled(Box)({
 // TODO: real model from API response
 type T = { columnName: string };
 
-const columns: Column<T>[] = [
-  {
-    label: "columnName",
-    renderValue: () => "column value",
-    field: "columnName",
-    hideable: true,
-  },
-];
-
 type StudyViewProps = {
   _id: string;
 };
@@ -106,6 +97,17 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     []
   );
 
+  const columns = useMemo<Column<T>[]>(
+    () =>
+      new Array(10).fill(null).map((_, index) => ({
+        label: `columnName${index + 1}`,
+        renderValue: () => `column value ${index + 1}`,
+        field: `columnName`,
+        hideable: true,
+      })),
+    []
+  );
+
   const { visibleColumns, columnVisibilityModel, setColumnVisibilityModel } = useColumnVisibility<
     Column<T>
   >({
@@ -116,9 +118,10 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const handleFetchData = useCallback(
     async (fetchListing: FetchListing<T>, force: boolean) => {
+      // TODO: Implement API call
       setLoading(false);
-      setData([]);
-      setTotalData(0);
+      setData([{ columnName: "Sample Data" }, { columnName: "More Sample Data" }]);
+      setTotalData(2);
     },
     // TODO: dependencies
     []
