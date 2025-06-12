@@ -1,10 +1,9 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Box, Breadcrumbs, Container, Typography, styled } from "@mui/material";
+import { Box, Breadcrumbs, Typography, styled } from "@mui/material";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useQuery } from "@apollo/client";
 import usePageTitle from "../../hooks/usePageTitle";
-import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
@@ -13,10 +12,8 @@ import { useSearchParamsContext } from "../../components/Contexts/SearchParamsCo
 import { GET_APPROVED_STUDY, GetApprovedStudyInput, GetApprovedStudyResp } from "../../graphql";
 import { Logger } from "../../utils";
 import SuspenseLoader from "../../components/SuspenseLoader";
-
-const StyledContainer = styled(Container)({
-  marginTop: "-62px",
-});
+import TruncatedText from "../../components/TruncatedText";
+import PageContainer from "../../components/PageContainer";
 
 const StyledBreadcrumbsBox = styled(Box)({
   height: "50px",
@@ -26,7 +23,7 @@ const StyledBreadcrumbsBox = styled(Box)({
   textUnderlineOffset: "3px",
   "& .MuiBreadcrumbs-separator": {
     color: "#71767A",
-    marginLefT: "4px",
+    marginLeft: "4px",
     marginRight: "4px",
   },
 });
@@ -101,6 +98,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     () =>
       new Array(10).fill(null).map((_, index) => ({
         label: `columnName${index + 1}`,
+        // TODO: TruncatedText
         renderValue: () => `column value ${index + 1}`,
         field: `columnName`,
         hideable: true,
@@ -156,23 +154,23 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             <StyledLink to="/data-explorer">Data Explorer</StyledLink>
           </StyledBreadcrumb>
           <StyledBreadcrumb color="#1B1B1B">
-            {studyData?.getApprovedStudy?.studyAbbreviation}
+            <TruncatedText
+              text={studyData?.getApprovedStudy?.studyAbbreviation}
+              underline={false}
+              maxCharacters={100}
+            />
           </StyledBreadcrumb>
         </Breadcrumbs>
       </StyledBreadcrumbsBox>
 
-      {/* Header Banner */}
-      <PageBanner
-        // TODO: study abbreviation supposed to be different font
-        title={`Data Explorer for Study - ${studyData?.getApprovedStudy?.studyAbbreviation}`}
-        // TODO: approval for this text?
-        subTitle="The list below shows studies associated with your account. Select a study to view metadata that has already been released and completed."
-        bannerSrc={bannerPng}
-        padding="57px 0 0 25px"
-      />
-
-      {/* Page Filters & Table */}
-      <StyledContainer maxWidth="xl">
+      {/* Page Header, Filters, & Table */}
+      <PageContainer
+        background={bannerPng}
+        title="Data Explorer for Study - "
+        titleSuffix={studyData?.getApprovedStudy?.studyAbbreviation}
+        // TODO: need real text here
+        description="lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+      >
         <StyledFilterTableWrapper>
           <DataExplorerFilters
             columns={columns}
@@ -205,7 +203,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             }}
           />
         </StyledFilterTableWrapper>
-      </StyledContainer>
+      </PageContainer>
     </Box>
   );
 };

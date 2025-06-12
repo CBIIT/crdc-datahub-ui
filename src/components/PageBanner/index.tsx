@@ -61,7 +61,8 @@ export type Props = {
 /**
  * Generic Page Banner component
  *
- * @returns {React.FC<Props>}
+ * @note Only use this component if necessary. Recommend {@link PageContainer} for most use cases.
+ * @returns The PageBanner component
  */
 const PageBanner: FC<Props> = ({ title, subTitle, padding, body, bannerSrc }: Props) => (
   <StyledBanner bannerSrc={bannerSrc}>
