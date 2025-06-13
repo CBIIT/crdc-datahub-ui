@@ -273,3 +273,9 @@ export type {
   Input as ListReleasedStudiesInput,
   Response as ListReleasedStudiesResp,
 } from "./listReleasedStudies";
+
+export { LIST_RELEASED_DATA_RECORDS } from "./listReleasedDataRecords";
+export type {
+  ListReleasedDataRecordsInput,
+  ListReleasedDataRecordsResponse,
+} from "./listReleasedDataRecords";

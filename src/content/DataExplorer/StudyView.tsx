@@ -2,14 +2,21 @@ import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Box, Breadcrumbs, Typography, styled } from "@mui/material";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import usePageTitle from "../../hooks/usePageTitle";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { GET_APPROVED_STUDY, GetApprovedStudyInput, GetApprovedStudyResp } from "../../graphql";
+import {
+  GET_APPROVED_STUDY,
+  GetApprovedStudyInput,
+  GetApprovedStudyResp,
+  LIST_RELEASED_DATA_RECORDS,
+  ListReleasedDataRecordsInput,
+  ListReleasedDataRecordsResponse,
+} from "../../graphql";
 import { Logger } from "../../utils";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import TruncatedText from "../../components/TruncatedText";
@@ -74,12 +81,21 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     variables: { _id: studyId, partial: true },
     skip: !studyId,
     fetchPolicy: "cache-first",
+    context: { clientName: "backend" },
     onError: (error) => {
       Logger.error("Error fetching study data:", error);
       navigate("/data-explorer", {
         state: { error: "Oops! An error occurred while fetching the study data." },
       });
     },
+  });
+
+  const [listReleasedDataRecords] = useLazyQuery<
+    ListReleasedDataRecordsResponse,
+    ListReleasedDataRecordsInput
+  >(LIST_RELEASED_DATA_RECORDS, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
   });
 
   const columnVisibilityKey = useMemo<string>(
@@ -122,7 +138,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       setTotalData(2);
     },
     // TODO: dependencies
-    []
+    [listReleasedDataRecords]
   );
 
   const handleFilterChange = useCallback(
