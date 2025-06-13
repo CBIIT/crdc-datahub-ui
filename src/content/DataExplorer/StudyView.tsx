@@ -1,7 +1,6 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Box, Breadcrumbs, Typography, styled } from "@mui/material";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { Box, styled } from "@mui/material";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import usePageTitle from "../../hooks/usePageTitle";
 import bannerPng from "../../assets/banner/submission_banner.png";
@@ -19,30 +18,14 @@ import {
 } from "../../graphql";
 import { Logger } from "../../utils";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import TruncatedText from "../../components/TruncatedText";
 import PageContainer from "../../components/PageContainer";
+import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
 
 const StyledBreadcrumbsBox = styled(Box)({
   height: "50px",
   display: "flex",
   alignItems: "center",
-  paddingLeft: "54px",
-  textUnderlineOffset: "3px",
-  "& .MuiBreadcrumbs-separator": {
-    color: "#71767A",
-    marginLeft: "4px",
-    marginRight: "4px",
-  },
-});
-
-const StyledLink = styled(Link)({
-  color: "inherit",
-});
-
-const StyledBreadcrumb = styled(Typography)({
-  fontFamily: "Public Sans",
-  fontWeight: 400,
-  fontSize: "16px",
+  padding: "0 54px",
 });
 
 const StyledFilterTableWrapper = styled(Box)({
@@ -110,6 +93,19 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     []
   );
 
+  const breadcrumbs = useMemo<BreadcrumbEntry[]>(
+    () => [
+      {
+        label: "Data Explorer",
+        to: "/data-explorer",
+      },
+      {
+        label: studyData?.getApprovedStudy?.studyAbbreviation,
+      },
+    ],
+    [studyData?.getApprovedStudy?.studyAbbreviation]
+  );
+
   const columns = useMemo<Column<T>[]>(
     () =>
       new Array(10).fill(null).map((_, index) => ({
@@ -131,7 +127,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   });
 
   const handleFetchData = useCallback(
-    async (fetchListing: FetchListing<T>, force: boolean) => {
+    async () => {
       // TODO: Implement API call
       setLoading(false);
       setData([{ columnName: "Sample Data" }, { columnName: "More Sample Data" }]);
@@ -165,18 +161,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     <Box>
       {/* Page Breadcrumbs */}
       <StyledBreadcrumbsBox>
-        <Breadcrumbs separator={<NavigateNextIcon />} aria-label="navigation breadcrumb">
-          <StyledBreadcrumb color="#005EA2">
-            <StyledLink to="/data-explorer">Data Explorer</StyledLink>
-          </StyledBreadcrumb>
-          <StyledBreadcrumb color="#1B1B1B">
-            <TruncatedText
-              text={studyData?.getApprovedStudy?.studyAbbreviation}
-              underline={false}
-              maxCharacters={100}
-            />
-          </StyledBreadcrumb>
-        </Breadcrumbs>
+        <NavigationBreadcrumbs entries={breadcrumbs} />
       </StyledBreadcrumbsBox>
 
       {/* Page Header, Filters, & Table */}
