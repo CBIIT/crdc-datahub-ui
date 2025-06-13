@@ -274,12 +274,14 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
                 label="Upload Activities"
                 to={`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`}
                 selected={tab === URLTabs.UPLOAD_ACTIVITY}
+                preventScrollReset
               />
               <LinkTab
                 value={URLTabs.VALIDATION_RESULTS}
                 label="Validation Results"
                 to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
                 selected={tab === URLTabs.VALIDATION_RESULTS}
+                preventScrollReset
               />
               {crossValidationVisible && (
                 <LinkTab
@@ -287,6 +289,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
                   label="Cross Validation Results"
                   to={`/data-submission/${submissionId}/${URLTabs.CROSS_VALIDATION_RESULTS}`}
                   selected={tab === URLTabs.CROSS_VALIDATION_RESULTS}
+                  preventScrollReset
                 />
               )}
               <LinkTab
@@ -294,6 +297,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
                 label="Data View"
                 to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
                 selected={tab === URLTabs.SUBMITTED_DATA}
+                preventScrollReset
               />
             </StyledTabs>
 
