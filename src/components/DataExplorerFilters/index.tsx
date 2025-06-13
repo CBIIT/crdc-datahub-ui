@@ -115,7 +115,7 @@ const DataExplorerFilters = ({
 
   const handleResetFilters = useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams);
-    searchParams.delete("nodeType");
+    newSearchParams.delete("nodeType");
 
     setSearchParams(newSearchParams);
     reset({ ...defaultValues });

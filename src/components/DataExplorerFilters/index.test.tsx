@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { render, waitFor, within } from "../../test-utils";
 import DataExplorerFilters, { type T } from "./index";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+import { SearchParamsProvider, useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import { Column } from "../GenericTable";
 
 const columns: Column<T>[] = [
@@ -165,6 +165,53 @@ describe("Basic Functionality", () => {
         nodeType: "node-participant",
       })
     );
+  });
+
+  it("resets the query string when reset button is clicked", async () => {
+    const initialEntries = ["/?nodeType=node-study"];
+
+    const CustomChild = () => {
+      const { searchParams } = useSearchParamsContext();
+
+      return (
+        <div>
+          <p data-testid="search-params-node-type">{searchParams.get("nodeType")}</p>
+        </div>
+      );
+    };
+
+    const CustomParent = ({ children }) => (
+      <TestParent initialEntries={initialEntries}>
+        <CustomChild />
+        {children}
+      </TestParent>
+    );
+
+    const { getByTestId } = render(
+      <DataExplorerFilters
+        columns={columns}
+        nodeTypes={["node-participant", "node-study"]}
+        defaultValues={{
+          nodeType: "node-participant",
+        }}
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={vi.fn()}
+        onChange={vi.fn()}
+      />,
+      {
+        wrapper: CustomParent,
+      }
+    );
+
+    expect(getByTestId("search-params-node-type")).toHaveTextContent("node-study");
+
+    userEvent.click(getByTestId("reset-filters-button"));
+
+    await waitFor(() => {
+      expect(getByTestId("node-type-select-input")).toHaveValue("node-participant");
+    });
+
+    expect(getByTestId("search-params-node-type")).toHaveTextContent(""); // Default value is not set in URL
   });
 
   it("should initialize the form fields based on searchParams", async () => {
