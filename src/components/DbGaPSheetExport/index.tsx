@@ -54,13 +54,16 @@ const DbGaPSheetExport: FC<DbGaPSheetExportProps> = ({ disabled, ...rest }) => {
     setDownloading(true);
 
     try {
-      const d = await downloadSheet();
+      const { data, error } = await downloadSheet();
 
-      if (!d.data?.downloadDBGaPLoadSheet) {
+      if (error) {
+        throw error;
+      }
+      if (!data?.downloadDBGaPLoadSheet) {
         throw new Error("No download URL returned");
       }
 
-      window.open(d.data.downloadDBGaPLoadSheet, "_blank", "noopener");
+      window.open(data.downloadDBGaPLoadSheet, "_blank", "noopener");
     } catch (error) {
       Logger.error("Error downloading dbGaP sheets.", error);
       enqueueSnackbar(`Oops! Unable to download the dbGaP Loading Sheets.`, {
