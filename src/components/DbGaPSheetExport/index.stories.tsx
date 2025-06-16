@@ -1,8 +1,37 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { MockedResponse } from "@apollo/client/testing";
+import { fn } from "@storybook/test";
 import Button, { DbGaPSheetExportProps } from "./index";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
-import type { GetSubmissionResp } from "../../graphql";
+import {
+  DOWNLOAD_DB_GAP_SHEET,
+  DownloadDbGaPSheetInput,
+  DownloadDbGaPSheetResp,
+  type GetSubmissionResp,
+} from "../../graphql";
 import { DataCommons } from "../../config/DataCommons";
+
+const successDownloadMock: MockedResponse<DownloadDbGaPSheetResp, DownloadDbGaPSheetInput> = {
+  request: {
+    query: DOWNLOAD_DB_GAP_SHEET,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      downloadDBGaPLoadSheet: "https://example.com/mock-sheet-url",
+    },
+  },
+  maxUsageCount: Infinity,
+};
+
+const errorDownloadMock: MockedResponse<DownloadDbGaPSheetResp, DownloadDbGaPSheetInput> = {
+  request: {
+    query: DOWNLOAD_DB_GAP_SHEET,
+  },
+  variableMatcher: () => true,
+  error: new Error("Mock download error"),
+  maxUsageCount: Infinity,
+};
 
 type CustomStoryProps = DbGaPSheetExportProps & {
   dataCommons: string;
@@ -24,6 +53,14 @@ const meta: Meta<CustomStoryProps> = {
       options: DataCommons.map((dc) => dc.name),
     },
   },
+  beforeEach: () => {
+    window.open = fn(window.open).mockImplementation(
+      (_) =>
+        ({
+          close: () => {},
+        }) as Window
+    );
+  },
   decorators: [
     (Story, context) => (
       <SubmissionContext.Provider
@@ -32,8 +69,10 @@ const meta: Meta<CustomStoryProps> = {
             getSubmission: {
               _id: context.args.submissionId,
               dataCommons: context.args.dataCommons,
-            },
-          } as GetSubmissionResp,
+            } as GetSubmissionResp["getSubmission"],
+            batchStatusList: null,
+            submissionStats: null,
+          },
           status: SubmissionCtxStatus.LOADED,
           error: null,
         }}
@@ -52,6 +91,11 @@ export const Default: Story = {
   args: {
     ...meta.args,
   },
+  parameters: {
+    apolloClient: {
+      mocks: [successDownloadMock],
+    },
+  },
 };
 
 export const Disabled: Story = {
@@ -59,11 +103,32 @@ export const Disabled: Story = {
     ...meta.args,
     disabled: true,
   },
+  parameters: {
+    apolloClient: {
+      mocks: [successDownloadMock],
+    },
+  },
 };
 
 export const Hidden: Story = {
   args: {
     ...meta.args,
     dataCommons: "UNSUPPORTED_DC",
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [successDownloadMock],
+    },
+  },
+};
+
+export const DownloadError: Story = {
+  args: {
+    ...meta.args,
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [errorDownloadMock],
+    },
   },
 };
