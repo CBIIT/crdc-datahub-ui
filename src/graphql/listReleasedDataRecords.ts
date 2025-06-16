@@ -1,9 +1,13 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const LIST_RELEASED_DATA_RECORDS = gql`
+export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
+  ListReleasedDataRecordsResponse,
+  ListReleasedDataRecordsInput
+> = gql`
   query listReleasedDataRecords(
     $studyId: String!
-    $nodeType: String! # TODO: This is a string array ATM
+    $nodeType: String!
     $first: Int
     $offset: Int
     $orderBy: String
@@ -17,8 +21,8 @@ export const LIST_RELEASED_DATA_RECORDS = gql`
       orderBy: $orderBy
       sortDirection: $sortDirection
     ) {
-      # TODO: Other properties here
       total
+      properties
       nodes
     }
   }
@@ -37,7 +41,17 @@ export type ListReleasedDataRecordsInput = {
 
 export type ListReleasedDataRecordsResponse = {
   listReleasedDataRecords: {
+    /**
+     * The total number of records returned
+     */
     total: number;
-    nodes: string[]; // TODO: array of stringified json objects
+    /**
+     * The list of properties available for the node type
+     */
+    properties: string[];
+    /**
+     * An array of stringified JSON objects representing the nodes
+     */
+    nodes: string[];
   };
 };
