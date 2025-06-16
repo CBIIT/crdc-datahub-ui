@@ -39,6 +39,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["lcov", "json", "html"],
+      exclude: ["src/**/*.stories.tsx"],
     },
     testTimeout: 10_000,
   },
