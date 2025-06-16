@@ -1,5 +1,5 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
+import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 import svgr from "vite-plugin-svgr";
@@ -36,10 +36,10 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/setupTests.tsx"],
     globalSetup: "./src/vitest.global-setup.ts",
+    exclude: [...configDefaults.exclude, "src/**/*.stories.tsx"],
     coverage: {
       provider: "v8",
       reporter: ["lcov", "json", "html"],
-      exclude: ["src/**/*.stories.tsx"],
     },
     testTimeout: 10_000,
   },
