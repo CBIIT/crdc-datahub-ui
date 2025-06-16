@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Box, FormControl, Grid, IconButton, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -11,6 +11,7 @@ import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibili
 import { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
 
 const StyledFilters = styled("div")({
   paddingTop: "13px",
@@ -73,20 +74,30 @@ const StyledIconButton = styled(IconButton)({
 const initialTouchedFields: TouchedState = {
   name: false,
   dbGaPID: false,
-  dataCommons: false,
+  dataCommonsDisplayNames: false,
 };
 
 export const defaultValues: FilterForm = {
   name: "",
   dbGaPID: "",
-  dataCommons: ["All"],
+  dataCommonsDisplayNames: ["All"],
+};
+
+const FIELDS_TO_DEBOUNCE: (keyof FilterForm)[] = ["name", "dbGaPID"];
+const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
+  name: 3,
+  dbGaPID: 3,
+  dataCommonsDisplayNames: 0,
 };
 
 type T = ListReleasedStudiesResp["listReleasedStudies"]["studies"][number];
 
 type TouchedState = { [K in keyof FilterForm]: boolean };
 
-export type FilterForm = Pick<ListReleasedStudiesInput, "name" | "dbGaPID" | "dataCommons">;
+export type FilterForm = Pick<
+  ListReleasedStudiesInput,
+  "name" | "dbGaPID" | "dataCommonsDisplayNames"
+>;
 
 type Props = {
   data: ListReleasedStudiesResp["listReleasedStudies"];
@@ -109,6 +120,25 @@ const ListFilters = ({
   });
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+
+  const handleFormChange = useCallback((form: FilterForm) => {
+    if (!onChange || !form) {
+      return;
+    }
+
+    const newForm: FilterForm = { ...form };
+
+    onChange(newForm);
+  }, []);
+
+  useDebouncedWatch<FilterForm>({
+    watch,
+    fieldsToDebounce: FIELDS_TO_DEBOUNCE,
+    minLengths: MIN_LENGTHS,
+    defaultMinLength: 0,
+    debounceMs: 500,
+    onChange: handleFormChange,
+  });
 
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -172,7 +202,7 @@ const ListFilters = ({
               Commons
             </StyledInlineLabel>
             <Controller
-              name="dataCommons"
+              name="dataCommonsDisplayNames"
               control={control}
               render={({ field }) => (
                 <StyledSelect
@@ -186,15 +216,15 @@ const ListFilters = ({
                   data-testid="data-commons-select"
                   onChange={(e) => {
                     field.onChange(e);
-                    handleFilterChange("dataCommons");
+                    handleFilterChange("dataCommonsDisplayNames");
                   }}
                 >
                   <MenuItem value="All" data-testid="data-commons-option-All">
                     All
                   </MenuItem>
-                  {data?.dataCommons?.map((dc, index) => (
+                  {data?.dataCommonsDisplayNames?.map((dc, index) => (
                     <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
-                      {data?.dataCommons?.[index]}
+                      {data?.dataCommonsDisplayNames?.[index]}
                     </MenuItem>
                   ))}
                 </StyledSelect>

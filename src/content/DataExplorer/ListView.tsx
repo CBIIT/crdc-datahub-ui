@@ -86,8 +86,8 @@ const columns: Column<T>[] = [
   },
   {
     label: "Data Commons",
-    renderValue: (a) => a.dataCommons,
-    field: "dataCommons",
+    renderValue: (a) => a.dataCommonsDisplayNames,
+    field: "dataCommonsDisplayNames",
   },
   {
     label: "dbGaP ID",
@@ -133,13 +133,13 @@ const ListView = () => {
         return;
       }
 
-      const { name, dbGaPID, dataCommons: dc } = filtersRef.current || {};
+      const { name, dbGaPID, dataCommonsDisplayNames: dc } = filtersRef.current || {};
 
       const { data: d, error } = await listReleasedStudies({
         variables: {
           name: name || undefined,
           dbGaPID: dbGaPID || undefined,
-          dataCommons: dc ?? ["All"],
+          dataCommonsDisplayNames: dc ?? ["All"],
           first,
           offset,
           sortDirection,
