@@ -2,6 +2,7 @@ import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Box, styled } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
+import { cloneDeep } from "lodash";
 import usePageTitle from "../../hooks/usePageTitle";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -10,8 +11,11 @@ import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFi
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
+  GET_RELEASED_NODE_TYPES,
   GetApprovedStudyInput,
   GetApprovedStudyResp,
+  GetReleasedNodeTypesInput,
+  GetReleasedNodeTypesResp,
   LIST_RELEASED_DATA_RECORDS,
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
@@ -73,6 +77,22 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     },
   });
 
+  const { data: nodesData, loading: nodesLoading } = useQuery<
+    GetReleasedNodeTypesResp,
+    GetReleasedNodeTypesInput
+  >(GET_RELEASED_NODE_TYPES, {
+    variables: { studyId },
+    skip: !studyId,
+    fetchPolicy: "cache-first",
+    context: { clientName: "backend" },
+    onError: (error) => {
+      Logger.error("Error fetching node list:", error);
+      navigate("/data-explorer", {
+        state: { error: "Oops! An error occurred while fetching the list of released nodes." },
+      });
+    },
+  });
+
   const [listReleasedDataRecords] = useLazyQuery<
     ListReleasedDataRecordsResponse,
     ListReleasedDataRecordsInput
@@ -86,11 +106,23 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [studyId, dataCommons, filtersRef.current?.nodeType]
   );
 
+  const nodeTypeOptions = useMemo<string[]>(() => {
+    if (!nodesData || !nodesData?.getReleasedNodes?.nodes.length) {
+      return [];
+    }
+
+    const clonedData = cloneDeep(nodesData.getReleasedNodes.nodes).sort(
+      (a, b) => a.count - b.count
+    );
+
+    return clonedData.map((node) => node.name);
+  }, [nodesData]);
+
   const defaultValues = useMemo<FilterForm>(
     () => ({
-      nodeType: "node-participant", // TODO: based on API response
+      nodeType: nodeTypeOptions[0] || "",
     }),
-    []
+    [nodeTypeOptions]
   );
 
   const breadcrumbs = useMemo<BreadcrumbEntry[]>(
@@ -144,7 +176,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [filtersRef.current]
   );
 
-  if (studyLoading) {
+  if (studyLoading || nodesLoading) {
     return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
   }
 
@@ -175,8 +207,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         <StyledFilterTableWrapper>
           <DataExplorerFilters
             columns={columns}
-            // TODO: this comes from the API
-            nodeTypes={["node-participant", "node-sample", "node-assay"]}
+            nodeTypes={nodeTypeOptions}
             defaultValues={defaultValues}
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={setColumnVisibilityModel}

@@ -163,6 +163,9 @@ export type {
   Response as DownloadMetadataFileResp,
 } from "./downloadMetadataFile";
 
+export { GET_RELEASED_NODE_TYPES } from "./getReleasedNodeTypes";
+export type { GetReleasedNodeTypesInput, GetReleasedNodeTypesResp } from "./getReleasedNodeTypes";
+
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
 export type { Response as GetMyUserResp } from "./getMyUser";
