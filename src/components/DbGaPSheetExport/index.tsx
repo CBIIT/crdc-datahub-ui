@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@mui/material";
+import { Button, ButtonProps, styled } from "@mui/material";
 import { FC, memo, useCallback, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
@@ -11,6 +11,10 @@ import {
   DownloadDbGaPSheetResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
+
+const StyledButton = styled(Button)({
+  fontWeight: 600,
+});
 
 /**
  * An array of supported data commons for dbGaP sheet export.
@@ -79,18 +83,16 @@ const DbGaPSheetExport: FC<DbGaPSheetExportProps> = ({ disabled, ...rest }) => {
       arrow
     >
       <span>
-        <Button
+        <StyledButton
           variant="text"
           onClick={handleOnClick}
           data-testid="dbgap-sheet-export-button"
           endIcon={<DownloadIconSvg />}
           disabled={downloading || disabled}
-          disableFocusRipple
-          disableRipple
           {...rest}
         >
           dbGaP Sheets
-        </Button>
+        </StyledButton>
       </span>
     </Tooltip>
   );

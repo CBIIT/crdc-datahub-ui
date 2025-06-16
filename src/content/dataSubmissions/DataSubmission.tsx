@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { useMutation } from "@apollo/client";
-import { Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
+import { Box, Card, CardActions, CardContent, Container, Stack, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
 import { useNavigate } from "react-router-dom";
 import bannerPng from "../../assets/banner/submission_banner.png";
@@ -26,6 +26,7 @@ import CrossValidation from "./CrossValidation";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
+import DbGaPSheetExport from "../../components/DbGaPSheetExport";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -95,17 +96,8 @@ const StyledCardActions = styled(CardActions)(() => ({
   },
 }));
 
-const StyledTabs = styled(Tabs)(() => ({
+const StyledTabStack = styled(Stack)({
   position: "relative",
-  display: "flex",
-  alignItems: "flex-end",
-  zIndex: 3,
-  "& .MuiTabs-flexContainer": {
-    justifyContent: "center",
-  },
-  "& .MuiTabs-indicator": {
-    display: "none !important",
-  },
   "&::before": {
     content: '""',
     position: "absolute",
@@ -115,7 +107,26 @@ const StyledTabs = styled(Tabs)(() => ({
     borderBottom: "1.25px solid #6CACDA",
     zIndex: 1,
   },
-}));
+});
+
+const StyledTabs = styled(Tabs)({
+  marginLeft: "auto",
+  marginRight: "auto",
+  display: "flex",
+  alignItems: "flex-end",
+  zIndex: 3,
+  "& .MuiTabs-flexContainer": {
+    justifyContent: "center",
+  },
+  "& .MuiTabs-indicator": {
+    display: "none !important",
+  },
+});
+
+const StyledSheetWrapper = styled("div")({
+  position: "absolute",
+  right: "40px",
+});
 
 const StyledWrapper = styled("div")({
   background: "#FBFDFF",
@@ -268,38 +279,43 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               <DataUpload submission={data?.getSubmission} />
               <ValidationControls />
             </StyledFlowContainer>
-            <StyledTabs value={isValidTab ? tab : URLTabs.UPLOAD_ACTIVITY}>
-              <LinkTab
-                value={URLTabs.UPLOAD_ACTIVITY}
-                label="Upload Activities"
-                to={`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`}
-                selected={tab === URLTabs.UPLOAD_ACTIVITY}
-                preventScrollReset
-              />
-              <LinkTab
-                value={URLTabs.VALIDATION_RESULTS}
-                label="Validation Results"
-                to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
-                selected={tab === URLTabs.VALIDATION_RESULTS}
-                preventScrollReset
-              />
-              {crossValidationVisible && (
+            <StyledTabStack direction="row" alignItems="center">
+              <StyledTabs value={isValidTab ? tab : URLTabs.UPLOAD_ACTIVITY}>
                 <LinkTab
-                  value={URLTabs.CROSS_VALIDATION_RESULTS}
-                  label="Cross Validation Results"
-                  to={`/data-submission/${submissionId}/${URLTabs.CROSS_VALIDATION_RESULTS}`}
-                  selected={tab === URLTabs.CROSS_VALIDATION_RESULTS}
+                  value={URLTabs.UPLOAD_ACTIVITY}
+                  label="Upload Activities"
+                  to={`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`}
+                  selected={tab === URLTabs.UPLOAD_ACTIVITY}
                   preventScrollReset
                 />
-              )}
-              <LinkTab
-                value={URLTabs.SUBMITTED_DATA}
-                label="Data View"
-                to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
-                selected={tab === URLTabs.SUBMITTED_DATA}
-                preventScrollReset
-              />
-            </StyledTabs>
+                <LinkTab
+                  value={URLTabs.VALIDATION_RESULTS}
+                  label="Validation Results"
+                  to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
+                  selected={tab === URLTabs.VALIDATION_RESULTS}
+                  preventScrollReset
+                />
+                {crossValidationVisible && (
+                  <LinkTab
+                    value={URLTabs.CROSS_VALIDATION_RESULTS}
+                    label="Cross Validation Results"
+                    to={`/data-submission/${submissionId}/${URLTabs.CROSS_VALIDATION_RESULTS}`}
+                    selected={tab === URLTabs.CROSS_VALIDATION_RESULTS}
+                    preventScrollReset
+                  />
+                )}
+                <LinkTab
+                  value={URLTabs.SUBMITTED_DATA}
+                  label="Data View"
+                  to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
+                  selected={tab === URLTabs.SUBMITTED_DATA}
+                  preventScrollReset
+                />
+              </StyledTabs>
+              <StyledSheetWrapper>
+                <DbGaPSheetExport disabled={data?.getSubmission?.status === "New"} />
+              </StyledSheetWrapper>
+            </StyledTabStack>
 
             <StyledMainContentArea>
               {/* Primary Tab Content */}
