@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
-import { Box, FormControl, Grid, MenuItem, Stack, styled } from "@mui/material";
+import { useCallback, useState } from "react";
+import { Box, FormControl, Grid, IconButton, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { ListReleasedStudiesInput, ListReleasedStudiesResp } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
@@ -9,11 +10,13 @@ import { isStringLengthBetween } from "../../utils";
 import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
 import { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
 
 const StyledFilters = styled("div")({
-  paddingTop: "19px",
+  paddingTop: "13px",
   paddingBottom: "15px",
-  paddingLeft: "38px",
+  paddingLeft: "33px",
   paddingRight: "26px",
 });
 
@@ -21,14 +24,13 @@ const StyledFormControl = styled(FormControl)({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  gap: "15px",
+  gap: "8px",
 });
 
 const StyledInlineLabel = styled("label")({
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "16px",
-  minWidth: "100px",
   textAlign: "right",
 });
 
@@ -57,23 +59,45 @@ const StyledActionWrapper = styled(Box)({
   alignItems: "center",
 });
 
+const StyledRefreshIcon = styled(RefreshIcon)({
+  transform: "scale(-1, 1)",
+  color: "#346798",
+  fontSize: "31px",
+});
+
+const StyledIconButton = styled(IconButton)({
+  padding: 0,
+  border: "1px solid #D0D0D0",
+  borderRadius: "5px",
+});
+
 const initialTouchedFields: TouchedState = {
   name: false,
   dbGaPID: false,
-  dataCommons: false,
+  dataCommonsDisplayNames: false,
 };
 
 export const defaultValues: FilterForm = {
   name: "",
   dbGaPID: "",
-  dataCommons: ["All"],
+  dataCommonsDisplayNames: ["All"],
+};
+
+const FIELDS_TO_DEBOUNCE: (keyof FilterForm)[] = ["name", "dbGaPID"];
+const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
+  name: 3,
+  dbGaPID: 3,
+  dataCommonsDisplayNames: 0,
 };
 
 type T = ListReleasedStudiesResp["listReleasedStudies"]["studies"][number];
 
 type TouchedState = { [K in keyof FilterForm]: boolean };
 
-export type FilterForm = Pick<ListReleasedStudiesInput, "name" | "dbGaPID" | "dataCommons">;
+export type FilterForm = Pick<
+  ListReleasedStudiesInput,
+  "name" | "dbGaPID" | "dataCommonsDisplayNames"
+>;
 
 type Props = {
   data: ListReleasedStudiesResp["listReleasedStudies"];
@@ -97,14 +121,30 @@ const ListFilters = ({
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
+  const handleFormChange = useCallback((form: FilterForm) => {
+    if (!onChange || !form) {
+      return;
+    }
+
+    const newForm: FilterForm = { ...form };
+
+    onChange(newForm);
+  }, []);
+
+  useDebouncedWatch<FilterForm>({
+    watch,
+    fieldsToDebounce: FIELDS_TO_DEBOUNCE,
+    minLengths: MIN_LENGTHS,
+    defaultMinLength: 0,
+    debounceMs: 500,
+    onChange: handleFormChange,
+  });
+
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    searchParams.delete("program");
-    searchParams.delete("status");
-    searchParams.delete("dataCommons");
     searchParams.delete("name");
     searchParams.delete("dbGaPID");
-    searchParams.delete("submitterName");
+    searchParams.delete("dataCommons");
     setSearchParams(newSearchParams);
     reset({ ...defaultValues });
   };
@@ -115,100 +155,100 @@ const ListFilters = ({
 
   return (
     <StyledFilters data-testid="data-submission-list-filters">
-      <Stack direction="row" alignItems="center" gap="12px">
-        <Grid container spacing={2} rowSpacing="9px">
-          <Grid item xs={4}>
-            <StyledFormControl>
-              <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
-              <StyledTextField
-                {...register("name", {
-                  setValueAs: (val) => val?.trim(),
-                  onChange: () => handleFilterChange("name"),
-                  onBlur: (e) =>
-                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
-                })}
-                size="small"
-                placeholder="Minimum 3 characters required"
-                inputProps={{
-                  "aria-labelledby": "name-filter",
-                  "data-testid": "name-input",
-                }}
-                required
-              />
-            </StyledFormControl>
-          </Grid>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" gap="35px">
+          <StyledFormControl>
+            <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
+            <StyledTextField
+              {...register("name", {
+                setValueAs: (val) => val?.trim(),
+                onChange: () => handleFilterChange("name"),
+                onBlur: (e) =>
+                  isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
+              })}
+              size="small"
+              placeholder="Minimum 3 characters required"
+              inputProps={{
+                "aria-labelledby": "name-filter",
+                "data-testid": "name-input",
+              }}
+              required
+            />
+          </StyledFormControl>
 
-          <Grid item xs={4}>
-            <StyledFormControl>
-              <StyledInlineLabel htmlFor="study-filter">dbGapID</StyledInlineLabel>
-              <StyledTextField
-                {...register("dbGaPID", {
-                  setValueAs: (val) => val?.trim(),
-                  onChange: () => handleFilterChange("dbGaPID"),
-                  onBlur: (e) =>
-                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
-                })}
-                size="small"
-                placeholder="Minimum 3 characters required"
-                inputProps={{
-                  "aria-labelledby": "dbGaPID-filter",
-                  "data-testid": "dbGaPID-input",
-                }}
-                required
-              />
-            </StyledFormControl>
-          </Grid>
+          <StyledFormControl>
+            <StyledInlineLabel htmlFor="study-filter">dbGaP ID</StyledInlineLabel>
+            <StyledTextField
+              {...register("dbGaPID", {
+                setValueAs: (val) => val?.trim(),
+                onChange: () => handleFilterChange("dbGaPID"),
+                onBlur: (e) =>
+                  isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
+              })}
+              size="small"
+              placeholder="Minimum 3 characters required"
+              inputProps={{
+                "aria-labelledby": "dbGaPID-filter",
+                "data-testid": "dbGaPID-input",
+              }}
+              required
+            />
+          </StyledFormControl>
 
-          <Grid item xs={4}>
-            <StyledFormControl>
-              <StyledInlineLabel htmlFor="data-commons-filter">
-                Data
-                <br />
-                Commons
-              </StyledInlineLabel>
-              <Controller
-                name="dataCommons"
-                control={control}
-                render={({ field }) => (
-                  <StyledSelect
-                    {...field}
-                    value={field.value}
-                    MenuProps={{ disablePortal: true }}
-                    inputProps={{
-                      id: "data-commons-filter",
-                      "data-testid": "data-commons-select-input",
-                    }}
-                    data-testid="data-commons-select"
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFilterChange("dataCommons");
-                    }}
-                  >
-                    <MenuItem value="All" data-testid="data-commons-option-All">
-                      All
+          <StyledFormControl>
+            <StyledInlineLabel htmlFor="data-commons-filter">
+              Data
+              <br />
+              Commons
+            </StyledInlineLabel>
+            <Controller
+              name="dataCommonsDisplayNames"
+              control={control}
+              render={({ field }) => (
+                <StyledSelect
+                  {...field}
+                  value={field.value}
+                  MenuProps={{ disablePortal: true }}
+                  inputProps={{
+                    id: "data-commons-filter",
+                    "data-testid": "data-commons-select-input",
+                  }}
+                  data-testid="data-commons-select"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("dataCommonsDisplayNames");
+                  }}
+                >
+                  <MenuItem value="All" data-testid="data-commons-option-All">
+                    All
+                  </MenuItem>
+                  {data?.dataCommonsDisplayNames?.map((dc, index) => (
+                    <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
+                      {data?.dataCommonsDisplayNames?.[index]}
                     </MenuItem>
-                    {data?.dataCommons?.map((dc, index) => (
-                      <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
-                        {data?.dataCommons?.[index]}
-                      </MenuItem>
-                    ))}
-                  </StyledSelect>
-                )}
-              />
-            </StyledFormControl>
-          </Grid>
-        </Grid>
+                  ))}
+                </StyledSelect>
+              )}
+            />
+          </StyledFormControl>
+        </Stack>
 
         <ActionButtonsContainer>
           <StyledActionWrapper>
-            <ColumnVisibilityButton
-              columns={columns}
-              getColumnKey={(column) => column.fieldKey ?? column.field}
-              getColumnLabel={(column) => column.label?.toString()}
-              columnVisibilityModel={columnVisibilityModel}
-              onColumnVisibilityModelChange={onColumnVisibilityModelChange}
-              data-testid="column-visibility-button"
-            />
+            <StyledTooltip
+              open={undefined}
+              title="Reset filters."
+              placement="top"
+              disableHoverListener={false}
+            >
+              <StyledIconButton
+                onClick={handleResetFilters}
+                data-testid="reset-filters-button"
+                aria-label="Reset filters button"
+              >
+                <StyledRefreshIcon />
+              </StyledIconButton>
+            </StyledTooltip>
           </StyledActionWrapper>
         </ActionButtonsContainer>
       </Stack>

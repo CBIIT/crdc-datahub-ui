@@ -4,7 +4,7 @@ export const query = gql`
   query listReleasedStudies(
     $name: String
     $dbGaPID: String
-    $dataCommons: [String]!
+    $dataCommonsDisplayNames: [String]!
     $first: Int = 20
     $offset: Int = 0
     $orderBy: String = "studyAbbreviation"
@@ -13,14 +13,14 @@ export const query = gql`
     listReleasedStudies(
       name: $name
       dbGaPID: $dbGaPID
-      dataCommons: $dataCommons
+      dataCommonsDisplayNames: $dataCommonsDisplayNames
       first: $first
       offset: $offset
       orderBy: $orderBy
       sortDirection: $sortDirection
     ) {
       total
-      dataCommons
+      dataCommonsDisplayNames
       studies {
         _id
         studyName
@@ -36,7 +36,7 @@ export const query = gql`
 export type Input = {
   name: string;
   dbGaPID: string;
-  dataCommons: string[];
+  dataCommonsDisplayNames: string[];
   first?: number;
   offset?: number;
   orderBy?: string;
@@ -46,7 +46,7 @@ export type Input = {
 export type Response = {
   listReleasedStudies: {
     total: number;
-    dataCommons: string[];
+    dataCommonsDisplayNames: string[];
     studies: ReleasedStudy[];
   };
 };
