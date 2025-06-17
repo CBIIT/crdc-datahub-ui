@@ -5,8 +5,8 @@ export const GET_RELEASED_NODE_TYPES: TypedDocumentNode<
   GetReleasedNodeTypesResp,
   GetReleasedNodeTypesInput
 > = gql`
-  query getReleaseNodeTypes($studyID: String!) {
-    getReleaseNodeTypes(studyID: $studyID) {
+  query getReleaseNodeTypes($studyId: String!) {
+    getReleaseNodeTypes(studyID: $studyId) {
       nodes {
         name
         count
