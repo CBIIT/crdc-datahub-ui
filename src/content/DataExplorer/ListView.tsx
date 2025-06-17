@@ -7,7 +7,6 @@ import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import GenericTable, { Column } from "../../components/GenericTable";
-import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import {
   LIST_RELEASED_STUDIES,
   ListReleasedStudiesInput,
@@ -86,7 +85,7 @@ const columns: Column<T>[] = [
   },
   {
     label: "Data Commons",
-    renderValue: (a) => a.dataCommonsDisplayNames,
+    renderValue: (a) => a.dataCommonsDisplayNames?.join(", "),
     field: "dataCommonsDisplayNames",
   },
   {
@@ -102,13 +101,6 @@ const ListView = () => {
   usePageTitle("Data Explorer");
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
-  const { columnVisibilityModel, setColumnVisibilityModel, visibleColumns } = useColumnVisibility<
-    Column<T>
-  >({
-    columns,
-    getColumnKey: (c) => c.fieldKey ?? c.field,
-    localStorageKey: "dataSubmissionListColumns",
-  });
 
   const [data, setData] = useState<ListReleasedStudiesResp["listReleasedStudies"] | null>(null);
   const [error, setError] = useState<boolean>(false);
@@ -139,7 +131,7 @@ const ListView = () => {
         variables: {
           name: name || undefined,
           dbGaPID: dbGaPID || undefined,
-          dataCommonsDisplayNames: dc ?? ["All"],
+          dataCommonsDisplayNames: dc ? [dc] : ["All"],
           first,
           offset,
           sortDirection,
@@ -191,17 +183,11 @@ const ListView = () => {
         )}
 
         <StyledFilterTableWrapper>
-          <ListFilters
-            data={data}
-            columns={columns}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={setColumnVisibilityModel}
-            onChange={handleOnFiltersChange}
-          />
+          <ListFilters data={data} onChange={handleOnFiltersChange} />
 
           <GenericTable
             ref={tableRef}
-            columns={visibleColumns}
+            columns={columns}
             data={data?.studies || []}
             total={data?.total || 0}
             loading={loading || authStatus === AuthStatus.LOADING}
