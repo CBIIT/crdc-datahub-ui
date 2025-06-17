@@ -159,21 +159,34 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   });
 
   const handleFetchData = useCallback(
-    async () => {
+    async (params: FetchListing<T>, force: boolean) => {
+      const { offset, orderBy, first, sortDirection } = params;
+
       // TODO: Implement API call
       setLoading(false);
+      listReleasedDataRecords({
+        variables: {
+          studyId,
+          // TODO: why no dataCommons param?
+          nodeType: filtersRef.current?.nodeType,
+          offset,
+          orderBy,
+          first,
+          sortDirection,
+        },
+      });
       setData([{ columnName: "Sample Data" }, { columnName: "More Sample Data" }]);
       setTotalData(2);
     },
-    // TODO: dependencies
-    [listReleasedDataRecords]
+    [studyId, filtersRef.current, listReleasedDataRecords]
   );
 
   const handleFilterChange = useCallback(
     (data: FilterForm) => {
       filtersRef.current = data;
+      tableRef.current?.setPage(0, true);
     },
-    [filtersRef.current]
+    [filtersRef.current, tableRef.current]
   );
 
   if (studyLoading || nodesLoading) {

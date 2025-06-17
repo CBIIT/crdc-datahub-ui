@@ -14,7 +14,7 @@ export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
     $sortDirection: String
   ) {
     listReleasedDataRecords(
-      studyId: $studyId
+      studyID: $studyId
       nodeType: $nodeType
       first: $first
       offset: $offset
