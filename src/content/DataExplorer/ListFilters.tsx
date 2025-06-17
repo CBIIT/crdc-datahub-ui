@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useState } from "react";
-import { Box, FormControl, Grid, IconButton, MenuItem, Stack, styled } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { Box, FormControl, IconButton, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { ListReleasedStudiesInput, ListReleasedStudiesResp } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { isStringLengthBetween } from "../../utils";
-import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
-import { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
@@ -80,45 +77,37 @@ const initialTouchedFields: TouchedState = {
 export const defaultValues: FilterForm = {
   name: "",
   dbGaPID: "",
-  dataCommonsDisplayNames: ["All"],
+  dataCommonsDisplayNames: "All",
 };
 
-const FIELDS_TO_DEBOUNCE: (keyof FilterForm)[] = ["name", "dbGaPID"];
+const FIELDS_TO_DEBOUNCE: (keyof FilterForm)[] = ["name", "dbGaPID", "dataCommonsDisplayNames"];
 const MIN_LENGTHS: { [K in keyof FilterForm]: number } = {
   name: 3,
   dbGaPID: 3,
   dataCommonsDisplayNames: 0,
 };
 
-type T = ListReleasedStudiesResp["listReleasedStudies"]["studies"][number];
-
 type TouchedState = { [K in keyof FilterForm]: boolean };
 
-export type FilterForm = Pick<
-  ListReleasedStudiesInput,
-  "name" | "dbGaPID" | "dataCommonsDisplayNames"
->;
+export type FilterForm = Pick<ListReleasedStudiesInput, "name" | "dbGaPID"> & {
+  dataCommonsDisplayNames: string;
+};
 
 type Props = {
   data: ListReleasedStudiesResp["listReleasedStudies"];
-  columns: Column<T>[];
-  columnVisibilityModel: ColumnVisibilityModel;
-  onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
   onChange?: (data: FilterForm) => void;
 };
 
-const ListFilters = ({
-  data,
-  columns,
-  columnVisibilityModel,
-  onColumnVisibilityModelChange,
-  onChange,
-}: Props) => {
+const ListFilters = ({ data, onChange }: Props) => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { control, register, watch, reset, setValue, getValues } = useForm<FilterForm>({
     defaultValues,
   });
-
+  const [nameFilter, dbGaPIDFilter, dataCommonsDisplayNamesFilter] = watch([
+    "name",
+    "dbGaPID",
+    "dataCommonsDisplayNames",
+  ]);
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
 
   const handleFormChange = useCallback((form: FilterForm) => {
@@ -140,11 +129,63 @@ const ListFilters = ({
     onChange: handleFormChange,
   });
 
+  useEffect(() => {
+    const name = searchParams.get("name");
+    const dbGaPID = searchParams.get("dbGaPID");
+    const dataCommonsDisplayNames = searchParams.get("dataCommonsDisplayNames");
+
+    if (name && name !== getValues("name")) {
+      setValue("name", name);
+    }
+    if (dbGaPID && dbGaPID !== getValues("dbGaPID")) {
+      setValue("dbGaPID", dbGaPID);
+    }
+    if (
+      dataCommonsDisplayNames &&
+      dataCommonsDisplayNames !== getValues("dataCommonsDisplayNames")
+    ) {
+      setValue("dataCommonsDisplayNames", dataCommonsDisplayNames);
+    }
+    if (Object.values(touchedFilters).every((filter) => !filter)) {
+      handleFormChange(getValues());
+    }
+  }, [data, searchParams?.toString()]);
+
+  useEffect(() => {
+    if (Object.values(touchedFilters).every((filter) => !filter)) {
+      return;
+    }
+
+    const newSearchParams = new URLSearchParams(searchParams);
+
+    if (dataCommonsDisplayNamesFilter && dataCommonsDisplayNamesFilter !== "All") {
+      newSearchParams.set("dataCommonsDisplayNames", dataCommonsDisplayNamesFilter);
+    } else {
+      newSearchParams.delete("dataCommonsDisplayNames");
+    }
+
+    if (nameFilter && nameFilter.length >= 3) {
+      newSearchParams.set("name", nameFilter);
+    } else {
+      newSearchParams.delete("name");
+    }
+
+    if (dbGaPIDFilter && dbGaPIDFilter.length >= 3) {
+      newSearchParams.set("dbGaPID", dbGaPIDFilter);
+    } else {
+      newSearchParams.delete("dbGaPID");
+    }
+
+    if (newSearchParams.toString() !== searchParams.toString()) {
+      setSearchParams(newSearchParams);
+    }
+  }, [nameFilter, dbGaPIDFilter, dataCommonsDisplayNamesFilter, searchParams]);
+
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     searchParams.delete("name");
     searchParams.delete("dbGaPID");
-    searchParams.delete("dataCommons");
+    searchParams.delete("dataCommonsDisplayNames");
     setSearchParams(newSearchParams);
     reset({ ...defaultValues });
   };
@@ -196,7 +237,7 @@ const ListFilters = ({
           </StyledFormControl>
 
           <StyledFormControl>
-            <StyledInlineLabel htmlFor="data-commons-filter">
+            <StyledInlineLabel htmlFor="data-commons-display-names-filter">
               Data
               <br />
               Commons
@@ -210,20 +251,24 @@ const ListFilters = ({
                   value={field.value}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{
-                    id: "data-commons-filter",
-                    "data-testid": "data-commons-select-input",
+                    id: "data-commons-display-names-filter",
+                    "data-testid": "data-commons-display-names-select-input",
                   }}
-                  data-testid="data-commons-select"
+                  data-testid="data-commons-display-names-select"
                   onChange={(e) => {
                     field.onChange(e);
                     handleFilterChange("dataCommonsDisplayNames");
                   }}
                 >
-                  <MenuItem value="All" data-testid="data-commons-option-All">
+                  <MenuItem value="All" data-testid="data-commons-display-names-option-All">
                     All
                   </MenuItem>
                   {data?.dataCommonsDisplayNames?.map((dc, index) => (
-                    <MenuItem key={dc} value={dc} data-testid={`data-commons-option-${dc}`}>
+                    <MenuItem
+                      key={dc}
+                      value={dc}
+                      data-testid={`data-commons-display-names-option-${dc}`}
+                    >
                       {data?.dataCommonsDisplayNames?.[index]}
                     </MenuItem>
                   ))}
