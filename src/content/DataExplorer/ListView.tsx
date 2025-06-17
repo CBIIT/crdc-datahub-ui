@@ -15,6 +15,7 @@ import {
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import { Logger } from "../../utils";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
+import TruncatedText from "../../components/TruncatedText";
 
 const StyledContainer = styled(Container)({
   marginTop: "-62px",
@@ -46,7 +47,6 @@ const StyledHeaderCell = styled(TableCell)({
   "&.MuiTableCell-root": {
     padding: "15px 4px 17px",
     color: "#fff !important",
-    // whiteSpace: "nowrap",
   },
   "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
@@ -75,12 +75,12 @@ const StyledTableCell = styled(TableCell)({
 const columns: Column<T>[] = [
   {
     label: "Study Abbreviation",
-    renderValue: (a) => a.studyAbbreviation,
+    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} maxCharacters={40} />,
     field: "studyAbbreviation",
   },
   {
     label: "Study Name",
-    renderValue: (a) => a.studyName,
+    renderValue: (a) => <TruncatedText text={a.studyName} maxCharacters={40} />,
     field: "studyName",
   },
   {
@@ -90,7 +90,7 @@ const columns: Column<T>[] = [
   },
   {
     label: "dbGaP ID",
-    renderValue: (a) => a.dbGaPID,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={30} />,
     field: "dbGaPID",
   },
 ];
