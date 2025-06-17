@@ -195,7 +195,7 @@ const ListFilters = ({ data, onChange }: Props) => {
   };
 
   return (
-    <StyledFilters data-testid="data-submission-list-filters">
+    <StyledFilters data-testid="data-explorer-filters">
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack direction="row" gap="35px">
           <StyledFormControl>
