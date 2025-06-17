@@ -39,6 +39,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["lcov", "json", "html"],
+      enabled: true,
     },
     testTimeout: 10_000,
   },
