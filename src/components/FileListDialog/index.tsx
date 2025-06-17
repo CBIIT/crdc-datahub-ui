@@ -268,6 +268,15 @@ const FileListDialog: FC<FileListDialogProps> = ({
     [downloading, batch?.status, batch?.fileCount]
   );
 
+  const noContentText = useMemo<string>(() => {
+    // If the data file batch succeeded with no files, show an explanation
+    if (batch?.type === "data file" && batch?.status === "Uploaded") {
+      return "All files in this manifest have been previously uploaded. No files were uploaded in this batch.";
+    }
+
+    return "No files were uploaded.";
+  }, [batch?.type, batch?.status]);
+
   const handleCloseDialog = () => {
     setBatchFiles([]);
     setPrevBatchFilesFetch(null);
@@ -371,7 +380,7 @@ const FileListDialog: FC<FileListDialogProps> = ({
           defaultOrder="asc"
           defaultRowsPerPage={20}
           paginationPlacement="center"
-          noContentText="No files were uploaded."
+          noContentText={noContentText}
           numRowsNoContent={5}
           onFetchData={handleFetchBatchFiles}
           setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
@@ -392,6 +401,4 @@ const FileListDialog: FC<FileListDialogProps> = ({
   );
 };
 
-export default React.memo<FileListDialogProps>(FileListDialog, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo<FileListDialogProps>(FileListDialog, isEqual);
