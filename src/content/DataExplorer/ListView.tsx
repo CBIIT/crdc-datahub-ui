@@ -85,7 +85,9 @@ const columns: Column<T>[] = [
   },
   {
     label: "Data Commons",
-    renderValue: (a) => a.dataCommonsDisplayNames?.join(", "),
+    renderValue: (a) => (
+      <TruncatedText text={a.dataCommonsDisplayNames?.join(", ")} maxCharacters={40} />
+    ),
     field: "dataCommonsDisplayNames",
   },
   {
