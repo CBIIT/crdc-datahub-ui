@@ -107,11 +107,11 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   );
 
   const nodeTypeOptions = useMemo<string[]>(() => {
-    if (!nodesData || !nodesData?.getReleasedNodes?.nodes.length) {
+    if (!nodesData || !nodesData?.getReleaseNodeTypes?.nodes.length) {
       return [];
     }
 
-    const clonedData = cloneDeep(nodesData.getReleasedNodes.nodes).sort(
+    const clonedData = cloneDeep(nodesData.getReleaseNodeTypes.nodes).sort(
       (a, b) => a.count - b.count
     );
 
@@ -120,7 +120,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const defaultValues = useMemo<FilterForm>(
     () => ({
-      nodeType: nodeTypeOptions[0] || "",
+      nodeType: nodeTypeOptions?.[0] || "",
     }),
     [nodeTypeOptions]
   );
@@ -190,7 +190,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   }
 
   return (
-    <Box>
+    <Box data-testid="study-view-container">
       {/* Page Breadcrumbs */}
       <StyledBreadcrumbsBox>
         <NavigationBreadcrumbs entries={breadcrumbs} />
