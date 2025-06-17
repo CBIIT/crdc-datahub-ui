@@ -195,7 +195,7 @@ const ListView = () => {
             defaultOrder="desc"
             disableUrlParams={false}
             position="bottom"
-            noContentText="You either do not have the appropriate permissions to view data submissions, or there are no data submissions associated with your account."
+            noContentText="You either do not have the appropriate permissions to view released studies, or there are no studies associated with your account."
             onFetchData={handleFetchData}
             containerProps={{
               sx: {
