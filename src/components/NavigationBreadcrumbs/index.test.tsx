@@ -91,3 +91,20 @@ describe("Basic Functionality", () => {
     expect(getByTestId("breadcrumb-entry-0")).toHaveTextContent("Updated");
   });
 });
+
+describe("Snapshots", () => {
+  it("should match the snapshot", () => {
+    const entries: BreadcrumbEntry[] = [
+      { label: "Home", to: "/" },
+      { label: "Data Explorer", to: "/data-explorer" },
+      { label: "Study View", to: "/data-explorer/study-view" },
+      { label: "Metadata Details", to: "/data-explorer/study-view/metadata-details" },
+    ];
+
+    const { container } = render(<NavigationBreadcrumbs entries={entries} />, {
+      wrapper: MemoryRouter,
+    });
+
+    expect(container).toMatchSnapshot();
+  });
+});

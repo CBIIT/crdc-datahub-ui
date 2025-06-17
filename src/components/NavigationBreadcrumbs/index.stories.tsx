@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import NavigationBreadcrumbs, { NavigationBreadcrumbsProps } from "./index";
 
 const meta: Meta<NavigationBreadcrumbsProps> = {
-  title: "Miscellaneous / NavigationBreadcrumbs",
+  title: "Miscellaneous / Navigation Breadcrumbs",
   component: NavigationBreadcrumbs,
   tags: ["autodocs"],
 } satisfies Meta<NavigationBreadcrumbsProps>;

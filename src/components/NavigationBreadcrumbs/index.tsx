@@ -5,15 +5,10 @@ import { Link } from "react-router-dom";
 
 const StyledBreadcrumbs = styled(Breadcrumbs)({
   textUnderlineOffset: "3px",
-  // maxWidth: "100%",
   width: "100%",
-  "& .MuiBreadcrumbs-ol": {
-    // maxWidth: "100%",
-    // width: "100%",
-  },
-  "& .MuiBreadcrumbs-li": {
-    minWidth: "0",
-    flexShrink: 1,
+  "& .MuiBreadcrumbs-li:last-of-type": {
+    minWidth: 0,
+    flex: 1,
   },
   "& .MuiBreadcrumbs-separator": {
     color: "#71767A",
@@ -73,7 +68,6 @@ const NavigationBreadcrumbs: FC<NavigationBreadcrumbsProps> = ({ entries }) => (
     data-testid="breadcrumb-container"
   >
     {entries.map(({ label, to }, index) => (
-      // TODO: Long labels are wrapping to a newline before truncating. Fix this.
       <StyledBreadcrumb
         key={label}
         color={to ? "#005EA2" : "#1B1B1B"}

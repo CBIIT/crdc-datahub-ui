@@ -28,7 +28,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const StudyViewFilters: Story = {
+export const Default: Story = {
   args: {
     ...meta.args,
     nodeTypes: ["mock-node-1", "another-mock-node", "participant-node"],
