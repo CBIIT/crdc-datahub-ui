@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
-import { Alert, Box, Container, styled, TableCell, TableHead } from "@mui/material";
+import { Box, Container, styled, TableCell, TableHead } from "@mui/material";
 import { isEqual } from "lodash";
-import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -20,14 +20,18 @@ import DataExplorerListContext from "../../components/Contexts/DataExplorerListC
 import DataExplorerDCSelectionDialog, {
   InputForm,
 } from "../../components/DataExplorerDCSelectionDialog";
+import FormAlert from "../../components/FormAlert";
 
-const StyledContainer = styled(Container)({
+const StyledWrapper = styled(Box)({
   marginTop: "-62px",
 });
 
-const StyledAlert = styled(Alert)({
+const StyledContainer = styled(Container)({
+  marginTop: 0,
+});
+
+const StyledFormAlert = styled(FormAlert)({
   marginBottom: "24px",
-  padding: "16px",
 });
 
 const StyledFilterTableWrapper = styled(Box)({
@@ -120,7 +124,6 @@ type T = ListReleasedStudiesResp["listReleasedStudies"]["studies"][number];
 
 const ListView = () => {
   usePageTitle("Data Explorer");
-  const { state } = useLocation();
   const navigate = useNavigate();
   const { status: authStatus } = useAuthContext();
 
@@ -237,44 +240,42 @@ const ListView = () => {
         bannerSrc={bannerSvg}
       />
 
-      <StyledContainer maxWidth="xl">
-        {(state?.error || error) && (
-          <StyledAlert severity="error">
-            {state?.error || "An error occurred while loading the data."}
-          </StyledAlert>
-        )}
+      <StyledWrapper>
+        <StyledFormAlert error={error ? "An error occurred while loading the data." : null} />
 
-        <StyledFilterTableWrapper>
-          <ListFilters data={data} onChange={handleOnFiltersChange} />
+        <StyledContainer maxWidth="xl">
+          <StyledFilterTableWrapper>
+            <ListFilters data={data} onChange={handleOnFiltersChange} />
 
-          <DataExplorerListContext.Provider value={dataExplorerListContextValue}>
-            <GenericTable
-              ref={tableRef}
-              columns={columns}
-              data={data?.studies || []}
-              total={data?.total || 0}
-              loading={loading || authStatus === AuthStatus.LOADING}
-              defaultRowsPerPage={20}
-              defaultOrder="desc"
-              disableUrlParams={false}
-              position="bottom"
-              noContentText="You either do not have the appropriate permissions to view released studies, or there are no studies associated with your account."
-              onFetchData={handleFetchData}
-              containerProps={{
-                sx: {
-                  marginBottom: "8px",
-                  border: 0,
-                  borderTopLeftRadius: 0,
-                  borderTopRightRadius: 0,
-                },
-              }}
-              CustomTableHead={StyledTableHead}
-              CustomTableHeaderCell={StyledHeaderCell}
-              CustomTableBodyCell={StyledTableCell}
-            />
-          </DataExplorerListContext.Provider>
-        </StyledFilterTableWrapper>
-      </StyledContainer>
+            <DataExplorerListContext.Provider value={dataExplorerListContextValue}>
+              <GenericTable
+                ref={tableRef}
+                columns={columns}
+                data={data?.studies || []}
+                total={data?.total || 0}
+                loading={loading || authStatus === AuthStatus.LOADING}
+                defaultRowsPerPage={20}
+                defaultOrder="desc"
+                disableUrlParams={false}
+                position="bottom"
+                noContentText="You either do not have the appropriate permissions to view released studies, or there are no studies associated with your account."
+                onFetchData={handleFetchData}
+                containerProps={{
+                  sx: {
+                    marginBottom: "8px",
+                    border: 0,
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0,
+                  },
+                }}
+                CustomTableHead={StyledTableHead}
+                CustomTableHeaderCell={StyledHeaderCell}
+                CustomTableBodyCell={StyledTableCell}
+              />
+            </DataExplorerListContext.Provider>
+          </StyledFilterTableWrapper>
+        </StyledContainer>
+      </StyledWrapper>
 
       <DataExplorerDCSelectionDialog
         open={multipleDCDialog}

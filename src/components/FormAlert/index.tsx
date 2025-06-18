@@ -1,4 +1,4 @@
-import { Alert, Container, styled } from "@mui/material";
+import { Alert, AlertProps, Container, styled } from "@mui/material";
 import { memo } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -9,7 +9,7 @@ const StyledAlert = styled(Alert)({
 
 type Props = {
   error?: string;
-};
+} & AlertProps;
 
 /**
  * Displays an alert with an error message if a location state alert exists or
@@ -18,7 +18,7 @@ type Props = {
  * @param {Props} props
  * @returns {JSX.Element | null} The error alert or null if no error is present
  */
-const FormAlert = ({ error }: Props) => {
+const FormAlert = ({ error, ...rest }: Props) => {
   const { state } = useLocation();
 
   if (!state?.alert && !error) {
@@ -27,7 +27,9 @@ const FormAlert = ({ error }: Props) => {
 
   return (
     <Container maxWidth="xl">
-      <StyledAlert severity="error">{state?.error || error}</StyledAlert>
+      <StyledAlert severity="error" {...rest}>
+        {state?.error || error}
+      </StyledAlert>
     </Container>
   );
 };
