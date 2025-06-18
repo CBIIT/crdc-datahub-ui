@@ -205,7 +205,7 @@ const ListFilters = ({ dataCommonsDisplayNames, onChange }: Props) => {
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack direction="row" gap="35px">
           <StyledFormControl>
-            <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
+            <StyledInlineLabel htmlFor="name-filter">Study</StyledInlineLabel>
             <StyledTextField
               {...register("name", {
                 setValueAs: (val) => val?.trim(),
@@ -213,6 +213,7 @@ const ListFilters = ({ dataCommonsDisplayNames, onChange }: Props) => {
                 onBlur: (e) =>
                   isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
               })}
+              id="name-filter"
               size="small"
               placeholder="Minimum 3 characters required"
               inputProps={{
@@ -224,7 +225,7 @@ const ListFilters = ({ dataCommonsDisplayNames, onChange }: Props) => {
           </StyledFormControl>
 
           <StyledFormControl>
-            <StyledInlineLabel htmlFor="study-filter">dbGaP ID</StyledInlineLabel>
+            <StyledInlineLabel htmlFor="dbGaPID-filter">dbGaP ID</StyledInlineLabel>
             <StyledTextField
               {...register("dbGaPID", {
                 setValueAs: (val) => val?.trim(),
@@ -232,6 +233,7 @@ const ListFilters = ({ dataCommonsDisplayNames, onChange }: Props) => {
                 onBlur: (e) =>
                   isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
               })}
+              id="dbGaPID-filter"
               size="small"
               placeholder="Minimum 3 characters required"
               inputProps={{

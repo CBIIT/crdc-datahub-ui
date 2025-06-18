@@ -478,7 +478,12 @@ const GenericTable = <T,>(
         <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
       )}
       <StyledTableWrapper className="generic-table-wrapper">
-        <Table className="generic-table" {...tableProps} data-testid="generic-table">
+        <Table
+          className="generic-table"
+          {...tableProps}
+          data-testid="generic-table"
+          aria-label="Data table"
+        >
           {columns?.length > 0 && (
             <TableHeadComponent>
               <TableRow>
