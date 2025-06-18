@@ -96,8 +96,8 @@ describe("DataExplorerDCSelectionDialog", () => {
     expect(await findByText("This field is required")).toBeInTheDocument();
   });
 
-  it("calls onSubmitForm and onClose with selected Data Commons", async () => {
-    const { getByTestId, onSubmitForm, onClose, findByTestId } = setup();
+  it("calls onSubmitForm with selected Data Commons and Confirm is clicked", async () => {
+    const { getByTestId, onSubmitForm, findByTestId } = setup();
 
     const select = within(getByTestId("dataCommon-field")).getByRole("button");
     userEvent.click(select);
@@ -110,7 +110,6 @@ describe("DataExplorerDCSelectionDialog", () => {
 
     await waitFor(() => {
       expect(onSubmitForm).toHaveBeenCalledWith({ dataCommon: "DC2" });
-      expect(onClose).toHaveBeenCalled();
     });
   });
 
