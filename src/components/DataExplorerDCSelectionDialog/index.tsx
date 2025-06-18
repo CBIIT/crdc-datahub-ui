@@ -84,15 +84,12 @@ const DataExplorerDCSelectionDialog: FC<Props> = ({
   ...rest
 }) => {
   const { handleSubmit, control, formState, reset } = useForm<InputForm>({
-    defaultValues: {
-      dataCommon: "",
-    },
+    defaultValues: { dataCommon: "" },
   });
   const { errors, isSubmitting } = formState;
 
   const onSubmit: SubmitHandler<InputForm> = async (form: InputForm) => {
     onSubmitForm(form);
-    onClose();
     reset();
   };
 
