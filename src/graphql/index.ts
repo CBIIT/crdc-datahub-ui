@@ -163,6 +163,9 @@ export type {
   Response as DownloadMetadataFileResp,
 } from "./downloadMetadataFile";
 
+export { DOWNLOAD_DB_GAP_SHEET } from "./downloadDBGaPLoadSheet";
+export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./downloadDBGaPLoadSheet";
+
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
 export type { Response as GetMyUserResp } from "./getMyUser";
