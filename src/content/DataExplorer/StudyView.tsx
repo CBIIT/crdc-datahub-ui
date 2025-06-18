@@ -127,6 +127,14 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [nodeTypeOptions]
   );
 
+  const studyDisplayName = useMemo<string>(
+    () =>
+      studyData?.getApprovedStudy?.studyAbbreviation ||
+      studyData?.getApprovedStudy?.studyName ||
+      "",
+    [studyData]
+  );
+
   const breadcrumbs = useMemo<BreadcrumbEntry[]>(
     () => [
       {
@@ -134,10 +142,10 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         to: "/data-explorer",
       },
       {
-        label: studyData?.getApprovedStudy?.studyAbbreviation,
+        label: studyDisplayName,
       },
     ],
-    [studyData?.getApprovedStudy?.studyAbbreviation]
+    [studyDisplayName]
   );
 
   const columns = useMemo<Column<T>[]>(
@@ -241,7 +249,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       <PageContainer
         background={bannerPng}
         title="Data Explorer for Study - "
-        titleSuffix={studyData?.getApprovedStudy?.studyAbbreviation}
+        titleSuffix={studyDisplayName}
         // TODO: need real text here
         description="lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
       >
