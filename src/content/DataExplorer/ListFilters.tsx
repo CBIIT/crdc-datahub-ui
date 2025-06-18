@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Box, FormControl, IconButton, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { ListReleasedStudiesInput, ListReleasedStudiesResp } from "../../graphql";
+import { ListReleasedStudiesInput } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { isStringLengthBetween } from "../../utils";
@@ -94,11 +94,11 @@ export type FilterForm = Pick<ListReleasedStudiesInput, "name" | "dbGaPID"> & {
 };
 
 type Props = {
-  data: ListReleasedStudiesResp["listReleasedStudies"];
+  dataCommonsDisplayNames: string[];
   onChange?: (data: FilterForm) => void;
 };
 
-const ListFilters = ({ data, onChange }: Props) => {
+const ListFilters = ({ dataCommonsDisplayNames, onChange }: Props) => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { control, register, watch, reset, setValue, getValues } = useForm<FilterForm>({
     defaultValues,
@@ -150,7 +150,6 @@ const ListFilters = ({ data, onChange }: Props) => {
       handleFormChange(getValues());
     }
   }, [
-    data,
     searchParams?.get("name"),
     searchParams?.get("dbGaPID"),
     searchParams?.get("dataCommonsDisplayNames"),
@@ -270,7 +269,7 @@ const ListFilters = ({ data, onChange }: Props) => {
                   <MenuItem value="All" data-testid="data-commons-display-names-option-All">
                     All
                   </MenuItem>
-                  {data?.dataCommonsDisplayNames?.map((dc, index) => (
+                  {dataCommonsDisplayNames?.map((dc) => (
                     <MenuItem
                       key={dc}
                       value={dc}

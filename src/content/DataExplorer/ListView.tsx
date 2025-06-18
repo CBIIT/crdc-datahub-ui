@@ -245,7 +245,10 @@ const ListView = () => {
 
         <StyledContainer maxWidth="xl">
           <StyledFilterTableWrapper>
-            <ListFilters data={data} onChange={handleOnFiltersChange} />
+            <ListFilters
+              dataCommonsDisplayNames={data?.dataCommonsDisplayNames || []}
+              onChange={handleOnFiltersChange}
+            />
 
             <DataExplorerListContext.Provider value={dataExplorerListContextValue}>
               <GenericTable
