@@ -149,7 +149,12 @@ const ListFilters = ({ data, onChange }: Props) => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
       handleFormChange(getValues());
     }
-  }, [data, searchParams?.toString()]);
+  }, [
+    data,
+    searchParams?.get("name"),
+    searchParams?.get("dbGaPID"),
+    searchParams?.get("dataCommonsDisplayNames"),
+  ]);
 
   useEffect(() => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
@@ -179,7 +184,7 @@ const ListFilters = ({ data, onChange }: Props) => {
     if (newSearchParams.toString() !== searchParams.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [nameFilter, dbGaPIDFilter, dataCommonsDisplayNamesFilter, searchParams]);
+  }, [nameFilter, dbGaPIDFilter, dataCommonsDisplayNamesFilter, touchedFilters]);
 
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -187,7 +192,10 @@ const ListFilters = ({ data, onChange }: Props) => {
     searchParams.delete("dbGaPID");
     searchParams.delete("dataCommonsDisplayNames");
     setSearchParams(newSearchParams);
+
     reset({ ...defaultValues });
+    setTouchedFilters(initialTouchedFields);
+    onChange?.(defaultValues);
   };
 
   const handleFilterChange = (field: keyof FilterForm) => {

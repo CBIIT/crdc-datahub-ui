@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Alert, Box, Container, styled, TableCell, TableHead } from "@mui/material";
 import { isEqual } from "lodash";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -15,6 +15,11 @@ import {
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import { Logger } from "../../utils";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
+import TruncatedText from "../../components/TruncatedText";
+import DataExplorerListContext from "../../components/Contexts/DataExplorerListContext";
+import DataExplorerDCSelectionDialog, {
+  InputForm,
+} from "../../components/DataExplorerDCSelectionDialog";
 
 const StyledContainer = styled(Container)({
   marginTop: "-62px",
@@ -46,7 +51,6 @@ const StyledHeaderCell = styled(TableCell)({
   "&.MuiTableCell-root": {
     padding: "15px 4px 17px",
     color: "#fff !important",
-    // whiteSpace: "nowrap",
   },
   "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
@@ -72,25 +76,42 @@ const StyledTableCell = styled(TableCell)({
   },
 });
 
+const StyledStudyAbbreviation = styled(Box)({
+  display: "inline-block",
+  color: "#0000ee",
+  cursor: "pointer",
+  textDecoration: "underline",
+});
+
 const columns: Column<T>[] = [
   {
     label: "Study Abbreviation",
-    renderValue: (a) => a.studyAbbreviation,
+    renderValue: (a) => (
+      <DataExplorerListContext.Consumer>
+        {({ handleClickStudyAbbreviation }) => (
+          <StyledStudyAbbreviation onClick={() => handleClickStudyAbbreviation(a)}>
+            <TruncatedText text={a.studyAbbreviation} maxCharacters={40} underline={false} />
+          </StyledStudyAbbreviation>
+        )}
+      </DataExplorerListContext.Consumer>
+    ),
     field: "studyAbbreviation",
   },
   {
     label: "Study Name",
-    renderValue: (a) => a.studyName,
+    renderValue: (a) => <TruncatedText text={a.studyName} maxCharacters={40} />,
     field: "studyName",
   },
   {
     label: "Data Commons",
-    renderValue: (a) => a.dataCommonsDisplayNames?.join(", "),
+    renderValue: (a) => (
+      <TruncatedText text={a.dataCommonsDisplayNames?.join(", ")} maxCharacters={40} />
+    ),
     field: "dataCommonsDisplayNames",
   },
   {
     label: "dbGaP ID",
-    renderValue: (a) => a.dbGaPID,
+    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={30} />,
     field: "dbGaPID",
   },
 ];
@@ -100,13 +121,16 @@ type T = ListReleasedStudiesResp["listReleasedStudies"]["studies"][number];
 const ListView = () => {
   usePageTitle("Data Explorer");
   const { state } = useLocation();
+  const navigate = useNavigate();
   const { status: authStatus } = useAuthContext();
 
   const [data, setData] = useState<ListReleasedStudiesResp["listReleasedStudies"] | null>(null);
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [multipleDCDialog, setMultipleDCDialog] = useState<boolean>(false);
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>({ ...defaultValues });
+  const clickedStudyRef = useRef<ReleasedStudy | null>(null);
 
   const [listReleasedStudies] = useLazyQuery<ListReleasedStudiesResp, ListReleasedStudiesInput>(
     LIST_RELEASED_STUDIES,
@@ -166,6 +190,34 @@ const ListView = () => {
     tableRef.current?.setPage(page, true);
   };
 
+  const handleDCSelect = (form: InputForm) => {
+    if (!form?.dataCommon || !clickedStudyRef.current?._id) {
+      return;
+    }
+
+    navigate(`/data-explorer/${clickedStudyRef.current._id}/${form.dataCommon}`);
+  };
+
+  const handleClickStudyAbbreviation = (study: ReleasedStudy) => {
+    if (!study?._id || !study?.dataCommonsDisplayNames?.length) {
+      return;
+    }
+    if (study.dataCommonsDisplayNames.length <= 1) {
+      navigate(`/data-explorer/${study._id}/${study.dataCommonsDisplayNames[0]}`);
+      return;
+    }
+
+    clickedStudyRef.current = study;
+    setMultipleDCDialog(true);
+  };
+
+  const dataExplorerListContextValue = useMemo(
+    () => ({
+      handleClickStudyAbbreviation,
+    }),
+    [handleClickStudyAbbreviation]
+  );
+
   return (
     <>
       <PageBanner
@@ -185,32 +237,41 @@ const ListView = () => {
         <StyledFilterTableWrapper>
           <ListFilters data={data} onChange={handleOnFiltersChange} />
 
-          <GenericTable
-            ref={tableRef}
-            columns={columns}
-            data={data?.studies || []}
-            total={data?.total || 0}
-            loading={loading || authStatus === AuthStatus.LOADING}
-            defaultRowsPerPage={20}
-            defaultOrder="desc"
-            disableUrlParams={false}
-            position="bottom"
-            noContentText="You either do not have the appropriate permissions to view data submissions, or there are no data submissions associated with your account."
-            onFetchData={handleFetchData}
-            containerProps={{
-              sx: {
-                marginBottom: "8px",
-                border: 0,
-                borderTopLeftRadius: 0,
-                borderTopRightRadius: 0,
-              },
-            }}
-            CustomTableHead={StyledTableHead}
-            CustomTableHeaderCell={StyledHeaderCell}
-            CustomTableBodyCell={StyledTableCell}
-          />
+          <DataExplorerListContext.Provider value={dataExplorerListContextValue}>
+            <GenericTable
+              ref={tableRef}
+              columns={columns}
+              data={data?.studies || []}
+              total={data?.total || 0}
+              loading={loading || authStatus === AuthStatus.LOADING}
+              defaultRowsPerPage={20}
+              defaultOrder="desc"
+              disableUrlParams={false}
+              position="bottom"
+              noContentText="You either do not have the appropriate permissions to view released studies, or there are no studies associated with your account."
+              onFetchData={handleFetchData}
+              containerProps={{
+                sx: {
+                  marginBottom: "8px",
+                  border: 0,
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                },
+              }}
+              CustomTableHead={StyledTableHead}
+              CustomTableHeaderCell={StyledHeaderCell}
+              CustomTableBodyCell={StyledTableCell}
+            />
+          </DataExplorerListContext.Provider>
         </StyledFilterTableWrapper>
       </StyledContainer>
+
+      <DataExplorerDCSelectionDialog
+        open={multipleDCDialog}
+        dataCommons={data?.dataCommonsDisplayNames || []}
+        onSubmitForm={(form) => handleDCSelect(form)}
+        onClose={() => setMultipleDCDialog(false)}
+      />
     </>
   );
 };

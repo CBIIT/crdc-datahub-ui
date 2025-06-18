@@ -1,8 +1,17 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
+import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 import svgr from "vite-plugin-svgr";
+
+// List of test files to exclude from coverage and testing
+const testExcludes: string[] = [
+  "src/**/*.stories.tsx",
+  "src/test-utils/**",
+  "src/vitest.global-setup.ts",
+  "conf/**",
+  "public/**",
+];
 
 export default defineConfig({
   base: "/",
@@ -36,10 +45,12 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/setupTests.tsx"],
     globalSetup: "./src/vitest.global-setup.ts",
+    exclude: [...configDefaults.exclude, ...testExcludes],
     coverage: {
       provider: "v8",
       reporter: ["lcov", "json", "html"],
       enabled: true,
+      exclude: [...configDefaults.coverage.exclude, ...testExcludes],
     },
     testTimeout: 10_000,
   },
