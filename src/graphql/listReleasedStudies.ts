@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query listReleasedStudies(
     $name: String
     $dbGaPID: String

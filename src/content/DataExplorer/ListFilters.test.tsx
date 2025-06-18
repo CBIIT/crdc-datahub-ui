@@ -47,7 +47,7 @@ describe("Accessibility", () => {
   it("should not have any accessibility violations", async () => {
     const { container } = render(
       <TestParent>
-        <ListFilters data={mockData} />
+        <ListFilters dataCommonsDisplayNames={mockData.dataCommonsDisplayNames} />
       </TestParent>
     );
 
@@ -64,7 +64,7 @@ describe("ListFilters", () => {
   it("renders all input fields and reset button", () => {
     const { getByTestId } = render(
       <TestParent>
-        <ListFilters data={mockData} />
+        <ListFilters dataCommonsDisplayNames={mockData.dataCommonsDisplayNames} />
       </TestParent>
     );
 
@@ -79,7 +79,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     render(
       <TestParent>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -93,7 +96,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent initialEntries={initialEntries}>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -116,7 +122,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -143,7 +152,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     const { getByTestId, getByRole } = render(
       <TestParent>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -187,7 +199,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -215,7 +230,10 @@ describe("ListFilters", () => {
 
     const { getByTestId } = render(
       <TestParent initialEntries={initialEntries}>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -239,7 +257,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 
@@ -277,7 +298,10 @@ describe("ListFilters", () => {
     const mockOnChange = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <ListFilters data={mockData} onChange={mockOnChange} />
+        <ListFilters
+          dataCommonsDisplayNames={mockData.dataCommonsDisplayNames}
+          onChange={mockOnChange}
+        />
       </TestParent>
     );
 

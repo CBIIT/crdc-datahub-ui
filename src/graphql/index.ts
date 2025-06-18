@@ -163,8 +163,8 @@ export type {
   Response as DownloadMetadataFileResp,
 } from "./downloadMetadataFile";
 
-export { GET_RELEASED_NODE_TYPES } from "./getReleasedNodeTypes";
-export type { GetReleasedNodeTypesInput, GetReleasedNodeTypesResp } from "./getReleasedNodeTypes";
+export { DOWNLOAD_DB_GAP_SHEET } from "./downloadDBGaPLoadSheet";
+export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./downloadDBGaPLoadSheet";
 
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
@@ -282,3 +282,6 @@ export type {
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
 } from "./listReleasedDataRecords";
+
+export { GET_RELEASED_NODE_TYPES } from "./getReleasedNodeTypes";
+export type { GetReleasedNodeTypesInput, GetReleasedNodeTypesResp } from "./getReleasedNodeTypes";

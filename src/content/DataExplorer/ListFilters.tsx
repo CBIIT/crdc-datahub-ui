@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Box, FormControl, IconButton, MenuItem, Stack, styled } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { ListReleasedStudiesInput, ListReleasedStudiesResp } from "../../graphql";
+import { ListReleasedStudiesInput } from "../../graphql";
 import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
 import { isStringLengthBetween } from "../../utils";
@@ -94,11 +94,11 @@ export type FilterForm = Pick<ListReleasedStudiesInput, "name" | "dbGaPID"> & {
 };
 
 type Props = {
-  data: ListReleasedStudiesResp["listReleasedStudies"];
+  dataCommonsDisplayNames: string[];
   onChange?: (data: FilterForm) => void;
 };
 
-const ListFilters = ({ data, onChange }: Props) => {
+const ListFilters = ({ dataCommonsDisplayNames, onChange }: Props) => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const { control, register, watch, reset, setValue, getValues } = useForm<FilterForm>({
     defaultValues,
@@ -150,7 +150,6 @@ const ListFilters = ({ data, onChange }: Props) => {
       handleFormChange(getValues());
     }
   }, [
-    data,
     searchParams?.get("name"),
     searchParams?.get("dbGaPID"),
     searchParams?.get("dataCommonsDisplayNames"),
@@ -206,7 +205,7 @@ const ListFilters = ({ data, onChange }: Props) => {
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack direction="row" gap="35px">
           <StyledFormControl>
-            <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
+            <StyledInlineLabel htmlFor="name-filter">Study</StyledInlineLabel>
             <StyledTextField
               {...register("name", {
                 setValueAs: (val) => val?.trim(),
@@ -214,6 +213,7 @@ const ListFilters = ({ data, onChange }: Props) => {
                 onBlur: (e) =>
                   isStringLengthBetween(e?.target?.value, 0, 3) && setValue("name", ""),
               })}
+              id="name-filter"
               size="small"
               placeholder="Minimum 3 characters required"
               inputProps={{
@@ -225,7 +225,7 @@ const ListFilters = ({ data, onChange }: Props) => {
           </StyledFormControl>
 
           <StyledFormControl>
-            <StyledInlineLabel htmlFor="study-filter">dbGaP ID</StyledInlineLabel>
+            <StyledInlineLabel htmlFor="dbGaPID-filter">dbGaP ID</StyledInlineLabel>
             <StyledTextField
               {...register("dbGaPID", {
                 setValueAs: (val) => val?.trim(),
@@ -233,6 +233,7 @@ const ListFilters = ({ data, onChange }: Props) => {
                 onBlur: (e) =>
                   isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
               })}
+              id="dbGaPID-filter"
               size="small"
               placeholder="Minimum 3 characters required"
               inputProps={{
@@ -270,13 +271,13 @@ const ListFilters = ({ data, onChange }: Props) => {
                   <MenuItem value="All" data-testid="data-commons-display-names-option-All">
                     All
                   </MenuItem>
-                  {data?.dataCommonsDisplayNames?.map((dc, index) => (
+                  {dataCommonsDisplayNames?.map((dc) => (
                     <MenuItem
                       key={dc}
                       value={dc}
                       data-testid={`data-commons-display-names-option-${dc}`}
                     >
-                      {data?.dataCommonsDisplayNames?.[index]}
+                      {dc}
                     </MenuItem>
                   ))}
                 </StyledSelect>
