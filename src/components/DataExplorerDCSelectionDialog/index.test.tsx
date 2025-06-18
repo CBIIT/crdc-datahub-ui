@@ -9,8 +9,8 @@ describe("Accessibility", () => {
       <DataExplorerDCSelectionDialog
         open
         dataCommons={["DC1", "DC2"]}
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -22,8 +22,8 @@ describe("Accessibility", () => {
       <DataExplorerDCSelectionDialog
         open={false}
         dataCommons={["DC1", "DC2"]}
-        onSubmitForm={jest.fn()}
-        onClose={jest.fn()}
+        onSubmitForm={vi.fn()}
+        onClose={vi.fn()}
       />
     );
 
@@ -34,8 +34,8 @@ describe("Accessibility", () => {
 describe("DataExplorerDCSelectionDialog", () => {
   const dataCommons = ["DC1", "DC2", "DC3"];
   const setup = (props = {}) => {
-    const onSubmitForm = jest.fn();
-    const onClose = jest.fn();
+    const onSubmitForm = vi.fn();
+    const onClose = vi.fn();
     const utils = render(
       <DataExplorerDCSelectionDialog
         open

@@ -188,14 +188,13 @@ const ListFilters = ({ data, onChange }: Props) => {
 
   const handleResetFilters = () => {
     const newSearchParams = new URLSearchParams(searchParams);
-    searchParams.delete("name");
-    searchParams.delete("dbGaPID");
-    searchParams.delete("dataCommonsDisplayNames");
+    newSearchParams.delete("name");
+    newSearchParams.delete("dbGaPID");
+    newSearchParams.delete("dataCommonsDisplayNames");
     setSearchParams(newSearchParams);
 
     reset({ ...defaultValues });
     setTouchedFilters(initialTouchedFields);
-    onChange?.(defaultValues);
   };
 
   const handleFilterChange = (field: keyof FilterForm) => {

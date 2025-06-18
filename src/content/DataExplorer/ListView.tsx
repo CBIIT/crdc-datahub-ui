@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Alert, Box, Container, styled, TableCell, TableHead } from "@mui/material";
 import { isEqual } from "lodash";
-import { useLocation, useNavigate } from "react-router-dom";
+import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
 import PageBanner from "../../components/PageBanner";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -195,7 +195,12 @@ const ListView = () => {
       return;
     }
 
-    navigate(`/data-explorer/${clickedStudyRef.current._id}/${form.dataCommon}`);
+    navigate({
+      pathname: `/data-explorer/${clickedStudyRef.current._id}`,
+      search: createSearchParams({
+        dataCommons: form.dataCommon,
+      }).toString(),
+    });
   };
 
   const handleClickStudyAbbreviation = (study: ReleasedStudy) => {
@@ -203,7 +208,12 @@ const ListView = () => {
       return;
     }
     if (study.dataCommonsDisplayNames.length <= 1) {
-      navigate(`/data-explorer/${study._id}/${study.dataCommonsDisplayNames[0]}`);
+      navigate({
+        pathname: `/data-explorer/${study._id}`,
+        search: createSearchParams({
+          dataCommons: study.dataCommonsDisplayNames[0],
+        }).toString(),
+      });
       return;
     }
 

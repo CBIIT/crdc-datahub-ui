@@ -34,8 +34,8 @@ export const query = gql`
 `;
 
 export type Input = {
-  name: string;
-  dbGaPID: string;
+  name?: string;
+  dbGaPID?: string;
   dataCommonsDisplayNames: string[];
   first?: number;
   offset?: number;
