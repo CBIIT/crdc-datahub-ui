@@ -115,6 +115,7 @@ const config = {
           "**/*.{stories,test}.{ts,tsx}",
           "**/setupTests.{ts,tsx}",
           "**/customRender.tsx",
+          "vite.config.ts",
         ],
         optionalDependencies: false,
       },
