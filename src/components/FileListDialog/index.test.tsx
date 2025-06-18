@@ -335,11 +335,50 @@ describe("Implementation Requirements", () => {
     expect(within(getByTestId("file-list-dialog")).getByText(expected)).toBeVisible();
   });
 
-  it("should render the placeholder text when there are no files", () => {
+  it("should render the placeholder text when there are no files (metadata)", () => {
     const { getByText } = render(
-      <TestParent>
-        <Dialog open batch={{ ...baseBatch, files: [], fileCount: 0 }} />
-      </TestParent>
+      <Dialog open batch={{ ...baseBatch, type: "metadata", files: [], fileCount: 0 }} />,
+      { wrapper: TestParent }
+    );
+
+    expect(getByText(/No files were uploaded./)).toBeInTheDocument();
+  });
+
+  it("should render an explanation for successful but empty 'data file' batches", () => {
+    const { getByText } = render(
+      <Dialog
+        open
+        batch={{
+          ...baseBatch,
+          type: "data file",
+          status: "Uploaded",
+          files: [],
+          fileCount: 0,
+        }}
+      />,
+      { wrapper: TestParent }
+    );
+
+    expect(
+      getByText(
+        /All files in this manifest have been previously uploaded. No files were uploaded in this batch./i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("should render the 'No files uploaded' message for unsuccessful 'data file' batches", () => {
+    const { getByText } = render(
+      <Dialog
+        open
+        batch={{
+          ...baseBatch,
+          type: "data file",
+          status: "Failed",
+          files: [],
+          fileCount: 0,
+        }}
+      />,
+      { wrapper: TestParent }
     );
 
     expect(getByText(/No files were uploaded./)).toBeInTheDocument();
