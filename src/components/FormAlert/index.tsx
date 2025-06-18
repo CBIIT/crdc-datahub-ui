@@ -15,8 +15,7 @@ type Props = {
  * Displays an alert with an error message if a location state alert exists or
  * an error prop is provided
  *
- * @param {Props} props
- * @returns {JSX.Element | null} The error alert or null if no error is present
+ * @returns The MUI alert component or null if no error is present
  */
 const FormAlert = ({ error, ...rest }: Props) => {
   const { state } = useLocation();
@@ -34,4 +33,4 @@ const FormAlert = ({ error, ...rest }: Props) => {
   );
 };
 
-export default memo(FormAlert);
+export default memo<Props>(FormAlert);

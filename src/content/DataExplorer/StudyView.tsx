@@ -60,6 +60,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>();
 
+  // TODO: technically this is dataCommonsDisplayName, we should rename it
   const dataCommons = searchParams.get("dataCommons");
 
   const { data: studyData, loading: studyLoading } = useQuery<
@@ -73,7 +74,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     onError: (error) => {
       Logger.error("Error fetching study data:", error);
       navigate("/data-explorer", {
-        state: { error: "Oops! An error occurred while fetching the study data." },
+        state: { alert: true, error: "Oops! An error occurred while fetching the study data." },
       });
     },
   });
@@ -90,7 +91,10 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     onError: (error) => {
       Logger.error("Error fetching node list:", error);
       navigate("/data-explorer", {
-        state: { error: "Oops! An error occurred while fetching the list of released nodes." },
+        state: {
+          alert: true,
+          error: "Oops! An error occurred while fetching the list of released nodes.",
+        },
       });
     },
   });
@@ -233,7 +237,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     return (
       <Navigate
         to="/data-explorer"
-        state={{ error: "Oops! An invalid study or data commons was provided." }}
+        state={{ alert: true, error: "Oops! An invalid study or data commons was provided." }}
       />
     );
   }
