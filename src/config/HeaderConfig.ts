@@ -38,6 +38,12 @@ export const HeaderLinks = [
     className: "navMobileItem",
   },
   {
+    name: "Data Explorer",
+    link: "/data-explorer",
+    id: "navbar-dropdown-data-explorer",
+    className: "navMobileItem",
+  },
+  {
     name: "Documentation",
     link: "#",
     id: "navbar-dropdown-documentation",
@@ -83,27 +89,12 @@ export const HeaderLinks = [
       },
     ]),
   },
-  {
-    name: "Operation Dashboard",
-    link: "/operation-dashboard",
-    id: "navbar-dropdown-operation-dashboard",
-    className: "navMobileItem",
-    permissions: ["dashboard:view"],
-  },
 
   {
     name: "User",
     id: "navbar-dropdown-user",
     className: "navMobileItem clickable",
     columns: [
-      [
-        {
-          name: "User Profile",
-          link: "/profile/:userId",
-          id: "navbar-dropdown-item-user-profile",
-          className: "navMobileSubItem",
-        },
-      ],
       [
         {
           name: "Uploader CLI Tool",
@@ -120,6 +111,13 @@ export const HeaderLinks = [
         },
       ],
       [
+        {
+          name: "Operation Dashboard",
+          link: "/operation-dashboard",
+          id: "navbar-dropdown-operation-dashboard",
+          className: "navMobileSubItem",
+          permissions: ["dashboard:view"],
+        },
         {
           name: "Manage Studies",
           link: "/studies",
@@ -147,6 +145,14 @@ export const HeaderLinks = [
           id: "navbar-dropdown-item-user-manage",
           className: "navMobileSubItem",
           permissions: ["user:manage"],
+        },
+      ],
+      [
+        {
+          name: "User Profile",
+          link: "/profile/:userId",
+          id: "navbar-dropdown-item-user-profile",
+          className: "navMobileSubItem",
         },
       ],
       [

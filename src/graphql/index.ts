@@ -269,3 +269,10 @@ export type {
   Input as GetDashboardURLInput,
   Response as GetDashboardURLResp,
 } from "./getDashboardURL";
+
+// Data Explorer
+export { query as LIST_RELEASED_STUDIES } from "./listReleasedStudies";
+export type {
+  Input as ListReleasedStudiesInput,
+  Response as ListReleasedStudiesResp,
+} from "./listReleasedStudies";
