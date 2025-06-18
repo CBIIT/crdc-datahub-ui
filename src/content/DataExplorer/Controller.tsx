@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { lazy, memo } from "react";
 import { useParams } from "react-router-dom";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import LazyLoader from "../../components/LazyLoader";
@@ -31,4 +31,4 @@ const DataExplorerController = () => {
   return <ListView />;
 };
 
-export default DataExplorerController;
+export default memo(DataExplorerController);
