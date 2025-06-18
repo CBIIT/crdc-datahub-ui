@@ -135,10 +135,17 @@ const DataExplorerDCSelectionDialog: FC<Props> = ({
                   size="small"
                   MenuProps={{ disablePortal: true }}
                   data-testid="dataCommon-field"
-                  inputProps={{ "aria-labelledby": "version-input-label" }}
+                  inputProps={{
+                    "aria-labelledby": "version-input-label",
+                    "data-testid": "dataCommon-input",
+                  }}
                 >
                   {dataCommons?.map((dataCommon) => (
-                    <MenuItem key={dataCommon} value={dataCommon}>
+                    <MenuItem
+                      key={dataCommon}
+                      value={dataCommon}
+                      data-testid={`dataCommon-option-${dataCommon}`}
+                    >
                       {dataCommon}
                     </MenuItem>
                   ))}
