@@ -276,7 +276,7 @@ const ListFilters = ({ data, onChange }: Props) => {
                       value={dc}
                       data-testid={`data-commons-display-names-option-${dc}`}
                     >
-                      {data?.dataCommonsDisplayNames?.[index]}
+                      {dc}
                     </MenuItem>
                   ))}
                 </StyledSelect>
