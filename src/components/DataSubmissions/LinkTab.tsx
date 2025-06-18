@@ -47,7 +47,7 @@ type Props = {
 } & TabProps &
   LinkProps;
 
-const LinkTab = ({ label, value, to, selected }: Props) => (
+const LinkTab = ({ label, value, to, selected, ...rest }: Props) => (
   <StyledTab
     component={Link}
     label={label}
@@ -57,6 +57,7 @@ const LinkTab = ({ label, value, to, selected }: Props) => (
     draggable="false"
     disableTouchRipple
     disableRipple
+    {...rest}
   />
 );
 
