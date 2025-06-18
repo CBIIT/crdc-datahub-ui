@@ -17,7 +17,9 @@ import { Logger } from "../../utils";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
 import TruncatedText from "../../components/TruncatedText";
 import DataExplorerListContext from "../../components/Contexts/DataExplorerListContext";
-import DataExplorerDCSelectionDialog, { InputForm } from "../../components/DataExplorerDCSelection";
+import DataExplorerDCSelectionDialog, {
+  InputForm,
+} from "../../components/DataExplorerDCSelectionDialog";
 
 const StyledContainer = styled(Container)({
   marginTop: "-62px",
