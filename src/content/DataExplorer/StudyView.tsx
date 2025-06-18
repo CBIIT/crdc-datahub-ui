@@ -229,7 +229,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
   }
 
-  if (!studyId || !studyData?.getApprovedStudy?._id || !dataCommons) {
+  if (!studyData?.getApprovedStudy?._id || !dataCommons || !nodeTypeOptions?.length) {
     return (
       <Navigate
         to="/data-explorer"
