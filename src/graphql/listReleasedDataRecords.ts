@@ -50,8 +50,8 @@ export type ListReleasedDataRecordsResponse = {
      */
     properties: string[];
     /**
-     * An array of stringified JSON objects representing the nodes
+     * An array of JSON objects representing the nodes
      */
-    nodes: string[];
+    nodes: Record<string, unknown>[];
   };
 };

@@ -2,7 +2,7 @@ import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Box, styled } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEqual, sortBy } from "lodash";
 import usePageTitle from "../../hooks/usePageTitle";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -20,10 +20,11 @@ import {
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
 } from "../../graphql";
-import { Logger } from "../../utils";
+import { coerceToString, Logger } from "../../utils";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import PageContainer from "../../components/PageContainer";
 import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
+import TruncatedText from "../../components/TruncatedText";
 
 const StyledBreadcrumbsBox = styled(Box)({
   height: "50px",
@@ -39,8 +40,7 @@ const StyledFilterTableWrapper = styled(Box)({
   marginBottom: "25px",
 });
 
-// TODO: real model from API response
-type T = { columnName: string };
+type T = ListReleasedDataRecordsResponse["listReleasedDataRecords"]["nodes"][number];
 
 type StudyViewProps = {
   _id: string;
@@ -54,6 +54,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
+  const [columnNames, setColumnNames] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
 
   const tableRef = useRef<TableMethods>(null);
@@ -81,6 +82,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     GetReleasedNodeTypesResp,
     GetReleasedNodeTypesInput
   >(GET_RELEASED_NODE_TYPES, {
+    // TODO: Why no dataCommons param?
     variables: { studyId },
     skip: !studyId,
     fetchPolicy: "cache-first",
@@ -140,14 +142,23 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const columns = useMemo<Column<T>[]>(
     () =>
-      new Array(10).fill(null).map((_, index) => ({
-        label: `columnName${index + 1}`,
-        // TODO: TruncatedText
-        renderValue: () => `column value ${index + 1}`,
-        field: `columnName`,
-        hideable: true,
-      })),
-    []
+      columnNames?.map((prop, idx) => ({
+        label: prop,
+        renderValue: (d: T) => (
+          <TruncatedText
+            text={coerceToString(d[prop])}
+            maxCharacters={20}
+            disableInteractiveTooltip={false}
+            arrow
+            ellipsis
+            underline
+          />
+        ),
+        field: prop,
+        default: idx === 0 ? true : undefined, // TODO: Boolean based on ID Key
+        hideable: true, // TODO: Boolean based on ID Key
+      })) || [],
+    [columnNames]
   );
 
   const { visibleColumns, columnVisibilityModel, setColumnVisibilityModel } = useColumnVisibility<
@@ -162,9 +173,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     async (params: FetchListing<T>, force: boolean) => {
       const { offset, orderBy, first, sortDirection } = params;
 
-      // TODO: Implement API call
-      setLoading(false);
-      listReleasedDataRecords({
+      setLoading(true);
+      const { data, error } = await listReleasedDataRecords({
         variables: {
           studyId,
           // TODO: why no dataCommons param?
@@ -175,10 +185,28 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
           sortDirection,
         },
       });
-      setData([{ columnName: "Sample Data" }, { columnName: "More Sample Data" }]);
-      setTotalData(2);
+
+      if (error) {
+        Logger.error(
+          "Error occurred while fetching released records for node",
+          filtersRef?.current?.nodeType,
+          error
+        );
+        setLoading(false);
+        return;
+      }
+
+      setData(data?.listReleasedDataRecords?.nodes || []);
+      setTotalData(data?.listReleasedDataRecords?.total || 0);
+
+      const sortedNewCols = sortBy(data?.listReleasedDataRecords?.properties || []);
+      if (!isEqual(sortBy(columnNames), sortedNewCols)) {
+        setColumnNames(sortedNewCols);
+      }
+
+      setLoading(false);
     },
-    [studyId, filtersRef.current, listReleasedDataRecords]
+    [studyId, columnNames, filtersRef.current, listReleasedDataRecords]
   );
 
   const handleFilterChange = useCallback(
@@ -238,6 +266,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             disableUrlParams={false}
             position="bottom"
             onFetchData={handleFetchData}
+            // TODO: use IDPropName from data instead of index
+            setItemKey={(_, index) => `data-${index}`}
             containerProps={{
               sx: {
                 marginBottom: "8px",
