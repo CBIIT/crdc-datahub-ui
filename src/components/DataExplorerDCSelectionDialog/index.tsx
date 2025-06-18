@@ -123,7 +123,7 @@ const DataExplorerDCSelectionDialog: FC<Props> = ({
         </StyledBodyText>
         <StyledForm>
           <Box>
-            <StyledLabel id="version-input-label">
+            <StyledLabel id="dataCommon-input-label">
               Data Commons
               <StyledAsterisk />
             </StyledLabel>
@@ -138,7 +138,7 @@ const DataExplorerDCSelectionDialog: FC<Props> = ({
                   MenuProps={{ disablePortal: true }}
                   data-testid="dataCommon-field"
                   inputProps={{
-                    "aria-labelledby": "version-input-label",
+                    "aria-labelledby": "dataCommon-input-label",
                     "data-testid": "dataCommon-input",
                   }}
                 >
