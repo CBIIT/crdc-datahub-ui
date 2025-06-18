@@ -16,8 +16,9 @@ import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {
-    width: "803px !important",
+    width: "731px !important",
     border: "2px solid #5AB8FF",
+    padding: "44px 60px 102px",
   },
 });
 
@@ -26,26 +27,30 @@ const StyledForm = styled("form")({
   flexDirection: "column",
   gap: "8px",
   margin: "0 auto",
-  marginTop: "28px",
+  marginTop: "0",
   maxWidth: "485px",
 });
 
 const StyledHeader = styled(DefaultDialogHeader)({
   color: "#1873BD",
-  fontSize: "45px !important",
-  marginBottom: "24px !important",
+  fontSize: "35px !important",
+  lineHeight: "79px !important",
+  marginBottom: "0 !important",
 });
 
 const StyledBodyText = styled(DefaultBodyText)({
   maxWidth: "510px",
+  marginTop: "38px",
+  marginBottom: "14px !important",
 });
 
 const StyledDialogActions = styled(DefaultDialogActions)({
-  marginTop: "36px !important",
+  marginTop: "54px !important",
 });
 
 const StyledButton = styled(LoadingButton)({
-  minWidth: "137px",
+  minWidth: "128px",
+  height: "50px",
   padding: "10px",
   fontSize: "16px",
   lineHeight: "24px",
