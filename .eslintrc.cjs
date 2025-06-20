@@ -110,6 +110,8 @@ const config = {
     /* create-react-app rules */
     "react-hooks/rules-of-hooks": "off",
     "react-hooks/exhaustive-deps": "off",
+
+    /* import rules */
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": [
       "error",
@@ -122,6 +124,13 @@ const config = {
           "vite.config.ts",
         ],
         optionalDependencies: false,
+      },
+    ],
+    "import/newline-after-import": [
+      "error",
+      {
+        count: 1,
+        considerComments: true,
       },
     ],
 
