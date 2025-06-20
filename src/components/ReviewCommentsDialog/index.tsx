@@ -9,8 +9,9 @@ import {
   styled,
 } from "@mui/material";
 import { CSSProperties } from "react";
-import { FormatDate } from "../../utils";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import { FormatDate } from "../../utils";
 
 const StyledDialog = styled(Dialog, {
   shouldForwardProp: (prop) => prop !== "status" && prop !== "getColorScheme",

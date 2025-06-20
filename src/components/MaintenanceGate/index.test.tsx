@@ -1,9 +1,11 @@
 import { MockedResponse, MockedProvider } from "@apollo/client/testing";
+import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { GraphQLError } from "graphql";
-import { render, waitFor } from "../../test-utils";
+
 import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
+import { render, waitFor } from "../../test-utils";
+
 import MaintenanceGate from "./index";
 
 vi.mock("../../content/status/MaintenancePage", () => ({

@@ -1,4 +1,5 @@
 import { FC, LazyExoticComponent, Suspense } from "react";
+
 import SuspenseLoader from "../SuspenseLoader";
 
 /**

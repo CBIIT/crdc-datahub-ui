@@ -1,11 +1,12 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { FC } from "react";
 import { Box } from "@mui/material";
-import { Provider } from "react-redux";
 import { ReduxDataDictionary } from "data-model-navigator";
 import _ from "lodash";
-import SuspenseLoader from "../../components/SuspenseLoader";
+import { FC } from "react";
+import { Provider } from "react-redux";
+
 import { Status, useDataCommonContext } from "../../components/Contexts/DataCommonContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import useBuildReduxStore from "../../hooks/useBuildReduxStore";
 
 // NOTE: This is required for Model Navigator to work

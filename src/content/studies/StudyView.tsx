@@ -1,5 +1,5 @@
-import { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
   Alert,
   Box,
@@ -12,17 +12,19 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery } from "@apollo/client";
-import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
+import { FC, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import studyIcon from "../../assets/icons/study_icon.svg?url";
-import usePageTitle from "../../hooks/usePageTitle";
-import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
 import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?url";
+import studyIcon from "../../assets/icons/study_icon.svg?url";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
 import {
@@ -38,9 +40,8 @@ import {
   UpdateApprovedStudyInput,
   UpdateApprovedStudyResp,
 } from "../../graphql";
-import SuspenseLoader from "../../components/SuspenseLoader";
-import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
-import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import usePageTitle from "../../hooks/usePageTitle";
+import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",

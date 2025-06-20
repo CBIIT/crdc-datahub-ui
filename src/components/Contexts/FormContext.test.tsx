@@ -1,10 +1,7 @@
-import React, { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { act, render, renderHook, waitFor } from "../../test-utils";
-import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
-import { query as GET_APP } from "../../graphql/getApplication";
-import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";
+import React, { FC } from "react";
+
 import {
   APPROVE_APP,
   ApproveAppInput,
@@ -17,6 +14,11 @@ import {
   RejectAppResp,
   ReopenAppResp,
 } from "../../graphql";
+import { query as GET_APP } from "../../graphql/getApplication";
+import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";
+import { act, render, renderHook, waitFor } from "../../test-utils";
+
+import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 
 const baseApplication: Omit<Application, "questionnaireData"> = {
   _id: "",

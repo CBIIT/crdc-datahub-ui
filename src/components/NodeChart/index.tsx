@@ -1,10 +1,12 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Typography, styled } from "@mui/material";
-import { PieChart, Pie, Label, Cell } from "recharts";
 import { isEqual } from "lodash";
-import PieChartCenter from "./PieChartCenter";
-import TruncatedText from "../TruncatedText";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PieChart, Pie, Label, Cell } from "recharts";
+
 import { capitalizeFirstLetter, titleCase } from "../../utils";
+import TruncatedText from "../TruncatedText";
+
+import PieChartCenter from "./PieChartCenter";
 
 type Props = {
   /**

@@ -1,10 +1,12 @@
-import React from "react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "vitest-axe";
+import React from "react";
 import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
 import { render, waitFor, within } from "../../test-utils";
-import InstitutionListFilters from "./index";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import InstitutionListFilters from "./index";
 
 type Props = {
   initialEntries?: string[];

@@ -1,6 +1,8 @@
 import type { jsPDF } from "jspdf";
-import type { FontResource } from "./Fonts";
+
 import { Logger } from "../../../utils";
+
+import type { FontResource } from "./Fonts";
 
 /**
  * Convert an ArrayBuffer to a base64 string

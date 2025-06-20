@@ -1,17 +1,18 @@
-import { FC } from "react";
-import { Box, DialogProps, MenuItem, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { Box, DialogProps, MenuItem, styled } from "@mui/material";
+import { FC } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
-import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
-import StyledHelperText from "../StyledFormComponents/StyledHelperText";
-import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
+import DefaultBodyText from "../StyledDialogComponents/StyledBodyText";
 import DefaultDialog from "../StyledDialogComponents/StyledDialog";
+import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
+import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
 import StyledDialogContent from "../StyledDialogComponents/StyledDialogContent";
 import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
-import DefaultBodyText from "../StyledDialogComponents/StyledBodyText";
-import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
+import StyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 const StyledDialog = styled(DefaultDialog)({

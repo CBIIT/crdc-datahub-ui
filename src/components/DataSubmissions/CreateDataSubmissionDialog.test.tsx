@@ -1,15 +1,9 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
-import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
-import {
-  Context as AuthCtx,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+
 import {
   CREATE_SUBMISSION,
   CreateSubmissionResp,
@@ -18,6 +12,14 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import {
+  Context as AuthCtx,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
+
+import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
 
 const baseApprovedStudy: ApprovedStudy = {
   _id: "",

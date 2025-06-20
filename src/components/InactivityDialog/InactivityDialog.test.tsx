@@ -1,8 +1,10 @@
 import { FC, useMemo } from "react";
-import { axe } from "vitest-axe";
 import { BrowserRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
 import { render, waitFor } from "../../test-utils";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
+
 import InactivityDialog from "./InactivityDialog";
 
 const logoutMock = vi.fn();

@@ -1,8 +1,9 @@
 import { useMediaQuery } from "@mui/material";
 import { FC, memo } from "react";
+
 import FooterDesktop from "./FooterDesktop";
-import FooterTablet from "./FooterTablet";
 import FooterMobile from "./FooterMobile";
+import FooterTablet from "./FooterTablet";
 
 /**
  * Provides the footer component based on the screen size.

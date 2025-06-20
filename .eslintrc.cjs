@@ -133,6 +133,17 @@ const config = {
         considerComments: true,
       },
     ],
+    "import/order": [
+      "error",
+      {
+        groups: ["builtin", "external", "internal", "parent", ["sibling", "index"]],
+        alphabetize: {
+          order: "asc",
+          caseInsensitive: true,
+        },
+        "newlines-between": "always",
+      },
+    ],
 
     /* testing-library rules */
     "testing-library/prefer-screen-queries": "off",

@@ -1,4 +1,3 @@
-import React, { ChangeEvent, InputHTMLAttributes, useMemo } from "react";
 import {
   Popper,
   Paper,
@@ -13,6 +12,8 @@ import {
   Button,
 } from "@mui/material";
 import { isEqual } from "lodash";
+import React, { ChangeEvent, InputHTMLAttributes, useMemo } from "react";
+
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?url";
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 

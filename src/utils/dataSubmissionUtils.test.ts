@@ -1,5 +1,7 @@
 import { MockedFunction } from "vitest";
+
 import { SUBMIT_BUTTON_CONDITIONS, SubmitButtonCondition } from "../config/SubmitButtonConfig";
+
 import * as utils from "./dataSubmissionUtils";
 import { ReleaseInfo } from "./dataSubmissionUtils";
 

@@ -1,16 +1,18 @@
-import { FC, useMemo } from "react";
-import { axe } from "vitest-axe";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { act, render, waitFor } from "../../test-utils";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
-import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+
 import { DataUpload } from "./DataUpload";
 
 vi.mock(import("../../env"), async (importOriginal) => {

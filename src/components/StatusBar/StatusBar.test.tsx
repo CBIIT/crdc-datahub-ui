@@ -1,14 +1,16 @@
+import userEvent from "@testing-library/user-event";
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import userEvent from "@testing-library/user-event";
-import { fireEvent, render, waitFor, within } from "../../test-utils";
-import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
-import StatusBar from "./StatusBar";
+
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg?url";
 import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg?url";
+import { fireEvent, render, waitFor, within } from "../../test-utils";
 import { FormatDate } from "../../utils";
+import { ContextState, Context as FormCtx, Status as FormStatus } from "../Contexts/FormContext";
+
 import { HistoryIconMap } from "./components/SubmissionRequestIconMap";
+import StatusBar from "./StatusBar";
 
 type Props = {
   data: object;

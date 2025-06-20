@@ -1,13 +1,15 @@
 import { useQuery } from "@apollo/client";
 import { Box, styled, Typography } from "@mui/material";
-import { FC, memo, useMemo } from "react";
 import { useSnackbar } from "notistack";
+import { FC, memo, useMemo } from "react";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
   RetrieveReleasedDataResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
+
 import ComparisonTable from "./ComparisonTable";
 
 const StyledBox = styled(Box)({

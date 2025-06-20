@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom";
-import FormView from "./FormView";
-import ListView from "./ListView";
+
 import { FormProvider } from "../../components/Contexts/FormContext";
 import { InstitutionProvider } from "../../components/Contexts/InstitutionListContext";
 import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
+
+import FormView from "./FormView";
+import ListView from "./ListView";
 
 /**
  * Render the correct view based on the URL

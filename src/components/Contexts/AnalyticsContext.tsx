@@ -1,7 +1,9 @@
 import React, { FC, createContext, useContext, useEffect, useMemo } from "react";
 import ReactGA from "react-ga4";
-import { useAuthContext } from "./AuthContext";
+
 import env from "../../env";
+
+import { useAuthContext } from "./AuthContext";
 
 export type ContextState = {
   ReactGA: typeof ReactGA;

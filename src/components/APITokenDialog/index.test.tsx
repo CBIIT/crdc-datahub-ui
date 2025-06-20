@@ -1,17 +1,19 @@
-import { FC, useMemo } from "react";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
-import ApiTokenDialog from "./index";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../Contexts/AuthContext";
-import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
+
+import ApiTokenDialog from "./index";
 
 const mockWriteText = vi.fn();
 Object.assign(navigator, {

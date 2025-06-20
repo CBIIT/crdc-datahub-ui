@@ -1,5 +1,6 @@
 import { Grid, styled } from "@mui/material";
 import { ReactNode } from "react";
+
 import { StyledDescription, StyledTitle } from "./SectionGroup";
 
 const GridContainer = styled(Grid)(() => ({

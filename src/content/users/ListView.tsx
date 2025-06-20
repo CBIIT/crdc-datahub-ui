@@ -1,4 +1,3 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   Alert,
@@ -12,17 +11,19 @@ import {
   TableHead,
   styled,
 } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link, useLocation } from "react-router-dom";
+
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import GenericTable, { Column } from "../../components/GenericTable";
 import PageBanner from "../../components/PageBanner";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
-import { compareStrings, formatIDP, sortData } from "../../utils";
 import usePageTitle from "../../hooks/usePageTitle";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import { compareStrings, formatIDP, sortData } from "../../utils";
 
 type T = ListUsersResp["listUsers"][number];
 

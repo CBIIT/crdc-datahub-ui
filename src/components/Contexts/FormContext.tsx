@@ -1,6 +1,8 @@
-import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import {
   APPROVE_APP,
   GET_APP,
@@ -21,7 +23,6 @@ import {
   ApproveAppInput,
   SaveAppInput,
 } from "../../graphql";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import { Logger } from "../../utils";
 
 export type SetDataReturnType =

@@ -1,12 +1,14 @@
-import React, { FC } from "react";
-import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import TextInput from "./TextInput";
-import AddRemoveButton from "../AddRemoveButton";
-import AutocompleteInput from "./AutocompleteInput";
+import { Grid, styled } from "@mui/material";
+import React, { FC } from "react";
+
 import { filterForNumbers, validateEmail, validateUTF8 } from "../../utils";
+import AddRemoveButton from "../AddRemoveButton";
+import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import { useInstitutionList } from "../Contexts/InstitutionListContext";
+
+import AutocompleteInput from "./AutocompleteInput";
+import TextInput from "./TextInput";
 
 const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",

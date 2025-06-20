@@ -1,13 +1,15 @@
-import { CSSProperties, FC, useCallback, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { HistoryIconMap } from "./SubmissionRequestIconMap";
-import { useFormContext } from "../../Contexts/FormContext";
-import { FormatDate } from "../../../utils";
-import HistoryDialog from "../../HistoryDialog";
+import { CSSProperties, FC, useCallback, useState } from "react";
+
 import BellIcon from "../../../assets/icons/border_filled_bell_icon.svg?react";
-import Tooltip from "../../Tooltip";
 import { TOOLTIP_TEXT } from "../../../config/QuestionnaireTooltips";
+import { FormatDate } from "../../../utils";
+import { useFormContext } from "../../Contexts/FormContext";
+import HistoryDialog from "../../HistoryDialog";
+import Tooltip from "../../Tooltip";
+
+import { HistoryIconMap } from "./SubmissionRequestIconMap";
 
 /**
  * Determines the text color for a History event based

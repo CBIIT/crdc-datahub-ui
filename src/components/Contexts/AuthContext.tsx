@@ -1,5 +1,6 @@
-import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+
 import { query as GET_USER, Response as GetUserResp } from "../../graphql/getMyUser";
 import { authenticationLogin, authenticationLogout, safeParse } from "../../utils";
 

@@ -1,4 +1,3 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -11,6 +10,8 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { useSnackbar } from "notistack";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import {
   Controller,
   ControllerRenderProps,
@@ -19,12 +20,24 @@ import {
   useForm,
 } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "notistack";
+
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import profileIcon from "../../assets/icons/profile_icon.svg?url";
+import AccessRequest from "../../components/AccessRequest";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import DeleteDialog from "../../components/DeleteDialog";
+import PermissionPanel from "../../components/PermissionPanel";
+import StudyList from "../../components/StudyList";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { Roles } from "../../config/AuthRoles";
+import { DataCommons } from "../../config/DataCommons";
 import {
   EDIT_USER,
   EditUserInput,
@@ -45,21 +58,9 @@ import {
   UserIsPrimaryContactInput,
   UserIsPrimaryContactResp,
 } from "../../graphql";
-import { formatFullStudyName, formatIDP, Logger } from "../../utils";
-import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
-import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import BaseAutocomplete, {
-  StyledPaper as BasePaper,
-} from "../../components/StyledFormComponents/StyledAutocomplete";
-import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
-import AccessRequest from "../../components/AccessRequest";
-import PermissionPanel from "../../components/PermissionPanel";
-import StudyList from "../../components/StudyList";
-import DeleteDialog from "../../components/DeleteDialog";
+import { formatFullStudyName, formatIDP, Logger } from "../../utils";
 
 type Props = {
   /**

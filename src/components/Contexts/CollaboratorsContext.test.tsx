@@ -1,8 +1,7 @@
-import React from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
-import { act, fireEvent, render, renderHook, waitFor } from "../../test-utils";
-import { useCollaboratorsContext, CollaboratorsProvider } from "./CollaboratorsContext";
+import React from "react";
+
 import {
   LIST_POTENTIAL_COLLABORATORS,
   EDIT_SUBMISSION_COLLABORATORS,
@@ -11,6 +10,9 @@ import {
   EditSubmissionCollaboratorsResp,
   EditSubmissionCollaboratorsInput,
 } from "../../graphql";
+import { act, fireEvent, render, renderHook, waitFor } from "../../test-utils";
+
+import { useCollaboratorsContext, CollaboratorsProvider } from "./CollaboratorsContext";
 
 const dummySubmissionData = {
   getSubmission: {

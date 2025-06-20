@@ -1,4 +1,5 @@
 import { DashboardContentOptions } from "amazon-quicksight-embedding-sdk";
+
 import { addStudiesParameter, addDataCommonsParameter } from "./dashboardUtils";
 import { Logger } from "./logger";
 

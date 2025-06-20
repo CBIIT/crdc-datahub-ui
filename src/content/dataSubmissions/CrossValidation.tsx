@@ -1,24 +1,26 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { isEqual } from "lodash";
 import { Box, Button, Stack, styled } from "@mui/material";
+import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  CrossValidationResultsInput,
-  CrossValidationResultsResp,
-  SUBMISSION_CROSS_VALIDATION_RESULTS,
-} from "../../graphql";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { FormatDate, titleCase } from "../../utils";
-import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
-import QCResultsContext from "./Contexts/QCResultsContext";
+
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import CrossValidationFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/CrossValidationFilters";
 import { ExportCrossValidationButton } from "../../components/DataSubmissions/ExportCrossValidationButton";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import GenericTable, { Column } from "../../components/GenericTable";
 import StyledFormTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import {
+  CrossValidationResultsInput,
+  CrossValidationResultsResp,
+  SUBMISSION_CROSS_VALIDATION_RESULTS,
+} from "../../graphql";
+import { FormatDate, titleCase } from "../../utils";
+
+import QCResultsContext from "./Contexts/QCResultsContext";
 
 const StyledErrorDetailsButton = styled(Button)({
   display: "inline",

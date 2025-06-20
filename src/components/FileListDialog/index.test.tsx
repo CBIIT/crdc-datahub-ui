@@ -1,17 +1,19 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import userEvent from "@testing-library/user-event";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
-import Dialog from "./index";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
 import {
   DownloadMetadataFileResp,
   DownloadMetadataFileInput,
   DOWNLOAD_METADATA_FILE,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import Dialog from "./index";
 
 const baseBatch: Batch = {
   _id: "mock-batch-id",

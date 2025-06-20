@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { IconButtonProps, IconButton, styled } from "@mui/material";
 import { CloudDownload } from "@mui/icons-material";
-import { useSnackbar } from "notistack";
+import { IconButtonProps, IconButton, styled } from "@mui/material";
 import dayjs from "dayjs";
+import { useSnackbar } from "notistack";
 import { unparse } from "papaparse";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import { useState } from "react";
+
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   AggregatedSubmissionQCResultsInput,
@@ -14,6 +14,7 @@ import {
   SubmissionQCResultsResp,
 } from "../../graphql";
 import { downloadBlob, filterAlphaNumeric, Logger, unpackValidationSeverities } from "../../utils";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 export type Props = {
   /**

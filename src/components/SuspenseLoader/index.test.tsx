@@ -1,5 +1,7 @@
 import { axe } from "vitest-axe";
+
 import { render } from "../../test-utils";
+
 import Loader from "./index";
 
 describe("Loader Accessibility Tests", () => {

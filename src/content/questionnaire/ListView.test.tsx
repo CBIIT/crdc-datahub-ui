@@ -1,10 +1,15 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import React, { FC, useMemo } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { act, render, waitFor } from "../../test-utils";
-import ListView from "./ListView";
+
+import {
+  Status as AuthStatus,
+  Context as AuthContext,
+  ContextState as AuthContextState,
+} from "../../components/Contexts/AuthContext";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   LIST_APPLICATIONS,
   SAVE_APP,
@@ -13,12 +18,9 @@ import {
   SaveAppResp,
   SaveAppInput,
 } from "../../graphql";
-import {
-  Status as AuthStatus,
-  Context as AuthContext,
-  ContextState as AuthContextState,
-} from "../../components/Contexts/AuthContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { act, render, waitFor } from "../../test-utils";
+
+import ListView from "./ListView";
 
 const mockUsePageTitle = vi.fn();
 vi.mock("../../hooks/usePageTitle", async () => ({

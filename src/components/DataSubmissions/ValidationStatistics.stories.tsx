@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import ValidationStatistics from "./ValidationStatistics";
 
 type CustomStoryProps = React.ComponentProps<typeof ValidationStatistics>;

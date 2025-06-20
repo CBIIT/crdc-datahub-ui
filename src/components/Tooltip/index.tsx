@@ -1,5 +1,6 @@
 import { IconButton, Tooltip as MuiToolTip, TooltipProps, styled } from "@mui/material";
 import { useState } from "react";
+
 import infoCircleIcon from "../../assets/icons/info_circle.svg?url";
 
 const InfoIcon = styled("div")(() => ({

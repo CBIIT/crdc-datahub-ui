@@ -1,4 +1,3 @@
-import React, { useState, useRef, useEffect, useId, forwardRef, ReactNode } from "react";
 import {
   FormControl,
   FormControlLabel,
@@ -8,11 +7,13 @@ import {
   styled,
   SxProps,
 } from "@mui/material";
+import React, { useState, useRef, useEffect, useId, forwardRef, ReactNode } from "react";
+
 import { updateInputValidity } from "../../utils";
 import StyledRadioButton from "../Questionnaire/StyledRadioButton";
-import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import { StyledLabel } from "../Questionnaire/TextInput";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledFormControl = styled(Stack)<{ component: React.ElementType }>({
   marginTop: "0",

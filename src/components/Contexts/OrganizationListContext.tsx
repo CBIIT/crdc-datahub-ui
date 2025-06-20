@@ -1,5 +1,6 @@
-import React, { FC, createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
+import React, { FC, createContext, useContext, useEffect, useState } from "react";
+
 import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 
 export type ContextState = {

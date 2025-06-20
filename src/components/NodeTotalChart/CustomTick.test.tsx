@@ -1,6 +1,8 @@
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { axe } from "vitest-axe";
+
 import { render, waitFor } from "../../test-utils";
+
 import CustomTick from "./CustomTick";
 
 const mockTitleCase = vi.fn();

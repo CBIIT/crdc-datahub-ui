@@ -1,23 +1,24 @@
-import { ElementType, useRef, useState } from "react";
-import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
-import { Link, LinkProps, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
-import PageBanner from "../../components/PageBanner";
-import usePageTitle from "../../hooks/usePageTitle";
+import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
+import { ElementType, useRef, useState } from "react";
+import { Link, LinkProps, useLocation } from "react-router-dom";
+
+import ApprovedStudyFilters, {
+  FilterForm,
+} from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
 import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import SummaryList from "../../components/SummaryList";
+import TruncatedText from "../../components/TruncatedText";
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
 import { FormatDate } from "../../utils";
 import { formatAccessTypes } from "../../utils/studyUtils";
-import ApprovedStudyFilters, {
-  FilterForm,
-} from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
-import TruncatedText from "../../components/TruncatedText";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import SummaryList from "../../components/SummaryList";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",

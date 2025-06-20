@@ -1,16 +1,17 @@
-import { useRef, useState } from "react";
-import { Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
 import { useLazyQuery } from "@apollo/client";
-import { Link } from "react-router-dom";
+import { Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
 import { isEqual } from "lodash";
-import usePageTitle from "../../hooks/usePageTitle";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
+
 import FormAlert from "../../components/FormAlert";
+import GenericTable, { Column } from "../../components/GenericTable";
+import InstitutionListFilters, { FilterForm } from "../../components/InstitutionListFilters";
 import PageBanner from "../../components/PageBanner";
 import PageBannerBody from "../../components/PageBanner/PageBannerBody";
-import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
-import GenericTable, { Column } from "../../components/GenericTable";
 import TruncatedText from "../../components/TruncatedText";
-import InstitutionListFilters, { FilterForm } from "../../components/InstitutionListFilters";
+import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const StyledContainer = styled(Container)({
   marginTop: "-180px",

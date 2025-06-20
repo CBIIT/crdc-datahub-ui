@@ -1,13 +1,20 @@
-import { FC, useCallback, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { Alert, Container, Button, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { isEqual } from "lodash";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
-import PageBanner from "../../components/PageBanner";
-import { extractVersion, FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import CreateApplicationButton from "../../components/CreateApplicationButton";
+import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import ToggleApplicationButton from "../../components/ToggleApplicationButton";
+import Tooltip from "../../components/Tooltip";
+import TruncatedText from "../../components/TruncatedText";
+import { hasPermission } from "../../config/AuthPermissions";
 import {
   LIST_APPLICATIONS,
   ListApplicationsInput,
@@ -17,15 +24,10 @@ import {
   ReviewAppResp,
 } from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
-import GenericTable, { Column } from "../../components/GenericTable";
+import { extractVersion, FormatDate, Logger } from "../../utils";
+
 import QuestionnaireContext from "./Contexts/QuestionnaireContext";
-import TruncatedText from "../../components/TruncatedText";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import Tooltip from "../../components/Tooltip";
-import { hasPermission } from "../../config/AuthPermissions";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
-import ToggleApplicationButton from "../../components/ToggleApplicationButton";
-import CreateApplicationButton from "../../components/CreateApplicationButton";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 

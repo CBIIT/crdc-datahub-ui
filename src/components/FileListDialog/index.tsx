@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useId, useMemo, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
   Button,
   DialogProps,
@@ -10,21 +11,22 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { useLazyQuery } from "@apollo/client";
-import { LoadingButton } from "@mui/lab";
+import React, { FC, useCallback, useId, useMemo, useState } from "react";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import DownloadIcon from "../../assets/icons/download_icon.svg?react";
-import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
-import DefaultDialog from "../StyledDialogComponents/StyledDialog";
-import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
-import GenericTable, { Column } from "../GenericTable";
-import { FormatDate, Logger, paginateAndSort } from "../../utils";
-import FileListContext, { FileListContextState } from "./Contexts/FileListContext";
 import {
   DOWNLOAD_METADATA_FILE,
   DownloadMetadataFileInput,
   DownloadMetadataFileResp,
 } from "../../graphql";
+import { FormatDate, Logger, paginateAndSort } from "../../utils";
+import GenericTable, { Column } from "../GenericTable";
+import DefaultDialog from "../StyledDialogComponents/StyledDialog";
+import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
+import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
+
+import FileListContext, { FileListContextState } from "./Contexts/FileListContext";
 
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {

@@ -1,8 +1,10 @@
-import React from "react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
+
 import { render } from "../../test-utils";
+
 import PageBannerBody from "./PageBannerBody";
 
 type Props = {

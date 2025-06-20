@@ -1,11 +1,13 @@
+import userEvent from "@testing-library/user-event";
 import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
-import userEvent from "@testing-library/user-event";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import { render, fireEvent, waitFor, act, within } from "../../test-utils";
+
 import ListFilters, { defaultValues, DEFAULT_STATUSES_SELECTED } from "./ListFilters";
 import type { FilterForm } from "./ListFilters";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 
 const mockApplicationData = {
   total: 1,
