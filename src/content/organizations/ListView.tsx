@@ -182,7 +182,7 @@ const columns: Column<T>[] = [
   {
     label: "Action",
     renderValue: (a) => (
-      <Link to={`/programs/${a?.["_id"]}`}>
+      <Link to={`/programs/${a?._id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>

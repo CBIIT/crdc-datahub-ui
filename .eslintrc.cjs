@@ -59,6 +59,7 @@ const config = {
     "no-loss-of-precision": "off",
     "no-shadow": "off",
     "no-empty-function": "off",
+    "dot-notation": "off",
 
     /* react rules */
     "react/prop-types": "off",
@@ -92,7 +93,7 @@ const config = {
     "@typescript-eslint/no-redundant-type-constituents": "error",
     "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
     "@typescript-eslint/no-shadow": "off",
-    "@typescript-eslint/dot-notation": "off",
+    "@typescript-eslint/dot-notation": "error",
     "@typescript-eslint/naming-convention": [
       "error",
       {

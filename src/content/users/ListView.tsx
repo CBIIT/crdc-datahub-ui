@@ -162,7 +162,7 @@ const columns: Column<T>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <Link to={`/users/${a?.["_id"]}`}>
+      <Link to={`/users/${a?._id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>

@@ -523,6 +523,7 @@ const GenericTable = <T,>(
                   </StyledTableRow>
                 ))
               : data?.map((d: T, idx: number) => {
+                  // eslint-disable-next-line @typescript-eslint/dot-notation
                   const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
                   return (
                     <TableRow tabIndex={-1} hover key={itemKey}>

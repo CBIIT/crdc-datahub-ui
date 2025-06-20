@@ -197,10 +197,7 @@ const columns: Column<T>[] = [
             ["New", "In Progress", "Inquired"].includes(a.status)
           ) {
             return (
-              <Link
-                to={`/submission-request/${a?.["_id"]}`}
-                state={{ from: "/submission-requests" }}
-              >
+              <Link to={`/submission-request/${a?._id}`} state={{ from: "/submission-requests" }}>
                 <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
                   Resume
                 </StyledActionButton>
@@ -224,7 +221,7 @@ const columns: Column<T>[] = [
           }
 
           return (
-            <Link to={`/submission-request/${a?.["_id"]}`} state={{ from: "/submission-requests" }}>
+            <Link to={`/submission-request/${a?._id}`} state={{ from: "/submission-requests" }}>
               <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
                 View
               </StyledActionButton>

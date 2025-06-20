@@ -112,7 +112,7 @@ const columns: Column<Batch>[] = [
     renderValue: (data) => (
       <Box
         textTransform="capitalize"
-        sx={{ ...(batchStatusStyles[data?.status] ?? batchStatusStyles["Uploaded"]) }}
+        sx={{ ...(batchStatusStyles[data?.status] ?? batchStatusStyles.Uploaded) }}
       >
         {data.status}
       </Box>

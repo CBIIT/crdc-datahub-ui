@@ -195,7 +195,7 @@ const columns: Column<ApprovedStudy>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <StyledLink to={`/studies/${a?.["_id"]}`}>
+      <StyledLink to={`/studies/${a?._id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>

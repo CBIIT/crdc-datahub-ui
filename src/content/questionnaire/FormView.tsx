@@ -164,10 +164,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1]
-    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
+    ? `/submission-request/${data?._id}/${sectionKeys[sectionIndex - 1]}`
     : null;
   const nextSection = sectionKeys[sectionIndex + 1]
-    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
+    ? `/submission-request/${data?._id}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
   const formContentRef = useRef(null);
@@ -410,8 +410,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (
       !blockedNavigate &&
       saveResult?.status === "success" &&
-      data["_id"] === "new" &&
-      saveResult.id !== data?.["_id"]
+      data._id === "new" &&
+      saveResult.id !== data?._id
     ) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
       navigate(`/submission-request/${saveResult.id}/${activeSection}`, {
@@ -496,7 +496,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const res = await saveForm();
-    const reviewSectionUrl = `/submission-request/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
+    const reviewSectionUrl = `/submission-request/${data._id}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);

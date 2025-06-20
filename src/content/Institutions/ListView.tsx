@@ -96,7 +96,7 @@ const columns: Column<Institution>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <StyledLink to={`/institution/${a?.["_id"]}`}>
+      <StyledLink to={`/institution/${a?._id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
