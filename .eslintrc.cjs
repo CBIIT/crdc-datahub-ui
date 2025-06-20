@@ -44,10 +44,13 @@ const config = {
     /* base prettier rule */
     "prettier/prettier": "error",
 
+    /* base compatibility rule */
+    "compat/compat": "error",
+
     "max-len": "off",
     "no-param-reassign": "off",
     "object-curly-newline": "off",
-    "no-underscore-dangle": ["off"],
+    "no-underscore-dangle": "off",
     "no-console": "warn",
     "arrow-body-style": "warn",
     "eol-last": "warn",
@@ -127,8 +130,6 @@ const config = {
     "testing-library/no-wait-for-multiple-assertions": "off",
     "testing-library/no-node-access": "off",
     "testing-library/no-container": "off",
-
-    "compat/compat": "error",
   },
 };
 
