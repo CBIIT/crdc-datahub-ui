@@ -1,6 +1,5 @@
 import { GetSubmissionResp } from "../graphql";
 import { TOOLTIP_TEXT } from "./DashboardTooltips";
-import { ValidationErrorCodes } from "./ValidationErrors";
 
 export type SubmitButtonCondition = {
   /**
@@ -13,15 +12,12 @@ export type SubmitButtonCondition = {
    * If false, then submit button remains disabled. Otherwise, the current
    * condition is satisfied
    */
-  check: (submission: GetSubmissionResp, qcResults: Pick<QCResult, "errors">[]) => boolean;
+  check: (submission: GetSubmissionResp) => boolean;
   /**
    * Optionally checks the pre-condition to determine whether this condition
    * is applicable in the current submission state
    */
-  preConditionCheck?: (
-    submission: GetSubmissionResp,
-    qcResults: Pick<QCResult, "errors">[]
-  ) => boolean;
+  preConditionCheck?: (submission: GetSubmissionResp) => boolean;
   /**
    * The text that will display on the tooltip for the submit button
    */
@@ -55,8 +51,7 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   },
   {
     _identifier: "There should not be any batches uploading",
-    check: ({ batchStatusList }) =>
-      !batchStatusList?.batches?.some((b) => b.status === "Uploading"),
+    check: ({ getSubmissionAttributes: attrs }) => !attrs?.submissionAttributes?.isBatchUploading,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.BATCH_IS_UPLOADING,
     required: true,
   },
@@ -100,10 +95,7 @@ export const SUBMIT_BUTTON_CONDITIONS: SubmitButtonCondition[] = [
   },
   {
     _identifier: "Submission should not have orphaned files",
-    check: (_, qcResults) =>
-      !qcResults?.some(
-        (qc) => qc.errors?.find((err) => err.code === ValidationErrorCodes.ORPHANED_FILE_FOUND)
-      ),
+    check: ({ getSubmissionAttributes: attrs }) => !attrs?.submissionAttributes.hasOrphanError,
     tooltip: TOOLTIP_TEXT.SUBMISSION_ACTIONS.SUBMIT.DISABLED.NEW_DATA_OR_VALIDATION_ERRORS,
     required: true,
   },

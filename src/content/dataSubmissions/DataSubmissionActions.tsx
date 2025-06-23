@@ -152,7 +152,7 @@ type Props = {
 
 const DataSubmissionActions = ({ onAction }: Props) => {
   const { user } = useAuthContext();
-  const { data, qcData } = useSubmissionContext();
+  const { data } = useSubmissionContext();
   const { getSubmission: submission } = data || {};
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
@@ -164,8 +164,8 @@ const DataSubmissionActions = ({ onAction }: Props) => {
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data, qcData?.submissionQCResults?.results, user);
-  }, [data, qcData?.submissionQCResults?.results, user]);
+    return shouldEnableSubmit(data, user);
+  }, [data, user]);
 
   const releaseActionButton: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),
