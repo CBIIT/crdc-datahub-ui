@@ -318,13 +318,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
         getSubmission();
       }
     }
-  }, [
-    submissionId,
-    isBatchUploading,
-    startPolling,
-    stopPolling,
-    submissionStatus === SubmissionCtxStatus.POLLING,
-  ]);
+  }, [submissionId, isBatchUploading, startPolling, stopPolling]);
 
   useEffect(() => {
     tableRef?.current?.refresh();
