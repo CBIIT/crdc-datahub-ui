@@ -8,6 +8,7 @@ import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
 import { Column } from "../GenericTable";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import Tooltip from "../Tooltip";
+import { ListReleasedDataRecordsInput } from "../../graphql";
 
 const StyledFilters = styled("div")({
   paddingTop: "19px",
@@ -63,9 +64,7 @@ const initialTouchedFields: TouchedState = {
 
 export type T = { columnName: string }; // TODO: replace with actual type from response
 
-export type FilterForm = {
-  nodeType: string; // TODO: pick this from input
-};
+export type FilterForm = Pick<ListReleasedDataRecordsInput, "nodeType">;
 
 type FilterFormKey = keyof FilterForm;
 

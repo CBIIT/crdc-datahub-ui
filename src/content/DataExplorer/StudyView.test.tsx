@@ -61,7 +61,7 @@ type MockParentProps = {
  * This component mocks the testing setup for the StudyView component.
  *
  * To set the studyId, pass it in the initialEntries prop like so:
- * initialEntries={["/data-explorer/test-study-id?dataCommons=mock-dc"]}
+ * initialEntries={["/data-explorer/test-study-id?dataCommonsDisplayName=mock-dc"]}
  */
 const TestParent: FC<MockParentProps> = ({ mocks = [], initialEntries = [] }: MockParentProps) => (
   <MockedProvider mocks={mocks} addTypename={false}>
@@ -101,9 +101,9 @@ describe("Accessibility", () => {
         data: {
           getReleaseNodeTypes: {
             nodes: [
-              { name: "mock-type-02", count: 5 },
-              { name: "mock-type-01", count: 9 },
-              { name: "mock-type-03", count: 3 },
+              { name: "mock-type-02", count: 5, IDPropName: "mock-id-prop" },
+              { name: "mock-type-01", count: 9, IDPropName: "mock-id-prop" },
+              { name: "mock-type-03", count: 3, IDPropName: "mock-id-prop" },
             ],
           },
         },
@@ -113,7 +113,7 @@ describe("Accessibility", () => {
     const { container, getByTestId } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/accessibility-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/accessibility-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -150,9 +150,9 @@ describe("Basic Functionality", () => {
         data: {
           getReleaseNodeTypes: {
             nodes: [
-              { name: "mock-type-02", count: 5 },
-              { name: "mock-type-01", count: 9 },
-              { name: "mock-type-03", count: 3 },
+              { name: "mock-type-02", count: 5, IDPropName: "mock-id-prop" },
+              { name: "mock-type-01", count: 9, IDPropName: "mock-id-prop" },
+              { name: "mock-type-03", count: 3, IDPropName: "mock-id-prop" },
             ],
           },
         },
@@ -163,7 +163,7 @@ describe("Basic Functionality", () => {
       render(
         <TestParent
           mocks={[getNodeTypesMock, getStudyMock]}
-          initialEntries={["/data-explorer/crash-test-id?dataCommons=mock-dc"]}
+          initialEntries={["/data-explorer/crash-test-id?dataCommonsDisplayName=mock-dc"]}
         />
       )
     ).not.toThrow();
@@ -200,7 +200,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/loading-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/loading-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -246,7 +246,7 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/loading-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/loading-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -280,7 +280,9 @@ describe("Basic Functionality", () => {
       variableMatcher: () => true,
       result: {
         data: {
-          getReleaseNodeTypes: { nodes: [{ name: "mock-type-01", count: 10 }] },
+          getReleaseNodeTypes: {
+            nodes: [{ name: "mock-type-01", count: 10, IDPropName: "mock-id-prop" }],
+          },
         },
       },
     };
@@ -288,7 +290,7 @@ describe("Basic Functionality", () => {
     const { getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/loading-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/loading-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -314,7 +316,9 @@ describe("Basic Functionality", () => {
       variableMatcher: () => true,
       result: {
         data: {
-          getReleaseNodeTypes: { nodes: [{ name: "mock-type-01", count: 10 }] },
+          getReleaseNodeTypes: {
+            nodes: [{ name: "mock-type-01", count: 10, IDPropName: "mock-id-prop" }],
+          },
         },
       },
     };
@@ -322,7 +326,7 @@ describe("Basic Functionality", () => {
     const { getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/loading-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/loading-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -354,7 +358,7 @@ describe("Basic Functionality", () => {
     const { getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/loading-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/loading-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -395,7 +399,7 @@ describe("Basic Functionality", () => {
     const { getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/node-types-error-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/node-types-error-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -433,7 +437,9 @@ describe("Basic Functionality", () => {
     const { getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/node-types-network-error-test-id?dataCommons=mock-dc"]}
+        initialEntries={[
+          "/data-explorer/node-types-network-error-test-id?dataCommonsDisplayName=mock-dc",
+        ]}
       />
     );
 
@@ -473,7 +479,9 @@ describe("Basic Functionality", () => {
     const { getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/node-types-graphql-error-test-id?dataCommons=mock-dc"]}
+        initialEntries={[
+          "/data-explorer/node-types-graphql-error-test-id?dataCommonsDisplayName=mock-dc",
+        ]}
       />
     );
 
@@ -486,11 +494,11 @@ describe("Basic Functionality", () => {
 
   it.each<string>([
     // EMPTY DC
-    "/data-explorer/node-types-invalid-data-commons-test-id?dataCommons=",
+    "/data-explorer/node-types-invalid-data-commons-test-id?dataCommonsDisplayName=",
     // UNDEFINED DC
     "/data-explorer/node-types-invalid-data-commons-test-id",
   ])(
-    "should redirect to the list view page if an invalid dataCommons is provided",
+    "should redirect to the list view page if an invalid dataCommonsDisplayName is provided",
     async (entry) => {
       const getStudyMock: MockedResponse<GetApprovedStudyResp<true>, GetApprovedStudyInput> = {
         request: {
@@ -520,6 +528,7 @@ describe("Basic Functionality", () => {
                   {
                     name: "this does not matter",
                     count: 0,
+                    IDPropName: "mock-id-prop",
                   },
                 ],
               },
@@ -565,7 +574,7 @@ describe("Implementation Requirements", () => {
       result: {
         data: {
           getReleaseNodeTypes: {
-            nodes: [{ name: "mock-type-02", count: 5 }],
+            nodes: [{ name: "mock-type-02", count: 5, IDPropName: "mock-id-prop" }],
           },
         },
       },
@@ -574,7 +583,7 @@ describe("Implementation Requirements", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/header-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/header-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -610,7 +619,7 @@ describe("Implementation Requirements", () => {
       result: {
         data: {
           getReleaseNodeTypes: {
-            nodes: [{ name: "mock-type-02", count: 5 }],
+            nodes: [{ name: "mock-type-02", count: 5, IDPropName: "mock-id-prop" }],
           },
         },
       },
@@ -619,7 +628,7 @@ describe("Implementation Requirements", () => {
     const { getByTestId } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/header-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/header-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -653,7 +662,7 @@ describe("Implementation Requirements", () => {
       result: {
         data: {
           getReleaseNodeTypes: {
-            nodes: [{ name: "mock-type-02", count: 5 }],
+            nodes: [{ name: "mock-type-02", count: 5, IDPropName: "mock-id-prop" }],
           },
         },
       },
@@ -662,7 +671,7 @@ describe("Implementation Requirements", () => {
     const { getByTestId, getByText } = render(
       <TestParent
         mocks={[getStudyMock, getNodeTypesMock]}
-        initialEntries={["/data-explorer/header-test-id?dataCommons=mock-dc"]}
+        initialEntries={["/data-explorer/header-test-id?dataCommonsDisplayName=mock-dc"]}
       />
     );
 
@@ -705,7 +714,7 @@ describe("Implementation Requirements", () => {
           result: {
             data: {
               getReleaseNodeTypes: {
-                nodes: [{ name: "mock-type-02", count: 5 }],
+                nodes: [{ name: "mock-type-02", count: 5, IDPropName: "mock-id-prop" }],
               },
             },
           },
@@ -714,7 +723,7 @@ describe("Implementation Requirements", () => {
       const { getByTestId } = render(
         <TestParent
           mocks={[getStudyMock, getNodeTypesMock]}
-          initialEntries={["/data-explorer/header-test-id?dataCommons=mock-dc"]}
+          initialEntries={["/data-explorer/header-test-id?dataCommonsDisplayName=mock-dc"]}
         />
       );
 

@@ -58,6 +58,9 @@ const StyledButton = styled(LoadingButton)({
 });
 
 export type InputForm = {
+  /**
+   * The Data Commons Display Name selected by the user
+   */
   dataCommon: string;
 };
 

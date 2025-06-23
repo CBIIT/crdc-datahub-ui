@@ -8,6 +8,7 @@ export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
   query listReleasedDataRecords(
     $studyId: String!
     $nodeType: String!
+    $dataCommonsDisplayName: String!
     $first: Int
     $offset: Int
     $orderBy: String
@@ -16,6 +17,7 @@ export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
     listReleasedDataRecords(
       studyID: $studyId
       nodeType: $nodeType
+      dataCommonsDisplayName: $dataCommonsDisplayName
       first: $first
       offset: $offset
       orderBy: $orderBy
@@ -37,6 +39,10 @@ export type ListReleasedDataRecordsInput = {
    * The type of node to query data for
    */
   nodeType: string;
+  /**
+   * The display name of the Data Commons to filter nodes by
+   */
+  dataCommonsDisplayName: string;
 } & BasePaginationParams;
 
 export type ListReleasedDataRecordsResponse = {

@@ -60,14 +60,14 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   const filtersRef = useRef<FilterForm>();
   const previousListing = useRef<Partial<FetchListing<T>> | undefined>(undefined);
 
-  const dataCommons = searchParams.get("dataCommons");
+  const dataCommonsDisplayName = searchParams.get("dataCommonsDisplayName");
 
   const { data: studyData, loading: studyLoading } = useQuery<
     GetApprovedStudyResp<true>,
     GetApprovedStudyInput
   >(GET_APPROVED_STUDY, {
     variables: { _id: studyId, partial: true },
-    skip: !studyId,
+    skip: !studyId || !dataCommonsDisplayName,
     fetchPolicy: "cache-first",
     context: { clientName: "backend" },
     onError: (error) => {
@@ -79,9 +79,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     GetReleasedNodeTypesResp,
     GetReleasedNodeTypesInput
   >(GET_RELEASED_NODE_TYPES, {
-    // TODO: Why no dataCommons param?
-    variables: { studyId },
-    skip: !studyId,
+    variables: { studyId, dataCommonsDisplayName },
+    skip: !studyId || !dataCommonsDisplayName,
     fetchPolicy: "cache-first",
     context: { clientName: "backend" },
     onError: (error) => {
@@ -98,8 +97,19 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   });
 
   const columnVisibilityKey = useMemo<string>(
-    () => `dataExplorerColumns:${studyId}:${dataCommons}:${filtersRef.current?.nodeType}`,
-    [studyId, dataCommons, filtersRef.current?.nodeType]
+    () =>
+      `dataExplorerColumns:${studyId}:${dataCommonsDisplayName}:${filtersRef.current?.nodeType}`,
+    [studyId, dataCommonsDisplayName, filtersRef.current?.nodeType]
+  );
+
+  const selectedNodeType = useMemo<
+    GetReleasedNodeTypesResp["getReleaseNodeTypes"]["nodes"][number] | null
+  >(
+    () =>
+      nodesData?.getReleaseNodeTypes?.nodes?.find(
+        (node) => node.name === filtersRef.current?.nodeType
+      ) || null,
+    [nodesData, filtersRef.current?.nodeType]
   );
 
   const nodeTypeOptions = useMemo<string[]>(() => {
@@ -144,7 +154,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const columns = useMemo<Column<T>[]>(
     () =>
-      columnNames?.map((prop, idx) => ({
+      columnNames?.map((prop) => ({
         label: prop,
         renderValue: (d: T) => (
           <TruncatedText
@@ -157,8 +167,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
           />
         ),
         field: prop,
-        default: idx === 0 ? true : undefined, // TODO: Boolean based on ID Key
-        hideable: true, // TODO: Boolean based on ID Key
+        default: prop === selectedNodeType?.IDPropName ? true : undefined,
+        hideable: prop !== selectedNodeType?.IDPropName,
       })) || [],
     [columnNames]
   );
@@ -175,7 +185,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     async (params: FetchListing<T>, force: boolean) => {
       const { offset, orderBy, first, sortDirection } = params;
 
-      // NOTE - this is a workaround to avoid refetching when switching between node types
+      // NOTE: this is a workaround to avoid refetching when switching between node types
       const newListingWithoutOrderBy = { offset, first, sortDirection };
       if (isEqual(previousListing.current, newListingWithoutOrderBy) && !force) {
         return;
@@ -185,7 +195,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       const { data, error } = await listReleasedDataRecords({
         variables: {
           studyId,
-          // TODO: why no dataCommons param?
+          dataCommonsDisplayName,
           nodeType: filtersRef.current?.nodeType,
           offset,
           orderBy,
@@ -208,6 +218,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       setTotalData(data?.listReleasedDataRecords?.total || 0);
       previousListing.current = newListingWithoutOrderBy;
 
+      // NOTE: This is a temporary solution to stabilize the column orders
+      // The API is currently not returning the same array order in each request
       const sortedNewCols = sortBy(data?.listReleasedDataRecords?.properties || []);
       if (!isEqual(sortBy(columnNames), sortedNewCols)) {
         setColumnNames(sortedNewCols);
@@ -215,7 +227,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
       setLoading(false);
     },
-    [studyId, columnNames, filtersRef.current, listReleasedDataRecords]
+    [studyId, dataCommonsDisplayName, columnNames, filtersRef.current, listReleasedDataRecords]
   );
 
   const handleFilterChange = useCallback(
@@ -230,7 +242,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
   }
 
-  if (!dataCommons || !studyData?.getApprovedStudy?._id || !nodeTypeOptions?.length) {
+  if (!dataCommonsDisplayName || !studyData?.getApprovedStudy?._id || !nodeTypeOptions?.length) {
     return (
       <Navigate
         to="/data-explorer"
@@ -277,8 +289,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             disableUrlParams={false}
             position="bottom"
             onFetchData={handleFetchData}
-            // TODO: use IDPropName from data instead of index
-            setItemKey={(_, index) => `data-${index}`}
+            setItemKey={(d) => `data-${d?.[selectedNodeType?.IDPropName || "ID"]}`}
             containerProps={{
               sx: {
                 marginBottom: "8px",
