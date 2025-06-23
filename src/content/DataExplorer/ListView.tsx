@@ -282,7 +282,8 @@ const ListView = () => {
 
       <DataExplorerDCSelectionDialog
         open={multipleDCDialog}
-        dataCommons={data?.dataCommonsDisplayNames || []}
+        dataCommons={clickedStudyRef.current?.dataCommons || []}
+        dataCommonsDisplayNames={clickedStudyRef.current?.dataCommonsDisplayNames || []}
         onSubmitForm={(form) => handleDCSelect(form)}
         onClose={() => setMultipleDCDialog(false)}
       />

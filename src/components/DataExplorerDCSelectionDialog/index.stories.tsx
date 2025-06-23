@@ -7,7 +7,8 @@ const meta: Meta<typeof Dialog> = {
   component: Dialog,
   args: {
     open: true,
-    dataCommons: ["GC", "CCDI", "ICDC"],
+    dataCommons: ["CDS", "CCDI", "ICDC"],
+    dataCommonsDisplayNames: ["GC", "CCDI", "ICDC"],
     onSubmitForm: fn(),
     onClose: fn(),
   },
