@@ -81,9 +81,7 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
           ...baseSubmission,
           _id: submissionId,
         },
-        batchStatusList: {
-          batches: null,
-        },
+        getSubmissionAttributes: null,
         submissionStats: { stats: [] },
       },
       error: null,
@@ -139,9 +137,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: null,
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -177,9 +172,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: null,
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -211,9 +203,6 @@ describe("CrossValidationFilters cases", () => {
         data: {
           listBatches: {
             total: 0,
-            batches: null,
-          },
-          batchStatusList: {
             batches: null,
           },
         },
@@ -323,9 +312,6 @@ describe("CrossValidationFilters cases", () => {
               { ...baseBatch, displayID: 2, _id: "batch-2" },
             ],
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -413,9 +399,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: null,
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -501,9 +484,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: null,
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -555,9 +535,6 @@ describe("CrossValidationFilters cases", () => {
               { ...baseBatch, displayID: 4, _id: "batch-4" },
               { ...baseBatch, displayID: 1, _id: "batch-1" },
             ],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },
@@ -638,9 +615,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: [],
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -702,9 +676,6 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 0,
             batches: [],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },
@@ -791,9 +762,6 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 0,
             batches: [],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },

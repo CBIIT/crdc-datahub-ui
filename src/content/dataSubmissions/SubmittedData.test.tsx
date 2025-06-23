@@ -85,7 +85,12 @@ const TestParent: FC<ParentProps> = ({
         submissionStats: {
           stats: [],
         },
-        batchStatusList: null,
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            hasOrphanError: false,
+            isBatchUploading: false,
+          },
+        },
       },
     }),
     [submissionId, submissionName, deletingData]

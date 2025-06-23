@@ -112,9 +112,6 @@ const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
         total: 0,
         batches: null,
       },
-      batchStatusList: {
-        batches: null,
-      },
     },
   },
 };
@@ -134,9 +131,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
           ...baseSubmission,
           ...submission,
         },
-        batchStatusList: {
-          batches: [],
-        },
+        getSubmissionAttributes: null,
         submissionStats: { stats: [] },
       },
       error: null,
@@ -320,9 +315,6 @@ describe("General", () => {
                 displayID: 999,
               },
             ],
-          },
-          batchStatusList: {
-            batches: null, // NOTE: Required by type, but not used in the component
           },
         },
       },

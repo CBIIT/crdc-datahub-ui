@@ -85,9 +85,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
           ...baseSubmission,
           ...submission,
         },
-        batchStatusList: {
-          batches: [],
-        },
+        getSubmissionAttributes: null,
         submissionStats: { stats: [] },
       },
       error: null,

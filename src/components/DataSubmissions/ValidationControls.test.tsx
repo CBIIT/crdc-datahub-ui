@@ -115,7 +115,7 @@ const TestParent: FC<ParentProps> = ({
       data: {
         getSubmission: { ...submission },
         submissionStats: { stats: [] },
-        batchStatusList: { batches: [] },
+        getSubmissionAttributes: null,
       },
     }),
     [submissionCtxState, submission]
