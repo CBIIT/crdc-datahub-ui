@@ -138,7 +138,7 @@ const DataSubmissionStatistics: FC = () => {
   const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") =>
     setTabValue(newValue);
 
-  if (!statistics || !dataset) {
+  if (!dataSubmission || !dataset) {
     return (
       <StyledChartArea direction="row" data-testid="statistics-loader-container">
         <SuspenseLoader fullscreen={false} />

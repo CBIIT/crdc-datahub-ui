@@ -77,6 +77,12 @@ export const useSubmissionContext = (): SubmissionCtxState => {
   return context;
 };
 
+const defaultSkipOptions = {
+  skipSubmission: false,
+  skipStats: false,
+  skipAttributes: false,
+};
+
 type ProviderProps = {
   /**
    * The Data Submission `_id` to populate the context for
@@ -108,11 +114,7 @@ const MemoedProvider = React.memo<{ value: SubmissionCtxState; children: React.R
  */
 export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: ProviderProps) => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
-  const [skipOptions, setSkipOptions] = useState({
-    skipSubmission: false,
-    skipStats: false,
-    skipAttributes: false,
-  });
+  const [skipOptions, setSkipOptions] = useState({ ...defaultSkipOptions });
 
   const {
     data,
@@ -209,6 +211,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
    * Wrapper function to stop polling for the submission
    */
   const stopPolling = useCallback(() => {
+    setSkipOptions({ ...defaultSkipOptions });
     stopApolloPolling();
     setIsPolling(false);
   }, [stopApolloPolling]);
