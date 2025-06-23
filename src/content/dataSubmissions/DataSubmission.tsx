@@ -169,7 +169,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { data, error, refetch: getSubmission, qcError } = useSubmissionContext();
+  const { data, error, refetch: getSubmission } = useSubmissionContext();
 
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
@@ -241,15 +241,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
       navigate(dataSubmissionListPageUrl, {
         state: { error: "Oops! An error occurred while retrieving that Data Submission." },
       });
-    } else if (qcError) {
-      navigate(dataSubmissionListPageUrl, {
-        state: {
-          error:
-            "There was an issue while retrieving the validation results for that Data Submission.",
-        },
-      });
     }
-  }, [error, qcError]);
+  }, [error]);
 
   useEffect(() => {
     if (!isValidTab) {
@@ -265,10 +258,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
         <StyledCard>
           <StyledCardContent>
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
-            <ValidationStatistics
-              dataSubmission={data?.getSubmission}
-              statistics={data?.submissionStats?.stats}
-            />
+            <ValidationStatistics />
             <StyledFlowContainer>
               <UserGuide />
               <MetadataUpload
