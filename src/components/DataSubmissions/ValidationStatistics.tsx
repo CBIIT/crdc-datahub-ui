@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useState } from "react";
-import { cloneDeep, isEqual } from "lodash";
+import { cloneDeep } from "lodash";
 import { Stack, StackProps, Tab, Tabs, Typography, styled } from "@mui/material";
 import ContentCarousel from "../Carousel";
 import NodeTotalChart from "../NodeTotalChart";
@@ -8,11 +8,7 @@ import SuspenseLoader from "../SuspenseLoader";
 import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
 import StatisticLegend from "./StatisticLegend";
 import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg?url";
-
-type Props = {
-  dataSubmission: Submission;
-  statistics: SubmissionStatistic[];
-};
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 
 const StyledChartArea = styled(Stack, {
   shouldForwardProp: (prop) => prop !== "hasNoData",
@@ -109,9 +105,12 @@ const defaultFilters: LegendFilter[] = [
  * The primary chart container with secondary detail charts
  *
  * @param {Props} props
- * @returns {React.FC<Props>}
+ * @returns {React.FC}
  */
-const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Props) => {
+const DataSubmissionStatistics: FC = () => {
+  const { data: dataSubmission } = useSubmissionContext();
+  const { stats: statistics } = dataSubmission?.submissionStats || {};
+
   const [filters, setFilters] = useState<LegendFilter[]>(defaultFilters);
   const [tabValue, setTabValue] = useState<"count" | "percentage">("count");
 
@@ -139,7 +138,7 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") =>
     setTabValue(newValue);
 
-  if (!dataSubmission || !dataset) {
+  if (!statistics || !dataset) {
     return (
       <StyledChartArea direction="row" data-testid="statistics-loader-container">
         <SuspenseLoader fullscreen={false} />
@@ -197,6 +196,4 @@ const DataSubmissionStatistics: FC<Props> = ({ dataSubmission, statistics }: Pro
   );
 };
 
-export default React.memo<Props>(DataSubmissionStatistics, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo(DataSubmissionStatistics);
