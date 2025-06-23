@@ -103,7 +103,7 @@ describe("useSubmissionContext", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            batchStatusList: null,
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -209,7 +209,7 @@ describe("SubmissionProvider", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            batchStatusList: null,
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -251,9 +251,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -304,9 +302,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -330,8 +326,8 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
 
-    // Should poll getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    // Should poll getSubmission
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -357,9 +353,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -383,8 +377,8 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
 
-    // Should stop polling getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
+    // Should stop polling getSubmission
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -405,13 +399,11 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-0001",
-                  status: "Uploading",
-                },
-              ],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                isBatchUploading: true,
+                hasOrphanError: false,
+              },
             },
           },
         },
@@ -436,8 +428,8 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
 
-    // Should poll getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    // Should poll getSubmission
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -458,13 +450,11 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-0001",
-                  status: "Uploaded",
-                },
-              ],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                isBatchUploading: false,
+                hasOrphanError: false,
+              },
             },
           },
         },
@@ -487,10 +477,10 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    // Should stop polling getSubmission + submissionQCResults
+    // Should stop polling getSubmission
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
 
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -512,9 +502,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -538,8 +526,8 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
 
-    // Should poll getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    // Should poll getSubmission
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -561,9 +549,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -587,8 +573,8 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
 
-    // Should stop polling getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
+    // Should stop polling getSubmission
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -608,13 +594,11 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-0001",
-                  status: "Uploaded",
-                },
-              ],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                isBatchUploading: false,
+                hasOrphanError: false,
+              },
             },
           },
         },
@@ -653,7 +637,7 @@ describe("SubmissionProvider", () => {
       startPolling(1000);
     });
 
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).toHaveBeenCalledWith(1000);
 
     act(() => {
@@ -679,9 +663,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
