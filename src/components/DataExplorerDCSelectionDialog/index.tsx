@@ -67,10 +67,6 @@ type Props = {
    */
   dataCommons: string[];
   /**
-   * The list of Data Commons display names
-   */
-  dataCommonsDisplayNames: string[];
-  /**
    * Function to handle form submission
    */
   onSubmitForm: (form: InputForm) => void;
@@ -83,7 +79,6 @@ type Props = {
 const DataExplorerDCSelectionDialog: FC<Props> = ({
   open,
   dataCommons,
-  dataCommonsDisplayNames,
   onSubmitForm,
   onClose,
   ...rest
@@ -147,13 +142,13 @@ const DataExplorerDCSelectionDialog: FC<Props> = ({
                     "data-testid": "dataCommon-input",
                   }}
                 >
-                  {dataCommons?.map((dataCommon, idx) => (
+                  {dataCommons?.map((dataCommon) => (
                     <MenuItem
                       key={dataCommon}
                       value={dataCommon}
                       data-testid={`dataCommon-option-${dataCommon}`}
                     >
-                      {dataCommonsDisplayNames?.[idx]}
+                      {dataCommon}
                     </MenuItem>
                   ))}
                 </StyledSelect>

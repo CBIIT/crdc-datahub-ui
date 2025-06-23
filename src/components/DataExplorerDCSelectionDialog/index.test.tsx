@@ -9,7 +9,6 @@ describe("Accessibility", () => {
       <DataExplorerDCSelectionDialog
         open
         dataCommons={["DC1", "DC2"]}
-        dataCommonsDisplayNames={["DC1", "DC2"]}
         onSubmitForm={vi.fn()}
         onClose={vi.fn()}
       />
@@ -23,7 +22,6 @@ describe("Accessibility", () => {
       <DataExplorerDCSelectionDialog
         open={false}
         dataCommons={["DC1", "DC2"]}
-        dataCommonsDisplayNames={["DC1", "DC2"]}
         onSubmitForm={vi.fn()}
         onClose={vi.fn()}
       />
@@ -42,7 +40,6 @@ describe("DataExplorerDCSelectionDialog", () => {
       <DataExplorerDCSelectionDialog
         open
         dataCommons={dataCommons}
-        dataCommonsDisplayNames={dataCommons}
         onSubmitForm={onSubmitForm}
         onClose={onClose}
         {...props}
@@ -97,25 +94,6 @@ describe("DataExplorerDCSelectionDialog", () => {
     userEvent.click(getByTestId("data-commons-selection-dialog-submit-button"));
 
     expect(await findByText("This field is required")).toBeInTheDocument();
-  });
-
-  it("shows the Data Commons Display Names in the select options", async () => {
-    const { getByTestId, findByTestId } = render(
-      <DataExplorerDCSelectionDialog
-        open
-        dataCommons={["option-value-1", "option-value-2"]}
-        dataCommonsDisplayNames={["display-1", "display-2"]}
-        onSubmitForm={vi.fn()}
-        onClose={vi.fn()}
-      />
-    );
-
-    const select = within(getByTestId("dataCommon-field")).getByRole("button");
-    userEvent.click(select);
-
-    await findByTestId("dataCommon-option-option-value-1");
-    expect(getByTestId("dataCommon-option-option-value-1")).toHaveTextContent("display-1");
-    expect(getByTestId("dataCommon-option-option-value-2")).toHaveTextContent("display-2");
   });
 
   it("calls onSubmitForm with selected Data Commons and Confirm is clicked", async () => {
