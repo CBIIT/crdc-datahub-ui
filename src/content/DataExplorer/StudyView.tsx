@@ -58,8 +58,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>();
+  const previousListing = useRef<Partial<FetchListing<T>> | undefined>(undefined);
 
-  // TODO: technically this is dataCommonsDisplayName, we should rename it
   const dataCommons = searchParams.get("dataCommons");
 
   const { data: studyData, loading: studyLoading } = useQuery<
@@ -175,6 +175,12 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     async (params: FetchListing<T>, force: boolean) => {
       const { offset, orderBy, first, sortDirection } = params;
 
+      // NOTE - this is a workaround to avoid refetching when switching between node types
+      const newListingWithoutOrderBy = { offset, first, sortDirection };
+      if (isEqual(previousListing.current, newListingWithoutOrderBy) && !force) {
+        return;
+      }
+
       setLoading(true);
       const { data, error } = await listReleasedDataRecords({
         variables: {
@@ -200,6 +206,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
       setData(data?.listReleasedDataRecords?.nodes || []);
       setTotalData(data?.listReleasedDataRecords?.total || 0);
+      previousListing.current = newListingWithoutOrderBy;
 
       const sortedNewCols = sortBy(data?.listReleasedDataRecords?.properties || []);
       if (!isEqual(sortBy(columnNames), sortedNewCols)) {
