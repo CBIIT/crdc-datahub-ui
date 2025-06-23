@@ -1,8 +1,13 @@
 import gql from "graphql-tag";
 
 export const query = gql`
-  query getSubmission($id: ID!) {
-    getSubmission(_id: $id) {
+  query getSubmission(
+    $id: ID!
+    $skipSubmission: Boolean = false
+    $skipStats: Boolean = false
+    $skipAttributes: Boolean = false
+  ) {
+    getSubmission(_id: $id) @skip(if: $skipSubmission) {
       _id
       name
       submitterID
@@ -30,25 +35,6 @@ export const query = gql`
       validationScope
       validationType
       deletingData
-      fileErrors {
-        submissionID
-        type
-        validationType
-        batchID
-        displayID
-        submittedID
-        severity
-        uploadedDate
-        validatedDate
-        errors {
-          title
-          description
-        }
-        warnings {
-          title
-          description
-        }
-      }
       history {
         status
         reviewComment
@@ -74,7 +60,7 @@ export const query = gql`
       updatedAt
     }
 
-    submissionStats(_id: $id) {
+    submissionStats(_id: $id) @skip(if: $skipStats) {
       stats {
         nodeName
         total
@@ -85,10 +71,10 @@ export const query = gql`
       }
     }
 
-    batchStatusList: listBatches(submissionID: $id, first: -1) {
-      batches {
-        _id
-        status
+    getSubmissionAttributes(submissionID: $id) @skip(if: $skipAttributes) {
+      submissionAttributes {
+        isBatchUploading
+        hasOrphanError
       }
     }
   }
@@ -99,6 +85,18 @@ export type Input = {
    * The submission ID
    */
   id: string;
+  /**
+   * Indicates whether to skip the getSubmission query
+   */
+  skipSubmission?: boolean;
+  /**
+   * Indicates whether to skip the submissionStats query
+   */
+  skipStats?: boolean;
+  /**
+   * Indicates whether to skip the getSubmissionAttributes query
+   */
+  skipAttributes?: boolean;
 };
 
 export type Response = {
@@ -113,9 +111,12 @@ export type Response = {
     stats: SubmissionStatistic[];
   };
   /**
-   * The full list of batches for the submission
+   * The submission attributes and validation status
    */
-  batchStatusList: {
-    batches: Pick<Batch, "_id" | "status">[];
+  getSubmissionAttributes: {
+    /**
+     * The submission attributes
+     */
+    submissionAttributes: Pick<SubmissionAttributes, "isBatchUploading" | "hasOrphanError">;
   };
 };
