@@ -1,6 +1,6 @@
 import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Box, styled } from "@mui/material";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { cloneDeep, isEqual, sortBy } from "lodash";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -50,7 +50,6 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   usePageTitle(`Data Explorer - ${studyId}`);
 
   const { searchParams } = useSearchParamsContext();
-  const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
@@ -73,9 +72,6 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     context: { clientName: "backend" },
     onError: (error) => {
       Logger.error("Error fetching study data:", error);
-      navigate("/data-explorer", {
-        state: { alert: true, error: "Oops! An error occurred while fetching the study data." },
-      });
     },
   });
 
@@ -90,12 +86,6 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     context: { clientName: "backend" },
     onError: (error) => {
       Logger.error("Error fetching node list:", error);
-      navigate("/data-explorer", {
-        state: {
-          alert: true,
-          error: "Oops! An error occurred while fetching the list of released nodes.",
-        },
-      });
     },
   });
 
@@ -233,11 +223,14 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
   }
 
-  if (!studyData?.getApprovedStudy?._id || !dataCommons || !nodeTypeOptions?.length) {
+  if (!dataCommons || !studyData?.getApprovedStudy?._id || !nodeTypeOptions?.length) {
     return (
       <Navigate
         to="/data-explorer"
-        state={{ alert: true, error: "Oops! An invalid study or data commons was provided." }}
+        state={{
+          alert: true,
+          error: "Oops! Unable to display metadata for the selected study or data commons.",
+        }}
       />
     );
   }
@@ -254,8 +247,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         background={bannerPng}
         title="Data Explorer for Study - "
         titleSuffix={studyDisplayName}
-        // TODO: need real text here
-        description="lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        description="Select a node type to view metadata associated with the selected study. The table below displays all available metadata for the chosen node type."
       >
         <StyledFilterTableWrapper>
           <DataExplorerFilters
@@ -270,7 +262,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
           <GenericTable
             ref={tableRef}
             columns={visibleColumns}
-            data={data || []}
+            data={data}
             total={totalData || 0}
             loading={loading}
             defaultRowsPerPage={20}
