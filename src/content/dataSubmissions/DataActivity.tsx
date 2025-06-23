@@ -10,6 +10,7 @@ import React, {
 import { useLazyQuery } from "@apollo/client";
 import { isEqual } from "lodash";
 import { Box, Button, styled, SxProps } from "@mui/material";
+import { useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -18,7 +19,7 @@ import {
   SubmissionCtxStatus,
   useSubmissionContext,
 } from "../../components/Contexts/SubmissionContext";
-import { FormatDate } from "../../utils";
+import { FormatDate, Logger } from "../../utils";
 import FileListDialog from "../../components/FileListDialog";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
@@ -176,37 +177,42 @@ export type DataActivityRef = {
 };
 
 const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
+  const { submissionId: routeSubmissionId } = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const {
     data: dataSubmission,
     refetch: getSubmission,
     status: submissionStatus,
+    startPolling,
+    stopPolling,
   } = useSubmissionContext();
-  const { _id: submissionId } = dataSubmission?.getSubmission || {};
+
+  const { _id } = dataSubmission?.getSubmission || {};
+  const submissionId = _id || routeSubmissionId;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<Batch[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<Batch>>(null);
   const [totalData, setTotalData] = useState<number>(0);
-  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
-  const [startPollingFn, setPollingFn] = useState<((pollInterval: number) => void) | null>(null);
-  const [stopPollingFn, setStopPollingFn] = useState<(() => void) | null>(null);
 
   const tableRef = useRef<TableMethods>(null);
+  const { isBatchUploading } = dataSubmission?.getSubmissionAttributes?.submissionAttributes || {};
 
-  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
-    notifyOnNetworkStatusChange: true,
-    onCompleted: (data: ListBatchesResp) => {
-      setData(data.listBatches.batches);
-      setTotalData(data.listBatches.total);
-      setHasUploadingBatches(data.batchStatusList.batches.some((b) => b.status === "Uploading"));
-    },
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const [listBatches, { refetch: refetchListBatches }] = useLazyQuery<ListBatchesResp>(
+    LIST_BATCHES,
+    {
+      notifyOnNetworkStatusChange: true,
+      onCompleted: (data: ListBatchesResp) => {
+        setData(data.listBatches.batches);
+        setTotalData(data.listBatches.total);
+      },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   const handleOpenErrorDialog = useCallback(
     (data: Batch) => {
@@ -238,12 +244,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
 
       try {
         setLoading(true);
-        const {
-          data: newBatchFiles,
-          error: batchFilesError,
-          startPolling,
-          stopPolling,
-        } = await listBatches({
+        const { data: newBatchFiles, error: batchFilesError } = await listBatches({
           variables: {
             submissionID: submissionId,
             first,
@@ -256,17 +257,9 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
         if (batchFilesError || !newBatchFiles?.listBatches) {
           throw new Error("Unable to retrieve batch data.");
         }
-
-        const hasUploading = newBatchFiles.batchStatusList?.batches?.some(
-          (b) => b.status === "Uploading"
-        );
-
-        if (hasUploading) {
-          setPollingFn(() => startPolling);
-          setStopPollingFn(() => stopPolling);
-        }
       } catch (err) {
         enqueueSnackbar("Unable to retrieve batch data.", { variant: "error" });
+        Logger.error("DataActivity.tsx: Unable to retrieve batch data.", err);
       } finally {
         setLoading(false);
       }
@@ -291,22 +284,47 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   );
 
   useEffect(() => {
-    if (!hasUploadingBatches && stopPollingFn) {
-      stopPollingFn();
-
-      setPollingFn(null);
-      setStopPollingFn(null);
+    if (!submissionId) {
       return;
     }
-    if (hasUploadingBatches && startPollingFn) {
-      startPollingFn(1000);
 
+    if (!isBatchUploading && stopPolling && submissionStatus === SubmissionCtxStatus.POLLING) {
+      stopPolling();
+      Promise.allSettled([
+        refetchListBatches({ submissionID: submissionId }),
+        getSubmission({
+          id: submissionId,
+          skipSubmission: false,
+          skipStats: false,
+          skipAttributes: false,
+        }),
+      ]).then((results) => {
+        if (results[0].status === "rejected") {
+          Logger.error(`DataActivity.tsx: Unable to retrieve batch data. ${results[0].reason}`);
+          return;
+        }
+        if (results[1].status === "rejected") {
+          Logger.error(
+            `DataActivity.tsx: Unable to retrieve submission data. ${results[1].reason}`
+          );
+        }
+      });
+      return;
+    }
+    if (isBatchUploading && startPolling) {
+      startPolling(1000, { skipSubmission: true, skipStats: true });
       // If the submission is not polling, refetch to kick-off polling
       if (submissionStatus !== SubmissionCtxStatus.POLLING) {
         getSubmission();
       }
     }
-  }, [hasUploadingBatches, stopPollingFn, startPollingFn]);
+  }, [
+    submissionId,
+    isBatchUploading,
+    startPolling,
+    stopPolling,
+    submissionStatus === SubmissionCtxStatus.POLLING,
+  ]);
 
   useEffect(() => {
     tableRef?.current?.refresh();

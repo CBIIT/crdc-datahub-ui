@@ -78,8 +78,11 @@ describe("General", () => {
         submissionStats: {
           stats: [],
         },
-        batchStatusList: {
-          batches: [],
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            isBatchUploading: false,
+            hasOrphanError: false,
+          },
         },
       },
       error: null,
@@ -95,9 +98,6 @@ describe("General", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [],
-            },
-            batchStatusList: {
               batches: [],
             },
           },
@@ -123,7 +123,7 @@ describe("General", () => {
           ...baseSubmission,
         },
         submissionStats: null,
-        batchStatusList: null,
+        getSubmissionAttributes: null,
       },
       error: null,
       refetch: null,
@@ -159,7 +159,7 @@ describe("General", () => {
           ...baseSubmission,
         },
         submissionStats: null,
-        batchStatusList: null,
+        getSubmissionAttributes: null,
       },
       error: null,
       refetch: null,
@@ -219,8 +219,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        batchStatusList: {
-          batches: [],
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            isBatchUploading: false,
+            hasOrphanError: false,
+          },
         },
       },
       error: null,
@@ -236,9 +239,6 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [],
-            },
-            batchStatusList: {
               batches: [],
             },
           },
@@ -274,12 +274,18 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        batchStatusList: {
-          batches: [],
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            isBatchUploading: true,
+            hasOrphanError: false,
+          },
         },
       },
       error: null,
       refetch: mockRefetch,
+      startPolling: vi.fn(),
+      stopPolling: vi.fn(),
+      updateQuery: vi.fn(),
     });
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
@@ -292,15 +298,7 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
-            },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-001",
-                  status: "Uploading",
-                },
-              ],
+              batches: [],
             },
           },
         },
@@ -328,8 +326,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        batchStatusList: {
-          batches: [],
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            isBatchUploading: true,
+            hasOrphanError: false,
+          },
         },
       },
       error: null,
@@ -346,15 +347,7 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
-            },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-001",
-                  status: "Uploading",
-                },
-              ],
+              batches: [],
             },
           },
         },
@@ -381,8 +374,11 @@ describe("Table", () => {
         submissionStats: {
           stats: [],
         },
-        batchStatusList: {
-          batches: [],
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            isBatchUploading: false,
+            hasOrphanError: false,
+          },
         },
       },
       error: null,
@@ -398,9 +394,6 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [],
-            },
-            batchStatusList: {
               batches: [],
             },
           },
