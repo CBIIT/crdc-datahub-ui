@@ -58,7 +58,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const tableRef = useRef<TableMethods>(null);
   const filtersRef = useRef<FilterForm>();
-  const previousListing = useRef<Partial<FetchListing<T>> | undefined>(undefined);
+  const prevFiltersRef = useRef<FilterForm>(null);
 
   const dataCommonsDisplayName = searchParams.get("dataCommonsDisplayName");
 
@@ -183,12 +183,14 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const handleFetchData = useCallback(
     async (params: FetchListing<T>, force: boolean) => {
-      const { offset, orderBy, first, sortDirection } = params;
+      const { offset, first, sortDirection } = params;
 
-      // NOTE: this is a workaround to avoid refetching when switching between node types
-      const newListingWithoutOrderBy = { offset, first, sortDirection };
-      if (isEqual(previousListing.current, newListingWithoutOrderBy) && !force) {
-        return;
+      // NOTE: This is a workaround to stabilize the number of API calls when switching between node types
+      // It will override the previous orderBy if the node type changes
+      if (prevFiltersRef.current?.nodeType !== filtersRef.current?.nodeType) {
+        params.orderBy = nodesData?.getReleaseNodeTypes?.nodes?.find(
+          (node) => node.name === filtersRef.current?.nodeType
+        )?.IDPropName;
       }
 
       setLoading(true);
@@ -197,8 +199,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
           studyId,
           dataCommonsDisplayName,
           nodeType: filtersRef.current?.nodeType,
+          orderBy: params.orderBy,
           offset,
-          orderBy,
           first,
           sortDirection,
         },
@@ -216,7 +218,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
       setData(data?.listReleasedDataRecords?.nodes || []);
       setTotalData(data?.listReleasedDataRecords?.total || 0);
-      previousListing.current = newListingWithoutOrderBy;
+      prevFiltersRef.current = cloneDeep(filtersRef.current);
 
       // NOTE: This is a temporary solution to stabilize the column orders
       // The API is currently not returning the same array order in each request
@@ -227,7 +229,15 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
       setLoading(false);
     },
-    [studyId, dataCommonsDisplayName, columnNames, filtersRef.current, listReleasedDataRecords]
+    [
+      studyId,
+      nodesData?.getReleaseNodeTypes?.nodes,
+      dataCommonsDisplayName,
+      columnNames,
+      filtersRef.current,
+      prevFiltersRef.current,
+      listReleasedDataRecords,
+    ]
   );
 
   const handleFilterChange = useCallback(
