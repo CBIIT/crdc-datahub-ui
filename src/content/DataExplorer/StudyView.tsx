@@ -170,7 +170,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         default: prop === selectedNodeType?.IDPropName ? true : undefined,
         hideable: prop !== selectedNodeType?.IDPropName,
       })) || [],
-    [columnNames]
+    [columnNames, selectedNodeType?.IDPropName]
   );
 
   const { visibleColumns, columnVisibilityModel, setColumnVisibilityModel } = useColumnVisibility<
@@ -238,6 +238,11 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [filtersRef.current, tableRef.current]
   );
 
+  const handleSetItemKey = useCallback(
+    (d: T, idx: number) => `data-${d?.[selectedNodeType?.IDPropName] || idx}`,
+    [selectedNodeType?.IDPropName]
+  );
+
   if (studyLoading || nodesLoading) {
     return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
   }
@@ -289,7 +294,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             disableUrlParams={false}
             position="bottom"
             onFetchData={handleFetchData}
-            setItemKey={(d) => `data-${d?.[selectedNodeType?.IDPropName || "ID"]}`}
+            setItemKey={handleSetItemKey}
             containerProps={{
               sx: {
                 marginBottom: "8px",
