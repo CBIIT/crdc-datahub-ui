@@ -117,9 +117,13 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       return [];
     }
 
-    const clonedData = cloneDeep(nodesData.getReleaseNodeTypes.nodes).sort(
-      (a, b) => a.count - b.count
-    );
+    const clonedData = cloneDeep(nodesData.getReleaseNodeTypes.nodes).sort((a, b) => {
+      if (a.count === b.count) {
+        return a.name.localeCompare(b.name);
+      }
+
+      return a.count - b.count;
+    });
 
     return clonedData.map((node) => node.name);
   }, [nodesData]);
