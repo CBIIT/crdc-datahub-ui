@@ -174,7 +174,11 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
       sortedStats.sort(compareNodeStats);
     }
 
-    const result: GetSubmissionResp = { ...previousData };
+    const result: GetSubmissionResp = cloneDeep(previousData) || {
+      getSubmission: null,
+      submissionStats: { stats: [] },
+      getSubmissionAttributes: null,
+    };
     if (!skipOptions.skipSubmission) {
       result.getSubmission = data?.getSubmission ?? null;
     }
