@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import SummaryList from "./index";
 
 const meta: Meta<typeof SummaryList> = {

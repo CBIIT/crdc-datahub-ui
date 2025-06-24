@@ -1,10 +1,12 @@
 import React from "react";
 import { Navigate, useParams } from "react-router-dom";
+
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import { hasPermission } from "../../config/AuthPermissions";
+
 import ListView from "./ListView";
 import ProfileView from "./ProfileView";
-import { hasPermission } from "../../config/AuthPermissions";
-import SuspenseLoader from "../../components/SuspenseLoader";
 
 type Props = {
   type: "users" | "profile";

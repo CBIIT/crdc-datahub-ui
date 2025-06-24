@@ -1,4 +1,3 @@
-import { FC } from "react";
 import {
   Button,
   Dialog,
@@ -9,10 +8,13 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { FC } from "react";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
-import PackageTable from "./PackageTable";
 import env from "../../env";
 import { extractVersion } from "../../utils";
+
+import PackageTable from "./PackageTable";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

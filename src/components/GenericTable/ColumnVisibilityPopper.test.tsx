@@ -1,8 +1,10 @@
-import React from "react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
+
 import { render } from "../../test-utils";
+
 import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
 
 type Column = {

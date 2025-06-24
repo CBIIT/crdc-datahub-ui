@@ -1,21 +1,23 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { useMemo } from "react";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../Contexts/SubmissionContext";
+import { useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import {
   DOWNLOAD_DB_GAP_SHEET,
   DownloadDbGaPSheetInput,
   DownloadDbGaPSheetResp,
   GetSubmissionResp,
 } from "../../graphql";
-import Button from "./index";
 import { render, waitFor } from "../../test-utils";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../Contexts/SubmissionContext";
+
+import Button from "./index";
 
 // Omit properties that are explicitly needed for the tests
 const baseSubmission: Omit<GetSubmissionResp["getSubmission"], "_id" | "dataCommons"> = {

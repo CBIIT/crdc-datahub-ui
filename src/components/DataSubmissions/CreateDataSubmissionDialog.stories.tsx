@@ -1,15 +1,17 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { fn, userEvent, within, screen } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
 import { Box } from "@mui/material";
-import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
-import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
+import type { Meta, StoryObj } from "@storybook/react";
+import { fn, userEvent, within, screen } from "@storybook/test";
+
 import {
   GetMyUserResp,
   CreateSubmissionResp,
   CREATE_SUBMISSION,
   CreateSubmissionInput,
 } from "../../graphql";
+import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
+
+import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {

@@ -1,10 +1,12 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { render, waitFor } from "../../test-utils";
-import DataViewDetails from "./DataViewDetails";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
 import { GET_NODE_DETAIL, GET_RELATED_NODES } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import DataViewDetails from "./DataViewDetails";
 
 const mocks: MockedResponse[] = [
   {

@@ -1,10 +1,12 @@
-import { useEffect } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { useEffect } from "react";
+
+import { useAuthContext } from "../Contexts/AuthContext";
+
 import HeaderDesktop from "./components/HeaderDesktop";
 import HeaderTabletAndMobile from "./components/HeaderTabletAndMobile";
 import USABanner from "./components/USABanner";
-import { useAuthContext } from "../Contexts/AuthContext";
 
 const Header = () => {
   const { enqueueSnackbar } = useSnackbar();

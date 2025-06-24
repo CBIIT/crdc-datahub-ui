@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
+import type { Meta, StoryObj } from "@storybook/react";
 import { within } from "@storybook/test";
-import Dialog from "./index";
+
+import { Roles } from "../../config/AuthRoles";
 import {
   LIST_APPROVED_STUDIES,
   LIST_INSTITUTIONS,
@@ -11,7 +12,8 @@ import {
   ListInstitutionsResp,
 } from "../../graphql";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
-import { Roles } from "../../config/AuthRoles";
+
+import Dialog from "./index";
 
 const meta: Meta<typeof Dialog> = {
   title: "Dialogs / Access Request",

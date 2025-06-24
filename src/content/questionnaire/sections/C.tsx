@@ -1,22 +1,23 @@
-import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
-import { cloneDeep, merge } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
+import { cloneDeep, merge } from "lodash";
+import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
+
 import { useFormContext } from "../../../components/Contexts/FormContext";
+import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
-import SectionGroup from "../../../components/Questionnaire/SectionGroup";
-import TextInput from "../../../components/Questionnaire/TextInput";
-import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
+import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
+import SectionGroup from "../../../components/Questionnaire/SectionGroup";
+import SelectInput from "../../../components/Questionnaire/SelectInput";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import TextInput from "../../../components/Questionnaire/TextInput";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "../../../config/CancerTypesConfig";
-import speciesOptions from "../../../config/SpeciesConfig";
-import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
-import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
-import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
-import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
-import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import speciesOptions from "../../../config/SpeciesConfig";
+import useFormMode from "../../../hooks/useFormMode";
+import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400,

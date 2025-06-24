@@ -1,4 +1,3 @@
-import React, { CSSProperties, memo, useCallback, useMemo } from "react";
 import {
   Button,
   Dialog,
@@ -10,6 +9,8 @@ import {
   styled,
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
+import React, { CSSProperties, memo, useCallback, useMemo } from "react";
+
 import { FormatDate, SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 

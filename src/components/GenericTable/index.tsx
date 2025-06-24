@@ -14,6 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { isEqual } from "lodash";
 import {
   CSSProperties,
   forwardRef,
@@ -25,18 +26,19 @@ import {
   useRef,
   useState,
 } from "react";
-import { isEqual } from "lodash";
-import SuspenseLoader from "../SuspenseLoader";
-import TablePagination from "./TablePagination";
+
+import { useDelayedLoading } from "../../hooks/useDelayedLoading";
 import {
   generateSearchParameters,
   validatePage,
   validateRowsPerPage,
   validateSortDirection,
 } from "../../utils";
-import { tableStateReducer } from "./TableReducer";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
-import { useDelayedLoading } from "../../hooks/useDelayedLoading";
+import SuspenseLoader from "../SuspenseLoader";
+
+import TablePagination from "./TablePagination";
+import { tableStateReducer } from "./TableReducer";
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -523,6 +525,7 @@ const GenericTable = <T,>(
                   </StyledTableRow>
                 ))
               : data?.map((d: T, idx: number) => {
+                  // eslint-disable-next-line @typescript-eslint/dot-notation
                   const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
                   return (
                     <TableRow tabIndex={-1} hover key={itemKey}>

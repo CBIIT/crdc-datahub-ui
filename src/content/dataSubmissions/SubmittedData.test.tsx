@@ -1,11 +1,21 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
-import SubmittedData from "./SubmittedData";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../../components/Contexts/AuthContext";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 import {
   GET_SUBMISSION_NODES,
   GetSubmissionNodesInput,
@@ -14,17 +24,9 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../../components/Contexts/SubmissionContext";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../../components/Contexts/AuthContext";
+import { render, waitFor, within } from "../../test-utils";
+
+import SubmittedData from "./SubmittedData";
 
 const baseUser: User = {
   _id: "current-user",

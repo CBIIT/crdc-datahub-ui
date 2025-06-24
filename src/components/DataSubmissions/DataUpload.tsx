@@ -1,18 +1,20 @@
-import { FC, ReactElement, useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { useSnackbar } from "notistack";
-import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { Box, Button, Stack, Typography, styled } from "@mui/material";
+import { useSnackbar } from "notistack";
+import { FC, ReactElement, useMemo, useState } from "react";
+
+import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import env from "../../env";
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { downloadBlob, extractVersion, filterAlphaNumeric } from "../../utils";
-import FlowWrapper from "./FlowWrapper";
-import UploaderToolDialog from "../UploaderToolDialog";
-import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { hasPermission } from "../../config/AuthPermissions";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import Tooltip from "../Tooltip";
+import UploaderConfigDialog, { InputForm } from "../UploaderConfigDialog";
+import UploaderToolDialog from "../UploaderToolDialog";
+
+import FlowWrapper from "./FlowWrapper";
 
 export type Props = {
   /**

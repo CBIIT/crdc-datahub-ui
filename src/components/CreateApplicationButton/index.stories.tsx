@@ -1,9 +1,11 @@
+import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within, screen } from "@storybook/test";
-import { MockedResponse } from "@apollo/client/testing";
-import CreateApplicationButton from "./index";
-import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
+
 import { SaveAppResp, SaveAppInput, SAVE_APP } from "../../graphql";
+import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
+
+import CreateApplicationButton from "./index";
 
 const mockUser: User = {
   _id: "user-1",

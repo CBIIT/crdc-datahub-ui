@@ -1,4 +1,5 @@
 import { Select, SelectProps, styled } from "@mui/material";
+
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 
 const StyledSelect = styled(Select, {

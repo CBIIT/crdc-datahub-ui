@@ -1,9 +1,11 @@
 import { ThemeProvider, rgbToHex } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
+
 import { render, fireEvent, waitFor } from "../../test-utils";
-import ReviewCommentsDialog from "./index";
 import theme from "../../theme";
+
+import ReviewCommentsDialog from "./index";
 
 type Props<T, H> = {
   open: boolean;

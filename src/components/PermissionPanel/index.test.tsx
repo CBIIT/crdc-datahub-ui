@@ -1,17 +1,19 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FormProvider, FormProviderProps } from "react-hook-form";
-import { axe } from "vitest-axe";
-import { FC } from "react";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { act, render, waitFor, within } from "../../test-utils";
-import PermissionPanel from "./index";
+import { FC } from "react";
+import { FormProvider, FormProviderProps } from "react-hook-form";
+import { axe } from "vitest-axe";
+
 import {
   EditUserInput,
   RETRIEVE_PBAC_DEFAULTS,
   RetrievePBACDefaultsInput,
   RetrievePBACDefaultsResp,
 } from "../../graphql";
+import { act, render, waitFor, within } from "../../test-utils";
+
+import PermissionPanel from "./index";
 
 type MockParentProps = {
   children: React.ReactNode;

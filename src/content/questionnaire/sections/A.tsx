@@ -1,16 +1,23 @@
+import { parseForm } from "@jalik/form-parser";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
+import { cloneDeep } from "lodash";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
-import { parseForm } from "@jalik/form-parser";
-import { cloneDeep } from "lodash";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
+
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
+import PansBanner from "../../../components/PansBanner";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
+import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
-import AddRemoveButton from "../../../components/AddRemoveButton";
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
+import SectionMetadata from "../../../config/SectionMetadata";
+import useFormMode from "../../../hooks/useFormMode";
 import {
   filterForNumbers,
   formatORCIDInput,
@@ -19,12 +26,6 @@ import {
   validateEmail,
   validateUTF8,
 } from "../../../utils";
-import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import { InitialQuestionnaire } from "../../../config/InitialValues";
-import SectionMetadata from "../../../config/SectionMetadata";
-import useFormMode from "../../../hooks/useFormMode";
-import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
-import PansBanner from "../../../components/PansBanner";
 
 export type KeyedContact = {
   key: string;

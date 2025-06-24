@@ -1,3 +1,7 @@
+import { useLazyQuery } from "@apollo/client";
+import { Box, Button, styled, SxProps } from "@mui/material";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
 import React, {
   forwardRef,
   useCallback,
@@ -7,22 +11,20 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useLazyQuery } from "@apollo/client";
-import { isEqual } from "lodash";
-import { Box, Button, styled, SxProps } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { useSnackbar } from "notistack";
-import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
-import GenericTable, { Column } from "../../components/GenericTable";
-import BatchTableContext from "./Contexts/BatchTableContext";
+
 import {
   SubmissionCtxStatus,
   useSubmissionContext,
 } from "../../components/Contexts/SubmissionContext";
-import { FormatDate, Logger } from "../../utils";
-import FileListDialog from "../../components/FileListDialog";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import FileListDialog from "../../components/FileListDialog";
+import GenericTable, { Column } from "../../components/GenericTable";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
+import { FormatDate, Logger } from "../../utils";
+
+import BatchTableContext from "./Contexts/BatchTableContext";
 
 const StyledDateTooltip = styled(StyledTooltip)({
   cursor: "pointer",
@@ -113,7 +115,7 @@ const columns: Column<Batch>[] = [
     renderValue: (data) => (
       <Box
         textTransform="capitalize"
-        sx={{ ...(batchStatusStyles[data?.status] ?? batchStatusStyles["Uploaded"]) }}
+        sx={{ ...(batchStatusStyles[data?.status] ?? batchStatusStyles.Uploaded) }}
       >
         {data.status}
       </Box>

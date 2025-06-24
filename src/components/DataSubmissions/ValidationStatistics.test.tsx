@@ -1,8 +1,10 @@
 import { axe } from "vitest-axe";
+
 import { render, waitFor } from "../../test-utils";
-import ValidationStatistics from "./ValidationStatistics";
 import * as SubmissionCtx from "../Contexts/SubmissionContext";
 import { SubmissionCtxStatus } from "../Contexts/SubmissionContext";
+
+import ValidationStatistics from "./ValidationStatistics";
 
 const baseSubmission: Omit<Submission, "_id"> = {
   status: "New",

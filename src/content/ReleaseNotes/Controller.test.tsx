@@ -1,5 +1,6 @@
 import { act, render, waitFor } from "../../test-utils";
 import { Logger } from "../../utils";
+
 import Controller from "./Controller";
 
 vi.spyOn(Logger, "error").mockImplementation(() => vi.fn());

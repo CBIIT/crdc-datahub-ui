@@ -1,4 +1,3 @@
-import React, { ReactNode } from "react";
 import {
   styled,
   Dialog,
@@ -8,6 +7,7 @@ import {
   DialogActions,
   DialogProps,
 } from "@mui/material";
+import React, { ReactNode } from "react";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

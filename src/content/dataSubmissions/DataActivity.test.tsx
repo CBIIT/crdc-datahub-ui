@@ -1,14 +1,16 @@
-import { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { GraphQLError } from "graphql";
+import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import { GraphQLError } from "graphql";
-import { render, waitFor } from "../../test-utils";
-import DataActivity from "./DataActivity";
-import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import * as SubmissionCtx from "../../components/Contexts/SubmissionContext";
 import { SubmissionCtxStatus } from "../../components/Contexts/SubmissionContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+
+import DataActivity from "./DataActivity";
 
 // NOTE: We omit all properties that the component specifically depends on
 const baseSubmission: Omit<Submission, "_id"> = {

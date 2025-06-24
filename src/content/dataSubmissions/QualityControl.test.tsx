@@ -1,10 +1,16 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { fireEvent, render, waitFor, within } from "../../test-utils";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 import {
   LIST_BATCHES,
   ListBatchesInput,
@@ -19,12 +25,8 @@ import {
   SubmissionStatsResp,
   SubmissionQCResultsInput,
 } from "../../graphql";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../../components/Contexts/SubmissionContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { fireEvent, render, waitFor, within } from "../../test-utils";
+
 import QualityControl from "./QualityControl";
 
 const baseSubmission: Submission = {

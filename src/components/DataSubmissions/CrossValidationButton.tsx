@@ -1,17 +1,18 @@
-import { FC, useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { ButtonProps, styled } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { ButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { useAuthContext } from "../Contexts/AuthContext";
+import { FC, useEffect, useState } from "react";
+
+import { hasPermission } from "../../config/AuthPermissions";
 import {
   VALIDATE_SUBMISSION,
   ValidateSubmissionInput,
   ValidateSubmissionResp,
 } from "../../graphql";
 import { safeParse } from "../../utils";
+import { useAuthContext } from "../Contexts/AuthContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import { hasPermission } from "../../config/AuthPermissions";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",

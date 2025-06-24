@@ -1,7 +1,9 @@
 import React, { FC } from "react";
-import { render, waitFor } from "../../test-utils";
-import { useDataCommonContext, Status as DCStatus, DataCommonProvider } from "./DataCommonContext";
+
 import { DataCommons } from "../../config/DataCommons";
+import { render, waitFor } from "../../test-utils";
+
+import { useDataCommonContext, Status as DCStatus, DataCommonProvider } from "./DataCommonContext";
 
 const TestChild: FC = () => {
   const { status, error } = useDataCommonContext();

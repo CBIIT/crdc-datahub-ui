@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom";
+
+import SuspenseLoader from "../../components/SuspenseLoader";
 import env from "../../env";
 import usePageTitle from "../../hooks/usePageTitle";
-import SuspenseLoader from "../../components/SuspenseLoader";
 
 /**
  * Handles the NIH SSO redirect to the login page.

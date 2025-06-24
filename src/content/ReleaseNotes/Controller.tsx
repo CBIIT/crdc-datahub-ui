@@ -1,8 +1,10 @@
 import { memo, useEffect, useRef, useState } from "react";
-import usePageTitle from "../../hooks/usePageTitle";
+
 import SuspenseLoader from "../../components/SuspenseLoader";
-import NotesView from "./NotesView";
+import usePageTitle from "../../hooks/usePageTitle";
 import { Logger, fetchReleaseNotes } from "../../utils";
+
+import NotesView from "./NotesView";
 
 /**
  * Controller component for the Release Notes page.

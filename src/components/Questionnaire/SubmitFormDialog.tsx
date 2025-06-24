@@ -1,6 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps, styled } from "@mui/material";
 import { FC } from "react";
+
 import Dialog from "../GenericDialog";
 
 const StyledSubmitLoadingButton = styled(LoadingButton)(() => ({

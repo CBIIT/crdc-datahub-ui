@@ -1,14 +1,9 @@
-import userEvent from "@testing-library/user-event";
-import { axe } from "vitest-axe";
-import { useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -17,6 +12,13 @@ import {
   RestoreAppInput,
   RestoreAppResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
+
 import Button from "./index";
 
 const baseAuthCtx: AuthContextState = {

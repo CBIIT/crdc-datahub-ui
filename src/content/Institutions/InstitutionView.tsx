@@ -1,17 +1,18 @@
-import { useState } from "react";
-import { Box, Container, MenuItem, Stack, styled, Typography } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { useNavigate } from "react-router-dom";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
+import { Box, Container, MenuItem, Stack, styled, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import institutionIcon from "../../assets/icons/institutions_icon.svg?url";
-import usePageTitle from "../../hooks/usePageTitle";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import StyledAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import {
   CREATE_INSTITUTION,
   CreateInstitutionInput,
@@ -23,8 +24,8 @@ import {
   UpdateInstitutionInput,
   UpdateInstitutionResp,
 } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
 import { Logger, validateUTF8 } from "../../utils";
-import SuspenseLoader from "../../components/SuspenseLoader";
 
 const StyledBanner = styled("div")({
   background: `url(${bannerSvg})`,

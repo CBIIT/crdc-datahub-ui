@@ -1,3 +1,6 @@
+import { useMutation, useLazyQuery, ApolloError } from "@apollo/client";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
 import {
   createContext,
   useContext,
@@ -8,9 +11,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { useSnackbar } from "notistack";
-import { isEqual } from "lodash";
-import { useMutation, useLazyQuery, ApolloError } from "@apollo/client";
+
 import {
   LIST_POTENTIAL_COLLABORATORS,
   EDIT_SUBMISSION_COLLABORATORS,
@@ -19,8 +20,9 @@ import {
   EditSubmissionCollaboratorsResp,
   EditSubmissionCollaboratorsInput,
 } from "../../graphql";
-import { useSubmissionContext } from "./SubmissionContext";
 import { Logger, userToCollaborator } from "../../utils";
+
+import { useSubmissionContext } from "./SubmissionContext";
 
 /**
  * Types for CollaboratorsContext

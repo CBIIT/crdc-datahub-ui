@@ -1,4 +1,5 @@
 import { renderHook, act } from "../test-utils";
+
 import { useDelayedLoading } from "./useDelayedLoading";
 
 describe("useDelayedLoading", () => {

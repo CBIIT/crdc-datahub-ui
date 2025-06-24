@@ -1,4 +1,5 @@
 import { Autocomplete, Paper, styled } from "@mui/material";
+
 import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 
 const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({

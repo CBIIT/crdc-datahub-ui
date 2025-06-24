@@ -1,8 +1,15 @@
-import { FC, ReactNode, useMemo } from "react";
 import { MockedResponse, MockedProvider } from "@apollo/client/testing";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, ReactNode, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import {
+  GetSubmissionResp,
+  UPDATE_MODEL_VERSION,
+  UpdateModelVersionInput,
+  UpdateModelVersionResp,
+} from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthContext,
@@ -14,12 +21,7 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
-import {
-  GetSubmissionResp,
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
-} from "../../graphql";
+
 import ModelSelection from "./index";
 
 const mockListAvailableModelVersions = vi.fn();
