@@ -1,4 +1,5 @@
 import { ComponentType, FC, Suspense } from "react";
+
 import SuspenseLoader from "../SuspenseLoader";
 
 /**

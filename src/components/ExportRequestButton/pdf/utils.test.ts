@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+
 import { FontResource } from "./Fonts";
 import * as utils from "./utils";
 

@@ -1,7 +1,9 @@
 import { axe } from "vitest-axe";
-import { render } from "../../test-utils";
-import ComparisonTable from "./ComparisonTable";
+
 import { RetrieveReleasedDataResp } from "../../graphql";
+import { render } from "../../test-utils";
+
+import ComparisonTable from "./ComparisonTable";
 
 const baseNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number] = {
   nodeType: "",

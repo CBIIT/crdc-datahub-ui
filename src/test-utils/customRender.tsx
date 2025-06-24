@@ -1,6 +1,7 @@
-import React from "react";
-import { render, RenderOptions } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
+import { render, RenderOptions } from "@testing-library/react";
+import React from "react";
+
 import theme from "../theme/testTheme";
 
 const AllTheProviders = ({ children }) => <ThemeProvider theme={theme}>{children}</ThemeProvider>;

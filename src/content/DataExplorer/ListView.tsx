@@ -1,26 +1,28 @@
-import { useMemo, useRef, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
 import { Box, Container, styled, TableCell, TableHead } from "@mui/material";
 import { isEqual } from "lodash";
+import { useMemo, useRef, useState } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
-import PageBanner from "../../components/PageBanner";
-import usePageTitle from "../../hooks/usePageTitle";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
-import GenericTable, { Column } from "../../components/GenericTable";
-import {
-  LIST_RELEASED_STUDIES,
-  ListReleasedStudiesInput,
-  ListReleasedStudiesResp,
-} from "../../graphql";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
-import { Logger } from "../../utils";
-import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
-import TruncatedText from "../../components/TruncatedText";
 import DataExplorerListContext from "../../components/Contexts/DataExplorerListContext";
 import DataExplorerDCSelectionDialog, {
   InputForm,
 } from "../../components/DataExplorerDCSelectionDialog";
 import FormAlert from "../../components/FormAlert";
+import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import TruncatedText from "../../components/TruncatedText";
+import {
+  LIST_RELEASED_STUDIES,
+  ListReleasedStudiesInput,
+  ListReleasedStudiesResp,
+} from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
+import { Logger } from "../../utils";
+
+import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
 
 const StyledWrapper = styled(Box)({
   marginTop: "-62px",

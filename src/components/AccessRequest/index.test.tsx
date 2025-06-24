@@ -1,14 +1,8 @@
-import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
-import { render, waitFor } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
-import AccessRequest from "./index";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import {
   LIST_APPROVED_STUDIES,
   LIST_INSTITUTIONS,
@@ -17,6 +11,14 @@ import {
   ListInstitutionsInput,
   ListInstitutionsResp,
 } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
+
+import AccessRequest from "./index";
 
 const mockUser: Omit<User, "role" | "permissions"> = {
   _id: "",

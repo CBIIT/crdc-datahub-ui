@@ -1,18 +1,20 @@
+import { MockedProvider } from "@apollo/client/testing";
 import React, { useMemo } from "react";
 import { Mock } from "vitest";
-import { MockedProvider } from "@apollo/client/testing";
 import { axe } from "vitest-axe";
+
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import { render, fireEvent, within, waitFor } from "../../test-utils";
-import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthStatus,
   useAuthContext,
 } from "../Contexts/AuthContext";
+import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+
 import CollaboratorsTable from "./CollaboratorsTable";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
 vi.mock("../Contexts/AuthContext", async () => ({
   ...(await vi.importActual("../Contexts/AuthContext")),

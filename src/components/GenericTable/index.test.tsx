@@ -1,11 +1,13 @@
-import React, { FC } from "react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import React, { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
+
 import { render, fireEvent, within, waitFor } from "../../test-utils";
-import GenericTable, { Column, Props } from ".";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import GenericTable, { Column, Props } from ".";
 
 const mockData = [
   { _id: "1", name: "Alice", role: "Developer" },

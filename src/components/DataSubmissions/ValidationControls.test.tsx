@@ -1,25 +1,27 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import {
+  VALIDATE_SUBMISSION,
+  ValidateSubmissionInput,
+  ValidateSubmissionResp,
+} from "../../graphql";
 import { getByLabelText, render, waitFor } from "../../test-utils";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
-import ValidationControls from "./ValidationControls";
-import {
-  VALIDATE_SUBMISSION,
-  ValidateSubmissionInput,
-  ValidateSubmissionResp,
-} from "../../graphql";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+
+import ValidationControls from "./ValidationControls";
 
 // NOTE: We omit all properties that the component specifically depends on
 const baseSubmission: Omit<

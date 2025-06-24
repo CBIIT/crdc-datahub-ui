@@ -1,32 +1,34 @@
-import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { useMutation } from "@apollo/client";
 import { Box, Card, CardActions, CardContent, Container, Stack, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
+import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+
 import bannerPng from "../../assets/banner/submission_banner.png";
 import summaryBannerPng from "../../assets/banner/summary_banner.png";
-import LinkTab from "../../components/DataSubmissions/LinkTab";
-import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
-import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
-import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import DataSubmissionActions from "./DataSubmissionActions";
-import QualityControl from "./QualityControl";
-import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
-import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import usePageTitle from "../../hooks/usePageTitle";
-import BackButton from "../../components/DataSubmissions/BackButton";
-import SubmittedData from "./SubmittedData";
-import { UserGuide } from "../../components/DataSubmissions/UserGuide";
-import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
-import DataActivity, { DataActivityRef } from "./DataActivity";
-import CrossValidation from "./CrossValidation";
+import BackButton from "../../components/DataSubmissions/BackButton";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
-import { Logger } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
+import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
+import { DataUpload } from "../../components/DataSubmissions/DataUpload";
+import LinkTab from "../../components/DataSubmissions/LinkTab";
+import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
+import { UserGuide } from "../../components/DataSubmissions/UserGuide";
+import ValidationControls from "../../components/DataSubmissions/ValidationControls";
+import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
 import DbGaPSheetExport from "../../components/DbGaPSheetExport";
+import { hasPermission } from "../../config/AuthPermissions";
+import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
+import { Logger } from "../../utils";
+
+import CrossValidation from "./CrossValidation";
+import DataActivity, { DataActivityRef } from "./DataActivity";
+import DataSubmissionActions from "./DataSubmissionActions";
+import QualityControl from "./QualityControl";
+import SubmittedData from "./SubmittedData";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,

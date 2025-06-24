@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
 import "@testing-library/jest-dom/vitest";
-import * as matchers from "vitest-axe/matchers";
-import { configureAxe } from "vitest-axe";
+import { config } from "react-transition-group";
 import { expect, vi } from "vitest";
+import { configureAxe } from "vitest-axe";
+import * as matchers from "vitest-axe/matchers";
 import "vitest-canvas-mock";
 import failOnConsole from "vitest-fail-on-console";
-import { config } from "react-transition-group";
 
 expect.extend(matchers);
 

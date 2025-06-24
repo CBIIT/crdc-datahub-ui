@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { Box, FormControl, IconButton, MenuItem, Stack, styled } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { ListReleasedStudiesInput } from "../../graphql";
-import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
-import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
-import { isStringLengthBetween } from "../../utils";
+import { Box, FormControl, IconButton, MenuItem, Stack, styled } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
+import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import { ListReleasedStudiesInput } from "../../graphql";
 import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
+import { isStringLengthBetween } from "../../utils";
 
 const StyledFilters = styled("div")({
   paddingTop: "13px",

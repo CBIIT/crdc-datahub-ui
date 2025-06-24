@@ -1,10 +1,11 @@
 import { lazy } from "react";
 import { RouteObject } from "react-router-dom";
-import Layout from "./layouts";
+
 import withTracking from "./components/Hocs/withTracking";
 import LazyLoader from "./components/LazyLoader";
-import RequireAuth from "./components/RequireAuth";
 import MaintenanceGate from "./components/MaintenanceGate";
+import RequireAuth from "./components/RequireAuth";
+import Layout from "./layouts";
 
 // Layouts
 const MainLayout = withTracking(Layout);

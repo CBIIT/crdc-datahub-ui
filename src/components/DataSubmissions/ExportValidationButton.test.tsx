@@ -1,11 +1,8 @@
-import React, { FC } from "react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { axe } from "vitest-axe";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { render, fireEvent, waitFor } from "../../test-utils";
-
-import { ExportValidationButton } from "./ExportValidationButton";
+import React, { FC } from "react";
+import { axe } from "vitest-axe";
 
 import {
   SUBMISSION_QC_RESULTS,
@@ -13,6 +10,9 @@ import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   AggregatedSubmissionQCResultsResp,
 } from "../../graphql";
+import { render, fireEvent, waitFor } from "../../test-utils";
+
+import { ExportValidationButton } from "./ExportValidationButton";
 
 const mockDownloadBlob = vi.fn();
 

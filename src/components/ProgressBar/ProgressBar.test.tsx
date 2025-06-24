@@ -1,16 +1,18 @@
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import { render } from "../../test-utils";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import config from "../../config/SectionConfig";
-import ProgressBar from "./ProgressBar";
+import { render } from "../../test-utils";
+import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import {
   ContextState as FormCtxState,
   Context as FormCtx,
   Status as FormStatus,
 } from "../Contexts/FormContext";
-import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+
+import ProgressBar from "./ProgressBar";
 
 const BaseUser: User = {
   _id: "base-user-id",

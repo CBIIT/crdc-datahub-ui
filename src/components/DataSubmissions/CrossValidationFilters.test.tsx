@@ -1,10 +1,9 @@
-import { FC, useMemo } from "react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
-import Filters from "./CrossValidationFilters";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import {
   LIST_BATCHES,
   SUBMISSION_STATS,
@@ -13,11 +12,14 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+
+import Filters from "./CrossValidationFilters";
 
 const baseSubmission: Submission = {
   _id: "",

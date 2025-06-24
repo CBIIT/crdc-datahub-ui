@@ -1,11 +1,10 @@
-import React, { FC, useMemo } from "react";
-import { Mock } from "vitest";
-import userEvent from "@testing-library/user-event";
-import { axe } from "vitest-axe";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { render, waitFor, within } from "../../test-utils";
-import QualityControlFilters from "./QualityControlFilters";
+import userEvent from "@testing-library/user-event";
+import React, { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { Mock } from "vitest";
+import { axe } from "vitest-axe";
+
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
@@ -17,11 +16,14 @@ import {
   SubmissionStatsResp,
   SubmissionStatsInput,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+
+import QualityControlFilters from "./QualityControlFilters";
 
 const mockSubmission: Submission = {
   _id: "sub123",

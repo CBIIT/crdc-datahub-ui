@@ -9,8 +9,9 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { FC, memo, useMemo } from "react";
 import { isEqual } from "lodash";
+import { FC, memo, useMemo } from "react";
+
 import { RetrieveReleasedDataResp } from "../../graphql";
 import { coerceToString, safeParse } from "../../utils";
 import Repeater from "../Repeater";

@@ -1,8 +1,8 @@
-import { defineConfig } from "vite";
-import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import viteTsConfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
+import viteTsConfigPaths from "vite-tsconfig-paths";
+import { configDefaults } from "vitest/config";
 
 // List of test files to exclude from coverage and testing
 const testExcludes: string[] = [

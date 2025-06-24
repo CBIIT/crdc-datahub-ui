@@ -5,6 +5,7 @@ import {
   styled,
 } from "@mui/material";
 import { CSSProperties, ElementType } from "react";
+
 import PaginationActions from "./PaginationActions";
 
 const StyledPaginationWrapper = styled(Stack, {

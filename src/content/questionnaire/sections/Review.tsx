@@ -1,25 +1,27 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { cloneDeep } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { Divider, Grid, Stack, styled } from "@mui/material";
+import { cloneDeep } from "lodash";
+import { FC, useEffect, useRef, useState } from "react";
+
 import { useFormContext } from "../../../components/Contexts/FormContext";
-import { KeyedFunding, KeyedPlannedPublication, KeyedPublication, KeyedRepository } from "./B";
-import { KeyedContact } from "./A";
-import { KeyedFileTypeData } from "./D";
+import ExportRequestButton from "../../../components/ExportRequestButton";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
-import ReviewSection from "../../../components/Questionnaire/ReviewSection";
+import { repositoryDataTypesOptions } from "../../../components/Questionnaire/Repository";
 import ReviewDataListing from "../../../components/Questionnaire/ReviewDataListing";
 import ReviewDataListingProperty, {
   StyledValue,
 } from "../../../components/Questionnaire/ReviewDataListingProperty";
 import ReviewFileTypeTable from "../../../components/Questionnaire/ReviewFileTypeTable";
-import { mapObjectWithKey, formatPhoneNumber } from "../../../utils";
-import useFormMode from "../../../hooks/useFormMode";
+import ReviewSection from "../../../components/Questionnaire/ReviewSection";
+import { StyledDescription } from "../../../components/Questionnaire/SectionGroup";
 import DataTypes from "../../../config/DataTypesConfig";
 import SectionMetadata from "../../../config/SectionMetadata";
-import { repositoryDataTypesOptions } from "../../../components/Questionnaire/Repository";
-import { StyledDescription } from "../../../components/Questionnaire/SectionGroup";
-import ExportRequestButton from "../../../components/ExportRequestButton";
+import useFormMode from "../../../hooks/useFormMode";
+import { mapObjectWithKey, formatPhoneNumber } from "../../../utils";
+
+import { KeyedContact } from "./A";
+import { KeyedFunding, KeyedPlannedPublication, KeyedPublication, KeyedRepository } from "./B";
+import { KeyedFileTypeData } from "./D";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",

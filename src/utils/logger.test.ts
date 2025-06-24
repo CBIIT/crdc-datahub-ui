@@ -1,5 +1,6 @@
-import { Logger } from "./logger";
 import env from "../env";
+
+import { Logger } from "./logger";
 
 describe("Logger", () => {
   const originalEnv = process.env;

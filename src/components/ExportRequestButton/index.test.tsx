@@ -1,15 +1,17 @@
-import { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
+import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import { render, waitFor } from "../../test-utils";
-import ExportRequestButton from "./index";
+import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import {
   ContextState as FormContextState,
   Context as FormContext,
   Status as FormStatus,
 } from "../Contexts/FormContext";
-import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+
+import ExportRequestButton from "./index";
 
 const mockGenerate = vi.fn();
 vi.mock("./pdf/Generate", () => ({

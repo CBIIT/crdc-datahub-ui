@@ -1,6 +1,7 @@
-import { FC, memo } from "react";
 import { Stack, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
+import { FC, memo } from "react";
+
 import CopyTextButton from "../CopyTextButton";
 
 const StyledCopyWrapper = styled(Stack)({

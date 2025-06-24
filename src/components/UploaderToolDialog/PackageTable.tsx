@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+
 import DownloadIcon from "../../assets/icons/download_icon.svg?react";
 import packageConfig from "../../config/PackageTableConfig";
 

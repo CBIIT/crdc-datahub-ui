@@ -1,4 +1,3 @@
-import { FC } from "react";
 import {
   Button,
   Dialog,
@@ -9,6 +8,8 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { FC } from "react";
+
 import CloseIconSvg from "../../../assets/icons/close_icon.svg?react";
 
 const StyledDialog = styled(Dialog)({

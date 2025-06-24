@@ -1,5 +1,6 @@
-import { FC } from "react";
 import { Stack, Typography, styled } from "@mui/material";
+import { FC } from "react";
+
 import LegendItem from "./LegendItem";
 
 export type Props = {

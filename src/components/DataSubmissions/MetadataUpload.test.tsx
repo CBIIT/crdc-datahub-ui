@@ -1,8 +1,10 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
+import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthCtx,
@@ -14,8 +16,8 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+
 import MetadataUpload from "./MetadataUpload";
-import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 
 // NOTE: We omit any properties that are explicitly used within component logic
 const baseSubmission: Omit<

@@ -1,4 +1,5 @@
 import { InitialApplication, InitialQuestionnaire } from "../config/InitialValues";
+
 import * as utils from "./formModeUtils";
 
 describe("getFormMode tests based on provided requirements", () => {

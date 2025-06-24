@@ -1,7 +1,8 @@
-import React, { FC } from "react";
 import { Stack, Typography, styled } from "@mui/material";
-import StatusSection from "./components/StatusSection";
+import React, { FC } from "react";
+
 import HistorySection from "./components/HistorySection";
+import StatusSection from "./components/StatusSection";
 
 const StyledStack = styled(Stack)({
   padding: "27px",

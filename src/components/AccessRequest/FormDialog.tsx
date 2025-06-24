@@ -1,23 +1,11 @@
-import React, { FC } from "react";
-import { Box, DialogProps, MenuItem, styled, TextField } from "@mui/material";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { LoadingButton } from "@mui/lab";
 import { useMutation, useQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
+import { Box, DialogProps, MenuItem, styled, TextField } from "@mui/material";
 import { useSnackbar } from "notistack";
+import React, { FC } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
-import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
-import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
-import StyledHelperText from "../StyledFormComponents/StyledHelperText";
-import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
-import DefaultDialog from "../StyledDialogComponents/StyledDialog";
-import StyledDialogContent from "../StyledDialogComponents/StyledDialogContent";
-import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
-import StyledBodyText from "../StyledDialogComponents/StyledBodyText";
-import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
-import StyledSelect from "../StyledFormComponents/StyledSelect";
-import { useAuthContext } from "../Contexts/AuthContext";
-import { useInstitutionList } from "../Contexts/InstitutionListContext";
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesInput,
@@ -27,7 +15,20 @@ import {
   RequestAccessResp,
 } from "../../graphql";
 import { formatFullStudyName, Logger, validateUTF8 } from "../../utils";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { useInstitutionList } from "../Contexts/InstitutionListContext";
+import StyledBodyText from "../StyledDialogComponents/StyledBodyText";
+import DefaultDialog from "../StyledDialogComponents/StyledDialog";
+import DefaultDialogActions from "../StyledDialogComponents/StyledDialogActions";
+import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
+import StyledDialogContent from "../StyledDialogComponents/StyledDialogContent";
+import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
+import StyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {

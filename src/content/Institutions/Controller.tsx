@@ -1,10 +1,12 @@
 import { FC } from "react";
 import { Navigate, useParams } from "react-router-dom";
+
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
-import ListView from "./ListView";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { hasPermission } from "../../config/AuthPermissions";
+
 import InstitutionView from "./InstitutionView";
+import ListView from "./ListView";
 
 /**
  * Renders the correct view based on the URL and permissions-tier

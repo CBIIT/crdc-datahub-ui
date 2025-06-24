@@ -1,8 +1,17 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
+
+import {
+  LIST_APPROVED_STUDIES,
+  ListApprovedStudiesInput,
+  ListApprovedStudiesResp,
+  REQUEST_ACCESS,
+  RequestAccessInput,
+  RequestAccessResp,
+} from "../../graphql";
 import { render, waitFor, within } from "../../test-utils";
 import {
   Context as AuthContext,
@@ -14,14 +23,7 @@ import {
   InstitutionCtxState,
   InstitutionCtxStatus,
 } from "../Contexts/InstitutionListContext";
-import {
-  LIST_APPROVED_STUDIES,
-  ListApprovedStudiesInput,
-  ListApprovedStudiesResp,
-  REQUEST_ACCESS,
-  RequestAccessInput,
-  RequestAccessResp,
-} from "../../graphql";
+
 import FormDialog from "./FormDialog";
 
 const emptyStudiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {

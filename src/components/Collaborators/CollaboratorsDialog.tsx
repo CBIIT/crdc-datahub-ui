@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
+import React, { useEffect, useMemo } from "react";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
-import CollaboratorsTable from "./CollaboratorsTable";
+import { hasPermission } from "../../config/AuthPermissions";
+import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
-import { hasPermission } from "../../config/AuthPermissions";
+
+import CollaboratorsTable from "./CollaboratorsTable";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

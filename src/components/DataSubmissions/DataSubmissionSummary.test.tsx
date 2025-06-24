@@ -1,12 +1,11 @@
-import React, { FC, useMemo } from "react";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { isEqual } from "lodash";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import React, { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
+
 import { render, waitFor } from "../../test-utils";
-import DataSubmissionSummary from "./DataSubmissionSummary";
-import HistoryIconMap from "./DataSubmissionIconMap";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -17,6 +16,9 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+
+import HistoryIconMap from "./DataSubmissionIconMap";
+import DataSubmissionSummary from "./DataSubmissionSummary";
 
 const baseAuthCtx: AuthContextState = {
   status: AuthContextStatus.LOADED,

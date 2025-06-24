@@ -1,9 +1,10 @@
-import { memo, useCallback, useEffect, useState } from "react";
 import { Box, FormControl, MenuItem, styled } from "@mui/material";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+
+import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 const StyledFilterContainer = styled(Box)({

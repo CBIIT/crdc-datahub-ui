@@ -1,9 +1,11 @@
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import { render } from "../../test-utils";
-import PackageTable from "./PackageTable";
+
 import packageConfig from "../../config/PackageTableConfig";
+import { render } from "../../test-utils";
+
+import PackageTable from "./PackageTable";
 
 vi.mock(import("../../env"), async (importOriginal) => {
   const mod = await importOriginal();
