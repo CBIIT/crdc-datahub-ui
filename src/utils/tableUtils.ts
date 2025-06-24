@@ -1,5 +1,7 @@
 import { isEqual, isString } from "lodash";
+
 import { SORT, DIRECTION } from "../config/TableConfig";
+
 import { compareStrings } from "./stringUtils";
 
 /**

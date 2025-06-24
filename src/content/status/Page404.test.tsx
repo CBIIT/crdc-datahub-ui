@@ -1,8 +1,10 @@
-import { axe } from "vitest-axe";
-import { BrowserRouter, RouterProvider, createMemoryRouter } from "react-router-dom";
-import { FC } from "react";
 import userEvent from "@testing-library/user-event";
+import { FC } from "react";
+import { BrowserRouter, RouterProvider, createMemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
 import { render, waitFor } from "../../test-utils";
+
 import Page from "./Page404";
 
 const TestParent: FC = () => (

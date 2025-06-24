@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
+
+import bannerPng from "../../assets/banner/submission_banner.png";
+
 import PageBanner from "./index";
 import PageBannerBody from "./PageBannerBody";
-import bannerPng from "../../assets/banner/submission_banner.png";
 
 const meta = {
   title: "Miscellaneous / PageBanner",

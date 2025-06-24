@@ -1,6 +1,7 @@
-import { memo, ReactNode, useMemo } from "react";
-import { isEqual } from "lodash";
 import { styled, Typography } from "@mui/material";
+import { isEqual } from "lodash";
+import { memo, ReactNode, useMemo } from "react";
+
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledContainerTypography = styled(Typography)<{ component: React.ElementType }>({

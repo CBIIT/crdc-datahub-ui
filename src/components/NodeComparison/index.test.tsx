@@ -1,13 +1,15 @@
-import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC } from "react";
 import { GraphQLError } from "graphql";
-import { act, render, waitFor } from "../../test-utils";
+import { FC } from "react";
+import { axe } from "vitest-axe";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
   RetrieveReleasedDataResp,
 } from "../../graphql";
+import { act, render, waitFor } from "../../test-utils";
+
 import NodeComparison from "./index";
 
 const mockTableRender = vi.fn().mockImplementation(() => <div>MOCK COMPARISON TABLE</div>);

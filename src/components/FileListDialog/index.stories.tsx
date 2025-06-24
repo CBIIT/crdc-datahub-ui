@@ -1,13 +1,15 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
+import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within } from "@storybook/test";
-import Dialog from "./index";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
 import {
   DOWNLOAD_METADATA_FILE,
   DownloadMetadataFileInput,
   DownloadMetadataFileResp,
 } from "../../graphql";
+import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import Dialog from "./index";
 
 const mockBatch: Batch = {
   _id: "mock-batch-0001",

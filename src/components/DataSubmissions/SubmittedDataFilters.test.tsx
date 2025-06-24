@@ -1,10 +1,12 @@
-import { FC } from "react";
-import UserEvent from "@testing-library/user-event";
-import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { render, waitFor, within } from "../../test-utils";
-import SubmittedDataFilters from "./SubmittedDataFilters";
+import UserEvent from "@testing-library/user-event";
+import { FC } from "react";
+import { axe } from "vitest-axe";
+
 import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+
+import SubmittedDataFilters from "./SubmittedDataFilters";
 
 type ParentProps = {
   mocks?: MockedResponse[];

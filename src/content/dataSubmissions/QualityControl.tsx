@@ -1,17 +1,19 @@
-import React, { FC, MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
-import { isEqual } from "lodash";
-import { Box, Button, Stack, styled } from "@mui/material";
-import { useSnackbar } from "notistack";
 import { useLazyQuery } from "@apollo/client";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { FormatDate, Logger, titleCase } from "../../utils";
-import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
-import QCResultsContext from "./Contexts/QCResultsContext";
-import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
+import { Box, Button, Stack, styled } from "@mui/material";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import React, { FC, MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
+import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
+import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import GenericTable, { Column } from "../../components/GenericTable";
+import { NodeComparisonProps } from "../../components/NodeComparison";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import TruncatedText from "../../components/TruncatedText";
-import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
+import { ValidationErrorCodes } from "../../config/ValidationErrors";
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_QC_RESULTS,
@@ -20,9 +22,9 @@ import {
   SubmissionQCResultsInput,
   SubmissionQCResultsResp,
 } from "../../graphql";
-import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
-import { NodeComparisonProps } from "../../components/NodeComparison";
-import { ValidationErrorCodes } from "../../config/ValidationErrors";
+import { FormatDate, Logger, titleCase } from "../../utils";
+
+import QCResultsContext from "./Contexts/QCResultsContext";
 
 type FilterForm = {
   issueType: string;

@@ -1,14 +1,25 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep, merge } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
+import { cloneDeep, merge } from "lodash";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import { useOrganizationListContext } from "../../../components/Contexts/OrganizationListContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
-import SectionGroup from "../../../components/Questionnaire/SectionGroup";
-import TextInput from "../../../components/Questionnaire/TextInput";
+import FundingAgency from "../../../components/Questionnaire/FundingAgency";
+import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
+import SectionGroup from "../../../components/Questionnaire/SectionGroup";
+import SelectInput from "../../../components/Questionnaire/SelectInput";
+import TextInput from "../../../components/Questionnaire/TextInput";
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
+import { NotApplicableProgram, OtherProgram } from "../../../config/ProgramConfig";
+import SectionMetadata from "../../../config/SectionMetadata";
+import useFormMode from "../../../hooks/useFormMode";
 import {
   filterAlphaNumeric,
   findProgram,
@@ -16,16 +27,6 @@ import {
   mapObjectWithKey,
   validateUTF8,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/AddRemoveButton";
-import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
-import { InitialQuestionnaire } from "../../../config/InitialValues";
-import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import useFormMode from "../../../hooks/useFormMode";
-import FundingAgency from "../../../components/Questionnaire/FundingAgency";
-import SelectInput from "../../../components/Questionnaire/SelectInput";
-import SectionMetadata from "../../../config/SectionMetadata";
-import { useOrganizationListContext } from "../../../components/Contexts/OrganizationListContext";
-import { NotApplicableProgram, OtherProgram } from "../../../config/ProgramConfig";
 
 export type KeyedPublication = {
   key: string;

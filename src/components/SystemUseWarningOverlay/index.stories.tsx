@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import OverlayComponent from "./OverlayWindow";
 
 const meta: Meta<typeof OverlayComponent> = {

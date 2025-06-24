@@ -1,18 +1,20 @@
+import { styled } from "@mui/material";
+import { flatMap } from "lodash";
+import { useSnackbar } from "notistack";
 import React, { HTMLProps, useEffect, useMemo, useState } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
-import { flatMap } from "lodash";
-import { styled } from "@mui/material";
-import { useSnackbar } from "notistack";
-import Logo from "./LogoMobile";
+
+import leftArrowIcon from "../../../assets/header/Left_Arrow.svg?url";
 import menuClearIcon from "../../../assets/header/Menu_Cancel_Icon.svg?url";
 import rightArrowIcon from "../../../assets/header/Right_Arrow.svg?url";
-import leftArrowIcon from "../../../assets/header/Left_Arrow.svg?url";
-import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
-import { useAuthContext } from "../../Contexts/AuthContext";
-import APITokenDialog from "../../APITokenDialog";
-import UploaderToolDialog from "../../UploaderToolDialog";
 import { hasPermission, Permissions } from "../../../config/AuthPermissions";
+import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import { Logger } from "../../../utils";
+import APITokenDialog from "../../APITokenDialog";
+import { useAuthContext } from "../../Contexts/AuthContext";
+import UploaderToolDialog from "../../UploaderToolDialog";
+
+import Logo from "./LogoMobile";
 
 const HeaderBanner = styled("div")({
   width: "100%",

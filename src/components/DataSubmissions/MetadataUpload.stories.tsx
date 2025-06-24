@@ -1,14 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
+import { Roles } from "../../config/AuthRoles";
+import { GetSubmissionResp } from "../../graphql";
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
-import MetadataUpload from "./MetadataUpload";
-import { Roles } from "../../config/AuthRoles";
-import { GetSubmissionResp } from "../../graphql";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
+
+import MetadataUpload from "./MetadataUpload";
 
 type CustomStoryProps = React.ComponentProps<typeof MetadataUpload> & {
   submission: Submission;

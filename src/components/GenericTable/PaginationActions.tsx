@@ -1,4 +1,3 @@
-import { AriaAttributes, FC } from "react";
 import {
   Pagination,
   PaginationItem,
@@ -6,6 +5,7 @@ import {
   TablePaginationProps,
   styled,
 } from "@mui/material";
+import { AriaAttributes, FC } from "react";
 
 const StyledPagination = styled(Pagination)({
   marginLeft: "23px",

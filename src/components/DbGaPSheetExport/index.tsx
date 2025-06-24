@@ -1,16 +1,17 @@
-import { Button, ButtonProps, styled } from "@mui/material";
-import { FC, memo, useCallback, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
+import { Button, ButtonProps, styled } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { FC, memo, useCallback, useState } from "react";
+
 import DownloadIconSvg from "../../assets/icons/download_icon.svg?react";
-import Tooltip from "../StyledFormComponents/StyledTooltip";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import {
   DOWNLOAD_DB_GAP_SHEET,
   DownloadDbGaPSheetInput,
   DownloadDbGaPSheetResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import Tooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledButton = styled(Button)({
   fontWeight: 600,

@@ -1,5 +1,6 @@
-import { FC, memo } from "react";
 import { Box, Stack, Typography, styled } from "@mui/material";
+import { FC, memo } from "react";
+
 import MaintenanceIcon from "../../assets/icons/maintenance.svg?react";
 import usePageTitle from "../../hooks/usePageTitle";
 

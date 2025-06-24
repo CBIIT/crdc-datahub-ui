@@ -1,6 +1,8 @@
 import userEvent from "@testing-library/user-event";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
+
 import { render, screen, waitFor } from "../../test-utils";
+
 import { SearchParamsProvider, useSearchParamsContext } from "./SearchParamsContext";
 
 const TestChild = () => {

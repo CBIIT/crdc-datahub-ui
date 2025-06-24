@@ -1,11 +1,13 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
-import Dialog from "./index";
+import type { Meta, StoryObj } from "@storybook/react";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
   RetrieveReleasedDataResp,
 } from "../../graphql";
+
+import Dialog from "./index";
 
 const meta = {
   title: "Dialogs / Error Details",

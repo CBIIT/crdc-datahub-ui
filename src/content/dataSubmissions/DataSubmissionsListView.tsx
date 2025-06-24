@@ -1,25 +1,26 @@
-import React, { FC, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLazyQuery } from "@apollo/client";
 import { Alert, Container, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { useLazyQuery } from "@apollo/client";
+import React, { FC, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
-import PageBanner from "../../components/PageBanner";
-import { FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
-import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
-import TruncatedText from "../../components/TruncatedText";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataSubmissionListFilters, {
   defaultValues,
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
 import NavigatorLink from "../../components/DataSubmissions/NavigatorLink";
+import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import TruncatedText from "../../components/TruncatedText";
+import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
+import { useColumnVisibility } from "../../hooks/useColumnVisibility";
+import usePageTitle from "../../hooks/usePageTitle";
+import { FormatDate, Logger } from "../../utils";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 

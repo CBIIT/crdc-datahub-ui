@@ -1,10 +1,16 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "vitest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { render, waitFor, within } from "../../test-utils";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 import {
   CrossValidationResultsInput,
   CrossValidationResultsResp,
@@ -16,12 +22,8 @@ import {
   SubmissionStatsResp,
   SUBMISSION_CROSS_VALIDATION_RESULTS,
 } from "../../graphql";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../../components/Contexts/SubmissionContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { render, waitFor, within } from "../../test-utils";
+
 import CrossValidation from "./CrossValidation";
 
 // NOTE: We omit all properties that the component specifically depends on

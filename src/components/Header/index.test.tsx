@@ -1,10 +1,12 @@
+import { MockedProvider } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import { MockedProvider } from "@apollo/client/testing";
+
 import { render, waitFor } from "../../test-utils";
-import Header from "./index";
 import { ContextState, Context, Status } from "../Contexts/AuthContext";
+
+import Header from "./index";
 
 const mockUseMediaQuery = vi.fn();
 vi.mock("@mui/material", async () => ({

@@ -9,6 +9,7 @@ import {
   TypographyProps,
   styled,
 } from "@mui/material";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledDialog = styled(Dialog)({

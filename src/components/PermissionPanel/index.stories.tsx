@@ -1,14 +1,16 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { FormProvider, useForm } from "react-hook-form";
 import { MockedResponse } from "@apollo/client/testing";
+import type { Meta, StoryObj } from "@storybook/react";
 import { userEvent, within } from "@storybook/test";
-import PermissionPanel from "./index";
+import { FormProvider, useForm } from "react-hook-form";
+
 import {
   RetrievePBACDefaultsResp,
   RetrievePBACDefaultsInput,
   RETRIEVE_PBAC_DEFAULTS,
   EditUserInput,
 } from "../../graphql";
+
+import PermissionPanel from "./index";
 
 const meta: Meta<typeof PermissionPanel> = {
   title: "Miscellaneous / Permission Panel",

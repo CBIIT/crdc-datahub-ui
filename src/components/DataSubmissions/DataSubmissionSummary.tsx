@@ -1,16 +1,18 @@
 import { Button, Divider, Grid, Stack, Typography, styled } from "@mui/material";
-import React, { FC, useMemo, useState } from "react";
 import { isEqual } from "lodash";
-import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
+import React, { FC, useMemo, useState } from "react";
+
 import EmailIconSvg from "../../assets/icons/email_icon.svg?react";
-import HistoryDialog from "../HistoryDialog";
-import DataSubmissionIconMap from "./DataSubmissionIconMap";
-import ReviewCommentsDialog from "../ReviewCommentsDialog";
 import { SortHistory } from "../../utils";
-import TruncatedText from "../TruncatedText";
-import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import { CollaboratorsDialog } from "../Collaborators";
 import { CollaboratorsProvider } from "../Contexts/CollaboratorsContext";
+import HistoryDialog from "../HistoryDialog";
+import ReviewCommentsDialog from "../ReviewCommentsDialog";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import TruncatedText from "../TruncatedText";
+
+import DataSubmissionIconMap from "./DataSubmissionIconMap";
+import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
 
 const StyledSummaryWrapper = styled("div")(() => ({
   borderRadius: "8px 8px 0px 0px",

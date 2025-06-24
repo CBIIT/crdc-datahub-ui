@@ -1,8 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { Stack } from "@mui/material";
-import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
-import Button from "./index";
+import type { Meta, StoryObj } from "@storybook/react";
+
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
+
+import Button from "./index";
 
 const baseApplication: Application = {
   ...InitialApplication,

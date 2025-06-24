@@ -1,4 +1,5 @@
 import { render } from "../../test-utils";
+
 import ErrorBoundary from "./index";
 
 const ThrowError = () => {

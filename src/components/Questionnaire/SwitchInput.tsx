@@ -1,3 +1,4 @@
+import { SwitchProps, Grid, Switch, FormHelperText, styled, SxProps } from "@mui/material";
 import React, {
   FC,
   HTMLProps,
@@ -8,9 +9,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { SwitchProps, Grid, Switch, FormHelperText, styled, SxProps } from "@mui/material";
-import Tooltip from "../Tooltip";
+
 import { updateInputValidity } from "../../utils";
+import Tooltip from "../Tooltip";
 
 const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<{
   switchSx: SxProps;

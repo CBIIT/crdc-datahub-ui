@@ -1,13 +1,15 @@
-import React, { FC, useMemo, useState } from "react";
-import { cloneDeep, isEqual } from "lodash";
 import { Stack, StackProps, Tab, Tabs, Typography, styled } from "@mui/material";
-import ContentCarousel from "../Carousel";
-import NodeTotalChart from "../NodeTotalChart";
-import MiniPieChart from "../NodeChart";
-import SuspenseLoader from "../SuspenseLoader";
-import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
-import StatisticLegend from "./StatisticLegend";
+import { cloneDeep, isEqual } from "lodash";
+import React, { FC, useMemo, useState } from "react";
+
 import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg?url";
+import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
+import ContentCarousel from "../Carousel";
+import MiniPieChart from "../NodeChart";
+import NodeTotalChart from "../NodeTotalChart";
+import SuspenseLoader from "../SuspenseLoader";
+
+import StatisticLegend from "./StatisticLegend";
 
 type Props = {
   dataSubmission: Submission;

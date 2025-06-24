@@ -1,8 +1,10 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps, styled } from "@mui/material";
-import { FC, memo, useState } from "react";
 import { isEqual } from "lodash";
+import { FC, memo, useState } from "react";
+
 import Dialog from "../GenericDialog";
+
 import TextInput from "./TextInput";
 
 const StyledDialog = styled(Dialog)({

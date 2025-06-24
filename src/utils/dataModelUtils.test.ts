@@ -1,5 +1,7 @@
 import { Mock } from "vitest";
+
 import { MODEL_FILE_REPO } from "../config/DataCommons";
+
 import * as utils from "./dataModelUtils";
 
 global.fetch = vi.fn();
@@ -500,10 +502,7 @@ describe("updateEnums", () => {
 
     const result = utils.updateEnums(cdeMap, dataList, response);
 
-    expect(result.program.properties["program_name"].enum).toEqual([
-      "Pediatric",
-      "Adult - legal age",
-    ]);
+    expect(result.program.properties.program_name.enum).toEqual(["Pediatric", "Adult - legal age"]);
   });
 
   it("should convert the property to a string if the permissible values is an empty array", () => {
@@ -516,8 +515,8 @@ describe("updateEnums", () => {
 
     const result = utils.updateEnums(cdeMap, dataList, response);
 
-    expect(result.program.properties["program_name"].enum).not.toBeDefined();
-    expect(result.program.properties["program_name"].type).toEqual("string");
+    expect(result.program.properties.program_name.enum).not.toBeDefined();
+    expect(result.program.properties.program_name.type).toEqual("string");
   });
 
   it("should return the enum from mdf or undefined if none when permissable values is null", () => {
@@ -530,18 +529,18 @@ describe("updateEnums", () => {
 
     const result = utils.updateEnums(cdeMap, dataList, response);
 
-    expect(result.program.properties["program_name"].enum).toEqual(["enum one", "enum two"]);
+    expect(result.program.properties.program_name.enum).toEqual(["enum one", "enum two"]);
   });
 
   it("should populate the CDE details in the property regardless of the permissible values", () => {
     const emptyPvResult = utils.updateEnums(cdeMap, dataList, [CDEresponse]);
 
-    expect(emptyPvResult.program.properties["program_name"].CDEFullName).toEqual(
+    expect(emptyPvResult.program.properties.program_name.CDEFullName).toEqual(
       "Subject Legal Adult Or Pediatric Participant Type"
     );
-    expect(emptyPvResult.program.properties["program_name"].CDECode).toEqual("11444542");
-    expect(emptyPvResult.program.properties["program_name"].CDEVersion).toEqual("1.00");
-    expect(emptyPvResult.program.properties["program_name"].CDEOrigin).toEqual("caDSR");
+    expect(emptyPvResult.program.properties.program_name.CDECode).toEqual("11444542");
+    expect(emptyPvResult.program.properties.program_name.CDEVersion).toEqual("1.00");
+    expect(emptyPvResult.program.properties.program_name.CDEOrigin).toEqual("caDSR");
 
     const nullPvResult = utils.updateEnums(cdeMap, dataList, [
       {
@@ -550,12 +549,12 @@ describe("updateEnums", () => {
       },
     ]);
 
-    expect(nullPvResult.program.properties["program_name"].CDEFullName).toEqual(
+    expect(nullPvResult.program.properties.program_name.CDEFullName).toEqual(
       "Subject Legal Adult Or Pediatric Participant Type"
     );
-    expect(nullPvResult.program.properties["program_name"].CDECode).toEqual("11444542");
-    expect(nullPvResult.program.properties["program_name"].CDEVersion).toEqual("1.00");
-    expect(nullPvResult.program.properties["program_name"].CDEOrigin).toEqual("caDSR");
+    expect(nullPvResult.program.properties.program_name.CDECode).toEqual("11444542");
+    expect(nullPvResult.program.properties.program_name.CDEVersion).toEqual("1.00");
+    expect(nullPvResult.program.properties.program_name.CDEOrigin).toEqual("caDSR");
   });
 
   // NOTE: this is a temporary solution until 3.2.0 supports alternate CDE origins
@@ -573,7 +572,7 @@ describe("updateEnums", () => {
 
     const result = utils.updateEnums(testMap, dataList, [CDEresponse]);
 
-    expect(result.program.properties["program_name"].CDEOrigin).toEqual(
+    expect(result.program.properties.program_name.CDEOrigin).toEqual(
       "fake origin that is not caDSR"
     );
   });
@@ -581,7 +580,7 @@ describe("updateEnums", () => {
   it("should apply fallback message when response is empty and apiError is true", () => {
     const result = utils.updateEnums(cdeMap, dataList, [], true);
 
-    expect(result.program.properties["program_name"].enum).toEqual([
+    expect(result.program.properties.program_name.enum).toEqual([
       "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
     ]);
   });
@@ -630,10 +629,7 @@ describe("traverseAndReplace", () => {
 
     utils.traverseAndReplace(node, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
 
-    expect(node["program"].properties["program_name"].enum).toEqual([
-      "Pediatric",
-      "Adult - legal age",
-    ]);
+    expect(node.program.properties.program_name.enum).toEqual(["Pediatric", "Adult - legal age"]);
   });
 
   it("should return the enum from mdf or undefined if there is no enum in the MDF", () => {
@@ -658,7 +654,7 @@ describe("traverseAndReplace", () => {
 
     utils.traverseAndReplace(thisNode, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
 
-    expect(thisNode["program"].properties["program_name"].enum).toEqual(undefined);
+    expect(thisNode.program.properties.program_name.enum).toEqual(undefined);
   });
 
   it("should use fallback message when permissible values are empty and apiError is true", () => {
@@ -671,7 +667,7 @@ describe("traverseAndReplace", () => {
 
     utils.traverseAndReplace(node, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
 
-    expect(node["program"].properties["program_name"].enum).toEqual([
+    expect(node.program.properties.program_name.enum).toEqual([
       "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
     ]);
   });
@@ -686,7 +682,7 @@ describe("traverseAndReplace", () => {
 
     utils.traverseAndReplace(node, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
 
-    expect(node["program"].properties["program_name"].enum).toEqual([
+    expect(node.program.properties.program_name.enum).toEqual([
       "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
     ]);
   });

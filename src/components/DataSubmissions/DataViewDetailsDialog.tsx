@@ -1,5 +1,7 @@
 import { Button, Dialog, DialogProps, IconButton, Stack, styled } from "@mui/material";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+
 import DataViewDetails from "./DataViewDetails";
 
 const StyledDialog = styled(Dialog)({

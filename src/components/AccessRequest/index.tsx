@@ -1,9 +1,11 @@
-import { FC, memo, useState } from "react";
 import { Button, styled } from "@mui/material";
-import FormDialog from "./FormDialog";
-import { useAuthContext } from "../Contexts/AuthContext";
+import { FC, memo, useState } from "react";
+
 import { hasPermission } from "../../config/AuthPermissions";
+import { useAuthContext } from "../Contexts/AuthContext";
 import { InstitutionProvider } from "../Contexts/InstitutionListContext";
+
+import FormDialog from "./FormDialog";
 
 const StyledButton = styled(Button)({
   marginLeft: "42px",

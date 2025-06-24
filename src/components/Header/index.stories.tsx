@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, screen, within } from "@storybook/test";
-import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
-import Header from "./index";
+
 import { Roles } from "../../config/AuthRoles";
+import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
+
+import Header from "./index";
 
 const meta: Meta<typeof Header> = {
   title: "Navigation / Header",

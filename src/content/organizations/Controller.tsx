@@ -1,11 +1,13 @@
 import { FC } from "react";
 import { Navigate, useParams } from "react-router-dom";
+
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
 import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
-import ListView from "./ListView";
-import OrganizationView from "./OrganizationView";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { hasPermission } from "../../config/AuthPermissions";
+
+import ListView from "./ListView";
+import OrganizationView from "./OrganizationView";
 
 const WrappedListView = () => (
   <OrganizationProvider preload>

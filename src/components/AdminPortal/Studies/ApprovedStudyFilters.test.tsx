@@ -1,13 +1,15 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { fireEvent, render, waitFor, within } from "../../../test-utils";
-import ApprovedStudyFilters from "./ApprovedStudyFilters";
-import { SearchParamsProvider, useSearchParamsContext } from "../../Contexts/SearchParamsContext";
-import { OrganizationProvider } from "../../Contexts/OrganizationListContext";
+
 import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../../graphql";
+import { fireEvent, render, waitFor, within } from "../../../test-utils";
+import { OrganizationProvider } from "../../Contexts/OrganizationListContext";
+import { SearchParamsProvider, useSearchParamsContext } from "../../Contexts/SearchParamsContext";
+
+import ApprovedStudyFilters from "./ApprovedStudyFilters";
 
 const listOrgMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
   {

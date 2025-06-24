@@ -1,15 +1,17 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { GraphQLError } from "graphql";
-import { render, waitFor } from "../../test-utils";
-import Controller from "./Controller";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../../components/Contexts/AuthContext";
 import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+
+import Controller from "./Controller";
 
 const mockUsePageTitle = vi.fn();
 vi.mock("../../hooks/usePageTitle", () => ({

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { createStore, combineReducers, Store } from "redux";
+import { useLazyQuery } from "@apollo/client";
 import {
   ddgraph,
   moduleReducers as submission,
@@ -9,9 +8,13 @@ import {
   getModelExploreData,
   getChangelog,
 } from "data-model-navigator";
-import { useLazyQuery } from "@apollo/client";
 import { defaultTo } from "lodash";
+import { useState } from "react";
+import { createStore, combineReducers, Store } from "redux";
+
+import logo from "../assets/header/Logo.jpg";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
+import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
 import {
   buildAssetUrls,
   buildBaseFilterContainers,
@@ -19,8 +22,6 @@ import {
   updateEnums,
   Logger,
 } from "../utils";
-import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
-import logo from "../assets/header/Logo.jpg";
 
 export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
 

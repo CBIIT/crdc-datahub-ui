@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import PansBanner from "./index";
 
 const meta: Meta<typeof PansBanner> = {

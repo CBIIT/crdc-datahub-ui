@@ -1,13 +1,15 @@
 import { useQuery } from "@apollo/client";
+import { useSnackbar } from "notistack";
 import { useMemo } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { useSnackbar } from "notistack";
-import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
-import usePageTitle from "../../hooks/usePageTitle";
+
 import { Status, useAuthContext } from "../../components/Contexts/AuthContext";
 import SuspenseLoader from "../../components/SuspenseLoader";
-import DashboardView from "./DashboardView";
 import { hasPermission } from "../../config/AuthPermissions";
+import { GET_DASHBOARD_URL, GetDashboardURLInput, GetDashboardURLResp } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
+
+import DashboardView from "./DashboardView";
 
 /**
  * Handles the logic for the OperationDashboard component.

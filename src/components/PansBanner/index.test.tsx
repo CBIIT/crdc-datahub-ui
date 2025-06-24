@@ -1,6 +1,8 @@
-import { axe } from "vitest-axe";
 import dayjs from "dayjs";
+import { axe } from "vitest-axe";
+
 import { render } from "../../test-utils";
+
 import PansBanner from "./index";
 
 describe("Accessibility", () => {

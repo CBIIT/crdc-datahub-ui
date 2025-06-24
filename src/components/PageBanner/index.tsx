@@ -1,5 +1,5 @@
-import React, { FC } from "react";
 import { Container, styled } from "@mui/material";
+import React, { FC } from "react";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: bannerSrc ? `url("${bannerSrc}")` : "transparent",

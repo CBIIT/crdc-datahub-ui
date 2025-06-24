@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Table,
   TableBody,
@@ -8,6 +7,8 @@ import {
   TableRow,
   styled,
 } from "@mui/material";
+import React from "react";
+
 import { addSpace } from "../../utils";
 
 const StyledTableContainer = styled(TableContainer)(() => ({

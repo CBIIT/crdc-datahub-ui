@@ -1,8 +1,9 @@
-import { FC } from "react";
 import { Box, Button, Stack, Typography, styled } from "@mui/material";
+import { FC } from "react";
 import { useNavigate } from "react-router-dom";
-import usePageTitle from "../../hooks/usePageTitle";
+
 import status404 from "../../assets/icons/404.png";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const StyledContainer = styled(Stack)({
   background: "#114454CC",

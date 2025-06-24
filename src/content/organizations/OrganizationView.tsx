@@ -1,4 +1,3 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -11,12 +10,23 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useSnackbar } from "notistack";
 import { cloneDeep } from "lodash";
+import { useSnackbar } from "notistack";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import programIcon from "../../assets/icons/program_icon.svg?url";
+import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import BaseDialog from "../../components/DeleteDialog";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import {
   CREATE_ORG,
@@ -34,7 +44,6 @@ import {
   ListApprovedStudiesInput,
   GetOrgInput,
 } from "../../graphql";
-import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
 import {
   filterAlphaNumeric,
@@ -43,14 +52,6 @@ import {
   mapOrganizationStudyToId,
   validateUTF8,
 } from "../../utils";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
-import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
-import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import BaseAutocomplete, {
-  StyledPaper as BasePaper,
-} from "../../components/StyledFormComponents/StyledAutocomplete";
-import BaseDialog from "../../components/DeleteDialog";
 
 type Props = {
   /**

@@ -1,13 +1,13 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import React, { FC, useMemo } from "react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { render, waitFor } from "../../test-utils";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../../components/Contexts/AuthContext";
-import StudiesController from "./Controller";
+import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
@@ -22,7 +22,9 @@ import {
   ListOrgsInput,
   ListOrgsResp,
 } from "../../graphql";
-import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
+import { render, waitFor } from "../../test-utils";
+
+import StudiesController from "./Controller";
 
 const listActiveDCPsMock: MockedResponse<ListActiveDCPsResp> = {
   request: {

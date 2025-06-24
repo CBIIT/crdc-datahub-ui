@@ -1,10 +1,10 @@
+import { ApolloError } from "@apollo/client";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
-import { ApolloError } from "@apollo/client";
-import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { act, render, waitFor, within } from "../../test-utils";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
@@ -19,6 +19,8 @@ import {
   UpdateApprovedStudyResp,
   UpdateApprovedStudyInput,
 } from "../../graphql";
+import { act, render, waitFor, within } from "../../test-utils";
+
 import StudyView from "./StudyView";
 
 const mockUsePageTitle = vi.fn();

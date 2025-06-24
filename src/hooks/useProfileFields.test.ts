@@ -1,5 +1,6 @@
-import { renderHook } from "../test-utils";
 import * as Auth from "../components/Contexts/AuthContext";
+import { renderHook } from "../test-utils";
+
 import useProfileFields, { FieldState } from "./useProfileFields";
 
 describe("Users View", () => {

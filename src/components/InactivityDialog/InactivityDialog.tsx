@@ -1,10 +1,11 @@
-import React, { useState, useEffect, FC } from "react";
 import { Button, Dialog, DialogTitle, styled } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useAuthContext } from "../Contexts/AuthContext";
-import { Logger, secondsToMinuteString } from "../../utils";
+import React, { useState, useEffect, FC } from "react";
+import { useNavigate } from "react-router-dom";
+
 import CloseIcon from "../../assets/icons/close_icon.svg?url";
+import { Logger, secondsToMinuteString } from "../../utils";
+import { useAuthContext } from "../Contexts/AuthContext";
 
 const InactivityWarningDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

@@ -1,11 +1,13 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { render } from "../../test-utils";
-import DataViewDetailsDialog from "./DataViewDetailsDialog";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
 import { GET_NODE_DETAIL } from "../../graphql";
+import { render } from "../../test-utils";
+import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import DataViewDetailsDialog from "./DataViewDetailsDialog";
 
 const mocks = [
   {

@@ -1,12 +1,14 @@
-import userEvent from "@testing-library/user-event";
-import { axe } from "vitest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC, useMemo } from "react";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
+
 import CreateApplicationButton from "./index";
-import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";
 
 const mockUser: User = {
   _id: "user-1",

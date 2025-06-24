@@ -1,13 +1,15 @@
-import React, { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import React, { FC } from "react";
+
+import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
+
 import {
   OrganizationProvider,
   Status as OrgStatus,
   useOrganizationListContext,
 } from "./OrganizationListContext";
-import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 
 type Props = {
   mocks?: MockedResponse[];

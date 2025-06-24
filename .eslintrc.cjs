@@ -44,10 +44,13 @@ const config = {
     /* base prettier rule */
     "prettier/prettier": "error",
 
+    /* base compatibility rule */
+    "compat/compat": "error",
+
     "max-len": "off",
     "no-param-reassign": "off",
     "object-curly-newline": "off",
-    "no-underscore-dangle": ["off"],
+    "no-underscore-dangle": "off",
     "no-console": "warn",
     "arrow-body-style": "warn",
     "eol-last": "warn",
@@ -59,6 +62,7 @@ const config = {
     "no-loss-of-precision": "off",
     "no-shadow": "off",
     "no-empty-function": "off",
+    "dot-notation": "off",
 
     /* react rules */
     "react/prop-types": "off",
@@ -92,7 +96,7 @@ const config = {
     "@typescript-eslint/no-redundant-type-constituents": "error",
     "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
     "@typescript-eslint/no-shadow": "off",
-    "@typescript-eslint/dot-notation": "off",
+    "@typescript-eslint/dot-notation": "error",
     "@typescript-eslint/naming-convention": [
       "error",
       {
@@ -106,6 +110,8 @@ const config = {
     /* create-react-app rules */
     "react-hooks/rules-of-hooks": "off",
     "react-hooks/exhaustive-deps": "off",
+
+    /* import rules */
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": [
       "error",
@@ -120,14 +126,30 @@ const config = {
         optionalDependencies: false,
       },
     ],
+    "import/newline-after-import": [
+      "error",
+      {
+        count: 1,
+        considerComments: true,
+      },
+    ],
+    "import/order": [
+      "error",
+      {
+        groups: ["builtin", "external", "internal", "parent", ["sibling", "index"]],
+        alphabetize: {
+          order: "asc",
+          caseInsensitive: true,
+        },
+        "newlines-between": "always",
+      },
+    ],
 
     /* testing-library rules */
     "testing-library/prefer-screen-queries": "off",
     "testing-library/no-wait-for-multiple-assertions": "off",
     "testing-library/no-node-access": "off",
     "testing-library/no-container": "off",
-
-    "compat/compat": "error",
   },
 };
 
