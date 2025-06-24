@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import Filters, { DataExplorerFilterProps } from "./index";
+
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import Filters, { DataExplorerFilterProps } from "./index";
 
 type CustomStoryProps = DataExplorerFilterProps;
 

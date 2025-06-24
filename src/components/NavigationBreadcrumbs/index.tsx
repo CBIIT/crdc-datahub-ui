@@ -1,6 +1,6 @@
-import { FC, memo } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Breadcrumbs, styled, Typography } from "@mui/material";
+import { FC, memo } from "react";
 import { Link } from "react-router-dom";
 
 const StyledBreadcrumbs = styled(Breadcrumbs)({

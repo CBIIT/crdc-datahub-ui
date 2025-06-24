@@ -1,5 +1,5 @@
-import React, { FC, memo } from "react";
 import { Box, Container, styled, Typography } from "@mui/material";
+import React, { FC, memo } from "react";
 
 const StyledWrapper = styled(Box)<{ background: string }>(({ background }) => ({
   background: `url(${background})`,

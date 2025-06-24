@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import NavigationBreadcrumbs, { NavigationBreadcrumbsProps } from "./index";
 
 const meta: Meta<NavigationBreadcrumbsProps> = {

@@ -1,14 +1,15 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { FormControl, IconButton, MenuItem, Grid, Box, styled, Stack } from "@mui/material";
 import { isEqual } from "lodash";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import StyledSelectFormComponent from "../StyledFormComponents/StyledSelect";
-import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
-import { Column } from "../GenericTable";
-import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
-import Tooltip from "../Tooltip";
+
 import { ListReleasedDataRecordsInput, ListReleasedDataRecordsResponse } from "../../graphql";
+import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
+import { Column } from "../GenericTable";
+import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
+import StyledSelectFormComponent from "../StyledFormComponents/StyledSelect";
+import Tooltip from "../Tooltip";
 
 const StyledFilters = styled("div")({
   paddingTop: "19px",

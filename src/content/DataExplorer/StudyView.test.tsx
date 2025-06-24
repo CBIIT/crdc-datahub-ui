@@ -1,11 +1,10 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { MemoryRouter, Route, Routes, useLocation, useParams } from "react-router-dom";
-import React, { FC } from "react";
-import { axe } from "vitest-axe";
 import { GraphQLError } from "graphql";
+import React, { FC } from "react";
+import { MemoryRouter, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { axe } from "vitest-axe";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
-import { render, waitFor } from "../../test-utils";
-import StudyView from "./StudyView";
 import {
   GET_APPROVED_STUDY,
   GET_RELEASED_NODE_TYPES,
@@ -14,6 +13,9 @@ import {
   GetReleasedNodeTypesInput,
   GetReleasedNodeTypesResp,
 } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+
+import StudyView from "./StudyView";
 
 const basePartialStudy: GetApprovedStudyResp<true>["getApprovedStudy"] = {
   _id: "",

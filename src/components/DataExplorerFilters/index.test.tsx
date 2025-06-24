@@ -1,10 +1,12 @@
+import userEvent from "@testing-library/user-event";
 import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
+
 import { render, waitFor, within } from "../../test-utils";
-import DataExplorerFilters from "./index";
 import { SearchParamsProvider, useSearchParamsContext } from "../Contexts/SearchParamsContext";
+
+import DataExplorerFilters from "./index";
 
 type ParentProps = {
   initialEntries?: MemoryRouterProps["initialEntries"];

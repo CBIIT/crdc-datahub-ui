@@ -1,14 +1,17 @@
-import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Box, styled } from "@mui/material";
-import { Navigate } from "react-router-dom";
 import { useLazyQuery, useQuery } from "@apollo/client";
+import { Box, styled } from "@mui/material";
 import { cloneDeep, isEqual, sortBy } from "lodash";
-import usePageTitle from "../../hooks/usePageTitle";
+import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
+import { Navigate } from "react-router-dom";
+
 import bannerPng from "../../assets/banner/submission_banner.png";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { useColumnVisibility } from "../../hooks/useColumnVisibility";
-import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
+import GenericTable, { Column } from "../../components/GenericTable";
+import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
+import PageContainer from "../../components/PageContainer";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import TruncatedText from "../../components/TruncatedText";
 import {
   GET_APPROVED_STUDY,
   GET_RELEASED_NODE_TYPES,
@@ -20,11 +23,9 @@ import {
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
 } from "../../graphql";
+import { useColumnVisibility } from "../../hooks/useColumnVisibility";
+import usePageTitle from "../../hooks/usePageTitle";
 import { coerceToString, Logger } from "../../utils";
-import SuspenseLoader from "../../components/SuspenseLoader";
-import PageContainer from "../../components/PageContainer";
-import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
-import TruncatedText from "../../components/TruncatedText";
 
 const StyledBreadcrumbsBox = styled(Box)({
   height: "50px",
