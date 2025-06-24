@@ -3,19 +3,8 @@ import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 import { render, waitFor, within } from "../../test-utils";
-import DataExplorerFilters, { type T } from "./index";
+import DataExplorerFilters from "./index";
 import { SearchParamsProvider, useSearchParamsContext } from "../Contexts/SearchParamsContext";
-import { Column } from "../GenericTable";
-
-const columns: Column<T>[] = [
-  {
-    field: "columnName",
-    label: "Name",
-    renderValue: (row) => row.columnName,
-  },
-];
-
-const columnVisibilityModel = { columnName: true }; // TODO: type this
 
 type ParentProps = {
   initialEntries?: MemoryRouterProps["initialEntries"];
@@ -32,12 +21,12 @@ describe("Accessibility", () => {
   it("has no accessibility violations (populated)", async () => {
     const { container, getByTestId } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["mock-node-type"]}
         defaultValues={{
           nodeType: "mock-node-type",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
@@ -98,12 +87,12 @@ describe("Basic Functionality", () => {
   it("renders all input fields correctly", async () => {
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["node-123"]}
         defaultValues={{
           nodeType: "node-123",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
@@ -122,12 +111,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getByRole } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-participant",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
@@ -189,12 +178,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-participant",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
@@ -221,12 +210,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["node-participant", "node-study", "mock-node-from-url"]}
         defaultValues={{
           nodeType: "node-study",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
@@ -255,12 +244,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-study",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
@@ -289,12 +278,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={columns}
+        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-study",
         }}
-        columnVisibilityModel={columnVisibilityModel}
+        columnVisibilityModel={{}}
         onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
@@ -317,6 +306,4 @@ describe("Basic Functionality", () => {
   });
 });
 
-describe.todo("Implementation Requirements", () => {
-  // TODO: column selection coverage
-});
+describe.todo("Implementation Requirements");

@@ -8,7 +8,7 @@ import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
 import { Column } from "../GenericTable";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import Tooltip from "../Tooltip";
-import { ListReleasedDataRecordsInput } from "../../graphql";
+import { ListReleasedDataRecordsInput, ListReleasedDataRecordsResponse } from "../../graphql";
 
 const StyledFilters = styled("div")({
   paddingTop: "19px",
@@ -62,9 +62,9 @@ const initialTouchedFields: TouchedState = {
   nodeType: false,
 };
 
-export type T = { columnName: string }; // TODO: replace with actual type from response
-
 export type FilterForm = Pick<ListReleasedDataRecordsInput, "nodeType">;
+
+type T = ListReleasedDataRecordsResponse["listReleasedDataRecords"]["nodes"][number];
 
 type FilterFormKey = keyof FilterForm;
 
@@ -76,7 +76,7 @@ export type DataExplorerFilterProps = {
   defaultValues: FilterForm;
   columnVisibilityModel: ColumnVisibilityModel;
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
-  onChange?: (data: FilterForm) => void;
+  onChange: (data: FilterForm) => void;
 };
 
 const DataExplorerFilters = ({
@@ -96,11 +96,7 @@ const DataExplorerFilters = ({
 
   const handleFormChange = useCallback(
     (form: FilterForm) => {
-      if (typeof onChange !== "function" || !form) {
-        return;
-      }
-
-      onChange(form);
+      onChange?.(form);
     },
     [onChange]
   );
