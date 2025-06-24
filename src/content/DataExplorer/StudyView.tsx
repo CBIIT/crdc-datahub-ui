@@ -187,7 +187,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const handleFetchData = useCallback(
     async (params: FetchListing<T>, force: boolean) => {
-      const { offset, first, sortDirection } = params;
+      const { offset, first } = params;
 
       // NOTE: This is a workaround to stabilize the number of API calls when switching between node types
       // It will override the previous orderBy if the node type changes
@@ -195,6 +195,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         params.orderBy = nodesData?.getReleaseNodeTypes?.nodes?.find(
           (node) => node.name === filtersRef.current?.nodeType
         )?.IDPropName;
+        params.sortDirection = "asc";
       }
 
       setLoading(true);
@@ -204,9 +205,9 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
           dataCommonsDisplayName,
           nodeType: filtersRef.current?.nodeType,
           orderBy: params.orderBy,
+          sortDirection: params.sortDirection,
           offset,
           first,
-          sortDirection,
         },
       });
 
@@ -254,7 +255,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const handleSetItemKey = useCallback(
     (d: T, idx: number) => `data-${d?.[selectedNodeType?.IDPropName] || idx}`,
-    [selectedNodeType?.IDPropName]
+    [columns, selectedNodeType?.IDPropName]
   );
 
   if (studyLoading || nodesLoading) {
@@ -304,8 +305,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             total={totalData || 0}
             loading={loading}
             defaultRowsPerPage={20}
-            defaultOrder="desc"
-            disableUrlParams={false}
+            defaultOrder="asc"
+            disableUrlParams
             position="bottom"
             onFetchData={handleFetchData}
             setItemKey={handleSetItemKey}
