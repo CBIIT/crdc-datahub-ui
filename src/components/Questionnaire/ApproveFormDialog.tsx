@@ -153,7 +153,11 @@ const ApproveFormDialog: FC<Props> = ({ open, loading, onCancel, onSubmit, onClo
         render={({ field }) => (
           <StyledOutlinedInput
             {...field}
-            inputProps={{ maxLength: 500, style: { height: "auto !important" } }}
+            inputProps={{
+              maxLength: 500,
+              style: { height: "auto !important" },
+              "aria-label": "Review comment input",
+            }}
             name="reviewComment"
             placeholder="500 characters allowed"
             minRows={5}
