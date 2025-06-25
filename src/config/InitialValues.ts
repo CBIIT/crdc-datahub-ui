@@ -14,6 +14,7 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   PI: "",
   conditional: false,
   pendingConditions: [],
+  pendingModelChange: false,
   programAbbreviation: "",
   programDescription: "",
   version: "",
