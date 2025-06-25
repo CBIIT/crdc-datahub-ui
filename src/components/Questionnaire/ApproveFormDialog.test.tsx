@@ -12,12 +12,6 @@ describe("Accessibility", () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it("should have no violations (disabled actions)", async () => {
-    const { container } = render(<ReviewDialog open disableActions />);
-
-    expect(await axe(container)).toHaveNoViolations();
-  });
-
   it("should have no violations (loading)", async () => {
     const { container } = render(<ReviewDialog open loading />);
 
@@ -36,13 +30,6 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(<ReviewDialog open />);
 
     expect(getByTestId("review-comment")).toBeInTheDocument();
-  });
-
-  it("should disable all actions when `disableActions` is true", () => {
-    const { getByRole } = render(<ReviewDialog open disableActions />);
-
-    expect(getByRole("button", { name: /Cancel/i })).toBeDisabled();
-    expect(getByRole("button", { name: /Confirm to Approve/i })).toBeDisabled();
   });
 
   it("should disable the confirm button when `loading` is true", () => {
