@@ -29,7 +29,7 @@ describe("Implementation Requirements", () => {
     const { container, getByTestId } = render(<PansBanner />);
 
     expect(container.textContent).toContain("Expiration Date:");
-    expect(getByTestId("pans-expiration")).toHaveTextContent(/06\/30\/2025/);
+    expect(getByTestId("pans-expiration")).toHaveTextContent(/07\/31\/2025/);
   });
 
   // NOTE: Passive test to ensure the OMB Approval date is not outdated
