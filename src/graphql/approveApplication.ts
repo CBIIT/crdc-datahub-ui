@@ -6,12 +6,14 @@ export const mutation = gql`
     $comment: String
     $wholeProgram: Boolean
     $institutions: [String]
+    $pendingModelChange: Boolean
   ) {
     approveApplication(
       _id: $id
       wholeProgram: $wholeProgram
       comment: $comment
       institutions: $institutions
+      pendingModelChange: $pendingModelChange
     ) {
       _id
     }
@@ -23,6 +25,7 @@ export type Input = {
   comment: string;
   wholeProgram: boolean;
   institutions: string[];
+  pendingModelChange: boolean;
 };
 
 export type Response = {

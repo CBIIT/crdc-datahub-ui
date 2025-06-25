@@ -40,6 +40,10 @@ type Application = {
    * The current form version
    */
   version: string;
+  /**
+   * Indicates the application is awaiting required data model updates.
+   */
+  pendingModelChange: boolean;
 };
 
 type QuestionnaireData = {
