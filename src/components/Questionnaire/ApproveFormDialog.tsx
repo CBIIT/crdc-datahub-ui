@@ -170,7 +170,7 @@ const ApproveFormDialog: FC<Props> = ({ open, loading, onCancel, onSubmit, onClo
           />
         )}
       />
-      <StyledHelperText data-testid="pending-model-change-dialog-error">
+      <StyledHelperText data-testid="review-comment-dialog-error">
         {errors?.reviewComment?.message}
       </StyledHelperText>
 
