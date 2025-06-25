@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 
-import { render, within } from "../../test-utils";
+import { render, waitFor, within } from "../../test-utils";
 
 import ReviewDialog from "./ApproveFormDialog";
 
@@ -38,17 +38,30 @@ describe("Basic Functionality", () => {
     expect(getByRole("button", { name: /Confirm to Approve/i })).toBeDisabled();
   });
 
-  it("should call the `onSubmit` function when the confirm button is clicked", () => {
+  it("should call the `onSubmit` function when the confirm button is clicked", async () => {
     const mockOnSubmit = vi.fn();
 
-    const { getByRole, getByTestId } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
+    const { getByTestId } = render(<ReviewDialog open onSubmit={mockOnSubmit} loading={false} />);
 
-    userEvent.type(getByTestId("review-comment"), "mock-comment");
+    userEvent.type(
+      within(getByTestId("review-comment")).getByRole("textbox", { hidden: false }),
+      "mock-comment"
+    );
+    expect(
+      within(getByTestId("review-comment")).getByRole("textbox", { hidden: false })
+    ).toHaveValue("mock-comment");
+    expect(getByTestId("confirm-to-approve-button")).toBeEnabled();
 
-    userEvent.click(getByRole("button", { name: /Confirm to Approve/i }));
+    userEvent.click(getByTestId("confirm-to-approve-button"));
 
-    expect(mockOnSubmit).toHaveBeenCalledWith("mock-comment");
-    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockOnSubmit).toHaveBeenCalledWith({
+      reviewComment: "mock-comment",
+      pendingModelChange: false,
+    });
   });
 
   it("calls the `onCancel` function when the cancel button is clicked", () => {
@@ -86,11 +99,18 @@ describe("Implementation Requirements", () => {
       skipPointerEventsCheck: true,
     });
 
-    expect(mockOnSubmit).toHaveBeenCalledWith(expect.stringMatching(/^X{500}$/));
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockOnSubmit).toHaveBeenCalledWith({
+      reviewComment: expect.stringMatching(/^X{500}$/),
+      pendingModelChange: false,
+    });
     expect(mockOnSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it("should not allow pasting more than 500 characters in the review comment input field", () => {
+  it("should not allow pasting more than 500 characters in the review comment input field", async () => {
     const mockOnSubmit = vi.fn();
 
     const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
@@ -103,7 +123,38 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByRole("button", { name: /Confirm to Approve/i }));
 
-    expect(mockOnSubmit).toHaveBeenCalledWith(expect.stringMatching(/^X{500}$/));
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockOnSubmit).toHaveBeenCalledWith({
+      reviewComment: expect.stringMatching(/^X{500}$/),
+      pendingModelChange: false,
+    });
+    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("should set the pendingModelChange when checkbox is checked", async () => {
+    const mockOnSubmit = vi.fn();
+
+    const { getByTestId, getByRole } = render(<ReviewDialog open onSubmit={mockOnSubmit} />);
+
+    const input = within(getByTestId("review-comment")).getByRole("textbox");
+
+    userEvent.paste(input, "X".repeat(10));
+
+    userEvent.click(getByTestId("pendingModelChange-checkbox"));
+
+    userEvent.click(getByRole("button", { name: /Confirm to Approve/i }));
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockOnSubmit).toHaveBeenCalledWith({
+      reviewComment: expect.stringMatching(/^X{10}$/),
+      pendingModelChange: true,
+    });
     expect(mockOnSubmit).toHaveBeenCalledTimes(1);
   });
 });

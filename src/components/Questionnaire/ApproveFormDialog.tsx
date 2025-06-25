@@ -122,6 +122,7 @@ const ApproveFormDialog: FC<Props> = ({ open, loading, onCancel, onSubmit, onClo
       onClose={onClose}
       scroll="body"
       title="Approve Submission Request"
+      data-testid="approve-form-dialog"
       actions={
         <>
           <Button onClick={handleOnCancel} disabled={loading}>
@@ -132,6 +133,7 @@ const ApproveFormDialog: FC<Props> = ({ open, loading, onCancel, onSubmit, onClo
             loading={loading}
             disabled={!reviewComment || loading}
             autoFocus
+            data-testid="confirm-to-approve-button"
           >
             Confirm to Approve
           </LoadingButton>
