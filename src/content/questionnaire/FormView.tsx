@@ -18,7 +18,9 @@ import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/
 import { Status as FormStatus, useFormContext } from "../../components/Contexts/FormContext";
 import PageBanner from "../../components/PageBanner";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
-import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
+import ApproveFormDialog, {
+  FormInput as ApproveFormInput,
+} from "../../components/Questionnaire/ApproveFormDialog";
 import InquireFormDialog from "../../components/Questionnaire/InquireFormDialog";
 import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
@@ -247,7 +249,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
    *
    * @returns {Promise<boolean>} true if the approval submission was successful, false otherwise
    */
-  const submitApproveForm = async (reviewComment): Promise<string | boolean> => {
+  const submitApproveForm = async (data: ApproveFormInput): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -257,19 +259,19 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    const res = await approveForm(reviewComment, true);
+    const res = await approveForm(data, true);
     setOpenApproveDialog(false);
     if (res?.status === "success") {
       navigate("/submission-requests");
     } else {
       enqueueSnackbar(
-        res.errorMessage || "An error occurred while approving the form. Please try again.",
+        res?.errorMessage || "An error occurred while approving the form. Please try again.",
         {
           variant: "error",
         }
       );
     }
-    return res.status === "success";
+    return res?.status === "success";
   };
 
   /**
@@ -784,7 +786,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
       <ApproveFormDialog
         open={openApproveDialog}
         onCancel={handleCloseApproveFormDialog}
-        onSubmit={(reviewComment) => submitApproveForm(reviewComment)}
+        onSubmit={(data) => submitApproveForm(data)}
+        loading={status === FormStatus.SUBMITTING}
       />
       <InquireFormDialog
         open={openInquireDialog}
