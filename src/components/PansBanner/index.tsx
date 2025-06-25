@@ -44,7 +44,7 @@ const PansBanner: React.FC = (): React.ReactNode => (
         OMB No.: 0925-7775
       </StyledApprovalNumber>
       <StyledExpirationDate variant="h2" data-testid="pans-expiration">
-        Expiration Date: 06/30/2025
+        Expiration Date: 07/31/2025
       </StyledExpirationDate>
     </StyledHeaderStack>
     <StyledContent>
