@@ -74,7 +74,6 @@ const meta: Meta<typeof Button> = {
             studyAbbreviation: "MOCK-STUDY",
             conditional: false,
             pendingConditions: [],
-            pendingModelChange: false,
             programName: "",
             programAbbreviation: "",
             programDescription: "",

@@ -62,7 +62,6 @@ const baseApp: Application = {
   studyAbbreviation: "",
   conditional: false,
   pendingConditions: [],
-  pendingModelChange: false,
   programName: "",
   programAbbreviation: "",
   programDescription: "",

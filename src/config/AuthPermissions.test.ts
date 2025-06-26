@@ -21,7 +21,6 @@ const baseApplication: Application = {
   studyAbbreviation: "",
   conditional: false,
   pendingConditions: [],
-  pendingModelChange: false,
   programAbbreviation: "",
   programDescription: "",
   version: "",

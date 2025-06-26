@@ -40,7 +40,6 @@ const baseApplication: Omit<Application, "questionnaireData"> = {
   studyAbbreviation: "",
   conditional: false,
   pendingConditions: [],
-  pendingModelChange: false,
   programAbbreviation: "",
   programDescription: "",
   version: "",
