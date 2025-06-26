@@ -62,6 +62,7 @@ const StyledOutlinedInput = styled(BaseOutlinedInput, {
   shouldForwardProp: (prop) => prop !== "resize" && prop !== "rowHeight",
 })<OutlinedInputProps & { resize: boolean; rowHeight?: number }>(
   ({ resize, rowHeight = 25, rows, minRows, maxRows }) => ({
+    marginTop: "24px",
     "&.MuiInputBase-multiline": {
       padding: "12px",
     },
