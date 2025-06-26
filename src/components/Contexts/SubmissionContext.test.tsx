@@ -134,6 +134,7 @@ describe("useSubmissionContext", () => {
 describe("SubmissionProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should handle API network errors without crashing", async () => {
@@ -308,6 +309,31 @@ describe("SubmissionProvider", () => {
           },
         },
       },
+      // polling attributes mock
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-validating-id",
+            skipStats: true,
+            skipSubmission: true,
+            skipAttributes: false,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: undefined,
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
+            },
+          },
+        },
+      },
     ];
     const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
       {
@@ -410,6 +436,31 @@ describe("SubmissionProvider", () => {
           },
         },
       },
+      // polling attributes mock
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-uploading-id",
+            skipStats: true,
+            skipSubmission: true,
+            skipAttributes: false,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: undefined,
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
+            },
+          },
+        },
+      },
     ];
     const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
       {
@@ -505,6 +556,31 @@ describe("SubmissionProvider", () => {
               stats: [],
             },
             getSubmissionAttributes: null,
+          },
+        },
+      },
+      // polling attributes mock
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-deleting-id",
+            skipStats: true,
+            skipSubmission: true,
+            skipAttributes: false,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: undefined,
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
+            },
           },
         },
       },

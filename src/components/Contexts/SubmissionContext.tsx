@@ -1,6 +1,14 @@
 import { ApolloError, ApolloQueryResult, useQuery } from "@apollo/client";
 import { cloneDeep, isEqual } from "lodash";
-import React, { FC, createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  FC,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { GetSubmissionResp, GET_SUBMISSION, GetSubmissionInput } from "../../graphql";
 import { compareNodeStats, Logger } from "../../utils";
@@ -116,6 +124,14 @@ const MemoedProvider = React.memo<{ value: SubmissionCtxState; children: React.R
 export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: ProviderProps) => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [skipOptions, setSkipOptions] = useState({ ...defaultSkipOptions });
+  const [mergedData, setMergedData] = useState<GetSubmissionResp>(null);
+
+  useEffect(() => {
+    if (!mergedData) {
+      return;
+    }
+    setMergedData(null);
+  }, [_id]);
 
   const {
     data,
@@ -125,7 +141,6 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     stopPolling: stopApolloPolling,
     refetch,
     updateQuery,
-    previousData,
   } = useQuery<GetSubmissionResp, GetSubmissionInput>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
     variables: { id: _id, ...skipOptions },
@@ -140,10 +155,10 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
       const hasUploadingBatches =
         d?.getSubmissionAttributes?.submissionAttributes?.isBatchUploading;
       if (!isValidating && !hasUploadingBatches && !isDeleting) {
-        stopApolloPolling();
+        stopPolling();
         setIsPolling(false);
-      } else {
-        startApolloPolling(1000);
+      } else if (!isPolling) {
+        startPolling(1000, { skipStats: true, skipSubmission: true });
         setIsPolling(true);
       }
     },
@@ -154,43 +169,38 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
 
   const status: SubmissionCtxStatus = useMemo<SubmissionCtxStatus>(() => {
     const invalidData =
-      data && !data?.getSubmission?._id && !data?.getSubmissionAttributes && !data?.submissionStats;
-    if (error || (!loading && invalidData)) {
+      !data || (!data?.getSubmission && !data?.getSubmissionAttributes && !data?.submissionStats);
+    if (error || (!loading && !isPolling && invalidData)) {
       return SubmissionCtxStatus.ERROR;
     }
     if (isPolling) {
       return SubmissionCtxStatus.POLLING;
     }
-    if (loading && !data) {
+    if ((loading && !invalidData) || !mergedData) {
       return SubmissionCtxStatus.LOADING;
     }
 
     return SubmissionCtxStatus.LOADED;
-  }, [loading, error, data, isPolling]);
+  }, [loading, error, data, mergedData, isPolling]);
 
-  const memoedData: GetSubmissionResp = useMemo<GetSubmissionResp>(() => {
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
     let sortedStats = [];
-    if (Array.isArray(data?.submissionStats?.stats)) {
+    if (Array.isArray(data.submissionStats?.stats)) {
       sortedStats = cloneDeep(data.submissionStats.stats);
       sortedStats.sort(compareNodeStats);
     }
 
-    const result: GetSubmissionResp = cloneDeep(previousData) || {
-      getSubmission: null,
-      submissionStats: { stats: [] },
-      getSubmissionAttributes: null,
-    };
-    if (!skipOptions.skipSubmission) {
-      result.getSubmission = data?.getSubmission ?? null;
-    }
-    if (!skipOptions.skipStats) {
-      result.submissionStats = { stats: sortedStats };
-    }
-    if (!skipOptions.skipAttributes) {
-      result.getSubmissionAttributes = data?.getSubmissionAttributes ?? null;
-    }
-
-    return result;
+    setMergedData((prev) => ({
+      getSubmission: skipOptions.skipSubmission ? prev.getSubmission : data.getSubmission,
+      submissionStats: skipOptions.skipStats ? prev.submissionStats : { stats: sortedStats },
+      getSubmissionAttributes: skipOptions.skipAttributes
+        ? prev.getSubmissionAttributes
+        : data.getSubmissionAttributes,
+    }));
   }, [data, skipOptions]);
 
   /**
@@ -199,7 +209,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
   const startPolling = useCallback(
     (
       interval: number,
-      options?: { skipSubmission?: boolean; skipStats?: boolean; skipAttributes?: boolean }
+      options: { skipSubmission?: boolean; skipStats?: boolean; skipAttributes?: boolean } = {}
     ) => {
       setSkipOptions({
         ...defaultSkipOptions,
@@ -223,14 +233,14 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
   const value: SubmissionCtxState = useMemo<SubmissionCtxState>(
     () => ({
       status,
-      data: memoedData,
+      data: mergedData,
       error,
       startPolling,
       stopPolling,
       refetch,
       updateQuery,
     }),
-    [status, memoedData, error, startPolling, stopPolling, refetch, updateQuery]
+    [status, mergedData, error, startPolling, stopPolling, refetch, updateQuery]
   );
 
   return <MemoedProvider value={value}>{children}</MemoedProvider>;
