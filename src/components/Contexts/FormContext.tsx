@@ -24,6 +24,7 @@ import {
   SaveAppInput,
 } from "../../graphql";
 import { Logger } from "../../utils";
+import { FormInput as ApproveFormInput } from "../Questionnaire/ApproveFormDialog";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -34,7 +35,7 @@ export type ContextState = {
   data: Application;
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
-  approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
+  approveForm?: (data: ApproveFormInput, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<SetDataReturnType>;
@@ -231,7 +232,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
   // Here we approve the form to the API with a comment and wholeProgram
   const approveForm = async (
-    comment: string,
+    data: ApproveFormInput,
     wholeProgram: boolean
   ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
@@ -245,9 +246,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     const { data: res, errors } = await approveApp({
       variables: {
         id: state?.data?._id,
-        comment,
+        comment: data?.reviewComment,
         wholeProgram,
         institutions,
+        pendingModelChange: data?.pendingModelChange,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
