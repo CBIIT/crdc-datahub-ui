@@ -5,7 +5,7 @@ import React, { FC, useMemo, useState } from "react";
 import blurredDataVisualizationSvg from "../../assets/dataSubmissions/blurred_data_visualization.svg?url";
 import { buildMiniChartSeries, buildPrimaryChartSeries, compareNodeStats } from "../../utils";
 import ContentCarousel from "../Carousel";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import { SubmissionCtxStatus, useSubmissionContext } from "../Contexts/SubmissionContext";
 import MiniPieChart from "../NodeChart";
 import NodeTotalChart from "../NodeTotalChart";
 import SuspenseLoader from "../SuspenseLoader";
@@ -110,7 +110,7 @@ const defaultFilters: LegendFilter[] = [
  * @returns {React.FC}
  */
 const DataSubmissionStatistics: FC = () => {
-  const { data: dataSubmission } = useSubmissionContext();
+  const { data: dataSubmission, status } = useSubmissionContext();
   const { stats: statistics } = dataSubmission?.submissionStats || {};
 
   const [filters, setFilters] = useState<LegendFilter[]>(defaultFilters);
@@ -140,7 +140,7 @@ const DataSubmissionStatistics: FC = () => {
   const handleViewByChange = (_: React.SyntheticEvent, newValue: "count" | "percentage") =>
     setTabValue(newValue);
 
-  if (!dataSubmission || !dataset) {
+  if (!dataSubmission || status === SubmissionCtxStatus.LOADING || !dataset) {
     return (
       <StyledChartArea direction="row" data-testid="statistics-loader-container">
         <SuspenseLoader fullscreen={false} />
