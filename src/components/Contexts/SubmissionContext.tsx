@@ -202,9 +202,8 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
       options?: { skipSubmission?: boolean; skipStats?: boolean; skipAttributes?: boolean }
     ) => {
       setSkipOptions({
-        skipSubmission: options?.skipSubmission ?? false,
-        skipStats: options?.skipStats ?? false,
-        skipAttributes: options?.skipAttributes ?? false,
+        ...defaultSkipOptions,
+        ...options,
       });
       startApolloPolling(interval);
       setIsPolling(true);
