@@ -9,6 +9,7 @@ export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
     $studyId: String!
     $nodeType: String!
     $dataCommonsDisplayName: String!
+    $properties: [String] = []
     $first: Int
     $offset: Int
     $orderBy: String
@@ -18,6 +19,7 @@ export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
       studyID: $studyId
       nodeType: $nodeType
       dataCommonsDisplayName: $dataCommonsDisplayName
+      properties: $properties
       first: $first
       offset: $offset
       orderBy: $orderBy
@@ -43,6 +45,11 @@ export type ListReleasedDataRecordsInput = {
    * The display name of the Data Commons to filter nodes by
    */
   dataCommonsDisplayName: string;
+  /**
+   * An optional list of properties to include in the results,
+   * if not provided all properties will be included
+   */
+  properties?: string[];
 } & BasePaginationParams;
 
 export type ListReleasedDataRecordsResponse = {

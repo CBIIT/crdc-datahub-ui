@@ -1,0 +1,122 @@
+import { useLazyQuery } from "@apollo/client";
+import { CloudDownload } from "@mui/icons-material";
+import { IconButtonProps, IconButton, styled } from "@mui/material";
+import { useSnackbar } from "notistack";
+import { unparse } from "papaparse";
+import { memo, useState } from "react";
+
+import {
+  LIST_RELEASED_DATA_RECORDS,
+  ListReleasedDataRecordsInput,
+  ListReleasedDataRecordsResponse,
+} from "../../graphql";
+import { downloadBlob, fetchAllData, Logger } from "../../utils";
+import type { Column } from "../GenericTable";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+
+export type Props = {
+  /**
+   * The `_id` of the study to export data for.
+   */
+  studyId: string;
+  /**
+   * The node type to export data for (e.g. "participant").
+   */
+  nodeType: string;
+  /**
+   * The display name of the data commons to filter exported data by (e.g. "GC").
+   */
+  dataCommonsDisplayName: string;
+  /**
+   * The visible columns that should be included in the export TSV.
+   */
+  columns: Column<ListReleasedDataRecordsResponse["listReleasedDataRecords"]["nodes"][number]>[];
+} & IconButtonProps;
+
+const StyledIconButton = styled(IconButton)({
+  color: "#606060",
+});
+
+/**
+ * Provides the button and supporting functionality to export the
+ * released metadata for a given study.
+ *
+ * @returns The button to export the released metadata
+ */
+const DataExplorerExportButton: React.FC<Props> = ({
+  studyId,
+  nodeType,
+  dataCommonsDisplayName,
+  columns,
+  disabled,
+  ...buttonProps
+}: Props) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [listReleasedDataRecords] = useLazyQuery<
+    ListReleasedDataRecordsResponse,
+    ListReleasedDataRecordsInput
+  >(LIST_RELEASED_DATA_RECORDS, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const handleClick = async () => {
+    setLoading(true);
+
+    try {
+      const columnNames = columns.map(({ field }) => field);
+
+      const data = await fetchAllData<
+        ListReleasedDataRecordsResponse,
+        ListReleasedDataRecordsInput,
+        Record<string, unknown>
+      >(
+        listReleasedDataRecords,
+        { dataCommonsDisplayName, studyId, nodeType, properties: columnNames },
+        (data) => data.listReleasedDataRecords.nodes,
+        (data) => data.listReleasedDataRecords.total,
+        // TODO: bump up to approx 3k pageSize
+        { pageSize: 25, total: Infinity }
+      );
+
+      if (!data?.length) {
+        throw new Error("No data returned from fetch");
+      }
+
+      const filename = "TODO.tsv"; // TODO: Generate filename
+
+      downloadBlob(unparse(data, { delimiter: "\t" }), filename, "text/tab-separated-values");
+    } catch (err) {
+      Logger.error("Error during TSV generation", err);
+      enqueueSnackbar("Failed to generate the TSV for the selected node.", {
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <StyledFormTooltip
+      title="Download displayed metadata in .tsv format"
+      data-testid="export-data-explorer-metadata-tooltip"
+      arrow
+    >
+      <span>
+        <StyledIconButton
+          onClick={handleClick}
+          disabled={loading || disabled}
+          data-testid="export-data-explorer-metadata-button"
+          aria-label="Export Node TSV"
+          {...buttonProps}
+        >
+          <CloudDownload />
+        </StyledIconButton>
+      </span>
+    </StyledFormTooltip>
+  );
+};
+
+export default memo<Props>(DataExplorerExportButton);

@@ -1,3 +1,5 @@
+import type { LazyQueryExecFunction } from "@apollo/client";
+
 import env from "../env";
 
 import { buildReleaseNotesUrl } from "./envUtils";
@@ -100,4 +102,62 @@ export const authenticationLogin = async (
     error: "An unknown error occurred during login.",
   }));
   return { success: typeof timeout === "number" && typeof error === "undefined", error };
+};
+
+/**
+ * A generic function to fetch all data from a given paginated query.
+ *
+ * @note `R`: Query Response, `I`: Query Input, `D`: Data Structure within `R`
+ * @param query The query to execute.
+ * @param input The input variables for the query.
+ * @param getDataPath A function to extract the data array from the query response.
+ * @param totalPath A function to extract the total count from the query response.
+ * @param options Pagination options, including `pageSize` and `total`.
+ * @returns All of the data for the given query.
+ * @throws If any of the queries return an error.
+ */
+export const fetchAllData = async <R = never, I extends BasePaginationParams = never, D = never>(
+  query: LazyQueryExecFunction<R, I>,
+  input: Omit<I, "first" | "offset">,
+  getDataPath: (data: R) => D[],
+  totalPath: (data: R) => number,
+  options: { pageSize?: number; total?: number } = { pageSize: 1_000, total: Infinity }
+): Promise<D[]> => {
+  const dataset: D[] = [];
+  let offset = 0;
+
+  if (!options.pageSize) {
+    options.pageSize = 1_000;
+  }
+
+  if (!options.total) {
+    options.total = Infinity;
+  }
+
+  while (offset < options.total) {
+    // TODO: rewrite without await in query IF we have the finite options.total
+    // eslint-disable-next-line no-await-in-loop
+    const { data, error } = await query({
+      variables: { ...input, first: options.pageSize, offset } as I,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    const items: D[] = getDataPath(data) ?? [];
+    if (!Array.isArray(items) || items.length === 0) {
+      break;
+    } else {
+      dataset.push(...items);
+    }
+
+    if (options.total === Infinity) {
+      options.total = totalPath(data) ?? 0;
+    }
+
+    offset += options.pageSize;
+  }
+
+  return dataset;
 };
