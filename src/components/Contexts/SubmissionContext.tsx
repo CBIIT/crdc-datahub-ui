@@ -171,7 +171,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
   const memoedData: GetSubmissionResp = useMemo<GetSubmissionResp>(() => {
     let sortedStats = [];
     if (Array.isArray(data?.submissionStats?.stats)) {
-      sortedStats = cloneDeep(data.submissionStats.stats) || [];
+      sortedStats = cloneDeep(data.submissionStats.stats);
       sortedStats.sort(compareNodeStats);
     }
 
