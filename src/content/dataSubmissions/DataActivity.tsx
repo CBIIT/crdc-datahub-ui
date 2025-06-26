@@ -13,10 +13,7 @@ import React, {
 } from "react";
 import { useParams } from "react-router-dom";
 
-import {
-  SubmissionCtxStatus,
-  useSubmissionContext,
-} from "../../components/Contexts/SubmissionContext";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import FileListDialog from "../../components/FileListDialog";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -181,13 +178,7 @@ export type DataActivityRef = {
 const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   const { submissionId: routeSubmissionId } = useParams();
   const { enqueueSnackbar } = useSnackbar();
-  const {
-    data: dataSubmission,
-    refetch: getSubmission,
-    status: submissionStatus,
-    startPolling,
-    stopPolling,
-  } = useSubmissionContext();
+  const { data: dataSubmission } = useSubmissionContext();
 
   const { _id } = dataSubmission?.getSubmission || {};
   const submissionId = _id || routeSubmissionId;
@@ -201,20 +192,18 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
 
   const tableRef = useRef<TableMethods>(null);
+  const batchUploadingRef = useRef<boolean>(false);
   const { isBatchUploading } = dataSubmission?.getSubmissionAttributes?.submissionAttributes || {};
 
-  const [listBatches, { refetch: refetchListBatches }] = useLazyQuery<ListBatchesResp>(
-    LIST_BATCHES,
-    {
-      notifyOnNetworkStatusChange: true,
-      onCompleted: (data: ListBatchesResp) => {
-        setData(data.listBatches.batches);
-        setTotalData(data.listBatches.total);
-      },
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
+    notifyOnNetworkStatusChange: true,
+    onCompleted: (data: ListBatchesResp) => {
+      setData(data.listBatches.batches);
+      setTotalData(data.listBatches.total);
+    },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+  });
 
   const handleOpenErrorDialog = useCallback(
     (data: Batch) => {
@@ -266,7 +255,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
         setLoading(false);
       }
     },
-    [submissionId, data.length, prevData, listBatches, enqueueSnackbar, setLoading]
+    [submissionId, data?.length, prevData, listBatches, enqueueSnackbar, setLoading]
   );
 
   const batchContextValue = useMemo(
@@ -286,45 +275,12 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   );
 
   useEffect(() => {
-    if (!submissionId) {
-      return;
+    // if batch was previously uploading, but stopped
+    if (batchUploadingRef.current && !isBatchUploading) {
+      tableRef?.current?.refresh();
     }
-
-    if (!isBatchUploading && stopPolling && submissionStatus === SubmissionCtxStatus.POLLING) {
-      stopPolling();
-      Promise.allSettled([
-        refetchListBatches({ submissionID: submissionId }),
-        getSubmission({
-          id: submissionId,
-          skipSubmission: false,
-          skipStats: false,
-          skipAttributes: false,
-        }),
-      ]).then((results) => {
-        if (results[0].status === "rejected") {
-          Logger.error(`DataActivity.tsx: Unable to retrieve batch data. ${results[0].reason}`);
-          return;
-        }
-        if (results[1].status === "rejected") {
-          Logger.error(
-            `DataActivity.tsx: Unable to retrieve submission data. ${results[1].reason}`
-          );
-        }
-      });
-      return;
-    }
-    if (isBatchUploading && startPolling) {
-      startPolling(1000, { skipSubmission: true, skipStats: true });
-      // If the submission is not polling, refetch to kick-off polling
-      if (submissionStatus !== SubmissionCtxStatus.POLLING) {
-        getSubmission();
-      }
-    }
-  }, [submissionId, isBatchUploading, startPolling, stopPolling]);
-
-  useEffect(() => {
-    tableRef?.current?.refresh();
-  }, [submissionId]);
+    batchUploadingRef.current = isBatchUploading;
+  }, [isBatchUploading]);
 
   return (
     <>

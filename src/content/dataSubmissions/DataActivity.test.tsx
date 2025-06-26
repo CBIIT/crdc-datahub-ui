@@ -263,59 +263,6 @@ describe("Table", () => {
 
   it.todo("should use the correct pluralization for the error count of %p");
 
-  // NOTE: This only happens when isPolling is false
-  it("should refetch the submission if there are uploading batches", async () => {
-    const mockRefetch = vi.fn();
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "refetching-submission-test",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            isBatchUploading: true,
-            hasOrphanError: false,
-          },
-        },
-      },
-      error: null,
-      refetch: mockRefetch,
-      startPolling: vi.fn(),
-      stopPolling: vi.fn(),
-      updateQuery: vi.fn(),
-    });
-
-    const mocks: MockedResponse<ListBatchesResp>[] = [
-      {
-        request: {
-          query: LIST_BATCHES,
-        },
-        variableMatcher: () => true,
-        result: {
-          data: {
-            listBatches: {
-              total: 0,
-              batches: [],
-            },
-          },
-        },
-      },
-    ];
-
-    render(<DataActivity ref={null} />, {
-      wrapper: ({ children }) => <TestParent mocks={mocks}>{children}</TestParent>,
-    });
-
-    await waitFor(() => {
-      expect(mockRefetch).toHaveBeenCalledTimes(1);
-    });
-  });
-
   it("should not refetch the submission if the submission is already polling", async () => {
     const mockRefetch = vi.fn();
     vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
