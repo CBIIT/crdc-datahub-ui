@@ -171,9 +171,11 @@ const ApproveFormDialog: FC<Props> = ({ open, loading, onCancel, onSubmit, onClo
           />
         )}
       />
-      <StyledHelperText data-testid="review-comment-dialog-error">
-        {errors?.reviewComment?.message}
-      </StyledHelperText>
+      {errors?.reviewComment?.message?.length > 0 && (
+        <StyledHelperText data-testid="review-comment-dialog-error">
+          {errors.reviewComment.message}
+        </StyledHelperText>
+      )}
 
       <Controller
         name="pendingModelChange"
@@ -195,9 +197,11 @@ const ApproveFormDialog: FC<Props> = ({ open, loading, onCancel, onSubmit, onClo
           />
         )}
       />
-      <StyledHelperText data-testid="pending-model-change-dialog-error">
-        {errors?.pendingModelChange?.message}
-      </StyledHelperText>
+      {errors?.pendingModelChange?.message?.length > 0 && (
+        <StyledHelperText data-testid="pending-model-change-dialog-error">
+          {errors.pendingModelChange.message}
+        </StyledHelperText>
+      )}
     </StyledDialog>
   );
 };
