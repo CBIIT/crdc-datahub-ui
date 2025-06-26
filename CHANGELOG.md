@@ -48,7 +48,6 @@ N/A
 #### Email Notifications
 
 - New – Trigger an Email notification to Data Commons Personnel when a Data Submission is created.
-- Update – Update Submission Request Cancel/Restore email notification to include reason.
 - Update - Update content of Request Access email notification to include more information.
 
 #### User Account Management
