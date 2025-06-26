@@ -11,7 +11,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useParams } from "react-router-dom";
 
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
@@ -176,12 +175,10 @@ export type DataActivityRef = {
 };
 
 const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
-  const { submissionId: routeSubmissionId } = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const { data: dataSubmission } = useSubmissionContext();
 
   const { _id } = dataSubmission?.getSubmission || {};
-  const submissionId = _id || routeSubmissionId;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<Batch[]>([]);
@@ -224,7 +221,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   const handleFetchBatches = useCallback(
     async (fetchListing: FetchListing<Batch>, force: boolean) => {
       const { first, offset, sortDirection, orderBy } = fetchListing || {};
-      if (!submissionId) {
+      if (!_id) {
         return;
       }
       if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -237,7 +234,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
         setLoading(true);
         const { data: newBatchFiles, error: batchFilesError } = await listBatches({
           variables: {
-            submissionID: submissionId,
+            submissionID: _id,
             first,
             offset,
             sortDirection,
@@ -255,7 +252,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
         setLoading(false);
       }
     },
-    [submissionId, data?.length, prevData, listBatches, enqueueSnackbar, setLoading]
+    [_id, data?.length, prevData, listBatches, enqueueSnackbar, setLoading]
   );
 
   const batchContextValue = useMemo(
