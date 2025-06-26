@@ -279,6 +279,10 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
     batchUploadingRef.current = isBatchUploading;
   }, [isBatchUploading]);
 
+  useEffect(() => {
+    tableRef.current?.refresh();
+  }, [_id]);
+
   return (
     <>
       <BatchTableContext.Provider value={batchContextValue}>
