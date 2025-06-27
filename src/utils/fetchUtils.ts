@@ -107,6 +107,7 @@ export const authenticationLogin = async (
 /**
  * A generic function to fetch all data from a given paginated query.
  *
+ * @TODO Support generating fetch requests in parallel if `options.total` is finite.
  * @note `R`: Query Response, `I`: Query Input, `D`: Data Structure within `R`
  * @param query The query to execute.
  * @param input The input variables for the query.
@@ -135,7 +136,6 @@ export const fetchAllData = async <R = never, I extends BasePaginationParams = n
   }
 
   while (offset < options.total) {
-    // TODO: rewrite without await in query IF we have the finite options.total
     // eslint-disable-next-line no-await-in-loop
     const { data, error } = await query({
       variables: { ...input, first: options.pageSize, offset } as I,
