@@ -76,6 +76,10 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
   const handleClick = async () => {
     setLoading(true);
 
+    enqueueSnackbar("Generating the requested metadata. This may take a moment...", {
+      variant: "default",
+    });
+
     try {
       const columnNames = columns.map(({ field }) => field);
 

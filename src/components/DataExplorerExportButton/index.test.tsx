@@ -69,6 +69,35 @@ describe("Basic Functionality", () => {
     ).not.toThrow();
   });
 
+  it("should notify the user when starting the download", async () => {
+    const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
+      request: {
+        query: LIST_RELEASED_DATA_RECORDS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listReleasedDataRecords: null, // This never resolves anyway
+        },
+      },
+    };
+
+    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("data-explorer-export-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Generating the requested metadata. This may take a moment...",
+        {
+          variant: "default",
+        }
+      );
+    });
+  });
+
   it("should gracefully handle API errors (GraphQL)", async () => {
     const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
       request: {
