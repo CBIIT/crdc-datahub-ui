@@ -127,18 +127,13 @@ export const fetchAllData = async <R = never, I extends BasePaginationParams = n
   const dataset: D[] = [];
   let offset = 0;
 
-  if (!options.pageSize) {
-    options.pageSize = 1_000;
-  }
+  const pageSize = options.pageSize ?? 1_000;
+  let total = options.total ?? Infinity;
 
-  if (!options.total) {
-    options.total = Infinity;
-  }
-
-  while (offset < options.total) {
+  while (offset < total) {
     // eslint-disable-next-line no-await-in-loop
     const { data, error } = await query({
-      variables: { ...input, first: options.pageSize, offset } as I,
+      variables: { ...input, first: pageSize, offset } as I,
     });
 
     if (error) {
