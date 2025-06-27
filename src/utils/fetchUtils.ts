@@ -122,7 +122,7 @@ export const fetchAllData = async <R = never, I extends BasePaginationParams = n
   input: Omit<I, "first" | "offset">,
   getDataPath: (data: R) => D[],
   totalPath: (data: R) => number,
-  options: { pageSize?: number; total?: number } = { pageSize: 1_000, total: Infinity }
+  options: { pageSize?: number; total?: number } = {}
 ): Promise<D[]> => {
   const dataset: D[] = [];
   let offset = 0;
@@ -147,11 +147,11 @@ export const fetchAllData = async <R = never, I extends BasePaginationParams = n
       dataset.push(...items);
     }
 
-    if (options.total === Infinity) {
-      options.total = totalPath(data) ?? 0;
+    if (!Number.isFinite(total)) {
+      total = totalPath(data) ?? 0;
     }
 
-    offset += options.pageSize;
+    offset += pageSize;
   }
 
   return dataset;
