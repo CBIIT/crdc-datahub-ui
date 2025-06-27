@@ -76,7 +76,7 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
   const handleClick = async () => {
     setLoading(true);
 
-    enqueueSnackbar("Generating the requested metadata. This may take a moment...", {
+    enqueueSnackbar("Downloading the requested metadata file. This may take a moment...", {
       variant: "default",
     });
 
@@ -92,7 +92,7 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
         { dataCommonsDisplayName, studyId, nodeType, properties: columnNames },
         (data) => data.listReleasedDataRecords.nodes,
         (data) => data.listReleasedDataRecords.total,
-        { pageSize: 3000, total: Infinity }
+        { pageSize: 5000, total: Infinity }
       );
 
       if (!data?.length) {

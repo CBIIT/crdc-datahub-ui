@@ -90,7 +90,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Generating the requested metadata. This may take a moment...",
+        "Downloading the requested metadata file. This may take a moment...",
         {
           variant: "default",
         }
@@ -236,8 +236,8 @@ describe("Basic Functionality", () => {
     expect(mockDownloadBlob).not.toHaveBeenCalled();
   });
 
-  it("should group the API requests when there are more than 3000 records", async () => {
-    const PAGE_SIZE = 3000; // Change this if the page size in the component changes
+  it("should group the API requests when there are more than 5000 records", async () => {
+    const PAGE_SIZE = 5000; // Change this if the page size in the component changes
 
     const matcher1 = vi.fn().mockReturnValue(true);
     const matcher2 = vi.fn().mockReturnValue(true);
@@ -251,7 +251,7 @@ describe("Basic Functionality", () => {
         result: {
           data: {
             listReleasedDataRecords: {
-              total: 8999,
+              total: 14999,
               properties: ["some.property"],
               nodes: Array.from({ length: PAGE_SIZE }, (_, i) => ({
                 "some.property": `value-${i + 1}`,
@@ -268,7 +268,7 @@ describe("Basic Functionality", () => {
         result: {
           data: {
             listReleasedDataRecords: {
-              total: 8999,
+              total: 14999,
               properties: ["some.property"],
               nodes: Array.from({ length: PAGE_SIZE }, (_, i) => ({
                 "some.property": `value-${i + PAGE_SIZE + 1}`,
@@ -285,7 +285,7 @@ describe("Basic Functionality", () => {
         result: {
           data: {
             listReleasedDataRecords: {
-              total: 8999,
+              total: 14999,
               properties: ["some.property"],
               nodes: Array.from({ length: PAGE_SIZE - 1 }, (_, i) => ({
                 "some.property": `value-${i + PAGE_SIZE * 2 + 1}`,
@@ -308,20 +308,20 @@ describe("Basic Functionality", () => {
 
     expect(matcher1).toHaveBeenCalledWith(
       expect.objectContaining({
-        first: 3000,
+        first: 5000,
         offset: 0,
       })
     );
     expect(matcher2).toHaveBeenCalledWith(
       expect.objectContaining({
-        first: 3000,
-        offset: 3000,
+        first: 5000,
+        offset: 5000,
       })
     );
     expect(matcher3).toHaveBeenCalledWith(
       expect.objectContaining({
-        first: 3000,
-        offset: 6000,
+        first: 5000,
+        offset: 10000,
       })
     );
   });
