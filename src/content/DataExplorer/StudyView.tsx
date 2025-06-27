@@ -275,6 +275,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       <DataExplorerExportButton
         key="export-data-action"
         studyId={studyId}
+        studyDisplayName={studyDisplayName}
         nodeType={filtersRef.current?.nodeType || ""}
         dataCommonsDisplayName={dataCommonsDisplayName || ""}
         columns={visibleColumns}

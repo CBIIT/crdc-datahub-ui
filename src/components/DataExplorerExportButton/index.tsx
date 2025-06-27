@@ -1,6 +1,7 @@
 import { useLazyQuery } from "@apollo/client";
 import { CloudDownload } from "@mui/icons-material";
 import { IconButtonProps, IconButton, styled } from "@mui/material";
+import dayjs from "dayjs";
 import { useSnackbar } from "notistack";
 import { unparse } from "papaparse";
 import { memo, useState } from "react";
@@ -14,11 +15,16 @@ import { downloadBlob, fetchAllData, Logger } from "../../utils";
 import type { Column } from "../GenericTable";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
-export type Props = {
+export type DataExplorerExportButtonProps = {
   /**
    * The `_id` of the study to export data for.
    */
   studyId: string;
+  /**
+   * The display name of the study to export data for (e.g. "My Study").
+   * Included in the filename of the exported TSV.
+   */
+  studyDisplayName: string;
   /**
    * The node type to export data for (e.g. "participant").
    */
@@ -43,14 +49,15 @@ const StyledIconButton = styled(IconButton)({
  *
  * @returns The button to export the released metadata
  */
-const DataExplorerExportButton: React.FC<Props> = ({
+const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
   studyId,
+  studyDisplayName,
   nodeType,
   dataCommonsDisplayName,
   columns,
   disabled,
   ...buttonProps
-}: Props) => {
+}: DataExplorerExportButtonProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -77,15 +84,14 @@ const DataExplorerExportButton: React.FC<Props> = ({
         { dataCommonsDisplayName, studyId, nodeType, properties: columnNames },
         (data) => data.listReleasedDataRecords.nodes,
         (data) => data.listReleasedDataRecords.total,
-        // TODO: bump up to approx 3k pageSize
-        { pageSize: 25, total: Infinity }
+        { pageSize: 3000, total: Infinity }
       );
 
       if (!data?.length) {
         throw new Error("No data returned from fetch");
       }
 
-      const filename = "TODO.tsv"; // TODO: Generate filename
+      const filename = `${studyDisplayName}_${nodeType}_${dayjs().format("YYYYMMDDHHmmss")}.tsv`;
 
       downloadBlob(unparse(data, { delimiter: "\t" }), filename, "text/tab-separated-values");
     } catch (err) {
@@ -101,14 +107,14 @@ const DataExplorerExportButton: React.FC<Props> = ({
   return (
     <StyledFormTooltip
       title="Download displayed metadata in .tsv format"
-      data-testid="export-data-explorer-metadata-tooltip"
+      data-testid="data-explorer-export-tooltip"
       arrow
     >
       <span>
         <StyledIconButton
           onClick={handleClick}
           disabled={loading || disabled}
-          data-testid="export-data-explorer-metadata-button"
+          data-testid="data-explorer-export-button"
           aria-label="Export Node TSV"
           {...buttonProps}
         >
@@ -119,4 +125,4 @@ const DataExplorerExportButton: React.FC<Props> = ({
   );
 };
 
-export default memo<Props>(DataExplorerExportButton);
+export default memo<DataExplorerExportButtonProps>(DataExplorerExportButton);
