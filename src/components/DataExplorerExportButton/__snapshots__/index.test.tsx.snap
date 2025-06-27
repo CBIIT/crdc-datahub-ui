@@ -10,7 +10,7 @@ exports[`Snapshots > should match snapshot when disabled 1`] = `
   >
     <button
       aria-label="Export Node TSV"
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium css-19e7lmt-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium css-1n74jsd-MuiButtonBase-root-MuiIconButton-root"
       data-testid="data-explorer-export-button"
       disabled=""
       tabindex="-1"
@@ -18,7 +18,7 @@ exports[`Snapshots > should match snapshot when disabled 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1mx1nji-MuiSvgIcon-root"
         data-testid="CloudDownloadIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -42,14 +42,14 @@ exports[`Snapshots > should match snapshot when enabled 1`] = `
   >
     <button
       aria-label="Export Node TSV"
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-19e7lmt-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n74jsd-MuiButtonBase-root-MuiIconButton-root"
       data-testid="data-explorer-export-button"
       tabindex="0"
       type="button"
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1mx1nji-MuiSvgIcon-root"
         data-testid="CloudDownloadIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -76,14 +76,14 @@ exports[`Snapshots > should match snapshot when hovered 1`] = `
   >
     <button
       aria-label="Export Node TSV"
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-19e7lmt-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n74jsd-MuiButtonBase-root-MuiIconButton-root"
       data-testid="data-explorer-export-button"
       tabindex="0"
       type="button"
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1mx1nji-MuiSvgIcon-root"
         data-testid="CloudDownloadIcon"
         focusable="false"
         viewBox="0 0 24 24"

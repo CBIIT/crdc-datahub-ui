@@ -40,7 +40,11 @@ export type DataExplorerExportButtonProps = {
 } & IconButtonProps;
 
 const StyledIconButton = styled(IconButton)({
-  color: "#606060",
+  color: "#346798",
+});
+
+const StyledCloudDownload = styled(CloudDownload)({
+  fontSize: "31px",
 });
 
 /**
@@ -108,7 +112,7 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
     <StyledFormTooltip
       title="Download displayed metadata in .tsv format"
       data-testid="data-explorer-export-tooltip"
-      arrow
+      placement="top"
     >
       <span>
         <StyledIconButton
@@ -118,7 +122,7 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
           aria-label="Export Node TSV"
           {...buttonProps}
         >
-          <CloudDownload />
+          <StyledCloudDownload />
         </StyledIconButton>
       </span>
     </StyledFormTooltip>
