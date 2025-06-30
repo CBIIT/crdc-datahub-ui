@@ -455,7 +455,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("mock approval comment", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "mock approval comment", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "success",
         id: appId,
@@ -540,7 +543,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "success",
         id: appId,
@@ -584,7 +590,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "failed",
         errorMessage: "Test GraphQL error",
@@ -615,7 +624,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "failed",
         errorMessage: "Test network error",

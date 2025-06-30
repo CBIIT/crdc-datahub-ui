@@ -52,7 +52,7 @@ type StudyViewProps = {
 const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   usePageTitle(`Data Explorer - ${studyId}`);
 
-  const { searchParams } = useSearchParamsContext();
+  const { searchParams, lastSearchParams } = useSearchParamsContext();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
@@ -64,6 +64,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   const prevFiltersRef = useRef<FilterForm>(null);
 
   const dataCommonsDisplayName = searchParams.get("dataCommonsDisplayName");
+  const returnUrl = `/data-explorer${lastSearchParams?.["/data-explorer"] ?? ""}`;
 
   const { data: studyData, loading: studyLoading } = useQuery<
     GetApprovedStudyResp<true>,
@@ -150,7 +151,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     () => [
       {
         label: "Data Explorer",
-        to: "/data-explorer",
+        to: returnUrl,
       },
       {
         label: studyDisplayName,
