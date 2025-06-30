@@ -63,7 +63,7 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
     <>
       <Tooltip
         open={undefined}
-        title="View filterable columns."
+        title="Customize visible columns"
         placement="top"
         disableHoverListener={false}
       >

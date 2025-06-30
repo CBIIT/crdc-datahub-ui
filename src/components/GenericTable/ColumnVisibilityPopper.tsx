@@ -161,7 +161,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
   /**
    * The defined default column visibility.
    */
-  const defaultVisibilityModel = useMemo(
+  const defaultVisibilityModel = useMemo<ColumnVisibilityModel>(
     () =>
       columns.reduce<ColumnVisibilityModel>((model, column) => {
         const key = getColumnKey(column);
@@ -174,7 +174,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
   /**
    * Indicates whether the current columns match the default model.
    */
-  const isShowingDefaultVisibleColumns = useMemo(
+  const isShowingDefaultVisibleColumns = useMemo<boolean>(
     () => isEqual(columnVisibilityModel, defaultVisibilityModel),
     [columnVisibilityModel, defaultVisibilityModel]
   );
@@ -228,7 +228,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
     onColumnVisibilityModelChange({ ...defaultVisibilityModel });
   };
 
-  const sortedColumns = useMemo(() => {
+  const sortedColumns = useMemo<C[]>(() => {
     if (!sortAlphabetically) {
       return columns;
     }
@@ -240,12 +240,19 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
     });
   }, [columns, getColumnLabel, sortAlphabetically]);
 
-  const hideableColumns = columns.filter((column) => column.hideable !== false);
+  const hideableColumns = useMemo<C[]>(
+    () => columns.filter((column) => column.hideable !== false),
+    [columns]
+  );
 
-  const allHideableChecked = hideableColumns.every((column) => {
-    const key = getColumnKey(column);
-    return columnVisibilityModel[key];
-  });
+  const allHideableChecked = useMemo<boolean>(
+    () =>
+      hideableColumns.every((column) => {
+        const key = getColumnKey(column);
+        return columnVisibilityModel[key];
+      }),
+    [hideableColumns, columnVisibilityModel, getColumnKey]
+  );
 
   return (
     <StyledPopper
@@ -274,7 +281,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
           </StyledCloseDialogButton>
 
           <StyledColumnList data-testid="column-list">
-            <StyledTitle>Displayed Columns</StyledTitle>
+            <StyledTitle>Visible Columns</StyledTitle>
 
             {sortedColumns?.map((column) => {
               const key = getColumnKey(column);
