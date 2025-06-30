@@ -1,5 +1,5 @@
 import { ApolloError, ApolloQueryResult, useQuery } from "@apollo/client";
-import { cloneDeep, isEqual } from "lodash";
+import { cloneDeep, isEqual, merge } from "lodash";
 import React, {
   FC,
   createContext,
@@ -29,10 +29,7 @@ export type SubmissionCtxState = {
   /**
    * Initiates polling for the query at the specified interval, with options to skip queries
    */
-  startPolling?: (
-    pollInterval: number,
-    options?: Partial<Pick<GetSubmissionInput, "skipSubmission" | "skipStats" | "skipAttributes">>
-  ) => void;
+  startPolling?: (pollInterval: number, partial?: boolean) => void;
   /**
    * Stops polling for the query
    */
@@ -86,12 +83,6 @@ export const useSubmissionContext = (): SubmissionCtxState => {
   return context;
 };
 
-const defaultSkipOptions = {
-  skipSubmission: false,
-  skipStats: false,
-  skipAttributes: false,
-};
-
 type ProviderProps = {
   /**
    * The Data Submission `_id` to populate the context for
@@ -123,13 +114,9 @@ const MemoedProvider = React.memo<{ value: SubmissionCtxState; children: React.R
  */
 export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: ProviderProps) => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
-  const [skipOptions, setSkipOptions] = useState({ ...defaultSkipOptions });
   const [mergedData, setMergedData] = useState<GetSubmissionResp>(null);
 
   useEffect(() => {
-    if (!mergedData) {
-      return;
-    }
     setMergedData(null);
   }, [_id]);
 
@@ -143,7 +130,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     updateQuery,
   } = useQuery<GetSubmissionResp, GetSubmissionInput>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
-    variables: { id: _id, ...skipOptions },
+    variables: { id: _id, partial: isPolling ?? false },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
     onCompleted: (d) => {
@@ -156,10 +143,8 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
         d?.getSubmissionAttributes?.submissionAttributes?.isBatchUploading;
       if (!isValidating && !hasUploadingBatches && !isDeleting) {
         stopPolling();
-        setIsPolling(false);
       } else if (!isPolling) {
-        startPolling(1000, { skipStats: true, skipSubmission: true });
-        setIsPolling(true);
+        startPolling(1000);
       }
     },
     onError: (e) => {
@@ -168,53 +153,48 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
   });
 
   const status: SubmissionCtxStatus = useMemo<SubmissionCtxStatus>(() => {
-    const invalidData =
-      !data || (!data?.getSubmission && !data?.getSubmissionAttributes && !data?.submissionStats);
-    if (error || (!loading && !isPolling && invalidData)) {
+    if (error || (!loading && !mergedData)) {
       return SubmissionCtxStatus.ERROR;
     }
     if (isPolling) {
       return SubmissionCtxStatus.POLLING;
     }
-    if ((loading && !invalidData) || !mergedData) {
+    if (loading && !mergedData) {
       return SubmissionCtxStatus.LOADING;
     }
 
     return SubmissionCtxStatus.LOADED;
-  }, [loading, error, data, mergedData, isPolling]);
+  }, [loading, error, isPolling, mergedData]);
 
   useEffect(() => {
     if (!data) {
       return;
     }
-
     let sortedStats = [];
     if (Array.isArray(data.submissionStats?.stats)) {
       sortedStats = cloneDeep(data.submissionStats.stats);
       sortedStats.sort(compareNodeStats);
     }
+    // Polled partial data will replace existing data
+    if (isPolling) {
+      setMergedData((prev) => merge({}, prev, data));
+      return;
+    }
 
+    // Otherwise, just replace all existing data with new data
     setMergedData((prev) => ({
-      getSubmission: skipOptions.skipSubmission ? prev.getSubmission : data.getSubmission,
-      submissionStats: skipOptions.skipStats ? prev.submissionStats : { stats: sortedStats },
-      getSubmissionAttributes: skipOptions.skipAttributes
-        ? prev.getSubmissionAttributes
-        : data.getSubmissionAttributes,
+      ...prev,
+      getSubmission: data?.getSubmission,
+      submissionStats: { stats: sortedStats },
+      getSubmissionAttributes: data?.getSubmissionAttributes,
     }));
-  }, [data, skipOptions]);
+  }, [data]);
 
   /**
    * Wrapper function to start polling for the submission
    */
   const startPolling = useCallback(
-    (
-      interval: number,
-      options: { skipSubmission?: boolean; skipStats?: boolean; skipAttributes?: boolean } = {}
-    ) => {
-      setSkipOptions({
-        ...defaultSkipOptions,
-        ...options,
-      });
+    (interval: number) => {
       startApolloPolling(interval);
       setIsPolling(true);
     },
@@ -225,7 +205,6 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
    * Wrapper function to stop polling for the submission
    */
   const stopPolling = useCallback(() => {
-    setSkipOptions({ ...defaultSkipOptions });
     stopApolloPolling();
     setIsPolling(false);
   }, [stopApolloPolling]);
