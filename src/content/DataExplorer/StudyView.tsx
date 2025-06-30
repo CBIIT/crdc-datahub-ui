@@ -10,6 +10,7 @@ import DataExplorerExportButton from "../../components/DataExplorerExportButton"
 import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
 import GenericTable, { Column } from "../../components/GenericTable";
 import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
+import { ColumnVisibilityPopperGroup } from "../../components/GenericTable/ColumnVisibilityPopper";
 import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
 import PageContainer from "../../components/PageContainer";
 import SuspenseLoader from "../../components/SuspenseLoader";
@@ -262,13 +263,33 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [columns, selectedNodeType?.IDPropName]
   );
 
+  const columnGroups = useMemo<ColumnVisibilityPopperGroup[]>(
+    () => [
+      {
+        name: "Data Model Defined",
+        description: "Fields defined in the data model and submitted by users.",
+      },
+      {
+        name: "Others",
+        description: "Additional fields not included in the data model and submitted by users.",
+      },
+      {
+        name: "Internal",
+        description: "Fields automatically created by the system.",
+      },
+    ],
+    []
+  );
+
   const filterActions = useMemo<React.ReactNode[]>(
     () => [
       <ColumnVisibilityButton
         key="column-visibility-action"
         columns={columns}
+        groups={columnGroups}
         getColumnKey={(column) => column.fieldKey ?? column.field}
         getColumnLabel={(column) => column.label?.toString()}
+        getColumnGroup={() => "Data Model Defined"} // TODO: from API response
         columnVisibilityModel={columnVisibilityModel}
         onColumnVisibilityModelChange={setColumnVisibilityModel}
         data-testid="column-visibility-button"
@@ -285,6 +306,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [
       studyId,
       columns,
+      columnGroups,
       columnVisibilityModel,
       filtersRef?.current?.nodeType,
       dataCommonsDisplayName,

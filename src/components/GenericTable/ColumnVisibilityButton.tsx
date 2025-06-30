@@ -30,6 +30,7 @@ type Props<C extends ExtendedColumn> = {
 } & Pick<
   ColumnVisibilityPopperProps<C>,
   | "columns"
+  | "groups"
   | "columnVisibilityModel"
   | "getColumnKey"
   | "getColumnLabel"
