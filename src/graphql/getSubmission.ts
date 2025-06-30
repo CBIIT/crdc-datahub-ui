@@ -1,66 +1,78 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
-  query getSubmission(
-    $id: ID!
-    $skipSubmission: Boolean = false
-    $skipStats: Boolean = false
-    $skipAttributes: Boolean = false
-  ) {
-    getSubmission(_id: $id) @skip(if: $skipSubmission) {
+const PartialSubmissionFragment: TypedDocumentNode<Response, Input> = gql`
+  fragment PartialSubmissionFragment on Submission {
+    _id
+    metadataValidationStatus
+    fileValidationStatus
+    crossSubmissionStatus
+    deletingData
+  }
+`;
+
+const FullSubmissionFragment: TypedDocumentNode<Response, Input> = gql`
+  fragment FullSubmissionFragment on Submission {
+    _id
+    name
+    submitterID
+    submitterName
+    organization {
       _id
       name
-      submitterID
-      submitterName
-      organization {
-        _id
-        name
-        abbreviation
-      }
-      dataCommons
-      dataCommonsDisplayName
-      modelVersion
-      studyID
-      studyAbbreviation
-      studyName
-      dbGaPID
-      bucketName
-      rootPath
-      status
-      metadataValidationStatus
-      fileValidationStatus
-      crossSubmissionStatus
-      validationStarted
-      validationEnded
-      validationScope
-      validationType
-      deletingData
-      history {
-        status
-        reviewComment
-        dateTime
-        userID
-        userName
-      }
-      conciergeName
-      conciergeEmail
-      intention
-      dataType
-      otherSubmissions
-      nodeCount
-      collaborators {
-        collaboratorID
-        collaboratorName
-        permission
-      }
-      dataFileSize {
-        size
-      }
-      createdAt
-      updatedAt
+      abbreviation
     }
+    dataCommons
+    dataCommonsDisplayName
+    modelVersion
+    studyID
+    studyAbbreviation
+    studyName
+    dbGaPID
+    bucketName
+    rootPath
+    status
+    metadataValidationStatus
+    fileValidationStatus
+    crossSubmissionStatus
+    validationStarted
+    validationEnded
+    validationScope
+    validationType
+    deletingData
+    history {
+      status
+      reviewComment
+      dateTime
+      userID
+      userName
+    }
+    conciergeName
+    conciergeEmail
+    intention
+    dataType
+    otherSubmissions
+    nodeCount
+    collaborators {
+      collaboratorID
+      collaboratorName
+      permission
+    }
+    dataFileSize {
+      size
+    }
+    createdAt
+    updatedAt
+  }
+`;
 
-    submissionStats(_id: $id) @skip(if: $skipStats) {
+export const query: TypedDocumentNode<Response, Input> = gql`
+  query getSubmission($id: ID!, $partial: Boolean = false) {
+    getSubmission(_id: $id) {
+      ...PartialSubmissionFragment
+      ...FullSubmissionFragment @skip(if: $partial)
+    }
+    submissionStats(_id: $id) @skip(if: $partial) {
       stats {
         nodeName
         total
@@ -70,14 +82,15 @@ export const query = gql`
         error
       }
     }
-
-    getSubmissionAttributes(submissionID: $id) @skip(if: $skipAttributes) {
+    getSubmissionAttributes(submissionID: $id) {
       submissionAttributes {
         isBatchUploading
         hasOrphanError
       }
     }
   }
+  ${PartialSubmissionFragment}
+  ${FullSubmissionFragment}
 `;
 
 export type Input = {
@@ -86,30 +99,35 @@ export type Input = {
    */
   id: string;
   /**
-   * Indicates whether to skip the getSubmission query
+   * If true, only fetch minimal fields. This is used
+   * to determine if polling should continue or stop
    */
-  skipSubmission?: boolean;
-  /**
-   * Indicates whether to skip the submissionStats query
-   */
-  skipStats?: boolean;
-  /**
-   * Indicates whether to skip the getSubmissionAttributes query
-   */
-  skipAttributes?: boolean;
+  partial?: boolean;
 };
 
-export type Response = {
+export type Response<IsPartial = false> = {
   /**
    * The submission object
    */
-  getSubmission: Submission;
+  getSubmission: IsPartial extends true
+    ? Pick<
+        Submission,
+        | "_id"
+        | "metadataValidationStatus"
+        | "fileValidationStatus"
+        | "crossSubmissionStatus"
+        | "deletingData"
+      >
+    : Submission;
   /**
    * The node statistics for the submission
+   * @note Omitted when partial is true
    */
-  submissionStats: {
-    stats: SubmissionStatistic[];
-  };
+  submissionStats?: IsPartial extends true
+    ? undefined
+    : {
+        stats: SubmissionStatistic[];
+      };
   /**
    * The submission attributes and validation status
    */
