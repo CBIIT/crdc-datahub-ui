@@ -28,7 +28,7 @@ vi.mock("@apollo/client", async () => {
   };
 });
 
-const baseSubmission: Submission = {
+const baseSubmission: Submission & { __typename: string } = {
   _id: "",
   name: "",
   submitterID: "",
@@ -65,12 +65,19 @@ const baseSubmission: Submission = {
   studyID: "",
   collaborators: [],
   dataFileSize: null,
+  __typename: "Submission",
 };
 
 const TestChild: FC = () => {
-  const { status } = useSubmissionContext();
+  const { status, error, data } = useSubmissionContext();
 
-  return <div data-testid="ctx-status">{status}</div>;
+  return (
+    <>
+      <div data-testid="ctx-status">{status}</div>
+      <div data-testid="ctx-error">{error?.message}</div>
+      <div data-testid="ctx-id">{JSON.stringify(data)?.toString()}</div>
+    </>
+  );
 };
 
 type TestParentProps = {
@@ -254,7 +261,12 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            getSubmissionAttributes: null,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
+            },
           },
         },
       },
@@ -305,25 +317,35 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            getSubmissionAttributes: null,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
+            },
           },
         },
       },
-      // polling attributes mock
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
       {
         maxUsageCount: Infinity,
         request: {
           query: GET_SUBMISSION,
           variables: {
             id: "test-validating-id",
-            skipStats: true,
-            skipSubmission: true,
-            skipAttributes: false,
+            partial: true,
           },
         },
         result: {
           data: {
-            getSubmission: undefined,
+            getSubmission: {
+              _id: "test-validating-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
             submissionStats: undefined,
             getSubmissionAttributes: {
               submissionAttributes: {
@@ -352,7 +374,7 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
+    render(<TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-validating-id" />);
 
     // Should poll getSubmission
     await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
@@ -436,21 +458,26 @@ describe("SubmissionProvider", () => {
           },
         },
       },
-      // polling attributes mock
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
       {
         maxUsageCount: Infinity,
         request: {
           query: GET_SUBMISSION,
           variables: {
-            id: "test-uploading-id",
-            skipStats: true,
-            skipSubmission: true,
-            skipAttributes: false,
+            id: "test-validating-id",
+            partial: true,
           },
         },
         result: {
           data: {
-            getSubmission: undefined,
+            getSubmission: {
+              _id: "test-validating-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
             submissionStats: undefined,
             getSubmissionAttributes: {
               submissionAttributes: {
@@ -479,7 +506,7 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
+    render(<TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-uploading-id" />);
 
     // Should poll getSubmission
     await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
@@ -543,8 +570,11 @@ describe("SubmissionProvider", () => {
         maxUsageCount: 1,
         request: {
           query: GET_SUBMISSION,
+          variables: {
+            id: "test-deleting-id",
+            partial: false,
+          },
         },
-        variableMatcher: () => true,
         result: {
           data: {
             getSubmission: {
@@ -555,30 +585,40 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            getSubmissionAttributes: null,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
+            },
           },
         },
       },
-      // polling attributes mock
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
       {
         maxUsageCount: Infinity,
         request: {
           query: GET_SUBMISSION,
           variables: {
             id: "test-deleting-id",
-            skipStats: true,
-            skipSubmission: true,
-            skipAttributes: false,
+            partial: true,
           },
         },
         result: {
           data: {
-            getSubmission: undefined,
+            getSubmission: {
+              _id: "test-deleting-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: true,
+            },
             submissionStats: undefined,
             getSubmissionAttributes: {
               submissionAttributes: {
                 hasOrphanError: false,
-                isBatchUploading: true,
+                isBatchUploading: false,
               },
             },
           },
@@ -602,7 +642,7 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
+    render(<TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-deleting-id" />);
 
     // Should poll getSubmission
     await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
@@ -615,8 +655,11 @@ describe("SubmissionProvider", () => {
         maxUsageCount: 1,
         request: {
           query: GET_SUBMISSION,
+          variables: {
+            id: "test-deleting-id",
+            partial: false,
+          },
         },
-        variableMatcher: () => true,
         result: {
           data: {
             getSubmission: {
@@ -659,10 +702,14 @@ describe("SubmissionProvider", () => {
   it("should use the polling wrapper functions to start and stop polling", async () => {
     const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
       {
+        maxUsageCount: 2, // Initial + after polling stops
         request: {
           query: GET_SUBMISSION,
+          variables: {
+            id: "test-wrapper-id",
+            partial: false,
+          },
         },
-        variableMatcher: () => true,
         result: {
           data: {
             getSubmission: {
@@ -676,6 +723,36 @@ describe("SubmissionProvider", () => {
               submissionAttributes: {
                 isBatchUploading: false,
                 hasOrphanError: false,
+              },
+            },
+          },
+        },
+      },
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-wrapper-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-wrapper-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
               },
             },
           },
@@ -701,7 +778,7 @@ describe("SubmissionProvider", () => {
 
     const { result } = renderHook(() => useSubmissionContext(), {
       wrapper: ({ children }) => (
-        <TestParent mocks={[...mocks, ...qcMocks]} _id="test-wrapper-id">
+        <TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-wrapper-id">
           {children}
         </TestParent>
       ),
@@ -746,6 +823,36 @@ describe("SubmissionProvider", () => {
         },
       },
     ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-polling-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-polling-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
+            },
+          },
+        },
+      },
+    ];
     const qcMocks: MockedResponse<SubmissionQCResultsResp<true>>[] = [
       {
         request: {
@@ -765,7 +872,7 @@ describe("SubmissionProvider", () => {
 
     const { result } = renderHook(() => useSubmissionContext(), {
       wrapper: ({ children }) => (
-        <TestParent mocks={[...mocks, ...qcMocks]} _id="test-polling-id">
+        <TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-polling-id">
           {children}
         </TestParent>
       ),
