@@ -5,7 +5,10 @@ import React, { ReactNode, useState } from "react";
 import TableColumnsIcon from "../../assets/icons/table_columns_icon.svg?react";
 import Tooltip from "../Tooltip";
 
-import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
+import ColumnVisibilityPopper, {
+  ColumnVisibilityPopperProps,
+  ExtendedColumn,
+} from "./ColumnVisibilityPopper";
 
 const StyledIconButton = styled(IconButton)({
   padding: 0,
@@ -22,15 +25,18 @@ const StyledTableColumnsIcon = styled(TableColumnsIcon)({
   color: "#346798",
 });
 
-type Props<C extends { hideable?: boolean }> = {
-  columns: C[];
-  columnVisibilityModel: ColumnVisibilityModel;
+type Props<C extends ExtendedColumn> = {
   icon?: ReactNode;
-  sortAlphabetically?: boolean;
-  getColumnKey: (column: C) => string;
-  getColumnLabel: (column: C) => string;
-  onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
-};
+} & Pick<
+  ColumnVisibilityPopperProps<C>,
+  | "columns"
+  | "columnVisibilityModel"
+  | "getColumnKey"
+  | "getColumnLabel"
+  | "getColumnGroup"
+  | "onColumnVisibilityModelChange"
+  | "sortAlphabetically"
+>;
 
 /**
  * A component that renders a button to toggle the ColumnVisibilityPopper.
@@ -40,14 +46,9 @@ type Props<C extends { hideable?: boolean }> = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
-  columns,
-  columnVisibilityModel,
+const ColumnVisibilityButton = <C extends ExtendedColumn>({
   icon,
-  sortAlphabetically = true,
-  getColumnKey,
-  getColumnLabel,
-  onColumnVisibilityModelChange,
+  ...popperProps
 }: Props<C>): JSX.Element => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -86,13 +87,8 @@ const ColumnVisibilityButton = <C extends { hideable?: boolean }>({
       <ColumnVisibilityPopper
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        columns={columns}
-        columnVisibilityModel={columnVisibilityModel}
-        sortAlphabetically={sortAlphabetically}
-        onColumnVisibilityModelChange={onColumnVisibilityModelChange}
         onClose={handleClosePopper}
-        getColumnKey={getColumnKey}
-        getColumnLabel={getColumnLabel}
+        {...popperProps}
       />
     </>
   );

@@ -127,7 +127,20 @@ const StyledFooter = styled(Stack)({
   marginRight: "12px",
 });
 
-type Props<C extends { hideable?: boolean }> = {
+export type ExtendedColumn = {
+  /**
+   * Indicates if the column can be hidden by the user.
+   * If false, the column will always be visible and its checkbox will be disabled.
+   */
+  hideable?: boolean;
+  /**
+   * Indicates if the column is hidden by default.
+   * If true, the column will be hidden when the default visibility model is applied.
+   */
+  defaultHidden?: boolean;
+};
+
+export type ColumnVisibilityPopperProps<C extends ExtendedColumn> = {
   anchorEl: HTMLElement | null;
   open: boolean;
   columns: C[];
@@ -135,8 +148,28 @@ type Props<C extends { hideable?: boolean }> = {
   sortAlphabetically?: boolean;
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
   onClose: () => void;
+  /**
+   * Gets the unique key or identifier for a column.
+   *
+   * @param column The column object.
+   * @returns The unique key for the column.
+   */
   getColumnKey: (column: C) => string;
+  /**
+   * Gets the display label for a column.
+   *
+   * @param column The column object.
+   * @returns The display label for the column.
+   */
   getColumnLabel: (column: C) => string;
+  /**
+   * (Optional) Gets the group name for a column, if applicable.
+   * If provided, columns will be grouped by this value in the popper.
+   *
+   * @param column The column object.
+   * @returns The group name for the column, or undefined if not grouped.
+   */
+  getColumnGroup?: (column: C) => string;
 };
 
 /**
@@ -144,10 +177,10 @@ type Props<C extends { hideable?: boolean }> = {
  * Supports non-hideable columns by disabling their checkboxes and labels.
  *
  * @template C - The type of the column objects
- * @param {Props} props
+ * @param {ColumnVisibilityPopperProps} props
  * @returns {JSX.Element}
  */
-const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: boolean }>({
+const ColumnVisibilityPopper = <C extends ExtendedColumn>({
   anchorEl,
   open,
   columns,
@@ -157,7 +190,8 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
   onClose,
   getColumnKey,
   getColumnLabel,
-}: Props<C>): JSX.Element => {
+  getColumnGroup,
+}: ColumnVisibilityPopperProps<C>): JSX.Element => {
   /**
    * The defined default column visibility.
    */
