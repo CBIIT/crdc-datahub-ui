@@ -1,79 +1,77 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
-  query getSubmission($id: ID!) {
-    getSubmission(_id: $id) {
+const PartialSubmissionFragment: TypedDocumentNode<Response, Input> = gql`
+  fragment PartialSubmissionFragment on Submission {
+    _id
+    metadataValidationStatus
+    fileValidationStatus
+    crossSubmissionStatus
+    deletingData
+  }
+`;
+
+const FullSubmissionFragment: TypedDocumentNode<Response, Input> = gql`
+  fragment FullSubmissionFragment on Submission {
+    _id
+    name
+    submitterID
+    submitterName
+    organization {
       _id
       name
-      submitterID
-      submitterName
-      organization {
-        _id
-        name
-        abbreviation
-      }
-      dataCommons
-      dataCommonsDisplayName
-      modelVersion
-      studyID
-      studyAbbreviation
-      studyName
-      dbGaPID
-      bucketName
-      rootPath
-      status
-      metadataValidationStatus
-      fileValidationStatus
-      crossSubmissionStatus
-      validationStarted
-      validationEnded
-      validationScope
-      validationType
-      deletingData
-      fileErrors {
-        submissionID
-        type
-        validationType
-        batchID
-        displayID
-        submittedID
-        severity
-        uploadedDate
-        validatedDate
-        errors {
-          title
-          description
-        }
-        warnings {
-          title
-          description
-        }
-      }
-      history {
-        status
-        reviewComment
-        dateTime
-        userID
-        userName
-      }
-      conciergeName
-      conciergeEmail
-      intention
-      dataType
-      otherSubmissions
-      nodeCount
-      collaborators {
-        collaboratorID
-        collaboratorName
-        permission
-      }
-      dataFileSize {
-        size
-      }
-      createdAt
-      updatedAt
+      abbreviation
     }
+    dataCommons
+    dataCommonsDisplayName
+    modelVersion
+    studyID
+    studyAbbreviation
+    studyName
+    dbGaPID
+    bucketName
+    rootPath
+    status
+    metadataValidationStatus
+    fileValidationStatus
+    crossSubmissionStatus
+    validationStarted
+    validationEnded
+    validationScope
+    validationType
+    deletingData
+    history {
+      status
+      reviewComment
+      dateTime
+      userID
+      userName
+    }
+    conciergeName
+    conciergeEmail
+    intention
+    dataType
+    otherSubmissions
+    nodeCount
+    collaborators {
+      collaboratorID
+      collaboratorName
+      permission
+    }
+    dataFileSize {
+      size
+    }
+    createdAt
+    updatedAt
+  }
+`;
 
+export const query: TypedDocumentNode<Response, Input> = gql`
+  query getSubmission($id: ID!, $partial: Boolean = false) {
+    getSubmission(_id: $id) {
+      ...PartialSubmissionFragment
+      ...FullSubmissionFragment @skip(if: $partial)
+    }
     submissionStats(_id: $id) {
       stats {
         nodeName
@@ -84,14 +82,15 @@ export const query = gql`
         error
       }
     }
-
-    batchStatusList: listBatches(submissionID: $id, first: -1) {
-      batches {
-        _id
-        status
+    getSubmissionAttributes(submissionID: $id) {
+      submissionAttributes {
+        isBatchUploading
+        hasOrphanError
       }
     }
   }
+  ${PartialSubmissionFragment}
+  ${FullSubmissionFragment}
 `;
 
 export type Input = {
@@ -99,23 +98,40 @@ export type Input = {
    * The submission ID
    */
   id: string;
+  /**
+   * If true, only fetch minimal fields. This is used
+   * to determine if polling should continue or stop
+   */
+  partial?: boolean;
 };
 
-export type Response = {
+export type Response<IsPartial = false> = {
   /**
    * The submission object
    */
-  getSubmission: Submission;
+  getSubmission: IsPartial extends true
+    ? Pick<
+        Submission,
+        | "_id"
+        | "metadataValidationStatus"
+        | "fileValidationStatus"
+        | "crossSubmissionStatus"
+        | "deletingData"
+      >
+    : Submission;
   /**
    * The node statistics for the submission
    */
-  submissionStats: {
+  submissionStats?: {
     stats: SubmissionStatistic[];
   };
   /**
-   * The full list of batches for the submission
+   * The submission attributes and validation status
    */
-  batchStatusList: {
-    batches: Pick<Batch, "_id" | "status">[];
+  getSubmissionAttributes: {
+    /**
+     * The submission attributes
+     */
+    submissionAttributes: Pick<SubmissionAttributes, "isBatchUploading" | "hasOrphanError">;
   };
 };

@@ -53,12 +53,6 @@ export const query = gql`
         ...BatchFragment @skip(if: $partial)
       }
     }
-    batchStatusList: listBatches(submissionID: $submissionID, first: -1) {
-      batches {
-        _id
-        status
-      }
-    }
   }
   ${FullBatchFragment}
   ${BaseBatchFragment}
@@ -79,8 +73,5 @@ export type Response<IsPartial = false> = {
     batches: (IsPartial extends true
       ? Pick<Batch, "_id" | "displayID" | "createdAt" | "updatedAt">
       : Omit<Batch, "submitterID">)[];
-  };
-  batchStatusList: {
-    batches: Pick<Batch, "_id" | "status">[];
   };
 };

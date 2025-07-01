@@ -78,7 +78,7 @@ const MockParent: React.FC<MockParentProps> = ({ submission, mocks, children }) 
           ...baseSubmission,
           ...submission,
         },
-        batchStatusList: null,
+        getSubmissionAttributes: null,
         submissionStats: null,
       },
       status: SubmissionCtxStatus.LOADED,

@@ -105,7 +105,7 @@ const TestParent: React.FC<TestParentProps> = ({
         submissionStats: {
           stats: [],
         },
-        batchStatusList: null,
+        getSubmissionAttributes: null,
       },
     }),
     [submission]
