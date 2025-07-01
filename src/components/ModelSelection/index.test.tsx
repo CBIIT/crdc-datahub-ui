@@ -583,7 +583,12 @@ describe("Implementation Requirements", () => {
         fileValidationStatus: "Passed",
       },
       submissionStats: null,
-      batchStatusList: null,
+      getSubmissionAttributes: {
+        submissionAttributes: {
+          hasOrphanError: false,
+          isBatchUploading: false,
+        },
+      },
     };
 
     let updateQueryResult: GetSubmissionResp | undefined;

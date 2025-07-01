@@ -72,7 +72,12 @@ const meta: Meta<CustomStoryProps> = {
               _id: context.args.submissionId,
               dataCommons: context.args.dataCommons,
             } as GetSubmissionResp["getSubmission"],
-            batchStatusList: null,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
+            },
             submissionStats: null,
           },
           status: SubmissionCtxStatus.LOADED,

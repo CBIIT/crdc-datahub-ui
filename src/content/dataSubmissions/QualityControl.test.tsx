@@ -115,9 +115,6 @@ const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
         total: 0,
         batches: null,
       },
-      batchStatusList: {
-        batches: null,
-      },
     },
   },
 };
@@ -213,8 +210,11 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
           ...baseSubmission,
           ...submission,
         },
-        batchStatusList: {
-          batches: [],
+        getSubmissionAttributes: {
+          submissionAttributes: {
+            hasOrphanError: false,
+            isBatchUploading: false,
+          },
         },
         submissionStats: { stats: [] },
       },
@@ -469,9 +469,6 @@ describe("Filters", () => {
                 displayID: 999,
               },
             ],
-          },
-          batchStatusList: {
-            batches: null, // NOTE: Required by type, but not used in the component
           },
         },
       },
@@ -809,9 +806,6 @@ describe("Filters", () => {
               { ...baseBatch, _id: "batch03", displayID: 94, createdAt: "2024-12-12T00:00:00Z" },
               { ...baseBatch, _id: "batch04", displayID: 1024, createdAt: "2028-10-03T00:00:00Z" },
             ],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },
