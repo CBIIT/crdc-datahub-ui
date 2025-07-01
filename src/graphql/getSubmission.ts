@@ -72,7 +72,7 @@ export const query: TypedDocumentNode<Response, Input> = gql`
       ...PartialSubmissionFragment
       ...FullSubmissionFragment @skip(if: $partial)
     }
-    submissionStats(_id: $id) @skip(if: $partial) {
+    submissionStats(_id: $id) {
       stats {
         nodeName
         total
@@ -121,13 +121,10 @@ export type Response<IsPartial = false> = {
     : Submission;
   /**
    * The node statistics for the submission
-   * @note Omitted when partial is true
    */
-  submissionStats?: IsPartial extends true
-    ? undefined
-    : {
-        stats: SubmissionStatistic[];
-      };
+  submissionStats?: {
+    stats: SubmissionStatistic[];
+  };
   /**
    * The submission attributes and validation status
    */
