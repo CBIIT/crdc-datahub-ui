@@ -130,6 +130,8 @@ export const NoData: Story = {
 
 export const Loading: Story = {
   args: {
+    submission: null,
+    statistics: null,
     status: SubmissionCtxStatus.LOADING,
   },
 };
