@@ -1,21 +1,60 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { GetSubmissionResp } from "../../graphql";
+import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
+
 import ValidationStatistics from "./ValidationStatistics";
 
-type CustomStoryProps = React.ComponentProps<typeof ValidationStatistics>;
+type CustomStoryProps = React.ComponentProps<typeof ValidationStatistics> & {
+  submission: GetSubmissionResp["getSubmission"];
+  status: SubmissionCtxStatus;
+  statistics: SubmissionStatistic[];
+};
 
 const meta: Meta<CustomStoryProps> = {
   title: "Data Submissions / Validation Statistics",
   component: ValidationStatistics,
   tags: ["autodocs"],
   argTypes: {
-    dataSubmission: {
-      control: false,
-    },
-    statistics: {
-      control: false,
+    submission: { control: false },
+    statistics: { control: false },
+    status: {
+      options: [
+        SubmissionCtxStatus.LOADED,
+        SubmissionCtxStatus.LOADING,
+        SubmissionCtxStatus.POLLING,
+        SubmissionCtxStatus.ERROR,
+      ],
+      control: {
+        type: "radio",
+      },
     },
   },
+  args: {
+    status: SubmissionCtxStatus.LOADED,
+  },
+  decorators: [
+    (Story, context) => (
+      <SubmissionContext.Provider
+        value={{
+          data: {
+            getSubmission: context.args.submission,
+            submissionStats: { stats: context.args.statistics },
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
+            },
+          } as GetSubmissionResp,
+          status: context.args.status,
+          error: null,
+        }}
+      >
+        <Story />
+      </SubmissionContext.Provider>
+    ),
+  ],
 } satisfies Meta<CustomStoryProps>;
 
 type Story = StoryObj<CustomStoryProps>;
@@ -73,7 +112,7 @@ const mockData: SubmissionStatistic[] = [
 
 export const Default: Story = {
   args: {
-    dataSubmission: {
+    submission: {
       _id: "mock id",
     } as Submission,
     statistics: [...mockData],
@@ -82,7 +121,7 @@ export const Default: Story = {
 
 export const NoData: Story = {
   args: {
-    dataSubmission: {
+    submission: {
       _id: "mock id",
     } as Submission,
     statistics: [],
@@ -90,7 +129,9 @@ export const NoData: Story = {
 };
 
 export const Loading: Story = {
-  args: {},
+  args: {
+    status: SubmissionCtxStatus.LOADING,
+  },
 };
 
 export default meta;
