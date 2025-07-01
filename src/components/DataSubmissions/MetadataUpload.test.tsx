@@ -123,7 +123,7 @@ const TestParent: FC<ParentProps> = ({
       data: {
         getSubmission: submission,
         submissionStats: null,
-        batchStatusList: null,
+        getSubmissionAttributes: null,
       },
       status: SubmissionCtxStatus.LOADED,
       error: null,
