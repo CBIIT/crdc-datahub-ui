@@ -11,6 +11,7 @@ import CreateApplicationButton from "../../components/CreateApplicationButton";
 import GenericTable, { Column } from "../../components/GenericTable";
 import PageBanner from "../../components/PageBanner";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import TooltipList from "../../components/SummaryList/TooltipList";
 import ToggleApplicationButton from "../../components/ToggleApplicationButton";
 import Tooltip from "../../components/Tooltip";
 import TruncatedText from "../../components/TruncatedText";
@@ -98,6 +99,7 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
 const StyledSpecialStatus = styled(Stack)({
   color: "#C94313",
   fontWeight: 600,
+  cursor: "pointer",
 });
 
 const StyledBellIcon = styled(BellIcon)({
@@ -134,7 +136,7 @@ const columns: Column<T>[] = [
 
       return (
         <Tooltip
-          title={pendingConditions?.join(" ")}
+          title={<TooltipList data={pendingConditions} />}
           placement="top"
           open={undefined}
           disableHoverListener={false}
