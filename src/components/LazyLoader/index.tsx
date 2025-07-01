@@ -1,4 +1,4 @@
-import { FC, LazyExoticComponent, Suspense } from "react";
+import { ComponentType, FC, Suspense } from "react";
 
 import SuspenseLoader from "../SuspenseLoader";
 
@@ -10,7 +10,7 @@ import SuspenseLoader from "../SuspenseLoader";
  * @returns The component wrapped in a Suspense component.
  */
 const LazyLoader =
-  (Component: LazyExoticComponent<FC>, Fallback: FC = SuspenseLoader) =>
+  <P,>(Component: ComponentType<P>, Fallback: FC = SuspenseLoader): FC<P> =>
   (props) => (
     <Suspense fallback={<Fallback />}>
       <Component {...props} />

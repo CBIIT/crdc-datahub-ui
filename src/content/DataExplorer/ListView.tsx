@@ -203,7 +203,7 @@ const ListView = () => {
     navigate({
       pathname: `/data-explorer/${clickedStudyRef.current._id}`,
       search: createSearchParams({
-        dataCommons: form.dataCommon,
+        dataCommonsDisplayName: form.dataCommon,
       }).toString(),
     });
   };
@@ -216,7 +216,7 @@ const ListView = () => {
       navigate({
         pathname: `/data-explorer/${study._id}`,
         search: createSearchParams({
-          dataCommons: study.dataCommonsDisplayNames[0],
+          dataCommonsDisplayName: study.dataCommonsDisplayNames[0],
         }).toString(),
       });
       return;
@@ -284,7 +284,7 @@ const ListView = () => {
 
       <DataExplorerDCSelectionDialog
         open={multipleDCDialog}
-        dataCommons={data?.dataCommonsDisplayNames || []}
+        dataCommons={clickedStudyRef.current?.dataCommonsDisplayNames || []}
         onSubmitForm={(form) => handleDCSelect(form)}
         onClose={() => setMultipleDCDialog(false)}
       />

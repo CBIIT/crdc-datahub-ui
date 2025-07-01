@@ -90,6 +90,16 @@ const routes: RouteObject[] = [
                 redirectName="Data Explorer"
               />
             ),
+            children: [
+              {
+                index: true,
+                element: null,
+              },
+              {
+                path: ":studyId",
+                element: null,
+              },
+            ],
           },
           {
             path: "/submission-request/:appId/:section?",
