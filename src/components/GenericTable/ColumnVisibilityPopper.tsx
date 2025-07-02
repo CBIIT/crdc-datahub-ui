@@ -25,7 +25,6 @@ const StyledPopper = styled(Popper)({
 const StyledResetButton = styled(Button)(({ theme }) => ({
   color: "#083A50",
   fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 700,
   lineHeight: "19.6px",
@@ -37,8 +36,8 @@ const StyledResetButton = styled(Button)(({ theme }) => ({
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
   position: "absolute !important" as "absolute",
-  right: "21px",
-  top: "11px",
+  right: "15px",
+  top: "18px",
   padding: "10px",
   "& svg": {
     color: "#44627C",
@@ -71,7 +70,6 @@ const CheckedIcon = styled("div")({
 const StyledTitle = styled(Typography)({
   fontSize: "16px",
   color: "#083A50 !important",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 700,
   lineHeight: "19.6px",
@@ -92,16 +90,17 @@ const StyledPaper = styled(Paper, { shouldForwardProp: (p) => p !== "isGrouped" 
 }));
 
 const StyledColumnContainer = styled(Box)({
-  overflowY: "auto",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "flex-start",
   gap: "10px",
   padding: "22px 20px 18px 20px",
+  maxWidth: "100%",
 });
 
 const StyledColumnList = styled(Stack)({
+  maxWidth: "100%",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
@@ -131,6 +130,12 @@ const StyledGroupTitle = styled(Typography)({
   color: "#083A50",
 });
 
+const StyledScrollRegion = styled("div")({
+  maxHeight: "450px",
+  overflowY: "auto",
+  width: "100%",
+});
+
 const StyledNoColumnsText = styled(Typography)({
   fontSize: "12px",
   color: "#083A50",
@@ -141,10 +146,10 @@ const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   marginRight: 0,
   marginLeft: 0,
   "& .MuiFormControlLabel-label": {
+    overflowWrap: "anywhere",
     width: "100%",
     fontSize: "16px",
     color: "#083A50 !important",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontStyle: "normal",
     fontWeight: 700,
     lineHeight: "19.6px",
@@ -441,30 +446,32 @@ const ColumnVisibilityPopper = <C extends ExtendedColumn>({
 
           <StyledColumnContainer data-testid="column-list">
             <StyledTitle>Visible Columns</StyledTitle>
-            {groupedColumns.length > 0 ? (
-              groupedColumns.map(({ name, description, columns }) => (
-                <StyledGroupContainer key={name} data-testid={`column-group-${name}`}>
-                  <StyledGroupTitleContainer>
-                    <StyledGroupTitle>{name}</StyledGroupTitle>
-                    {description && (
-                      <Tooltip title={description} data-testid="column-group-tooltip" arrow />
-                    )}
-                  </StyledGroupTitleContainer>
-                  <StyledColumnList>
-                    {columns.map((column) => (
-                      <ColumnToggle key={getColumnKey(column)} column={column} />
-                    ))}
-                    {columns.length === 0 && <StyledNoColumnsText>N/A</StyledNoColumnsText>}
-                  </StyledColumnList>
-                </StyledGroupContainer>
-              ))
-            ) : (
-              <StyledColumnList>
-                {sortedColumns?.map((column) => (
-                  <ColumnToggle key={getColumnKey(column)} column={column} />
-                ))}
-              </StyledColumnList>
-            )}
+            <StyledScrollRegion>
+              {groupedColumns.length > 0 ? (
+                groupedColumns.map(({ name, description, columns }) => (
+                  <StyledGroupContainer key={name} data-testid={`column-group-${name}`}>
+                    <StyledGroupTitleContainer>
+                      <StyledGroupTitle>{name}</StyledGroupTitle>
+                      {description && (
+                        <Tooltip title={description} data-testid="column-group-tooltip" arrow />
+                      )}
+                    </StyledGroupTitleContainer>
+                    <StyledColumnList>
+                      {columns.map((column) => (
+                        <ColumnToggle key={getColumnKey(column)} column={column} />
+                      ))}
+                      {columns.length === 0 && <StyledNoColumnsText>N/A</StyledNoColumnsText>}
+                    </StyledColumnList>
+                  </StyledGroupContainer>
+                ))
+              ) : (
+                <StyledColumnList>
+                  {sortedColumns?.map((column) => (
+                    <ColumnToggle key={getColumnKey(column)} column={column} />
+                  ))}
+                </StyledColumnList>
+              )}
+            </StyledScrollRegion>
           </StyledColumnContainer>
 
           <StyledFooter>

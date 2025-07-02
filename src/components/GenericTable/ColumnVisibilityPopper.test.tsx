@@ -207,6 +207,32 @@ describe("ColumnVisibilityPopper", () => {
     expect(within(getByTestId("column-group-GROUP-4")).getByText("N/A")).toBeInTheDocument();
   });
 
+  // NOTE: This isn't necessarily desired behavior, but writing a test to lock it as-is for now.
+  it("should not render a column when the group is not provided in the `groups` prop", () => {
+    const getColumnGroup = (column: Column) => {
+      switch (column.field) {
+        case "name":
+        case "age":
+          return "GROUP-1";
+        case "email": // Rendering into a non-existent group
+        default:
+          return "GROUP-DOES-NOT-EXIST";
+      }
+    };
+
+    const { getByTestId, queryByTestId } = renderComponent({
+      getColumnGroup,
+      groups: [{ name: "GROUP-1", description: "Group 1 Description" }],
+    });
+
+    // GROUP-1
+    expect(getByTestId("checkbox-name")).toBeInTheDocument();
+    expect(getByTestId("checkbox-age")).toBeInTheDocument();
+
+    // GROUP-DOES-NOT-EXIST was not provided in groups
+    expect(queryByTestId("checkbox-email")).not.toBeInTheDocument();
+  });
+
   it("does not call onColumnVisibilityModelChange when non-hideable column's checkbox is changed", () => {
     const { getByTestId } = renderComponent();
 

@@ -1,28 +1,38 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, screen, within, waitFor } from "@storybook/test";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import ColumnVisibilityButton from "./ColumnVisibilityButton";
 import { ColumnVisibilityPopperGroup } from "./ColumnVisibilityPopper";
 
 type Column = {
   field: string;
-  fieldKey?: string;
   label: string;
   hideable?: boolean;
+  group?: string;
 };
 
 const columns: Column[] = [
   { field: "name", label: "Name", hideable: false },
   { field: "age", label: "Age" },
   { field: "email", label: "Email" },
+  { field: "long_label", label: "a_very_long_label_with_no_spaces" },
+  {
+    field: "long_label_spaces",
+    label: "A equally long label with spaces",
+  },
 ];
 
-const getColumnKey = (column: Column) => column.fieldKey ?? column.field;
+const getColumnKey = (column: Column) => column.field;
 const getColumnLabel = (column: Column) => column.label;
 
 const meta: Meta<typeof ColumnVisibilityButton<Column>> = {
   title: "Miscellaneous / Column Visibility",
+  argTypes: {
+    sortAlphabetically: {
+      control: { type: "boolean" },
+    },
+  },
   component: ColumnVisibilityButton,
   tags: ["autodocs"],
 } satisfies Meta<typeof ColumnVisibilityButton<Column>>;
@@ -38,6 +48,8 @@ export const Basic: Story = {
       name: true,
       age: true,
       email: true,
+      long_label: true,
+      long_label_spaces: true,
     });
 
     return (
@@ -69,6 +81,8 @@ export const BasicWithGroups: Story = {
       name: true,
       age: true,
       email: true,
+      long_label: true,
+      long_label_spaces: true,
     });
 
     const mockGroups: ColumnVisibilityPopperGroup[] = [
@@ -84,6 +98,8 @@ export const BasicWithGroups: Story = {
         case "age":
           return "ipsum";
         case "email":
+        case "long_label":
+        case "long_label_spaces":
           return "dolor";
         default:
           return undefined;
@@ -114,5 +130,68 @@ export const Hovered: Story = {
     await userEvent.hover(getByTestId("column-visibility-button"));
 
     await waitFor(() => screen.findByRole("tooltip"));
+  },
+};
+
+export const LongColumnListGrouped: Story = {
+  ...Basic,
+  name: "Scroll Region - Grouped",
+  render: () => {
+    const columns: Column[] = Array(50)
+      .fill(null)
+      .map((_, index) => ({
+        field: `column_${index}`,
+        label: `column_${index}`,
+        group: `group_${Math.floor(index / 10)}`,
+      }));
+
+    const [mockModel, setMockModel] = useState<Record<string, boolean>>({});
+
+    const mockGroups: ColumnVisibilityPopperGroup[] = [
+      { name: "group_0", description: "Group 0" },
+      { name: "group_1", description: "Group 1" },
+      { name: "group_2", description: "Group 2" },
+      { name: "group_3", description: "Group 3" },
+      { name: "group_4", description: "Group 4" },
+    ];
+
+    const mockGetGroups = (column: Column) => column.group;
+
+    return (
+      <ColumnVisibilityButton
+        columns={columns}
+        groups={mockGroups}
+        columnVisibilityModel={mockModel}
+        getColumnKey={fn(getColumnKey)}
+        getColumnLabel={fn(getColumnLabel)}
+        getColumnGroup={fn(mockGetGroups)}
+        onColumnVisibilityModelChange={fn(setMockModel)}
+      />
+    );
+  },
+};
+
+export const LongColumnListUngrouped: Story = {
+  ...Basic,
+  name: "Scroll Region - Ungrouped",
+  render: () => {
+    const columns: Column[] = Array(50)
+      .fill(null)
+      .map((_, index) => ({
+        field: `column_${index}`,
+        label: `column_${index}`,
+      }));
+
+    const [mockModel, setMockModel] = useState<Record<string, boolean>>({});
+
+    return (
+      <ColumnVisibilityButton
+        columns={columns}
+        columnVisibilityModel={mockModel}
+        getColumnKey={fn(getColumnKey)}
+        getColumnLabel={fn(getColumnLabel)}
+        onColumnVisibilityModelChange={fn(setMockModel)}
+      />
+    );
   },
 };
