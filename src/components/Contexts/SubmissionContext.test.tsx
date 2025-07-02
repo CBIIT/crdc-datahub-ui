@@ -842,7 +842,9 @@ describe("SubmissionProvider", () => {
               metadataValidationStatus: null,
               deletingData: false,
             },
-            submissionStats: undefined,
+            submissionStats: {
+              stats: [],
+            },
             getSubmissionAttributes: {
               submissionAttributes: {
                 hasOrphanError: false,
