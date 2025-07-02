@@ -94,6 +94,7 @@ describe("hasStudyWithMultiplePrograms", () => {
     },
     useProgramPC: false,
     createdAt: "",
+    pendingModelChange: false,
   });
 
   it("returns false when studies array is empty", () => {

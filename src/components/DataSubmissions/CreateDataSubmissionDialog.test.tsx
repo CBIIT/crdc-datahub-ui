@@ -35,6 +35,7 @@ const baseApprovedStudy: ApprovedStudy = {
   primaryContact: null,
   useProgramPC: false,
   createdAt: "",
+  pendingModelChange: false,
 };
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
