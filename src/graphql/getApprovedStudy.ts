@@ -29,6 +29,7 @@ const ExtendedApprovedStudyFragment = gql`
       conciergeName
     }
     useProgramPC
+    pendingModelChange
   }
 `;
 
@@ -80,6 +81,7 @@ export type Response<PartialResponse = false> = {
         | "ORCID"
         | "createdAt"
         | "useProgramPC"
+        | "pendingModelChange"
       > & {
         primaryContact: Pick<User, "_id" | "firstName" | "lastName">;
         programs: Pick<Organization, "_id" | "name" | "conciergeID" | "conciergeName">[];
