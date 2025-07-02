@@ -248,6 +248,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       primaryContactID: "",
       openAccess: false,
       controlledAccess: false,
+      pendingModelChange: false,
     },
   });
   const isControlled = watch("controlledAccess");
