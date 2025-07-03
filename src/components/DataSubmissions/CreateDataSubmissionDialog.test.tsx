@@ -45,6 +45,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "SN",
     dbGaPID: "phsTEST",
     controlledAccess: null,
+    pendingModelChange: false,
   },
   {
     _id: "study2",
@@ -52,6 +53,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "CS",
     dbGaPID: "phsTEST",
     controlledAccess: true,
+    pendingModelChange: false,
   },
   {
     _id: "no-dbGaP-ID",
@@ -59,6 +61,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "DB",
     dbGaPID: null,
     controlledAccess: true,
+    pendingModelChange: false,
   },
 ];
 
@@ -761,6 +764,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
@@ -813,6 +817,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
@@ -876,6 +881,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: "phsTEST",
         controlledAccess: true,
+        pendingModelChange: false,
       },
       {
         _id: "non-controlled",
@@ -883,6 +889,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "NCS",
         dbGaPID: null,
         controlledAccess: false,
+        pendingModelChange: false,
       },
     ];
 
@@ -949,6 +956,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
