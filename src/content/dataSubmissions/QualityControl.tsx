@@ -532,6 +532,7 @@ const QualityControl: FC = () => {
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
+      {/* TODO: ErrorDetailsDialogV2 */}
       {!isAggregated && (
         <ErrorDetailsDialog
           open={openErrorDialog}
@@ -545,7 +546,6 @@ const QualityControl: FC = () => {
           errorCount={`${allDescriptions?.length || 0} ${
             allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"
           }`}
-          comparisonData={comparisonData}
         />
       )}
     </>
