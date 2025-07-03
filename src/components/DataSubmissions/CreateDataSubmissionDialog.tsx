@@ -250,7 +250,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     {
       variables: { first: -1, orderBy: "studyAbbreviation", sortDirection: "asc" },
       context: { clientName: "backend" },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "cache-and-network",
       skip: !shouldFetchAllStudies,
     }
   );
