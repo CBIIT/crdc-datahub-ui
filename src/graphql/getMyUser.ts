@@ -19,6 +19,7 @@ export const query: TypedDocumentNode<Response> = gql`
         studyAbbreviation
         dbGaPID
         controlledAccess
+        pendingModelChange
       }
       institution {
         _id
@@ -36,7 +37,12 @@ export type Response = {
   getMyUser: User & {
     studies: Pick<
       ApprovedStudy,
-      "_id" | "studyName" | "studyAbbreviation" | "dbGaPID" | "controlledAccess"
+      | "_id"
+      | "studyName"
+      | "studyAbbreviation"
+      | "dbGaPID"
+      | "controlledAccess"
+      | "pendingModelChange"
     >[];
   };
 };
