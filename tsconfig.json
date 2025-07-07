@@ -25,7 +25,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/factories/*": ["./src/test-utils/factories/*"]
+    }
   },
   "include": [
     "src",
