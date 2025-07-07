@@ -1,7 +1,7 @@
-import { ContextState as AuthCtxState, Status } from "../../components/Contexts/AuthContext";
+import { ContextState as AuthCtxState, Status } from "../../../components/Contexts/AuthContext";
+import { Factory } from "../Factory";
 
-import { Factory } from "./Factory";
-import { userFactory } from "./index";
+import { userFactory } from "./UserFactory";
 
 /**
  * Base AuthCtxState object

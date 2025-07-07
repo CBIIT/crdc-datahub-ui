@@ -1,4 +1,4 @@
-import { Factory } from "./Factory";
+import { Factory } from "../Factory";
 
 /**
  * Base batch object
