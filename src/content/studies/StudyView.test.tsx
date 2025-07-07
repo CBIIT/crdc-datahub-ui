@@ -149,6 +149,7 @@ describe("StudyView Component", () => {
             useProgramPC: false,
             primaryContact: null,
             createdAt: "",
+            pendingModelChange: false,
           },
         },
       },
@@ -186,6 +187,7 @@ describe("StudyView Component", () => {
             primaryContact: null,
             useProgramPC: false,
             createdAt: "",
+            pendingModelChange: false,
           },
         },
       },
@@ -313,6 +315,7 @@ describe("StudyView Component", () => {
           acronym: "TSN",
           primaryContactID: "dcp-1",
           useProgramPC: false,
+          pendingModelChange: false,
         },
       },
       result: {
@@ -410,6 +413,7 @@ describe("StudyView Component", () => {
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
+            pendingModelChange: false,
           },
         },
       },
@@ -432,6 +436,7 @@ describe("StudyView Component", () => {
           acronym: "ES",
           primaryContactID: undefined,
           useProgramPC: true,
+          pendingModelChange: false,
         },
       },
       result: {
@@ -485,6 +490,7 @@ describe("StudyView Component", () => {
           acronym: "TSN",
           primaryContactID: "dcp-1",
           useProgramPC: false,
+          pendingModelChange: false,
         },
       },
       error: new Error("Unable to create approved study."),
@@ -572,6 +578,7 @@ describe("StudyView Component", () => {
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
+            pendingModelChange: false,
           },
         },
       },
@@ -594,6 +601,7 @@ describe("StudyView Component", () => {
           acronym: "USN",
           primaryContactID: undefined,
           useProgramPC: true,
+          pendingModelChange: false,
         },
       },
       error: new Error("Unable to save changes"),
@@ -641,6 +649,7 @@ describe("StudyView Component", () => {
           acronym: "",
           primaryContactID: "dcp-1",
           useProgramPC: false,
+          pendingModelChange: false,
         },
       },
       result: {
@@ -760,6 +769,7 @@ describe("StudyView Component", () => {
             useProgramPC: false,
             primaryContact: null,
             programs: [],
+            pendingModelChange: false,
           },
         },
       },
@@ -809,6 +819,7 @@ describe("StudyView Component", () => {
           acronym: "",
           primaryContactID: "dcp-1",
           useProgramPC: false,
+          pendingModelChange: false,
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -896,6 +907,7 @@ describe("StudyView Component", () => {
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
+            pendingModelChange: false,
           },
         },
       },
@@ -918,6 +930,7 @@ describe("StudyView Component", () => {
           acronym: "ES",
           primaryContactID: undefined,
           useProgramPC: true,
+          pendingModelChange: false,
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -943,6 +956,192 @@ describe("StudyView Component", () => {
 
     await waitFor(() => {
       expect(getByTestId("alert-error-message")).toHaveTextContent("Unable to save changes");
+    });
+  });
+
+  it("renders the pendingModelChange checkbox", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+
+    expect(getByTestId("pendingConditions-checkbox")).toBeInTheDocument();
+  });
+
+  it("allows toggling the pendingModelChange checkbox", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+
+    const checkbox = getByTestId("pendingConditions-checkbox") as HTMLInputElement;
+
+    expect(checkbox.checked).toBe(false);
+
+    userEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+
+    userEvent.click(checkbox);
+    expect(checkbox.checked).toBe(false);
+  });
+
+  it("saves the pendingModelChange value when creating a study", async () => {
+    const createApprovedStudyMock: MockedResponse<
+      CreateApprovedStudyResp,
+      CreateApprovedStudyInput
+    > = {
+      request: {
+        query: CREATE_APPROVED_STUDY,
+        variables: {
+          PI: "John Doe",
+          dbGaPID: "",
+          ORCID: "0000-0001-2345-6789",
+          openAccess: true,
+          controlledAccess: false,
+          name: "Test Study Name",
+          acronym: "",
+          primaryContactID: "dcp-1",
+          useProgramPC: false,
+          pendingModelChange: true,
+        },
+      },
+      result: {
+        data: {
+          createApprovedStudy: {
+            _id: "new-study-id",
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(
+      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+
+    const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
+      "button"
+    );
+
+    userEvent.type(getByTestId("studyName-input"), "Test Study Name");
+    userEvent.type(getByTestId("PI-input"), "John Doe");
+    userEvent.type(getByTestId("ORCID-input"), "0000-0001-2345-6789");
+    userEvent.click(getByTestId("openAccess-checkbox"));
+    userEvent.click(getByTestId("sameAsProgramPrimaryContact-checkbox"));
+    userEvent.click(getByTestId("pendingConditions-checkbox"));
+    userEvent.click(primaryContactIDSelect);
+
+    await waitFor(() => {
+      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
+        "option",
+        {
+          hidden: true,
+        }
+      );
+
+      expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
+    });
+    userEvent.selectOptions(
+      within(getByTestId("primaryContactID-select")).getByRole("listbox", { hidden: true }),
+      "John Doe"
+    );
+    userEvent.click(getByTestId("save-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("This study has been successfully added.", {
+        variant: "default",
+      });
+    });
+  });
+
+  it("updates the pendingModelChange value when updating an existing study", async () => {
+    const studyId = "existing-study-id";
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
+      request: {
+        query: GET_APPROVED_STUDY,
+        variables: { _id: studyId, partial: false },
+      },
+      result: {
+        data: {
+          getApprovedStudy: {
+            _id: studyId,
+            studyName: "Existing Study",
+            studyAbbreviation: "ES",
+            PI: "Jane Smith",
+            dbGaPID: "db654321",
+            ORCID: "0000-0002-3456-7890",
+            openAccess: false,
+            controlledAccess: true,
+            programs: [
+              {
+                _id: "program-1",
+                conciergeID: "primary-contact-1",
+                conciergeName: "John Doe",
+                name: "",
+              },
+            ],
+            primaryContact: null,
+            useProgramPC: true,
+            createdAt: "",
+            pendingModelChange: false,
+          },
+        },
+      },
+    };
+
+    const updateApprovedStudyMock: MockedResponse<
+      UpdateApprovedStudyResp,
+      UpdateApprovedStudyInput
+    > = {
+      request: {
+        query: UPDATE_APPROVED_STUDY,
+        variables: {
+          studyID: studyId,
+          PI: "Jane Smith",
+          dbGaPID: "db654321",
+          ORCID: "0000-0002-3456-7890",
+          openAccess: false,
+          controlledAccess: true,
+          name: "Existing Study",
+          acronym: "ES",
+          primaryContactID: undefined,
+          useProgramPC: true,
+          pendingModelChange: true,
+        },
+      },
+      result: {
+        data: {
+          updateApprovedStudy: {
+            _id: studyId,
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(
+      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
+        <StudyView _id={studyId} />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("studyName-input")).toHaveValue("Existing Study");
+    });
+
+    const pendingCheckbox = getByTestId("pendingConditions-checkbox") as HTMLInputElement;
+    expect(pendingCheckbox.checked).toBe(false);
+    userEvent.click(pendingCheckbox);
+    expect(pendingCheckbox.checked).toBe(true);
+
+    userEvent.click(getByTestId("save-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("All changes have been saved.", {
+        variant: "default",
+      });
     });
   });
 });
