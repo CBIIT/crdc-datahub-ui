@@ -1,13 +1,15 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, styled } from "@mui/material";
 import { cloneDeep, isEqual, sortBy } from "lodash";
-import { FC, memo, useCallback, useMemo, useRef, useState } from "react";
+import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import DataExplorerExportButton from "../../components/DataExplorerExportButton";
 import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
 import GenericTable, { Column } from "../../components/GenericTable";
+import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
 import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
 import PageContainer from "../../components/PageContainer";
 import SuspenseLoader from "../../components/SuspenseLoader";
@@ -260,6 +262,36 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [columns, selectedNodeType?.IDPropName]
   );
 
+  const filterActions = useMemo<React.ReactNode[]>(
+    () => [
+      <ColumnVisibilityButton
+        key="column-visibility-action"
+        columns={columns}
+        getColumnKey={(column) => column.fieldKey ?? column.field}
+        getColumnLabel={(column) => column.label?.toString()}
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={setColumnVisibilityModel}
+        data-testid="column-visibility-button"
+      />,
+      <DataExplorerExportButton
+        key="export-data-action"
+        studyId={studyId}
+        studyDisplayName={studyDisplayName}
+        nodeType={filtersRef.current?.nodeType || ""}
+        dataCommonsDisplayName={dataCommonsDisplayName || ""}
+        columns={visibleColumns}
+      />,
+    ],
+    [
+      studyId,
+      columns,
+      columnVisibilityModel,
+      filtersRef?.current?.nodeType,
+      dataCommonsDisplayName,
+      setColumnVisibilityModel,
+    ]
+  );
+
   if (studyLoading || nodesLoading) {
     return <SuspenseLoader fullscreen data-testid="study-view-loader" />;
   }
@@ -292,12 +324,10 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       >
         <StyledFilterTableWrapper>
           <DataExplorerFilters
-            columns={columns}
             nodeTypes={nodeTypeOptions}
             defaultValues={defaultValues}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={setColumnVisibilityModel}
             onChange={handleFilterChange}
+            actions={filterActions}
           />
 
           <GenericTable

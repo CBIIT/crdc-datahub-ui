@@ -4,10 +4,8 @@ import { isEqual } from "lodash";
 import { memo, useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import { ListReleasedDataRecordsInput, ListReleasedDataRecordsResponse } from "../../graphql";
+import { ListReleasedDataRecordsInput } from "../../graphql";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
-import { Column } from "../GenericTable";
-import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
 import StyledSelectFormComponent from "../StyledFormComponents/StyledSelect";
 import Tooltip from "../Tooltip";
 
@@ -65,27 +63,21 @@ const initialTouchedFields: TouchedState = {
 
 export type FilterForm = Pick<ListReleasedDataRecordsInput, "nodeType">;
 
-type T = ListReleasedDataRecordsResponse["listReleasedDataRecords"]["nodes"][number];
-
 type FilterFormKey = keyof FilterForm;
 
 type TouchedState = { [K in FilterFormKey]: boolean };
 
 export type DataExplorerFilterProps = {
-  columns: Column<T>[];
   nodeTypes: string[];
   defaultValues: FilterForm;
-  columnVisibilityModel: ColumnVisibilityModel;
-  onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
+  actions?: React.ReactNode[];
   onChange: (data: FilterForm) => void;
 };
 
 const DataExplorerFilters = ({
-  columns,
   nodeTypes,
   defaultValues,
-  columnVisibilityModel,
-  onColumnVisibilityModelChange,
+  actions,
   onChange,
 }: DataExplorerFilterProps) => {
   const { searchParams, setSearchParams } = useSearchParamsContext();
@@ -217,16 +209,10 @@ const DataExplorerFilters = ({
               </StyledIconButton>
             </Tooltip>
           </StyledActionWrapper>
-          <StyledActionWrapper>
-            <ColumnVisibilityButton
-              columns={columns}
-              getColumnKey={(column) => column.fieldKey ?? column.field}
-              getColumnLabel={(column) => column.label?.toString()}
-              columnVisibilityModel={columnVisibilityModel}
-              onColumnVisibilityModelChange={onColumnVisibilityModelChange}
-              data-testid="column-visibility-button"
-            />
-          </StyledActionWrapper>
+          {actions?.map((action, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <StyledActionWrapper key={`action-${index}`}>{action}</StyledActionWrapper>
+          ))}
         </ActionButtonsContainer>
       </Stack>
     </StyledFilters>

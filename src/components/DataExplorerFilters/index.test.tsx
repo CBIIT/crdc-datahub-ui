@@ -23,13 +23,10 @@ describe("Accessibility", () => {
   it("has no accessibility violations (populated)", async () => {
     const { container, getByTestId } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["mock-node-type"]}
         defaultValues={{
           nodeType: "mock-node-type",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
       { wrapper: TestParent }
@@ -45,13 +42,10 @@ describe("Accessibility", () => {
   it("has no accessibility violations (empty)", async () => {
     const { container } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={[]}
         defaultValues={{
           nodeType: "",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
       { wrapper: TestParent }
@@ -72,13 +66,10 @@ describe("Basic Functionality", () => {
       render(
         <TestParent>
           <DataExplorerFilters
-            columns={[]}
             nodeTypes={["mock-node-type"]}
             defaultValues={{
               nodeType: "mock-node-type",
             }}
-            columnVisibilityModel={{}}
-            onColumnVisibilityModelChange={vi.fn()}
             onChange={vi.fn()}
           />
         </TestParent>
@@ -89,13 +80,10 @@ describe("Basic Functionality", () => {
   it("renders all input fields correctly", async () => {
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["node-123"]}
         defaultValues={{
           nodeType: "node-123",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
       { wrapper: TestParent }
@@ -113,13 +101,10 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getByRole } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-participant",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
       { wrapper: TestParent }
@@ -180,13 +165,10 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-participant",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={vi.fn()}
       />,
       {
@@ -212,13 +194,10 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["node-participant", "node-study", "mock-node-from-url"]}
         defaultValues={{
           nodeType: "node-study",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
       {
@@ -246,13 +225,10 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-study",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
       {
@@ -280,13 +256,10 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <DataExplorerFilters
-        columns={[]}
         nodeTypes={["node-participant", "node-study"]}
         defaultValues={{
           nodeType: "node-study",
         }}
-        columnVisibilityModel={{}}
-        onColumnVisibilityModelChange={vi.fn()}
         onChange={mockOnChange}
       />,
       {
@@ -306,6 +279,26 @@ describe("Basic Functionality", () => {
       })
     );
   });
-});
 
-describe.todo("Implementation Requirements");
+  it("renders custom action buttons if provided", async () => {
+    const { getByTestId } = render(
+      <DataExplorerFilters
+        nodeTypes={["node-participant", "node-study"]}
+        defaultValues={{
+          nodeType: "node-participant",
+        }}
+        onChange={vi.fn()}
+        actions={[
+          <span key="custom-action" data-testid="some-custom-action">
+            Custom Action
+          </span>,
+        ]}
+      />,
+      {
+        wrapper: ({ children }) => <TestParent initialEntries={["/"]}>{children}</TestParent>,
+      }
+    );
+
+    expect(getByTestId("some-custom-action")).toBeInTheDocument();
+  });
+});

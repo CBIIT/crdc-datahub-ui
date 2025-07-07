@@ -1,0 +1,101 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Snapshots > should match snapshot when disabled 1`] = `
+<div>
+  <span
+    aria-label="Download displayed metadata in .tsv format"
+    class="css-18ssvno"
+    data-mui-internal-clone-element="true"
+    data-testid="data-explorer-export-tooltip"
+  >
+    <button
+      aria-label="Export Node TSV"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium css-1n74jsd-MuiButtonBase-root-MuiIconButton-root"
+      data-testid="data-explorer-export-button"
+      disabled=""
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1mx1nji-MuiSvgIcon-root"
+        data-testid="CloudDownloadIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+      </svg>
+    </button>
+  </span>
+</div>
+`;
+
+exports[`Snapshots > should match snapshot when enabled 1`] = `
+<div>
+  <span
+    aria-label="Download displayed metadata in .tsv format"
+    class="css-18ssvno"
+    data-mui-internal-clone-element="true"
+    data-testid="data-explorer-export-tooltip"
+  >
+    <button
+      aria-label="Export Node TSV"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n74jsd-MuiButtonBase-root-MuiIconButton-root"
+      data-testid="data-explorer-export-button"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1mx1nji-MuiSvgIcon-root"
+        data-testid="CloudDownloadIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+  </span>
+</div>
+`;
+
+exports[`Snapshots > should match snapshot when hovered 1`] = `
+<div>
+  <span
+    aria-label="Download displayed metadata in .tsv format"
+    class="css-18ssvno"
+    data-mui-internal-clone-element="true"
+    data-testid="data-explorer-export-tooltip"
+  >
+    <button
+      aria-label="Export Node TSV"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n74jsd-MuiButtonBase-root-MuiIconButton-root"
+      data-testid="data-explorer-export-button"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1mx1nji-MuiSvgIcon-root"
+        data-testid="CloudDownloadIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+  </span>
+</div>
+`;
