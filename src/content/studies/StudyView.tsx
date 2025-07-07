@@ -215,6 +215,7 @@ type FormInput = Pick<
   | "openAccess"
   | "controlledAccess"
   | "useProgramPC"
+  | "pendingModelChange"
 > & { primaryContactID: string };
 
 type Props = {
@@ -247,6 +248,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       primaryContactID: "",
       openAccess: false,
       controlledAccess: false,
+      pendingModelChange: false,
     },
   });
   const isControlled = watch("controlledAccess");
@@ -275,6 +277,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           openAccess,
           controlledAccess,
           useProgramPC,
+          pendingModelChange,
         } = data?.getApprovedStudy || {};
 
         setSameAsProgramPrimaryContact(useProgramPC);
@@ -289,6 +292,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           controlledAccess,
           useProgramPC,
           primaryContactID: primaryContact?._id,
+          pendingModelChange,
         });
       },
       onError: (error) =>
@@ -340,6 +344,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     PI,
     ORCID,
     primaryContactID,
+    pendingModelChange,
   }: FormInput) => {
     reset({
       studyName: studyName || "",
@@ -350,6 +355,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       PI: PI || "",
       ORCID: ORCID || "",
       primaryContactID: primaryContactID || "",
+      pendingModelChange: pendingModelChange || false,
     });
   };
 
@@ -708,6 +714,38 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                       </StyledSelect>
                     )}
                   />
+                </Stack>
+              </StyledField>
+
+              <StyledField sx={{ alignItems: "flex-start" }}>
+                <StyledLabel id="pendingConditionsLabel" sx={{ paddingTop: "10px" }}>
+                  Pending Conditions
+                </StyledLabel>
+                <Stack direction="column">
+                  <StyledCheckboxFormGroup>
+                    <Controller
+                      name="pendingModelChange"
+                      control={control}
+                      render={({ field }) => (
+                        <StyledFormControlLabel
+                          control={
+                            <StyledCheckbox
+                              {...field}
+                              checked={!!field.value}
+                              onChange={(_, checked) => field.onChange(checked)}
+                              checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                              icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                              disabled={saving || retrievingStudy}
+                              inputProps={
+                                { "data-testid": "pendingConditions-checkbox" } as unknown
+                              }
+                            />
+                          }
+                          label="Pending on Data Model review"
+                        />
+                      )}
+                    />
+                  </StyledCheckboxFormGroup>
                 </Stack>
               </StyledField>
 

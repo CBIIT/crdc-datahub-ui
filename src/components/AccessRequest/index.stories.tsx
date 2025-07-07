@@ -50,6 +50,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             programs: [],
             useProgramPC: false,
             createdAt: "",
+            pendingModelChange: false,
           },
           {
             _id: "study-2",
@@ -65,6 +66,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             programs: [],
             useProgramPC: false,
             createdAt: "",
+            pendingModelChange: false,
           },
         ],
       },
