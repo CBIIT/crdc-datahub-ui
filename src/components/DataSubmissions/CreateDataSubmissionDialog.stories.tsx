@@ -1,7 +1,7 @@
 import { MockedResponse } from "@apollo/client/testing";
 import { Box } from "@mui/material";
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, userEvent, within, screen } from "@storybook/test";
+import { fn, userEvent, within, screen, expect } from "@storybook/test";
 
 import {
   GetMyUserResp,
@@ -20,6 +20,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "SN",
     dbGaPID: "phsTEST",
     controlledAccess: null,
+    pendingModelChange: false,
   },
   {
     _id: "study2",
@@ -27,6 +28,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "CS",
     dbGaPID: "phsTEST",
     controlledAccess: true,
+    pendingModelChange: false,
   },
   {
     _id: "no-dbGaP-ID",
@@ -34,6 +36,15 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "DB",
     dbGaPID: null,
     controlledAccess: true,
+    pendingModelChange: false,
+  },
+  {
+    _id: "pending-model-changes",
+    studyName: "study with pending model changes",
+    studyAbbreviation: "PMC",
+    dbGaPID: "phsTEST",
+    controlledAccess: null,
+    pendingModelChange: true,
   },
 ];
 
@@ -119,5 +130,36 @@ export const Dialog: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Create a Data Submission" }));
 
     await screen.findAllByRole("presentation");
+  },
+};
+
+export const DialogWithPendingChanges: Story = {
+  ...Button,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Open the dialog
+    await userEvent.click(canvas.getByRole("button", { name: "Create a Data Submission" }));
+    await screen.findAllByRole("presentation");
+
+    // Open the study select dropdown and select the pending option
+    const studySelect = await screen.findByTestId("create-data-submission-dialog-study-id-input");
+    await userEvent.click(within(studySelect).getByRole("button"));
+    const pendingOption: HTMLElement = await screen.findByTestId(
+      "study-option-pending-model-changes"
+    );
+    await userEvent.click(pendingOption);
+
+    // Check that the "Create" button is disabled
+    const createButton = await screen.findByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    await userEvent.hover(createButtonWrapper);
+    const tooltip = await screen.findByText(
+      /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
+    );
+    expect(tooltip).toBeInTheDocument();
   },
 };
