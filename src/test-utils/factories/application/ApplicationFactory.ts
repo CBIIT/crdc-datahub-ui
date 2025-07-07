@@ -1,5 +1,7 @@
 import { Factory } from "../Factory";
 
+import { applicantFactory } from "./ApplicantFactory";
+
 /**
  * Base application object
  */
@@ -11,11 +13,7 @@ export const baseApplication: Application = {
   submittedDate: "",
   history: [],
   ORCID: "",
-  applicant: {
-    applicantID: "",
-    applicantName: "",
-    applicantEmail: "",
-  },
+  applicant: applicantFactory.build(),
   PI: "",
   controlledAccess: false,
   openAccess: false,
