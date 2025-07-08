@@ -2,7 +2,7 @@ import { SubmissionCtxState, SubmissionCtxStatus } from "@/components/Contexts/S
 
 import { Factory } from "../Factory";
 
-import { submissionAttributesFactory } from "./SubmissionAttributes";
+import { submissionAttributesFactory } from "./SubmissionAttributesFactory";
 import { submissionFactory } from "./SubmissionFactory";
 
 /**
