@@ -178,6 +178,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         field: prop,
         default: prop === selectedNodeType?.IDPropName ? true : undefined,
         hideable: prop !== selectedNodeType?.IDPropName,
+        defaultHidden: false, // TODO: from API response
       })) || [],
     [columnNames, selectedNodeType?.IDPropName]
   );
