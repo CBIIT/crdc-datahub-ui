@@ -1,5 +1,7 @@
 import { cloneDeep } from "lodash";
 
+import { attachMultipleWithTypename, attachSingleWithTypename } from "@/utils/factoryUtils";
+
 export class Factory<T> {
   constructor(private generateFn: (overrides?: Partial<T>) => T) {}
 
@@ -8,7 +10,7 @@ export class Factory<T> {
    *
    * @param {Partial<T>} overrides - The properties to override
    */
-  build(overrides?: Partial<T>): T;
+  build(overrides?: Partial<T>): BuildableSingle<T>;
 
   /**
    * Build multiple instances
@@ -16,34 +18,38 @@ export class Factory<T> {
    * @param {number} count - The number of instances to create
    * @param {Partial<T>} overrides - The properties to override
    */
-  build(count: number, overrides?: Partial<T>): T[];
+  build(count: number, overrides?: Partial<T>): BuildableArray<T>;
 
   /**
    * Build multiple instances with a sequence function
    * @param {number} count - The number of instances to create
    * @param {function} sequenceFn - A function that receives the sequence number and returns the properties to override
    */
-  build(count: number, sequenceFn?: (sequence: number) => Partial<T>): T[];
+  build(count: number, sequenceFn?: (sequence: number) => Partial<T>): BuildableArray<T>;
 
   /**
    * Build an instance
    *
    * @param {number | Partial<T>} arg1 - The number of instances to create or the properties to override
-   * @param {Partial<T>} arg2 - The properties to override
+   * @param {Partial<T> | function} arg2 - The properties to override or a function that receives the sequence number
    * @returns {T | T[]} - The created instance(s)
    */
   build(
     arg1: number | Partial<T>,
     arg2?: Partial<T> | ((sequence: number) => Partial<T>)
-  ): T | T[] {
+  ): BuildableSingle<T> | BuildableArray<T> {
     if (typeof arg1 === "number" && typeof arg2 !== "function") {
-      return this.buildMany(arg1, arg2);
+      return attachMultipleWithTypename(this.buildMany(arg1, arg2) as BuildableArray<T>);
     }
     if (typeof arg1 === "number" && typeof arg2 === "function") {
-      return this.buildManyWithSequence(arg1, arg2);
+      return attachMultipleWithTypename(
+        this.buildManyWithSequence(arg1, arg2) as BuildableArray<T>
+      );
     }
 
-    return cloneDeep(this.generateFn(typeof arg1 === "object" ? arg1 : undefined));
+    return attachSingleWithTypename(
+      cloneDeep(this.generateFn(typeof arg1 === "object" ? arg1 : undefined)) as BuildableSingle<T>
+    );
   }
 
   private buildManyWithSequence(count: number, sequenceFn?: (sequence: number) => Partial<T>): T[] {
