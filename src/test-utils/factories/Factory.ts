@@ -19,18 +19,37 @@ export class Factory<T> {
   build(count: number, overrides?: Partial<T>): T[];
 
   /**
+   * Build multiple instances with a sequence function
+   * @param {number} count - The number of instances to create
+   * @param {function} sequenceFn - A function that receives the sequence number and returns the properties to override
+   */
+  build(count: number, sequenceFn?: (sequence: number) => Partial<T>): T[];
+
+  /**
    * Build an instance
    *
    * @param {number | Partial<T>} arg1 - The number of instances to create or the properties to override
    * @param {Partial<T>} arg2 - The properties to override
    * @returns {T | T[]} - The created instance(s)
    */
-  build(arg1: number | Partial<T>, arg2?: Partial<T>): T | T[] {
-    if (typeof arg1 === "number") {
+  build(
+    arg1: number | Partial<T>,
+    arg2?: Partial<T> | ((sequence: number) => Partial<T>)
+  ): T | T[] {
+    if (typeof arg1 === "number" && typeof arg2 !== "function") {
       return this.buildMany(arg1, arg2);
     }
+    if (typeof arg1 === "number" && typeof arg2 === "function") {
+      return this.buildManyWithSequence(arg1, arg2);
+    }
 
-    return cloneDeep(this.generateFn(arg1));
+    return cloneDeep(this.generateFn(typeof arg1 === "object" ? arg1 : undefined));
+  }
+
+  private buildManyWithSequence(count: number, sequenceFn?: (sequence: number) => Partial<T>): T[] {
+    return Array.from({ length: count }, (_, index) =>
+      this.generateFn(sequenceFn ? sequenceFn(index) : undefined)
+    );
   }
 
   /**
