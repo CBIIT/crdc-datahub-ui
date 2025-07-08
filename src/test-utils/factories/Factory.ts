@@ -1,9 +1,25 @@
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash/cloneDeep";
+import pick from "lodash/pick";
 
 import { attachMultipleWithTypename, attachSingleWithTypename } from "@/utils/factoryUtils";
 
-export class Factory<T> {
+export class Factory<T extends object> {
   constructor(private generateFn: (overrides?: Partial<T>) => T) {}
+
+  /**
+   * Pick a subset of keys from the generated objects
+   *
+   * @param {K[]} keys - The keys to pick
+   * @returns {Factory<Pick<T, K>>} A new Factory instance with the picked keys
+   */
+  pick<K extends keyof T>(keys: readonly K[]): Factory<Pick<T, K>> {
+    return new Factory<Pick<T, K>>((overrides = {}) => {
+      const fullBuilder = this.build() as T;
+      const subsetBuilder = pick(fullBuilder, keys) as Pick<T, K>;
+
+      return { ...subsetBuilder, ...overrides };
+    });
+  }
 
   /**
    * Build a single instance
