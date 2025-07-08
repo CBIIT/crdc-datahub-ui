@@ -43,6 +43,7 @@ export const query = gql`
           conciergeName
         }
         useProgramPC
+        pendingModelChange
         createdAt
       }
     }

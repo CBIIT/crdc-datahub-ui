@@ -35,6 +35,7 @@ const baseApprovedStudy: ApprovedStudy = {
   primaryContact: null,
   useProgramPC: false,
   createdAt: "",
+  pendingModelChange: false,
 };
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
@@ -44,6 +45,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "SN",
     dbGaPID: "phsTEST",
     controlledAccess: null,
+    pendingModelChange: false,
   },
   {
     _id: "study2",
@@ -51,6 +53,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "CS",
     dbGaPID: "phsTEST",
     controlledAccess: true,
+    pendingModelChange: false,
   },
   {
     _id: "no-dbGaP-ID",
@@ -58,6 +61,15 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "DB",
     dbGaPID: null,
     controlledAccess: true,
+    pendingModelChange: false,
+  },
+  {
+    _id: "pending-model-changes",
+    studyName: "study with pending model changes",
+    studyAbbreviation: "PMC",
+    dbGaPID: "phsTEST",
+    controlledAccess: null,
+    pendingModelChange: true,
   },
 ];
 
@@ -760,6 +772,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
@@ -812,6 +825,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
@@ -875,6 +889,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: "phsTEST",
         controlledAccess: true,
+        pendingModelChange: false,
       },
       {
         _id: "non-controlled",
@@ -882,6 +897,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "NCS",
         dbGaPID: null,
         controlledAccess: false,
+        pendingModelChange: false,
       },
     ];
 
@@ -948,6 +964,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
@@ -1116,5 +1133,56 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
     });
+  });
+
+  it("disables the Create button and shows a tooltip if the selected study has pending model changes", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: baseStudies },
+            }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending model changes study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-model-changes")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-model-changes"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
+      )
+    ).toBeInTheDocument();
   });
 });

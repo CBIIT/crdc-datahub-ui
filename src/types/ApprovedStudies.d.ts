@@ -48,6 +48,10 @@ type ApprovedStudy = {
    */
   useProgramPC: boolean;
   /**
+   * Indicates whether the study has a pending data model change
+   */
+  pendingModelChange: boolean;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;

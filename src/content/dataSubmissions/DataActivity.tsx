@@ -12,16 +12,13 @@ import React, {
   useState,
 } from "react";
 
-import {
-  SubmissionCtxStatus,
-  useSubmissionContext,
-} from "../../components/Contexts/SubmissionContext";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
 import FileListDialog from "../../components/FileListDialog";
 import GenericTable, { Column } from "../../components/GenericTable";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
-import { FormatDate } from "../../utils";
+import { FormatDate, Logger } from "../../utils";
 
 import BatchTableContext from "./Contexts/BatchTableContext";
 
@@ -179,32 +176,27 @@ export type DataActivityRef = {
 
 const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   const { enqueueSnackbar } = useSnackbar();
-  const {
-    data: dataSubmission,
-    refetch: getSubmission,
-    status: submissionStatus,
-  } = useSubmissionContext();
-  const { _id: submissionId } = dataSubmission?.getSubmission || {};
+  const { data: dataSubmission } = useSubmissionContext();
+
+  const { _id } = dataSubmission?.getSubmission || {};
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<Batch[]>([]);
   const [prevData, setPrevData] = useState<FetchListing<Batch>>(null);
   const [totalData, setTotalData] = useState<number>(0);
-  const [hasUploadingBatches, setHasUploadingBatches] = useState<boolean>(false);
   const [openErrorDialog, setOpenErrorDialog] = useState<boolean>(false);
   const [openFileListDialog, setOpenFileListDialog] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Batch | null>(null);
-  const [startPollingFn, setPollingFn] = useState<((pollInterval: number) => void) | null>(null);
-  const [stopPollingFn, setStopPollingFn] = useState<(() => void) | null>(null);
 
   const tableRef = useRef<TableMethods>(null);
+  const batchUploadingRef = useRef<boolean>(false);
+  const { isBatchUploading } = dataSubmission?.getSubmissionAttributes?.submissionAttributes || {};
 
   const [listBatches] = useLazyQuery<ListBatchesResp>(LIST_BATCHES, {
     notifyOnNetworkStatusChange: true,
     onCompleted: (data: ListBatchesResp) => {
       setData(data.listBatches.batches);
       setTotalData(data.listBatches.total);
-      setHasUploadingBatches(data.batchStatusList.batches.some((b) => b.status === "Uploading"));
     },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
@@ -229,7 +221,7 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   const handleFetchBatches = useCallback(
     async (fetchListing: FetchListing<Batch>, force: boolean) => {
       const { first, offset, sortDirection, orderBy } = fetchListing || {};
-      if (!submissionId) {
+      if (!_id) {
         return;
       }
       if (!force && data?.length > 0 && isEqual(fetchListing, prevData)) {
@@ -240,14 +232,9 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
 
       try {
         setLoading(true);
-        const {
-          data: newBatchFiles,
-          error: batchFilesError,
-          startPolling,
-          stopPolling,
-        } = await listBatches({
+        const { data: newBatchFiles, error: batchFilesError } = await listBatches({
           variables: {
-            submissionID: submissionId,
+            submissionID: _id,
             first,
             offset,
             sortDirection,
@@ -258,22 +245,14 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
         if (batchFilesError || !newBatchFiles?.listBatches) {
           throw new Error("Unable to retrieve batch data.");
         }
-
-        const hasUploading = newBatchFiles.batchStatusList?.batches?.some(
-          (b) => b.status === "Uploading"
-        );
-
-        if (hasUploading) {
-          setPollingFn(() => startPolling);
-          setStopPollingFn(() => stopPolling);
-        }
       } catch (err) {
         enqueueSnackbar("Unable to retrieve batch data.", { variant: "error" });
+        Logger.error("DataActivity.tsx: Unable to retrieve batch data.", err);
       } finally {
         setLoading(false);
       }
     },
-    [submissionId, data.length, prevData, listBatches, enqueueSnackbar, setLoading]
+    [_id, data?.length, prevData, listBatches, enqueueSnackbar, setLoading]
   );
 
   const batchContextValue = useMemo(
@@ -293,26 +272,16 @@ const DataActivity = forwardRef<DataActivityRef>((_, ref) => {
   );
 
   useEffect(() => {
-    if (!hasUploadingBatches && stopPollingFn) {
-      stopPollingFn();
-
-      setPollingFn(null);
-      setStopPollingFn(null);
-      return;
+    // if batch was previously uploading, but stopped
+    if (batchUploadingRef.current && !isBatchUploading) {
+      tableRef?.current?.refresh();
     }
-    if (hasUploadingBatches && startPollingFn) {
-      startPollingFn(1000);
-
-      // If the submission is not polling, refetch to kick-off polling
-      if (submissionStatus !== SubmissionCtxStatus.POLLING) {
-        getSubmission();
-      }
-    }
-  }, [hasUploadingBatches, stopPollingFn, startPollingFn]);
+    batchUploadingRef.current = isBatchUploading;
+  }, [isBatchUploading]);
 
   useEffect(() => {
-    tableRef?.current?.refresh();
-  }, [submissionId]);
+    tableRef.current?.refresh();
+  }, [_id]);
 
   return (
     <>

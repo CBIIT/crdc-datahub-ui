@@ -68,7 +68,7 @@ const defaultSubmissionContextValue: SubmissionCtxState = {
   data: {
     getSubmission: mockSubmission,
     submissionStats: null,
-    batchStatusList: null,
+    getSubmissionAttributes: null,
   },
   status: undefined,
   error: undefined,
@@ -170,9 +170,6 @@ const batchDataMock: MockedResponse<ListBatchesResp, ListBatchesInput> = {
           } as Batch,
         ],
       },
-      batchStatusList: {
-        batches: [],
-      },
     },
   },
 };
@@ -216,9 +213,6 @@ const emptyBatchDataMock: MockedResponse<ListBatchesResp, ListBatchesInput> = {
     data: {
       listBatches: {
         total: 0,
-        batches: [],
-      },
-      batchStatusList: {
         batches: [],
       },
     },
@@ -270,7 +264,7 @@ describe("QualityControlFilters", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            batchStatusList: null,
+            getSubmissionAttributes: null,
           },
           status: SubmissionCtxStatus.LOADED,
           error: undefined,

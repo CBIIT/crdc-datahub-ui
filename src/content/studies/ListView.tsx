@@ -8,6 +8,7 @@ import ApprovedStudyFilters, {
 } from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
 import GenericTable, { Column } from "../../components/GenericTable";
 import PageBanner from "../../components/PageBanner";
+import Asterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import SummaryList from "../../components/SummaryList";
 import TruncatedText from "../../components/TruncatedText";
@@ -98,6 +99,10 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
+const StyledAsterisk = styled(Asterisk)(() => ({
+  cursor: "pointer",
+}));
+
 const columns: Column<ApprovedStudy>[] = [
   {
     label: "Name",
@@ -110,7 +115,20 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Acronym",
-    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
+    renderValue: (a) => (
+      <>
+        <TruncatedText text={a.studyAbbreviation} />
+        {a.pendingModelChange ? (
+          <StyledTooltip
+            title="Data submission is Pending on Data Model Review."
+            placement="top"
+            arrow
+          >
+            <StyledAsterisk />
+          </StyledTooltip>
+        ) : null}
+      </>
+    ),
     field: "studyAbbreviation",
     sx: {
       width: "144px",

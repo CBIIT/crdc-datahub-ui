@@ -63,6 +63,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             primaryContact: null,
             programs: [],
             useProgramPC: false,
+            pendingModelChange: false,
             createdAt: "",
           },
           {
@@ -78,6 +79,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             primaryContact: null,
             programs: [],
             useProgramPC: false,
+            pendingModelChange: false,
             createdAt: "",
           },
         ],
