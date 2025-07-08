@@ -1,41 +1,21 @@
 import { Factory } from "../Factory";
 
+import { clinicalDataFactory } from "./ClinicalDataFactory";
+import { contactFactory } from "./ContactFactory";
+import { piFactory } from "./PIFactory";
+import { studyFactory } from "./StudyFactory";
+
 /**
  * Base questionnaire object
  */
 export const baseQuestionnaireData: QuestionnaireData = {
   sections: [],
-  pi: {
-    firstName: "",
-    lastName: "",
-    position: "",
-    email: "",
-    ORCID: "",
-    institution: "",
-    address: "",
-  },
+  pi: piFactory.build(),
   piAsPrimaryContact: false,
-  primaryContact: {
-    position: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    institution: "",
-  },
+  primaryContact: contactFactory.build(),
   additionalContacts: [],
   program: undefined,
-  study: {
-    name: "",
-    abbreviation: "",
-    description: "",
-    publications: [],
-    plannedPublications: [],
-    repositories: [],
-    funding: [],
-    isDbGapRegistered: false,
-    dbGaPPPHSNumber: "",
-  },
+  study: studyFactory.build(),
   accessTypes: [],
   targetedSubmissionDate: "",
   targetedReleaseDate: "",
@@ -54,11 +34,7 @@ export const baseQuestionnaireData: QuestionnaireData = {
   dataDeIdentified: false,
   dataTypes: [],
   otherDataTypes: "",
-  clinicalData: {
-    dataTypes: [],
-    otherDataTypes: "",
-    futureDataTypes: false,
-  },
+  clinicalData: clinicalDataFactory.build(),
   files: [],
   submitterComment: "",
 };

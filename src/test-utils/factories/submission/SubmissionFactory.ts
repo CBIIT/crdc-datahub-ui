@@ -8,7 +8,7 @@ export const baseSubmission: Submission = {
   name: "",
   submitterID: "",
   submitterName: "",
-  organization: undefined,
+  organization: null,
   dataCommons: "",
   dataCommonsDisplayName: "",
   modelVersion: "",
