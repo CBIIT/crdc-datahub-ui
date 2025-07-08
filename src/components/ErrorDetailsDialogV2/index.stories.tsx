@@ -22,16 +22,19 @@ export const Default: Story = {
     postHeader: "For Mock Node: #943841984",
     issues: [
       {
+        code: "M010",
         severity: "error",
         message:
           "[file-final.tsv:line 2] “WXS” is not a permissable value for property “experimental_strategy_and_data_subtypes”.",
         action: <button type="button">Request new PV</button>,
       },
       {
+        code: "M010",
         severity: "error",
         message: "Related node “program” [“program_acronym”: “CPTAC”] not found.",
       },
       {
+        code: "M010",
         severity: "warning",
         message:
           "[errors-diagnosis.tsv:line 8] “diagnosis”: “study_diagnosis_id: AMD-DX-10006” : already exists and will be updated.",
@@ -46,6 +49,7 @@ export const LongList: Story = {
   args: {
     ...Default.args,
     issues: Array.from({ length: 20 }, (_, idx) => ({
+      code: "M010",
       severity: idx % 3 === 0 ? "error" : "warning",
       message:
         idx % 3 === 0

@@ -8,9 +8,9 @@ import { useSubmissionContext } from "../../components/Contexts/SubmissionContex
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
 import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
-import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import ErrorDetailsDialogV2, { ErrorDetailsIssue } from "../../components/ErrorDetailsDialogV2";
 import GenericTable, { Column } from "../../components/GenericTable";
-import { NodeComparisonProps } from "../../components/NodeComparison";
+import NodeComparison from "../../components/NodeComparison";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import TruncatedText from "../../components/TruncatedText";
 import { ValidationErrorCodes } from "../../config/ValidationErrors";
@@ -270,28 +270,6 @@ const QualityControl: FC = () => {
   });
   const tableRef = useRef<TableMethods>(null);
 
-  const errorDescriptions = useMemo(() => {
-    if (selectedRow && "errors" in selectedRow) {
-      return selectedRow.errors?.map((error) => `(Error) ${error.description}`) ?? [];
-    }
-    return [];
-  }, [selectedRow]);
-
-  const warningDescriptions = useMemo(() => {
-    if (selectedRow && "warnings" in selectedRow) {
-      return (
-        (selectedRow as QCResult).warnings?.map((warning) => `(Warning) ${warning.description}`) ??
-        []
-      );
-    }
-    return [];
-  }, [selectedRow]);
-
-  const allDescriptions = useMemo(
-    () => [...errorDescriptions, ...warningDescriptions],
-    [errorDescriptions, warningDescriptions]
-  );
-
   const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp, SubmissionQCResultsInput>(
     SUBMISSION_QC_RESULTS,
     {
@@ -468,26 +446,37 @@ const QualityControl: FC = () => {
     [handleOpenErrorDialog, handleExpandClick]
   );
 
-  const comparisonData = useMemo<NodeComparisonProps | undefined>(() => {
-    if (submissionStatus === "Completed") {
-      return undefined;
-    }
-    if (!selectedRow || !("submittedID" in selectedRow && "type" in selectedRow)) {
-      return undefined;
-    }
-    if (
-      !selectedRow?.errors?.some((error) => error.code === ValidationErrorCodes.UPDATING_DATA) &&
-      !selectedRow?.warnings?.some((warning) => warning.code === ValidationErrorCodes.UPDATING_DATA)
-    ) {
-      return undefined;
+  const issueList = useMemo<ErrorDetailsIssue[]>(() => {
+    if (!selectedRow || !("errors" in selectedRow) || !("warnings" in selectedRow)) {
+      return [];
     }
 
-    return {
-      submissionID: submissionId,
-      nodeType: selectedRow.type,
-      submittedID: selectedRow.submittedID,
-    };
-  }, [submissionStatus, submissionId, selectedRow]);
+    const allIssues: ErrorDetailsIssue[] = [];
+    selectedRow.errors?.forEach((e) =>
+      allIssues.push({ code: e.code, severity: "error", message: e.description })
+    );
+    selectedRow.warnings?.forEach((w) =>
+      allIssues.push({ code: w.code, severity: "warning", message: w.description })
+    );
+
+    allIssues.forEach((issue) => {
+      if (issue.code === ValidationErrorCodes.UPDATING_DATA && submissionStatus !== "Completed") {
+        issue.action = (
+          <NodeComparison
+            nodeType={selectedRow.type}
+            submissionID={submissionId}
+            submittedID={selectedRow.submittedID}
+          />
+        );
+      }
+      if (issue.code === ValidationErrorCodes.INVALID_PERMISSIBLE) {
+        // TODO: Implement Request PV button
+        issue.action = <p>TODO: Button here</p>;
+      }
+    });
+
+    return allIssues;
+  }, [selectedRow, submissionStatus]);
 
   return (
     <>
@@ -532,20 +521,16 @@ const QualityControl: FC = () => {
           containerProps={{ sx: { marginBottom: "8px" } }}
         />
       </QCResultsContext.Provider>
-      {/* TODO: ErrorDetailsDialogV2 */}
       {!isAggregated && (
-        <ErrorDetailsDialog
+        <ErrorDetailsDialogV2
           open={openErrorDialog}
           onClose={() => setOpenErrorDialog(false)}
-          header={null}
-          title="Validation Issues"
-          nodeInfo={`For ${titleCase((selectedRow as QCResult)?.type)}${
+          preHeader="Data Submission"
+          header="Validation Issues"
+          postHeader={`For ${titleCase((selectedRow as QCResult)?.type)}${
             (selectedRow as QCResult)?.type?.toLocaleLowerCase() !== "data file" ? " Node" : ""
           } ID ${(selectedRow as QCResult)?.submittedID}`}
-          errors={allDescriptions}
-          errorCount={`${allDescriptions?.length || 0} ${
-            allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"
-          }`}
+          issues={issueList}
         />
       )}
     </>

@@ -2,6 +2,7 @@ import { Box, Button, DialogProps, List, Stack, Typography, styled } from "@mui/
 import React from "react";
 
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import { ValidationErrorCode } from "../../config/ValidationErrors";
 import BaseDialog from "../StyledDialogComponents/StyledDialog";
 import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
 
@@ -110,6 +111,10 @@ const StyledIssueAction = styled(Box)({
 
 export type ErrorDetailsIssue = {
   /**
+   * The error code corresponding to the issue.
+   */
+  code: ValidationErrorCode;
+  /**
    * The severity of the issue. Can be either "error" or "warning".
    */
   severity: "error" | "warning";
@@ -119,6 +124,8 @@ export type ErrorDetailsIssue = {
   message: string;
   /**
    * (Optional) An additional action (text/component) that can be displayed below the issue.
+   *
+   * @note Currently only one action is allowed.
    */
   action?: React.ReactNode;
 };
@@ -146,7 +153,7 @@ export type ErrorDetailsDialogV2Props = {
    * @returns void
    */
   onClose: () => void;
-} & Omit<DialogProps, "onClose">;
+} & Omit<DialogProps, "onClose" | "title">;
 
 /**
  * A component that handles the display of issue details in a consistent format.

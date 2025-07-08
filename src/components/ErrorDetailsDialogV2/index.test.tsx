@@ -21,6 +21,7 @@ describe("Accessibility", () => {
 
   it("should have no violations (with issues)", async () => {
     const mockIssues: ErrorDetailsIssue[] = new Array(3).fill(null).map((_, index) => ({
+      code: "M018",
       severity: "error",
       message: `Error description ${index + 1}`,
     }));
@@ -101,6 +102,7 @@ describe("Basic Functionality", () => {
     "should use the correct pluralization for the automatic error count of %p",
     (count, expected) => {
       const mockIssues: ErrorDetailsIssue[] = new Array(count).fill(null).map((_, index) => ({
+        code: "M018",
         severity: "error",
         message: `Error description ${index + 1}`,
       }));
@@ -114,11 +116,13 @@ describe("Basic Functionality", () => {
   it("should render the associated action for each issue when provided", () => {
     const mockIssues: ErrorDetailsIssue[] = [
       {
+        code: "F008",
         severity: "error",
         message: "Error description 1",
         action: "SOME-MOCK-ACTION",
       },
       {
+        code: "F008",
         severity: "warning",
         message: "Warning description 2",
         action: <button type="button">MOCK-ACTION-BUTTON</button>,
