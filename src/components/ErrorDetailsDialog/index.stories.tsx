@@ -1,6 +1,8 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { submissionNodeFactory } from "@/test-utils/factories/submission/SubmissionNodeFactory";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
@@ -38,7 +40,7 @@ const mockReleasedDataQuery: MockedResponse<RetrieveReleasedDataResp, RetrieveRe
   result: {
     data: {
       retrieveReleasedDataByID: [
-        {
+        submissionNodeFactory.build({
           nodeType: "mock-node-type",
           nodeID: "mock_node_id",
           props: JSON.stringify({
@@ -47,8 +49,8 @@ const mockReleasedDataQuery: MockedResponse<RetrieveReleasedDataResp, RetrieveRe
             bool_value: true,
             more_cols: "Yes that is true",
           }),
-        },
-        {
+        }),
+        submissionNodeFactory.build({
           nodeType: "mock-node-type",
           nodeID: "mock_node_id",
           props: JSON.stringify({
@@ -57,7 +59,7 @@ const mockReleasedDataQuery: MockedResponse<RetrieveReleasedDataResp, RetrieveRe
             bool_value: false,
             more_cols: "No that is false",
           }),
-        },
+        }),
       ],
     },
   },
