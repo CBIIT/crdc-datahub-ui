@@ -1,11 +1,13 @@
+import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+
 import * as utils from "./statisticUtils";
 
 describe("compareNodeStats cases", () => {
-  const node1A = { total: 1, nodeName: "NodeA" } as SubmissionStatistic;
-  const node1B = { total: 1, nodeName: "NodeB" } as SubmissionStatistic;
-  const node3A = { total: 3, nodeName: "AAA Node" } as SubmissionStatistic;
-  const node3B = { total: 3, nodeName: "Node3" } as SubmissionStatistic;
-  const node5 = { total: 5, nodeName: "Node5" } as SubmissionStatistic;
+  const node1A = submissionStatisticFactory.build({ total: 1, nodeName: "NodeA" });
+  const node1B = submissionStatisticFactory.build({ total: 1, nodeName: "NodeB" });
+  const node3A = submissionStatisticFactory.build({ total: 3, nodeName: "AAA Node" });
+  const node3B = submissionStatisticFactory.build({ total: 3, nodeName: "Node3" });
+  const node5 = submissionStatisticFactory.build({ total: 5, nodeName: "Node5" });
 
   it("should correctly sort in ascending order by node.total", () => {
     const sortedStats = [node3B, node1A, node5].sort(utils.compareNodeStats);
@@ -19,43 +21,43 @@ describe("compareNodeStats cases", () => {
     expect(sortedStats).toEqual([node1A, node1B, node3A, node3B]);
   });
   it("should return >1 when a.total is greater than b.total", () => {
-    const a = { total: 5, nodeName: "Node 1" } as SubmissionStatistic;
-    const b = { total: 1, nodeName: "Node 2" } as SubmissionStatistic;
+    const a = submissionStatisticFactory.build({ total: 5, nodeName: "Node 1" });
+    const b = submissionStatisticFactory.build({ total: 1, nodeName: "Node 2" });
 
     expect(utils.compareNodeStats(a, b)).toBeGreaterThan(0);
   });
 
   it("should return >0 when a.nodeName comes after b.nodeName", () => {
-    const a = { total: 1, nodeName: "Node 2" } as SubmissionStatistic;
-    const b = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
+    const a = submissionStatisticFactory.build({ total: 1, nodeName: "Node 2" });
+    const b = submissionStatisticFactory.build({ total: 1, nodeName: "Node 1" });
 
     expect(utils.compareNodeStats(a, b)).toBeGreaterThan(0);
   });
 
   it("should return 0 when both nodes are equal 1/2", () => {
-    const a = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
-    const b = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
+    const a = submissionStatisticFactory.build({ total: 1, nodeName: "Node 1" });
+    const b = submissionStatisticFactory.build({ total: 1, nodeName: "Node 1" });
 
     expect(utils.compareNodeStats(a, b)).toEqual(0);
   });
 
   it("should return 0 when both nodes are equal 2/2", () => {
-    const a = { total: 0, nodeName: "" } as SubmissionStatistic;
-    const b = { total: 0, nodeName: "" } as SubmissionStatistic;
+    const a = submissionStatisticFactory.build({ total: 0, nodeName: "" });
+    const b = submissionStatisticFactory.build({ total: 0, nodeName: "" });
 
     expect(utils.compareNodeStats(a, b)).toEqual(0);
   });
 
-  it("should return 0< when a.total is less than b.total", () => {
-    const a = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
-    const b = { total: 4, nodeName: "Node 2" } as SubmissionStatistic;
+  it("should return 0 when a.total is less than b.total", () => {
+    const a = submissionStatisticFactory.build({ total: 1, nodeName: "Node 1" });
+    const b = submissionStatisticFactory.build({ total: 4, nodeName: "Node 2" });
 
     expect(utils.compareNodeStats(a, b)).toBeLessThan(0);
   });
 
-  it("should return 0< when a.nodeName comes before b.nodeName", () => {
-    const a = { total: 1, nodeName: "Node 1" } as SubmissionStatistic;
-    const b = { total: 1, nodeName: "Node 2" } as SubmissionStatistic;
+  it("should return 0 when a.nodeName comes before b.nodeName", () => {
+    const a = submissionStatisticFactory.build({ total: 1, nodeName: "Node 1" });
+    const b = submissionStatisticFactory.build({ total: 1, nodeName: "Node 2" });
 
     expect(utils.compareNodeStats(a, b)).toBeLessThan(0);
   });

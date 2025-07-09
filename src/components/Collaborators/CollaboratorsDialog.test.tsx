@@ -3,6 +3,11 @@ import React from "react";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
 
+import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/test-utils/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import { render, fireEvent, waitFor } from "../../test-utils";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
@@ -29,44 +34,22 @@ const mockUseAuthContext = useAuthContext as Mock;
 const mockUseCollaboratorsContext = useCollaboratorsContext as Mock;
 const mockUseSubmissionContext = useSubmissionContext as Mock;
 
-const mockUser: User = {
-  _id: "user-1",
-  role: "Submitter",
-  email: "user1@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
-  notifications: [],
-};
-
-const mockSubmission = {
+const mockSubmission = submissionFactory.build({
   _id: "submission-1",
   submitterID: "user-1",
   collaborators: [],
-  organization: {
+  organization: organizationFactory.pick(["_id", "name", "abbreviation"]).build({
     _id: "org-1",
     name: "Organization 1",
-  },
-} as Submission;
+  }),
+});
 
 const mockCollaborators = [
-  {
+  collaboratorFactory.build({
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
     permission: "Can Edit",
-    Organization: {
-      orgID: "org-2",
-      orgName: "Organization 2",
-    },
-  },
+  }),
 ];
 
 const mockSaveCollaborators = vi.fn();
@@ -89,7 +72,10 @@ describe("CollaboratorsDialog Accessibility Tests", () => {
     vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
-      user: mockUser,
+      user: userFactory.build({
+        _id: "user-1",
+        permissions: ["data_submission:view", "data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -123,7 +109,10 @@ describe("CollaboratorsDialog Component", () => {
     vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
-      user: mockUser,
+      user: userFactory.build({
+        _id: "user-1",
+        permissions: ["data_submission:view", "data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -182,7 +171,10 @@ describe("CollaboratorsDialog Component", () => {
 
   it("calls onClose when Close button is clicked", () => {
     mockUseAuthContext.mockReturnValue({
-      user: { ...mockUser, _id: "some-other-user" } as User,
+      user: userFactory.build({
+        _id: "some-other-user",
+        permissions: ["data_submission:view", "data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -366,10 +358,10 @@ describe("CollaboratorsDialog Component", () => {
 
   it("should disable inputs when user does not have required permissions", async () => {
     mockUseAuthContext.mockReturnValue({
-      user: {
-        ...mockUser,
+      user: userFactory.build({
+        _id: "user-1",
         permissions: ["data_submission:view"],
-      } as User,
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -387,10 +379,10 @@ describe("CollaboratorsDialog Component", () => {
 
   it("should enable inputs when user has the required permissions", async () => {
     mockUseAuthContext.mockReturnValue({
-      user: {
-        ...mockUser,
+      user: userFactory.build({
+        _id: "user-1",
         permissions: ["data_submission:view", "data_submission:create"],
-      } as User,
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -410,10 +402,10 @@ describe("CollaboratorsDialog Component", () => {
     "should not allow changes when submission status is '%s'",
     async (status) => {
       mockUseAuthContext.mockReturnValue({
-        user: {
-          ...mockUser,
+        user: userFactory.build({
+          _id: "user-1",
           permissions: ["data_submission:view", "data_submission:create"],
-        } as User,
+        }),
         status: AuthStatus.LOADED,
       });
       mockUseSubmissionContext.mockReturnValue({
@@ -443,10 +435,10 @@ describe("CollaboratorsDialog Component", () => {
     "Withdrawn",
   ])("should allow changes when submission status is '%s'", async (status) => {
     mockUseAuthContext.mockReturnValue({
-      user: {
-        ...mockUser,
+      user: userFactory.build({
+        _id: "user-1",
         permissions: ["data_submission:view", "data_submission:create"],
-      } as User,
+      }),
       status: AuthStatus.LOADED,
     });
     mockUseSubmissionContext.mockReturnValue({

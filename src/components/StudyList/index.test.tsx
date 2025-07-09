@@ -2,6 +2,8 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { axe } from "vitest-axe";
 
+import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
+
 import { render, within } from "../../test-utils";
 
 import StudyList from "./index";
@@ -30,8 +32,12 @@ describe("Implementation Requirements", () => {
     const { getByText } = render(
       <StudyList
         studies={[
-          { _id: "All", studyName: "All" },
-          { _id: "mock-study", studyName: "Should Not Be Visible" },
+          approvedStudyFactory
+            .pick(["_id", "studyName", "studyAbbreviation"])
+            .build({ _id: "All", studyName: "All" }),
+          approvedStudyFactory
+            .pick(["_id", "studyName", "studyAbbreviation"])
+            .build({ _id: "mock-study", studyName: "Should Not Be Visible" }),
         ]}
       />
     );
@@ -57,12 +63,16 @@ describe("Implementation Requirements", () => {
 
   it("should render the abbreviation of the first study when only one study is provided", () => {
     const studies = [
-      { _id: "mock-1-id", studyName: "mock-1-name", studyAbbreviation: "A very nice abbr" },
-      {
+      approvedStudyFactory.pick(["_id", "studyName", "studyAbbreviation"]).build({
+        _id: "mock-1-id",
+        studyName: "mock-1-name",
+        studyAbbreviation: "A very nice abbr",
+      }),
+      approvedStudyFactory.pick(["_id", "studyName", "studyAbbreviation"]).build({
         _id: "mock-2-id",
         studyName: "mock-2-name",
         studyAbbreviation: "not a nice abbr",
-      },
+      }),
     ];
 
     const { getByText } = render(<StudyList studies={studies} />);
@@ -71,10 +81,9 @@ describe("Implementation Requirements", () => {
   });
 
   it("should render the name of the first study when the study abbreviation is not available", () => {
-    const studies = [
-      { _id: "mock-1-id", studyName: "mock-1-name" },
-      { _id: "mock-2-id", studyName: "mock-2-name" },
-    ];
+    const studies = approvedStudyFactory
+      .pick(["_id", "studyName", "studyAbbreviation"])
+      .build(2, (index) => ({ _id: `mock-${index + 1}-id`, studyName: `mock-${index + 1}-name` }));
 
     const { getByText } = render(<StudyList studies={studies} />);
 
@@ -82,10 +91,13 @@ describe("Implementation Requirements", () => {
   });
 
   it("should render a tooltip with the full list of studies when there are multiple studies", async () => {
-    const studies = [
-      { _id: "mock-1-id", studyName: "mock-1", studyAbbreviation: "mock-1-abr" },
-      { _id: "mock-2-id", studyName: "mock-2", studyAbbreviation: "mock-2-abr" },
-    ];
+    const studies = approvedStudyFactory
+      .pick(["_id", "studyName", "studyAbbreviation"])
+      .build(2, (index) => ({
+        _id: `mock-${index + 1}-id`,
+        studyName: `mock-${index + 1}-name`,
+        studyAbbreviation: `mock-${index + 1}-abr`,
+      }));
 
     const { findByRole, getByTestId } = render(<StudyList studies={studies} />);
 
@@ -99,10 +111,12 @@ describe("Implementation Requirements", () => {
   });
 
   it("should display the count of studies when there are multiple studies", () => {
-    const studies = new Array(10).fill({}).map((_, i) => ({
-      _id: `mock-${i}`,
-      studyName: `mock-${i}`,
-    }));
+    const studies = approvedStudyFactory
+      .pick(["_id", "studyName", "studyAbbreviation"])
+      .build(10, (index) => ({
+        _id: `mock-${index + 1}-id`,
+        studyName: `mock-${index + 1}-name`,
+      }));
 
     const { getByTestId } = render(<StudyList studies={studies} />);
 

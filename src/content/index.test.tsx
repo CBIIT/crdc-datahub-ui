@@ -3,6 +3,8 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+
 import { ContextState, Context, Status } from "../components/Contexts/AuthContext";
 import { render } from "../test-utils";
 
@@ -13,11 +15,12 @@ const Parent: FC<{ children: React.ReactElement; loggedIn: boolean }> = ({
   loggedIn,
 }) => {
   const value: ContextState = useMemo(
-    () => ({
-      isLoggedIn: loggedIn,
-      status: Status.LOADED,
-      user: null,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        isLoggedIn: loggedIn,
+        status: Status.LOADED,
+        user: null,
+      }),
     [loggedIn]
   );
 

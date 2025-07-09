@@ -5,6 +5,13 @@ import { MemoryRouter } from "react-router-dom";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
 
+import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+import { aggregatedQCResultFactory } from "@/test-utils/factories/submission/AggregatedQCResultFactory";
+import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
+import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
@@ -25,46 +32,28 @@ import {
 
 import QualityControlFilters from "./QualityControlFilters";
 
-const mockSubmission: Submission = {
+const mockSubmission: Submission = submissionFactory.build({
   _id: "sub123",
   name: "Test Submission",
   submitterID: "user1",
   submitterName: "Test User",
-  organization: { _id: "Org1", name: "Organization 1", abbreviation: "O1" },
+  organization: organizationFactory.pick(["_id", "name", "abbreviation"]).build({
+    _id: "Org1",
+    name: "Organization 1",
+    abbreviation: "O1",
+  }),
   createdAt: "2021-01-01T00:00:00Z",
   updatedAt: "2021-01-02T00:00:00Z",
   status: "In Progress",
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
   crossSubmissionStatus: "New",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
   intention: "New/Update",
   dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  collaborators: [],
   dataFileSize: null,
-};
+});
 
-const defaultSubmissionContextValue: SubmissionCtxState = {
+const defaultSubmissionContextValue: SubmissionCtxState = submissionCtxStateFactory.build({
   data: {
     getSubmission: mockSubmission,
     submissionStats: null,
@@ -72,7 +61,7 @@ const defaultSubmissionContextValue: SubmissionCtxState = {
   },
   status: undefined,
   error: undefined,
-};
+});
 
 interface TestParentProps {
   submissionContextValue?: SubmissionCtxState;
@@ -128,16 +117,15 @@ const issueTypesMock: MockedResponse<
     data: {
       aggregatedSubmissionQCResults: {
         total: 1,
-        results: [
-          {
-            code: "ISSUE1",
-            title: "Issue Title 1",
+        results: aggregatedQCResultFactory
+          .build(1, (index) => ({
+            code: `ISSUE${index + 1}`,
+            title: `Issue Title ${index + 1}`,
             count: 100,
-            description: "",
+            desdescription: "",
             severity: "Error",
-            __typename: "aggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as AggregatedQCResult,
-        ],
+          }))
+          .withTypename("aggregatedQCResult"),
       },
     },
   },
@@ -153,22 +141,16 @@ const batchDataMock: MockedResponse<ListBatchesResp, ListBatchesInput> = {
     data: {
       listBatches: {
         total: 1,
-        batches: [
-          {
-            _id: "999",
-            displayID: 1,
-            createdAt: "",
-            errors: [],
+        batches: batchFactory
+          .build(1, (index) => ({
+            _id: `${index + 999}`,
+            displayID: index + 1,
             fileCount: 1,
             files: [],
             status: "Uploaded",
-            submissionID: "",
             type: "metadata",
-            updatedAt: "",
-            submitterName: "",
-            __typename: "Batch",
-          } as Batch,
-        ],
+          }))
+          .withTypename("Batch"),
       },
     },
   },
@@ -184,8 +166,22 @@ const submissionStatsMock: MockedResponse<SubmissionStatsResp, SubmissionStatsIn
     data: {
       submissionStats: {
         stats: [
-          { nodeName: "SAMPLE", error: 2, warning: 0, new: 0, passed: 0, total: 2 },
-          { nodeName: "FILE", error: 1, warning: 1, new: 0, passed: 0, total: 2 },
+          submissionStatisticFactory.build({
+            nodeName: "SAMPLE",
+            error: 2,
+            warning: 0,
+            new: 0,
+            passed: 0,
+            total: 2,
+          }),
+          submissionStatisticFactory.build({
+            nodeName: "FILE",
+            error: 1,
+            warning: 1,
+            new: 0,
+            passed: 0,
+            total: 2,
+          }),
         ],
       },
     },
@@ -260,7 +256,7 @@ describe("QualityControlFilters", () => {
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
-        submissionContextValue={{
+        submissionContextValue={submissionCtxStateFactory.build({
           data: {
             getSubmission: null,
             submissionStats: null,
@@ -268,7 +264,7 @@ describe("QualityControlFilters", () => {
           },
           status: SubmissionCtxStatus.LOADED,
           error: undefined,
-        }}
+        })}
       />
     );
 

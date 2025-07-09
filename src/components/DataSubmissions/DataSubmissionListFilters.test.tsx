@@ -3,6 +3,9 @@ import React, { FC, useMemo } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+
 import { ListSubmissionsResp } from "../../graphql";
 import { render, waitFor, within } from "../../test-utils";
 import {
@@ -34,23 +37,11 @@ const TestParent: FC<ParentProps> = ({
     () => ({
       status: AuthContextStatus.LOADED,
       isLoggedIn: true,
-      user: {
+      user: userFactory.build({
         _id: "user1",
         role: userRole,
-        firstName: "Test",
-        lastName: "User",
-        userStatus: "Active",
-        IDP: "login.gov",
-        email: "test@example.com",
-        dataCommons: [],
-        dataCommonsDisplayNames: [],
-        createdAt: "",
-        updateAt: "",
-        studies: null,
-        institution: null,
         permissions: ["data_submission:create"],
-        notifications: [],
-      },
+      }),
     }),
     [userRole]
   );
@@ -80,10 +71,10 @@ describe("DataSubmissionListFilters Component", () => {
 
   const submitterNames = ["Submitter1", "Submitter2"];
   const dataCommons = ["DataCommon1", "DataCommon2"];
-  const organizations: Organization[] = [
-    { _id: "Org1", name: "Organization 1" } as Organization,
-    { _id: "Org2", name: "Organization 2" } as Organization,
-  ];
+  const organizations: Organization[] = organizationFactory.build(2, (index) => ({
+    _id: `Org${index + 1}`,
+    name: `Organization ${index + 1}`,
+  }));
   const columnVisibilityModel = { name: true, status: true };
 
   const mockOnChange = vi.fn();

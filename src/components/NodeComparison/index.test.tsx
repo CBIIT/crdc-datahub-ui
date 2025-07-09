@@ -3,6 +3,8 @@ import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { axe } from "vitest-axe";
 
+import { submissionNodeFactory } from "@/test-utils/factories/submission/SubmissionNodeFactory";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
@@ -107,16 +109,16 @@ describe("Basic Functionality", () => {
       result: {
         data: {
           retrieveReleasedDataByID: [
-            {
+            submissionNodeFactory.pick(["nodeType", "nodeID", "props"]).build({
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-            {
+            }),
+            submissionNodeFactory.pick(["nodeType", "nodeID", "props"]).build({
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "bar", baz: 2 }),
-            },
+            }),
           ],
         },
       },
@@ -156,11 +158,11 @@ describe("Basic Functionality", () => {
       result: {
         data: {
           retrieveReleasedDataByID: [
-            {
+            submissionNodeFactory.pick(["nodeType", "nodeID", "props"]).build({
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
+            }),
           ],
         },
       },
@@ -190,23 +192,13 @@ describe("Basic Functionality", () => {
       variableMatcher: () => true,
       result: {
         data: {
-          retrieveReleasedDataByID: [
-            {
+          retrieveReleasedDataByID: submissionNodeFactory
+            .pick(["nodeType", "nodeID", "props"])
+            .build(3, {
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-            {
-              nodeType: "mock_node_type",
-              nodeID: "mock_node_id",
-              props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-            {
-              nodeType: "mock_node_type",
-              nodeID: "mock_node_id",
-              props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-          ],
+            }),
         },
       },
     };

@@ -2,6 +2,9 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+
 import { render, waitFor } from "../../test-utils";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 
@@ -22,12 +25,13 @@ type TestParentProps = {
 
 const TestParent: FC<TestParentProps> = ({ isLoggedIn, children }: TestParentProps) => {
   const authValue = useMemo<ContextState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      user: isLoggedIn ? ({} as User) : null, // NOTE: This component is not concerned with the user object
-      isLoggedIn,
-      logout: logoutMock,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: AuthStatus.LOADED,
+        user: isLoggedIn ? userFactory.build() : null, // NOTE: This component is not concerned with the user object
+        isLoggedIn,
+        logout: logoutMock,
+      }),
     [isLoggedIn]
   );
 

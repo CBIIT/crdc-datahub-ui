@@ -4,43 +4,33 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+
 import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
 
 import CreateApplicationButton from "./index";
 
-const mockUser: User = {
-  _id: "user-1",
-  firstName: "Test",
-  lastName: "User",
-  email: "test@example.com",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  notifications: [],
-  role: "Submitter",
-  permissions: ["submission_request:create"],
-};
-
 type MockParentProps = {
   mocks?: MockedResponse[];
-  user?: User;
+  user?: Partial<User>;
   children: React.ReactNode;
 };
 
-const MockParent: FC<MockParentProps> = ({ mocks = [], user = mockUser, children }) => {
+const MockParent: FC<MockParentProps> = ({ mocks = [], user = {}, children }) => {
   const authValue = useMemo(
-    () => ({
-      status: AuthStatus.LOADED,
-      isLoggedIn: true,
-      user,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: AuthStatus.LOADED,
+        isLoggedIn: true,
+        user: userFactory.build({
+          _id: "user-1",
+          permissions: ["submission_request:create"],
+          ...user,
+        }),
+      }),
     [user]
   );
   return (
@@ -268,7 +258,7 @@ describe("Implementation Requirements", () => {
   it("should be hidden if the user does not have permission", async () => {
     const { queryByTestId } = render(<CreateApplicationButton onCreate={vi.fn()} />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[]} user={{ ...mockUser, permissions: [] }}>
+        <MockParent mocks={[]} user={{ permissions: [] }}>
           {children}
         </MockParent>
       ),

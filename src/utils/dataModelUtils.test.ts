@@ -1,5 +1,9 @@
 import { Mock } from "vitest";
 
+import { dataCommonFactory } from "@/test-utils/factories/data-common/DataCommonFactory";
+import { manifestAssetsFactory } from "@/test-utils/factories/data-common/ManifestAssetsFactory";
+import { modelNavigatorConfigFactory } from "@/test-utils/factories/data-common/ModelNavigatorConfigFactory";
+
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 
 import * as utils from "./dataModelUtils";
@@ -129,9 +133,9 @@ describe("listAvailableModelVersions", () => {
 
   it("should return available model versions", async () => {
     const fakeManifest: DataModelManifest = {
-      CDS: {
+      CDS: manifestAssetsFactory.build({
         versions: ["XXX", "1.0", "2.0", "3.0"],
-      } as ManifestAssets,
+      }),
     };
     sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
 
@@ -151,9 +155,9 @@ describe("listAvailableModelVersions", () => {
 
   it("should return an empty array if the model is not found in the manifest", async () => {
     const fakeManifest: DataModelManifest = {
-      CDS: {
+      CDS: manifestAssetsFactory.build({
         versions: ["mock-version"],
-      } as ManifestAssets,
+      }),
     };
     sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
 
@@ -164,9 +168,9 @@ describe("listAvailableModelVersions", () => {
 
   it("should return an empty array if no versions are found (empty)", async () => {
     const fakeManifest: DataModelManifest = {
-      CDS: {
+      CDS: manifestAssetsFactory.build({
         versions: [],
-      } as ManifestAssets,
+      }),
     };
     sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
 
@@ -177,9 +181,9 @@ describe("listAvailableModelVersions", () => {
 
   it("should return an empty array if no versions are found (non-array)", async () => {
     const fakeManifest: DataModelManifest = {
-      CDS: {
+      CDS: manifestAssetsFactory.build({
         versions: null,
-      } as ManifestAssets,
+      }),
     };
     sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
 
@@ -191,16 +195,17 @@ describe("listAvailableModelVersions", () => {
 
 describe("buildAssetUrls cases", () => {
   it("should build asset URLs using prod tier when VITE_DEV_TIER is not defined", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         "release-notes": "release-notes.md",
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+      displayName: null,
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -217,15 +222,15 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should include every model file in the model_files array", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file", "other-file", "fourth-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -238,15 +243,15 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should handle empty model-files array", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": [],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -255,14 +260,14 @@ describe("buildAssetUrls cases", () => {
 
   const readMeValues = ["", null, undefined, false];
   it.each(readMeValues)("should not include a README URL if the filename is %s", (readme) => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file"],
-        "readme-file": readme,
-      } as ManifestAssets,
-    } as DataCommon;
+        "readme-file": readme as unknown as string,
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -270,16 +275,17 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should use an empty string if model-navigator-logo is not defined", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         // "model-navigator-logo" - not defined, aka no logo
-      } as ManifestAssets,
-    } as DataCommon;
+        "model-navigator-logo": undefined,
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -287,16 +293,16 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should use an empty string if the model-navigator-logo is an empty string", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         "model-navigator-logo": "", // empty string - aka no logo
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -304,16 +310,16 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should use model-navigator-logo if provided in the content manifest", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
         "model-navigator-logo": "custom-logo.png", // defined - must exist
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "latest");
 
@@ -329,14 +335,14 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should not throw an exception if `model_files` is not defined", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+    });
 
     expect(() => utils.buildAssetUrls(dc, "latest")).not.toThrow();
     expect(utils.buildAssetUrls(dc, "latest")).toEqual(
@@ -345,15 +351,15 @@ describe("buildAssetUrls cases", () => {
   });
 
   it("should use the provided modelVersion if it is not 'latest'", () => {
-    const dc: DataCommon = {
+    const dc: DataCommon = dataCommonFactory.build({
       name: "test-name",
-      assets: {
+      assets: manifestAssetsFactory.build({
         "current-version": "1.0",
         "model-files": ["model-file", "prop-file"],
         "readme-file": "readme-file",
         "loading-file": "loading-file-zip-name",
-      } as ManifestAssets,
-    } as DataCommon;
+      }),
+    });
 
     const result = utils.buildAssetUrls(dc, "2.1");
     expect(result.model_files).toEqual([
@@ -385,29 +391,29 @@ describe("buildBaseFilterContainers tests", () => {
   });
 
   it("should return an empty object if facetFilterSearchData is not an array or is an empty array", () => {
-    const dc: ModelNavigatorConfig = {
+    const dc: ModelNavigatorConfig = modelNavigatorConfigFactory.build({
       facetFilterSearchData: null,
-    } as ModelNavigatorConfig;
+    });
 
     const result = utils.buildBaseFilterContainers(dc);
     expect(result).toEqual({});
 
-    const dc2: ModelNavigatorConfig = {
+    const dc2: ModelNavigatorConfig = modelNavigatorConfigFactory.build({
       facetFilterSearchData: [],
-    } as ModelNavigatorConfig;
+    });
 
     const result2 = utils.buildBaseFilterContainers(dc2);
     expect(result2).toEqual({});
   });
 
   it("should build filter containers correctly", () => {
-    const dc: ModelNavigatorConfig = {
+    const dc: ModelNavigatorConfig = modelNavigatorConfigFactory.build({
       facetFilterSearchData: [
         { datafield: "field1" },
         { datafield: "field2" },
         { datafield: null },
       ] as FacetSearchData[],
-    } as ModelNavigatorConfig;
+    });
 
     const result = utils.buildBaseFilterContainers(dc);
     expect(result).toEqual({
@@ -428,29 +434,29 @@ describe("buildFilterOptionsList tests", () => {
   });
 
   it("should return an empty array if facetFilterSearchData is not an array or is an empty array", () => {
-    const dc: ModelNavigatorConfig = {
+    const dc: ModelNavigatorConfig = modelNavigatorConfigFactory.build({
       facetFilterSearchData: null,
-    } as ModelNavigatorConfig;
+    });
 
     const result = utils.buildFilterOptionsList(dc);
     expect(result).toEqual([]);
 
-    const dc2: ModelNavigatorConfig = {
+    const dc2: ModelNavigatorConfig = modelNavigatorConfigFactory.build({
       facetFilterSearchData: [],
-    } as ModelNavigatorConfig;
+    });
 
     const result2 = utils.buildFilterOptionsList(dc2);
     expect(result2).toEqual([]);
   });
 
   it("should build filter options list correctly", () => {
-    const dc: ModelNavigatorConfig = {
+    const dc: ModelNavigatorConfig = modelNavigatorConfigFactory.build({
       facetFilterSearchData: [
         { checkboxItems: [{ name: "Item 1" }, { name: "Item 2" }] },
         { checkboxItems: [{ name: "Item 3" }, { name: "Item 4" }] },
         { checkboxItems: null },
       ] as FacetSearchData[],
-    } as ModelNavigatorConfig;
+    });
 
     const result = utils.buildFilterOptionsList(dc);
     expect(result).toEqual(["item 1", "item 2", "item 3", "item 4"]);

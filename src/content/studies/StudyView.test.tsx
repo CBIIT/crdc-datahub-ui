@@ -5,6 +5,9 @@ import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
+import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
@@ -136,21 +139,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
-            _id: "test-id",
-            studyName: "Test Study",
-            studyAbbreviation: "TS",
-            PI: "John Doe",
-            dbGaPID: "db123456",
-            ORCID: "0000-0001-2345-6789",
-            openAccess: true,
-            controlledAccess: false,
-            programs: [],
-            useProgramPC: false,
-            primaryContact: null,
-            createdAt: "",
-            pendingModelChange: false,
-          },
+          getApprovedStudy: approvedStudyFactory.build({ _id: "test-id" }),
         },
       },
     };
@@ -174,21 +163,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
-            _id: "test-id",
-            studyName: "Test Study",
-            studyAbbreviation: "TS",
-            PI: "John Doe",
-            dbGaPID: "db123456",
-            ORCID: "0000-0001-2345-6789",
-            openAccess: true,
-            controlledAccess: false,
-            programs: [],
-            primaryContact: null,
-            useProgramPC: false,
-            createdAt: "",
-            pendingModelChange: false,
-          },
+          getApprovedStudy: approvedStudyFactory.build({ _id: "test-id" }),
         },
       },
       delay: 1000,
@@ -393,7 +368,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
+          getApprovedStudy: approvedStudyFactory.build({
             _id: studyId,
             studyName: "Existing Study",
             studyAbbreviation: "ES",
@@ -402,19 +377,16 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
-            programs: [
-              {
-                _id: "program-1",
-                conciergeID: "primary-contact-1",
-                conciergeName: "John Doe",
-                name: "",
-              },
-            ],
+            programs: organizationFactory.build(1, {
+              _id: "program-1",
+              conciergeID: "primary-contact-1",
+              conciergeName: "John Doe",
+            }),
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
-          },
+          }),
         },
       },
     };
@@ -558,7 +530,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
+          getApprovedStudy: approvedStudyFactory.build({
             _id: studyId,
             studyName: "Existing Study",
             studyAbbreviation: "USN",
@@ -567,19 +539,17 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
-            programs: [
-              {
-                _id: "program-1",
-                conciergeID: "primary-contact-1",
-                conciergeName: "John Doe",
-                name: "",
-              },
-            ],
+            programs: organizationFactory.build(1, {
+              _id: "program-1",
+              conciergeID: "primary-contact-1",
+              conciergeName: "John Doe",
+              name: "",
+            }),
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
-          },
+          }),
         },
       },
     };
@@ -756,7 +726,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
+          getApprovedStudy: approvedStudyFactory.build({
             _id: studyId,
             studyName: "Study With Null Fields",
             studyAbbreviation: null,
@@ -770,7 +740,7 @@ describe("StudyView Component", () => {
             primaryContact: null,
             programs: [],
             pendingModelChange: false,
-          },
+          }),
         },
       },
     };
@@ -887,7 +857,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
+          getApprovedStudy: approvedStudyFactory.build({
             _id: studyId,
             studyName: "Existing Study",
             studyAbbreviation: "ES",
@@ -896,19 +866,17 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
-            programs: [
-              {
-                _id: "program-1",
-                conciergeID: "primary-contact-1",
-                conciergeName: "John Doe",
-                name: "",
-              },
-            ],
+            programs: organizationFactory.build(1, {
+              _id: "program-1",
+              conciergeID: "primary-contact-1",
+              conciergeName: "John Doe",
+              name: "",
+            }),
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
-          },
+          }),
         },
       },
     };
@@ -1066,7 +1034,7 @@ describe("StudyView Component", () => {
       },
       result: {
         data: {
-          getApprovedStudy: {
+          getApprovedStudy: approvedStudyFactory.build({
             _id: studyId,
             studyName: "Existing Study",
             studyAbbreviation: "ES",
@@ -1075,19 +1043,17 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
-            programs: [
-              {
-                _id: "program-1",
-                conciergeID: "primary-contact-1",
-                conciergeName: "John Doe",
-                name: "",
-              },
-            ],
+            programs: organizationFactory.build(1, {
+              _id: "program-1",
+              conciergeID: "primary-contact-1",
+              conciergeName: "John Doe",
+              name: "",
+            }),
             primaryContact: null,
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
-          },
+          }),
         },
       },
     };
