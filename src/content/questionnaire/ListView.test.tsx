@@ -116,7 +116,7 @@ describe("Accessibility", () => {
     );
 
     await waitFor(() => {
-      expect(getByText("Submission Request List")).toBeInTheDocument();
+      expect(getByText("Submission Requests")).toBeInTheDocument();
     });
 
     await act(async () => {
@@ -137,7 +137,7 @@ describe("ListView Component", () => {
         <ListView />
       </TestParent>
     );
-    expect(getByText("Submission Request List")).toBeInTheDocument();
+    expect(getByText("Submission Requests")).toBeInTheDocument();
   });
 
   it("sets the page title correctly", () => {
@@ -146,7 +146,7 @@ describe("ListView Component", () => {
         <ListView />
       </TestParent>
     );
-    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Request List");
+    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Requests");
   });
 
   it("shows the 'Start a Submission Request' button for users with the required permissions", () => {

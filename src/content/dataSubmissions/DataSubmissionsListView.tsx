@@ -234,7 +234,7 @@ const columns: Column<T>[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  usePageTitle("Data Submission List");
+  usePageTitle("Data Submissions");
 
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
@@ -302,7 +302,7 @@ const ListingView: FC = () => {
         fetchPolicy: "no-cache",
       });
       if (error || !d?.listSubmissions) {
-        throw new Error("Unable to retrieve Data Submission List results.");
+        throw new Error("Unable to retrieve Data Submission results.");
       }
 
       setData(d.listSubmissions.submissions);
@@ -318,7 +318,7 @@ const ListingView: FC = () => {
       );
       setTotalData(d.listSubmissions.total);
     } catch (err) {
-      Logger.error("Error while fetching Data Submission list", err);
+      Logger.error("Error while fetching Data Submissions", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -335,7 +335,7 @@ const ListingView: FC = () => {
 
       const { data: d } = await refetch();
       if (error || !d?.listSubmissions) {
-        throw new Error("Unable to retrieve Data Submission List results.");
+        throw new Error("Unable to retrieve Data Submission results.");
       }
       setData(d.listSubmissions.submissions);
       setOrganizations(
@@ -350,7 +350,7 @@ const ListingView: FC = () => {
       );
       setTotalData(d.listSubmissions.total);
     } catch (err) {
-      Logger.error("Error updating the Data Submission list", err);
+      Logger.error("Error updating the Data Submissions", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -373,7 +373,7 @@ const ListingView: FC = () => {
   return (
     <>
       <PageBanner
-        title="Data Submission List"
+        title="Data Submissions"
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
         padding="57px 0 0 25px"
         body={
