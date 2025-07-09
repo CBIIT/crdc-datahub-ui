@@ -92,7 +92,10 @@ const StyledDescription = styled(Typography)({
   fontSize: "16px",
   fontWeight: 400,
   lineHeight: "22px",
-  marginBottom: "44px",
+  "&:last-of-type": {
+    marginTop: "12px",
+    marginBottom: "44px",
+  },
 });
 
 /**
@@ -189,7 +192,11 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
         added, each collaborator can contribute to the submission by uploading data, running
         validations, and submitting.
       </StyledDescription>
-
+      <StyledDescription data-testid="collaborators-dialog-disclaimer">
+        <strong>Note:</strong> It is the responsibility of the person adding collaborators to ensure
+        that the collaborators have permission to see and access the data that will be visible to
+        them and that they will abide by all pre-release program-level restrictions.
+      </StyledDescription>
       <form id="manage-collaborators-dialog-form" onSubmit={handleOnSave}>
         <CollaboratorsTable isEdit={canModifyCollaborators} />
 
