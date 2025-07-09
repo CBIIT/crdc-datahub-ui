@@ -4,6 +4,9 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import * as SubmissionCtx from "../../components/Contexts/SubmissionContext";
 import { SubmissionCtxStatus } from "../../components/Contexts/SubmissionContext";
@@ -11,45 +14,6 @@ import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 
 import DataActivity from "./DataActivity";
-
-// NOTE: We omit all properties that the component specifically depends on
-const baseSubmission: Omit<Submission, "_id"> = {
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -70,25 +34,11 @@ describe("General", () => {
   });
 
   it("should not have any accessibility violations", async () => {
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADING,
-      data: {
-        getSubmission: {
-          _id: "",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            isBatchUploading: false,
-            hasOrphanError: false,
-          },
-        },
-      },
-      error: null,
-    });
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADING,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -117,19 +67,20 @@ describe("General", () => {
   it.todo("should refetch data when the submission ID changes");
 
   it("should show an error message when the batches cannot be fetched (network)", async () => {
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "simulated-network-error",
-          ...baseSubmission,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: "simulated-network-error",
+          }),
+          submissionStats: null,
+          getSubmissionAttributes: null,
         },
-        submissionStats: null,
-        getSubmissionAttributes: null,
-      },
-      error: null,
-      refetch: null,
-    });
+        error: null,
+        refetch: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -153,19 +104,20 @@ describe("General", () => {
   });
 
   it("should show an error message when the batches cannot be fetched (GraphQL)", async () => {
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "simulated-graphql-error",
-          ...baseSubmission,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: "simulated-graphql-error",
+          }),
+          submissionStats: null,
+          getSubmissionAttributes: null,
         },
-        submissionStats: null,
-        getSubmissionAttributes: null,
-      },
-      error: null,
-      refetch: null,
-    });
+        error: null,
+        refetch: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -211,25 +163,24 @@ describe("Table", () => {
   });
 
   it("should render the placeholder text when no data is available", async () => {
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            isBatchUploading: false,
-            hasOrphanError: false,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build(),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              isBatchUploading: false,
+              hasOrphanError: false,
+            },
           },
         },
-      },
-      error: null,
-    });
+        error: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -265,26 +216,27 @@ describe("Table", () => {
 
   it("should not refetch the submission if the submission is already polling", async () => {
     const mockRefetch = vi.fn();
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.POLLING,
-      data: {
-        getSubmission: {
-          _id: "refetching-submission-test",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            isBatchUploading: true,
-            hasOrphanError: false,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.POLLING,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: "refetching-submission-test",
+          }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              isBatchUploading: true,
+              hasOrphanError: false,
+            },
           },
         },
-      },
-      error: null,
-      refetch: mockRefetch,
-    });
+        error: null,
+        refetch: mockRefetch,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -313,25 +265,24 @@ describe("Table", () => {
   });
 
   it("should have a default pagination count of 20 rows per page", async () => {
-    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            isBatchUploading: false,
-            hasOrphanError: false,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build(),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              isBatchUploading: false,
+              hasOrphanError: false,
+            },
           },
         },
-      },
-      error: null,
-    });
+        error: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {

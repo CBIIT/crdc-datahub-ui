@@ -4,6 +4,10 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
+
 import {
   LIST_BATCHES,
   SUBMISSION_STATS,
@@ -21,53 +25,6 @@ import {
 
 import Filters from "./CrossValidationFilters";
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "Error",
-  fileValidationStatus: "Error",
-  crossSubmissionStatus: "Error",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  createdAt: "",
-  updatedAt: "",
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseBatch = {
-  _id: "",
-  displayID: 0,
-  createdAt: "",
-  updatedAt: "",
-  __typename: "Batch",
-};
-
 type ParentProps = {
   submissionId?: string;
   mocks?: MockedResponse[];
@@ -79,10 +36,7 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
     () => ({
       status: SubmissionCtxStatus.LOADED,
       data: {
-        getSubmission: {
-          ...baseSubmission,
-          _id: submissionId,
-        },
+        getSubmission: submissionFactory.build({ _id: submissionId }),
         getSubmissionAttributes: null,
         submissionStats: { stats: [] },
       },
@@ -308,10 +262,10 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 4,
             batches: [
-              { ...baseBatch, displayID: 4, _id: "batch-4" },
-              { ...baseBatch, displayID: 3, _id: "batch-3" },
-              { ...baseBatch, displayID: 1, _id: "batch-1" },
-              { ...baseBatch, displayID: 2, _id: "batch-2" },
+              batchFactory.build({ displayID: 4, _id: "batch-4" }),
+              batchFactory.build({ displayID: 3, _id: "batch-3" }),
+              batchFactory.build({ displayID: 1, _id: "batch-1" }),
+              batchFactory.build({ displayID: 2, _id: "batch-2" }),
             ],
           },
         },
@@ -361,30 +315,9 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "node-3",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "node-1",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "node-2",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "node-3" }),
+              submissionStatisticFactory.build({ nodeName: "node-1" }),
+              submissionStatisticFactory.build({ nodeName: "node-2" }),
             ],
           },
         },
@@ -446,30 +379,9 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "NODE_NAME",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "Upper_Case",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "lower_case",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "NODE_NAME" }),
+              submissionStatisticFactory.build({ nodeName: "Upper_Case" }),
+              submissionStatisticFactory.build({ nodeName: "lower_case" }),
             ],
           },
         },
@@ -534,8 +446,8 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 2,
             batches: [
-              { ...baseBatch, displayID: 4, _id: "batch-4" },
-              { ...baseBatch, displayID: 1, _id: "batch-1" },
+              batchFactory.build({ displayID: 4, _id: "batch-4" }),
+              batchFactory.build({ displayID: 1, _id: "batch-1" }),
             ],
           },
         },
@@ -585,22 +497,8 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "study",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "enrollment",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "study" }),
+              submissionStatisticFactory.build({ nodeName: "enrollment" }),
             ],
           },
         },
@@ -725,30 +623,9 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "study",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "enrollment",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "data file",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "study" }),
+              submissionStatisticFactory.build({ nodeName: "enrollment" }),
+              submissionStatisticFactory.build({ nodeName: "data file" }),
             ],
           },
         },

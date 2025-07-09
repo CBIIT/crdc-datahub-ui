@@ -4,6 +4,9 @@ import React, { FC, useMemo } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+
 import {
   Status as AuthStatus,
   Context as AuthContext,
@@ -33,22 +36,6 @@ vi.mock("react-router-dom", async () => ({
   ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
-
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "user-id",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
 
 const defaultMocks: MockedResponse[] = [
   {
@@ -88,12 +75,13 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      isLoggedIn: role !== null,
-      user: { ...baseUser, role, permissions },
-    }),
-    [role]
+    () =>
+      authCtxStateFactory.build({
+        status: AuthStatus.LOADED,
+        isLoggedIn: role !== null,
+        user: userFactory.build({ _id: "current-user", role, permissions }),
+      }),
+    [role, permissions]
   );
 
   return (
@@ -451,7 +439,7 @@ describe("ListView Component", () => {
             applications: [
               {
                 _id: "application-id",
-                applicant: { applicantName: "John Doe", applicantID: "user-id" },
+                applicant: { applicantName: "John Doe", applicantID: "current-user" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 programAbbreviation: "P1",

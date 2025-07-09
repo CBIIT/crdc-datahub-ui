@@ -1,69 +1,35 @@
 import { MockedFunction } from "vitest";
 
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { errorMessageFactory } from "@/test-utils/factories/submission/ErrorMessageFactory";
+import { qcResultFactory } from "@/test-utils/factories/submission/QCResultFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import { SUBMIT_BUTTON_CONDITIONS, SubmitButtonCondition } from "../config/SubmitButtonConfig";
 
 import * as utils from "./dataSubmissionUtils";
 import { ReleaseInfo } from "./dataSubmissionUtils";
 
-const baseSubmission: Submission = {
+const baseSubmission: Submission = submissionFactory.build({
   _id: "1234",
   name: "test123",
   submitterID: "1",
   submitterName: "User",
   organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
   status: "In Progress",
-  metadataValidationStatus: null,
-  crossSubmissionStatus: null,
   otherSubmissions: null,
-  fileValidationStatus: null,
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  createdAt: "",
-  updatedAt: "",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
   validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
   dataFileSize: {
     formatted: "",
     size: 1000,
   },
-};
+});
 
-const baseUser: User = {
+const baseUser: User = userFactory.build({
   _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
   role: "Submitter",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
   permissions: ["data_submission:create"],
-  notifications: [],
-};
+});
 
 describe("General Submit", () => {
   it("should disable submit without isAdminOverride when Submission status is 'New'", () => {
@@ -799,37 +765,21 @@ describe("shouldAllowAdminOverride", () => {
 });
 
 describe("unpackQCResultSeverities cases", () => {
-  // Base QCResult, unused props are empty
-  const baseResult: Omit<QCResult, "errors" | "warnings"> = {
-    submissionID: "",
-    batchID: "",
-    type: "",
+  const baseResult = qcResultFactory.build({
     validationType: "" as QCResult["validationType"],
     // NOTE: This is intentionally invalid and should break the tests if used
     // by the unpackQCResultSeverities function
     severity: "SHOULD NOT BE USED" as QCResult["severity"],
-    displayID: 0,
-    submittedID: "",
-    uploadedDate: "",
-    validatedDate: "",
-  };
-
-  // Base ErrorMessage
-  const baseError: ErrorMessage = {
-    code: null,
-    title: "",
-    description: "unused description",
-  };
+  });
 
   it("should unpack errors and warnings into separate results", () => {
-    const errors: ErrorMessage[] = [
-      { ...baseError, title: "error1" },
-      { ...baseError, title: "error2" },
-    ];
-    const warnings: ErrorMessage[] = [
-      { ...baseError, title: "warning1" },
-      { ...baseError, title: "warning2" },
-    ];
+    const errors: ErrorMessage[] = errorMessageFactory.build(2, (index) => ({
+      title: `error${index + 1}`,
+    }));
+    const warnings: ErrorMessage[] = errorMessageFactory.build(2, (index) => ({
+      title: `warning${index + 1}`,
+    }));
+
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
     const unpackedResults = utils.unpackValidationSeverities(results);
@@ -854,24 +804,21 @@ describe("unpackQCResultSeverities cases", () => {
   });
 
   it("should return an array with the same length as errors.length + warnings.length", () => {
-    const errors: ErrorMessage[] = new Array(999).fill({
-      ...baseError,
-      title: "error1",
-    });
-    const warnings: ErrorMessage[] = new Array(999).fill({
-      ...baseError,
-      title: "warning1",
-    });
+    const errors: ErrorMessage[] = errorMessageFactory.build(999, (index) => ({
+      title: `error${index + 1}`,
+    }));
+    const warnings: ErrorMessage[] = errorMessageFactory.build(999, (index) => ({
+      title: `warning${index + 1}`,
+    }));
     const results: QCResult[] = [{ ...baseResult, errors, warnings }];
 
     expect(utils.unpackValidationSeverities(results).length).toEqual(1998);
   });
 
   it("should unpack an array of only warnings", () => {
-    const warnings: ErrorMessage[] = [
-      { ...baseError, title: "warning1" },
-      { ...baseError, title: "warning2" },
-    ];
+    const warnings: ErrorMessage[] = errorMessageFactory.build(2, (index) => ({
+      title: `warning${index + 1}`,
+    }));
     const results: QCResult[] = [{ ...baseResult, errors: [], warnings }];
 
     const unpackedResults = utils.unpackValidationSeverities(results);
@@ -894,10 +841,9 @@ describe("unpackQCResultSeverities cases", () => {
   });
 
   it("should unpack an array of only errors", () => {
-    const errors: ErrorMessage[] = [
-      { ...baseError, title: "error1" },
-      { ...baseError, title: "error2" },
-    ];
+    const errors: ErrorMessage[] = errorMessageFactory.build(2, (index) => ({
+      title: `error${index + 1}`,
+    }));
     const results: QCResult[] = [{ ...baseResult, errors, warnings: [] }];
 
     const unpackedResults = utils.unpackValidationSeverities(results);
@@ -910,14 +856,12 @@ describe("unpackQCResultSeverities cases", () => {
   });
 
   it("should handle a large array of QCResults", () => {
-    const errors: ErrorMessage[] = new Array(10).fill({
-      ...baseError,
-      title: "error1",
-    });
-    const warnings: ErrorMessage[] = new Array(5).fill({
-      ...baseError,
-      title: "warning1",
-    });
+    const errors: ErrorMessage[] = errorMessageFactory.build(10, (index) => ({
+      title: `error${index + 1}`,
+    }));
+    const warnings: ErrorMessage[] = errorMessageFactory.build(5, (index) => ({
+      title: `warning${index + 1}`,
+    }));
     const results: QCResult[] = new Array(10000).fill({
       ...baseResult,
       errors,

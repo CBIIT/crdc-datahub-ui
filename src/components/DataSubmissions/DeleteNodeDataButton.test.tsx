@@ -4,13 +4,15 @@ import { GraphQLError } from "graphql";
 import { useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/test-utils/factories/submission/CollaboratorFactory";
+import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 import { render, waitFor, within } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -18,69 +20,6 @@ import {
 } from "../Contexts/SubmissionContext";
 
 import Button from "./DeleteNodeDataButton";
-
-const BaseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: User = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This role has access to the delete button by default
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
-  notifications: [],
-};
 
 type TestParentProps = {
   submission?: Partial<Submission>;
@@ -92,30 +31,27 @@ type TestParentProps = {
 const TestParent: React.FC<TestParentProps> = ({
   mocks = [],
   submission = {},
-  user = {},
+  user = { permissions: ["data_submission:view", "data_submission:create"] },
   children,
 }) => {
   const submissionCtxValue = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-      isPolling: false,
-      data: {
-        getSubmission: { ...BaseSubmission, ...submission },
-        submissionStats: {
-          stats: [],
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+        data: {
+          getSubmission: submissionFactory.build({ ...submission }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: null,
         },
-        getSubmissionAttributes: null,
-      },
-    }),
+      }),
     [submission]
   );
 
   const authCtxValue = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      user: { ...baseUser, ...user },
-    }),
+    () => authCtxStateFactory.build({ user: userFactory.build({ ...user }) }),
     [user]
   );
 
@@ -285,16 +221,16 @@ describe("Basic Functionality", () => {
           _id: "collaborator-user",
           role: "Submitter",
         }}
-        submission={{
+        submission={submissionFactory.build({
           submitterID: "some-other-user",
           collaborators: [
-            {
+            collaboratorFactory.build({
               collaboratorID: "collaborator-user",
               collaboratorName: "",
               permission: "Can Edit",
-            },
+            }),
           ],
-        }}
+        })}
       >
         <Button nodeType="test" selectedItems={["ID_1", "ID_2", "ID_3"]} />,
       </TestParent>

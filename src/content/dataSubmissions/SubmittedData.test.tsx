@@ -5,11 +5,14 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../../components/Contexts/AuthContext";
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { submissionAttributesFactory } from "@/test-utils/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+
+import { Context as AuthContext } from "../../components/Contexts/AuthContext";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   SubmissionContext,
@@ -27,30 +30,6 @@ import {
 import { render, waitFor, within } from "../../test-utils";
 
 import SubmittedData from "./SubmittedData";
-
-const baseUser: User = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This role has access to everything nested here by default
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:create"],
-  notifications: [],
-};
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: { ...baseUser },
-};
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -72,36 +51,45 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const value = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-      isPolling: false,
-      data: {
-        getSubmission: {
-          _id: submissionId,
-          name: submissionName,
-          submitterID,
-          collaborators,
-          deletingData,
-        } as Submission,
-        submissionStats: {
-          stats: [],
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            hasOrphanError: false,
-            isBatchUploading: false,
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: submissionId,
+            name: submissionName,
+            submitterID,
+            collaborators,
+            deletingData,
+          }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: submissionAttributesFactory
+              .pick(["hasOrphanError", "isBatchUploading"])
+              .build({
+                hasOrphanError: false,
+                isBatchUploading: false,
+              }),
           },
         },
-      },
-    }),
+      }),
     [submissionId, submissionName, deletingData]
   );
 
   return (
     <MockedProvider mocks={mocks} showWarnings>
       <MemoryRouter basename="">
-        <AuthContext.Provider value={baseAuthCtx}>
+        <AuthContext.Provider
+          value={authCtxStateFactory.build({
+            user: userFactory.build({
+              _id: "current-user",
+              permissions: ["data_submission:create"],
+            }),
+          })}
+        >
           <SubmissionContext.Provider value={value}>
             <SearchParamsProvider>{children}</SearchParamsProvider>
           </SubmissionContext.Provider>
@@ -112,15 +100,6 @@ const TestParent: FC<ParentProps> = ({
 };
 
 describe("SubmittedData > General", () => {
-  const baseSubmissionStatistic: SubmissionStatistic = {
-    nodeName: "",
-    total: 0,
-    new: 0,
-    passed: 0,
-    warning: 0,
-    error: 0,
-  };
-
   const mockSubmissionQuery: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
     request: {
       query: SUBMISSION_STATS,
@@ -129,7 +108,7 @@ describe("SubmittedData > General", () => {
     result: {
       data: {
         submissionStats: {
-          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
+          stats: [submissionStatisticFactory.build({ nodeName: "example-node", total: 1 })],
         },
       },
     },
@@ -422,15 +401,6 @@ describe("SubmittedData > General", () => {
 });
 
 describe("SubmittedData > Table", () => {
-  const baseSubmissionStatistic: SubmissionStatistic = {
-    nodeName: "",
-    total: 0,
-    new: 0,
-    passed: 0,
-    warning: 0,
-    error: 0,
-  };
-
   const mockSubmissionQuery: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
     request: {
       query: SUBMISSION_STATS,
@@ -439,7 +409,7 @@ describe("SubmittedData > Table", () => {
     result: {
       data: {
         submissionStats: {
-          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
+          stats: [submissionStatisticFactory.build({ nodeName: "example-node", total: 1 })],
         },
       },
     },
@@ -797,7 +767,7 @@ describe("SubmittedData > Table", () => {
         submitterID="some-other-user"
         collaborators={[
           {
-            collaboratorID: baseUser._id,
+            collaboratorID: "current-user",
             collaboratorName: "",
             permission: "Can Edit",
           },

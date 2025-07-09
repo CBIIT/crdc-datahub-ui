@@ -2,6 +2,9 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -10,22 +13,6 @@ import {
 import { render } from "../../test-utils";
 
 import DashboardView from "./DashboardView";
-
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
 
 type ParentProps = {
   role?: UserRole;
@@ -39,11 +26,12 @@ const MockParent: FC<ParentProps> = ({
   children,
 }) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: AuthContextStatus.LOADED,
-      isLoggedIn: role !== null,
-      user: { ...baseUser, role, permissions },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: AuthContextStatus.LOADED,
+        isLoggedIn: role !== null,
+        user: userFactory.build({ role, permissions }),
+      }),
     [role]
   );
 

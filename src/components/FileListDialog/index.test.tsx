@@ -5,6 +5,9 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
+import { batchFileInfoFactory } from "@/test-utils/factories/submission/BatchFileInfoFactory";
+
 import {
   DownloadMetadataFileResp,
   DownloadMetadataFileInput,
@@ -14,29 +17,6 @@ import { render, waitFor, within } from "../../test-utils";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
 import Dialog from "./index";
-
-const baseBatch: Batch = {
-  _id: "mock-batch-id",
-  displayID: 0,
-  submissionID: "mock-submission-id",
-  type: "metadata",
-  fileCount: 0,
-  files: [],
-  status: "Uploaded",
-  errors: [],
-  createdAt: "",
-  updatedAt: "",
-};
-
-const baseBatchFileInfo: BatchFileInfo = {
-  filePrefix: "",
-  fileName: "",
-  nodeType: "",
-  status: "Uploaded",
-  errors: [],
-  createdAt: "",
-  updatedAt: "",
-};
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -55,7 +35,7 @@ describe("Accessibility", () => {
   it("should have no violations (no files)", async () => {
     const { container, getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} />
+        <Dialog open batch={batchFactory.build()} />
       </TestParent>
     );
 
@@ -71,15 +51,14 @@ describe("Accessibility", () => {
       <TestParent>
         <Dialog
           open
-          batch={{
-            ...baseBatch,
+          batch={batchFactory.build({
             fileCount: 3,
             files: [
-              { ...baseBatchFileInfo, fileName: "file1" },
-              { ...baseBatchFileInfo, fileName: "file2" },
-              { ...baseBatchFileInfo, fileName: "file3" },
+              batchFileInfoFactory.build({ fileName: "file1" }),
+              batchFileInfoFactory.build({ fileName: "file2" }),
+              batchFileInfoFactory.build({ fileName: "file3" }),
             ],
-          }}
+          })}
         />
       </TestParent>
     );
@@ -96,7 +75,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} />
+        <Dialog open batch={batchFactory.build()} />
       </TestParent>
     );
 
@@ -107,7 +86,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} onClose={mockOnClose} />
+        <Dialog open batch={batchFactory.build()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -124,7 +103,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} onClose={mockOnClose} />
+        <Dialog open batch={batchFactory.build()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -141,7 +120,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} onClose={mockOnClose} />
+        <Dialog open batch={batchFactory.build()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -157,7 +136,7 @@ describe("Basic Functionality", () => {
   it("should handle the 'onClose' prop being undefined", async () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={baseBatch} />
+        <Dialog open batch={batchFactory.build()} />
       </TestParent>
     );
 
@@ -178,14 +157,13 @@ describe("Basic Functionality", () => {
       delay: 3000,
     };
 
-    const batch: Batch = {
-      ...baseBatch,
+    const batch: Batch = batchFactory.build({
       fileCount: 2,
       files: [
-        { ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" },
-        { ...baseBatchFileInfo, fileName: "file2", nodeType: "sample" },
+        batchFileInfoFactory.build({ fileName: "file1", nodeType: "participant" }),
+        batchFileInfoFactory.build({ fileName: "file2", nodeType: "sample" }),
       ],
-    };
+    });
 
     const { getByTestId } = render(<Dialog open batch={batch} />, {
       wrapper: ({ children }) => <TestParent mocks={[mock]}>{children}</TestParent>,
@@ -217,11 +195,10 @@ describe("Basic Functionality", () => {
   });
 
   it("should disable the download all button when there are no files to download", async () => {
-    const batch: Batch = {
-      ...baseBatch,
+    const batch: Batch = batchFactory.build({
       fileCount: 0,
       files: [],
-    };
+    });
 
     const { getByTestId } = render(<Dialog open batch={batch} />, {
       wrapper: ({ children }) => <TestParent>{children}</TestParent>,
@@ -233,15 +210,14 @@ describe("Basic Functionality", () => {
   it.each<BatchStatus>(["Failed", "Uploading", "catch-all" as BatchStatus])(
     "should disable the download all button when the batch is not 'Uploaded'",
     async (status) => {
-      const batch: Batch = {
-        ...baseBatch,
+      const batch: Batch = batchFactory.build({
         status,
         fileCount: 2,
         files: [
-          { ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" },
-          { ...baseBatchFileInfo, fileName: "file2", nodeType: "sample" },
+          batchFileInfoFactory.build({ fileName: "file1", nodeType: "participant" }),
+          batchFileInfoFactory.build({ fileName: "file2", nodeType: "sample" }),
         ],
-      };
+      });
 
       const { getByTestId } = render(<Dialog open batch={batch} />, {
         wrapper: ({ children }) => <TestParent>{children}</TestParent>,
@@ -256,12 +232,11 @@ describe("Basic Functionality", () => {
   it.each<BatchFileInfo["status"]>(["Failed", "New", "catch-all" as BatchFileInfo["status"]])(
     "should disable the individual download button when the status is not 'Uploaded'",
     async (status) => {
-      const batch: Batch = {
-        ...baseBatch,
+      const batch: Batch = batchFactory.build({
         status: "Uploaded",
         fileCount: 1,
-        files: [{ ...baseBatchFileInfo, status, fileName: "file1", nodeType: "participant" }],
-      };
+        files: [batchFileInfoFactory.build({ status, fileName: "file1", nodeType: "participant" })],
+      });
 
       const { getByLabelText } = render(<Dialog open batch={batch} />, {
         wrapper: ({ children }) => <TestParent>{children}</TestParent>,
@@ -276,7 +251,7 @@ describe("Implementation Requirements", () => {
   it("should indicate the batch displayID in the dialog title", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={{ ...baseBatch, displayID: 123 }} />
+        <Dialog open batch={batchFactory.build({ displayID: 123 })} />
       </TestParent>
     );
 
@@ -286,7 +261,7 @@ describe("Implementation Requirements", () => {
   it("should format the batch createdAt date in the dialog subtitle", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open batch={{ ...baseBatch, createdAt: "2024-06-26T18:11:57.484Z" }} />
+        <Dialog open batch={batchFactory.build({ createdAt: "2024-06-26T18:11:57.484Z" })} />
       </TestParent>
     );
 
@@ -300,15 +275,14 @@ describe("Implementation Requirements", () => {
       <TestParent>
         <Dialog
           open
-          batch={{
-            ...baseBatch,
+          batch={batchFactory.build({
             fileCount: 3,
             files: [
-              { ...baseBatchFileInfo, fileName: "file1" },
-              { ...baseBatchFileInfo, fileName: "file2" },
-              { ...baseBatchFileInfo, fileName: "file3" },
+              batchFileInfoFactory.build({ fileName: "file1" }),
+              batchFileInfoFactory.build({ fileName: "file2" }),
+              batchFileInfoFactory.build({ fileName: "file3" }),
             ],
-          }}
+          })}
         />
       </TestParent>
     );
@@ -325,11 +299,10 @@ describe("Implementation Requirements", () => {
       <TestParent>
         <Dialog
           open
-          batch={{
-            ...baseBatch,
+          batch={batchFactory.build({
             fileCount: count,
-            files: Array(count).fill(baseBatchFileInfo),
-          }}
+            files: batchFileInfoFactory.build(count),
+          })}
         />
       </TestParent>
     );
@@ -339,7 +312,7 @@ describe("Implementation Requirements", () => {
 
   it("should render the placeholder text when there are no files (metadata)", () => {
     const { getByText } = render(
-      <Dialog open batch={{ ...baseBatch, type: "metadata", files: [], fileCount: 0 }} />,
+      <Dialog open batch={batchFactory.build({ type: "metadata", files: [], fileCount: 0 })} />,
       { wrapper: TestParent }
     );
 
@@ -350,13 +323,12 @@ describe("Implementation Requirements", () => {
     const { getByText } = render(
       <Dialog
         open
-        batch={{
-          ...baseBatch,
+        batch={batchFactory.build({
           type: "data file",
           status: "Uploaded",
           files: [],
           fileCount: 0,
-        }}
+        })}
       />,
       { wrapper: TestParent }
     );
@@ -372,13 +344,12 @@ describe("Implementation Requirements", () => {
     const { getByText } = render(
       <Dialog
         open
-        batch={{
-          ...baseBatch,
+        batch={batchFactory.build({
           type: "data file",
           status: "Failed",
           files: [],
           fileCount: 0,
-        }}
+        })}
       />,
       { wrapper: TestParent }
     );
@@ -397,11 +368,10 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const batch: Batch = {
-      ...baseBatch,
+    const batch: Batch = batchFactory.build({
       fileCount: 1,
-      files: [{ ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" }],
-    };
+      files: [batchFileInfoFactory.build({ fileName: "file1", nodeType: "participant" })],
+    });
 
     const { getByTestId } = render(<Dialog open batch={batch} />, {
       wrapper: ({ children }) => <TestParent mocks={[mock]}>{children}</TestParent>,
@@ -432,11 +402,10 @@ describe("Implementation Requirements", () => {
       error: new Error("Network error"),
     };
 
-    const batch: Batch = {
-      ...baseBatch,
+    const batch: Batch = batchFactory.build({
       fileCount: 1,
-      files: [{ ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" }],
-    };
+      files: [batchFileInfoFactory.build({ fileName: "file1", nodeType: "participant" })],
+    });
 
     const { getByTestId } = render(<Dialog open batch={batch} />, {
       wrapper: ({ children }) => <TestParent mocks={[mock]}>{children}</TestParent>,
@@ -471,11 +440,10 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const batch: Batch = {
-      ...baseBatch,
+    const batch: Batch = batchFactory.build({
       fileCount: 1,
-      files: [{ ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" }],
-    };
+      files: [batchFileInfoFactory.build({ fileName: "file1", nodeType: "participant" })],
+    });
 
     const { getByTestId } = render(<Dialog open batch={batch} />, {
       wrapper: ({ children }) => <TestParent mocks={[mock]}>{children}</TestParent>,
@@ -512,11 +480,10 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const batch: Batch = {
-      ...baseBatch,
+    const batch: Batch = batchFactory.build({
       fileCount: 1,
-      files: [{ ...baseBatchFileInfo, fileName: "file1", nodeType: "participant" }],
-    };
+      files: [batchFileInfoFactory.build({ fileName: "file1", nodeType: "participant" })],
+    });
 
     const { getByTestId } = render(<Dialog open batch={batch} />, {
       wrapper: ({ children }) => <TestParent mocks={[mock]}>{children}</TestParent>,
@@ -541,12 +508,11 @@ describe("Implementation Requirements", () => {
   it.each<UploadType>(["data file", "mock-type" as UploadType])(
     "should not render the download buttons for non-metadata batches",
     (uploadType) => {
-      const batch: Batch = {
-        ...baseBatch,
+      const batch: Batch = batchFactory.build({
         type: uploadType,
         fileCount: 1,
-        files: [{ ...baseBatchFileInfo, fileName: "datafile.zip", nodeType: "data file" }],
-      };
+        files: [batchFileInfoFactory.build({ fileName: "datafile.zip", nodeType: "data file" })],
+      });
 
       const { queryByTestId, queryAllByLabelText } = render(
         <TestParent>

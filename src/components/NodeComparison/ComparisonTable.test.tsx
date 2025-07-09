@@ -1,15 +1,19 @@
 import { axe } from "vitest-axe";
 
+import { submissionNodeFactory } from "@/test-utils/factories/submission/SubmissionNodeFactory";
+
 import { RetrieveReleasedDataResp } from "../../graphql";
 import { render } from "../../test-utils";
 
 import ComparisonTable from "./ComparisonTable";
 
-const baseNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number] = {
-  nodeType: "",
-  nodeID: "",
-  props: "{}",
-};
+const baseNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number] = submissionNodeFactory
+  .pick(["nodeType", "nodeID", "props"])
+  .build({
+    nodeType: "",
+    nodeID: "",
+    props: "{}",
+  });
 
 describe("Accessibility", () => {
   it("should have no violations", async () => {

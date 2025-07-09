@@ -4,6 +4,11 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { crossValidationResultFactory } from "@/test-utils/factories/submission/CrossValidationResultFactory";
+import { errorMessageFactory } from "@/test-utils/factories/submission/ErrorMessageFactory";
+import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import {
   CrossValidationResultsInput,
   CrossValidationResultsResp,
@@ -18,60 +23,6 @@ import {
 
 import { ExportCrossValidationButton } from "./ExportCrossValidationButton";
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseCrossValidationResult: CrossValidationResult = {
-  submissionID: "",
-  type: "",
-  validationType: "metadata",
-  batchID: "",
-  displayID: 0,
-  submittedID: "",
-  severity: "Error",
-  uploadedDate: "",
-  validatedDate: "",
-  conflictingSubmission: "",
-  errors: [],
-  warnings: [],
-};
-
 type ParentProps = {
   submission?: Partial<Submission>;
   mocks?: MockedResponse[];
@@ -80,18 +31,18 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: ParentProps) => {
   const ctxValue: SubmissionCtxState = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          ...baseSubmission,
-          ...submission,
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            ...submission,
+          }),
+          getSubmissionAttributes: null,
+          submissionStats: { stats: [] },
         },
-        getSubmissionAttributes: null,
-        submissionStats: { stats: [] },
-      },
-      error: null,
-    }),
+        error: null,
+      }),
     [submission]
   );
 
@@ -231,11 +182,7 @@ describe("ExportCrossValidationButton cases", () => {
           data: {
             submissionCrossValidationResults: {
               total: 1,
-              results: [
-                {
-                  ...baseCrossValidationResult,
-                },
-              ],
+              results: crossValidationResultFactory.build(1),
             },
           },
         },
@@ -247,7 +194,7 @@ describe("ExportCrossValidationButton cases", () => {
 
       const { getByTestId } = render(<ExportCrossValidationButton fields={fields} />, {
         wrapper: ({ children }) => (
-          <TestParent mocks={[mock]} submission={{ ...baseSubmission, name }}>
+          <TestParent mocks={[mock]} submission={submissionFactory.build({ name })}>
             {children}
           </TestParent>
         ),
@@ -304,14 +251,17 @@ describe("ExportCrossValidationButton cases", () => {
   it("should call the field value callback function for each field", async () => {
     const submissionID = "formatter-callback-sub-id";
 
-    const qcErrors = [
-      { code: null, title: "Error 01", description: "Error 01 description" },
-      { code: null, title: "Error 02", description: "Error 02 description" },
-    ];
-    const qcWarnings = [
-      { code: null, title: "Warning 01", description: "Warning 01 description" },
-      { code: null, title: "Warning 02", description: "Warning 02 description" },
-    ];
+    const qcErrors = errorMessageFactory.build(2, (index) => ({
+      code: null,
+      title: `Error 0${index + 1}`,
+      description: `Error 0${index + 1} description`,
+    }));
+
+    const qcWarnings = errorMessageFactory.build(2, (index) => ({
+      code: null,
+      title: `Warning 0${index + 1}`,
+      description: `Warning 0${index + 1} description`,
+    }));
 
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       request: {
@@ -322,29 +272,12 @@ describe("ExportCrossValidationButton cases", () => {
         data: {
           submissionCrossValidationResults: {
             total: 3,
-            results: [
-              {
-                ...baseCrossValidationResult,
-                errors: qcErrors,
-                warnings: qcWarnings,
-                submissionID,
-                displayID: 1,
-              },
-              {
-                ...baseCrossValidationResult,
-                errors: qcErrors,
-                warnings: qcWarnings,
-                submissionID,
-                displayID: 2,
-              },
-              {
-                ...baseCrossValidationResult,
-                errors: qcErrors,
-                warnings: qcWarnings,
-                submissionID,
-                displayID: 3,
-              },
-            ],
+            results: crossValidationResultFactory.build(3, (index) => ({
+              errors: qcErrors,
+              warnings: qcWarnings,
+              submissionID,
+              displayID: index + 1,
+            })),
           },
         },
       },

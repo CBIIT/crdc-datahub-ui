@@ -3,6 +3,10 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
+import { formContextStateFactory } from "@/test-utils/factories/application/FormContextStateFactory";
+import { historyEventFactory } from "@/test-utils/factories/application/HistoryEventFactory";
+
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg?url";
 import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg?url";
 import { fireEvent, render, waitFor, within } from "../../test-utils";
@@ -13,15 +17,16 @@ import { HistoryIconMap } from "./components/SubmissionRequestIconMap";
 import StatusBar from "./StatusBar";
 
 type Props = {
-  data: object;
+  data: Partial<Application>;
 };
 
 const BaseComponent: FC<Props> = ({ data = {} }: Props) => {
   const value = useMemo<ContextState>(
-    () => ({
-      data: data as Application,
-      status: FormStatus.LOADED,
-    }),
+    () =>
+      formContextStateFactory.build({
+        data: applicationFactory.build({ ...data }),
+        status: FormStatus.LOADED,
+      }),
     [data]
   );
 
@@ -43,13 +48,13 @@ describe("StatusBar Accessibility Tests", () => {
   });
 
   it("has no accessibility violations when there are no review comments", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        {
+        historyEventFactory.build({
           reviewComment: "",
-        },
+        }),
       ],
-    };
+    });
 
     const { container } = render(<BaseComponent data={data} />);
     const results = await axe(container);
@@ -58,13 +63,13 @@ describe("StatusBar Accessibility Tests", () => {
   });
 
   it("has no accessibility violations when there are review comments", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        {
+        historyEventFactory.build({
           reviewComment: "This is a review comment",
-        },
+        }),
       ],
-    };
+    });
 
     const { container } = render(<BaseComponent data={data} />);
     const results = await axe(container);
@@ -93,9 +98,9 @@ describe("StatusBar > General Tests", () => {
   // NOTE: We aren't using the root level reviewComment attribute, only the history level ones
   // So we're testing AGAINST it's usage here
   it("does not render the comments button for the Application.reviewComment attribute", () => {
-    const data = {
+    const data = historyEventFactory.build({
       reviewComment: "This is a review comment",
-    };
+    });
 
     const { getByText } = render(<BaseComponent data={data} />);
 
@@ -103,13 +108,13 @@ describe("StatusBar > General Tests", () => {
   });
 
   it("renders the comments button only if there are review comments", () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        {
+        historyEventFactory.build({
           reviewComment: "This is a review comment",
-        },
+        }),
       ],
-    };
+    });
 
     const { getByText } = render(<BaseComponent data={data} />);
     const btn = getByText("View Comments");
@@ -119,10 +124,10 @@ describe("StatusBar > General Tests", () => {
   });
 
   it("new applications should still display the correct last updated date", () => {
-    const data = {
+    const data = applicationFactory.build({
       status: "New",
       updatedAt: "2023-06-20T09:13:58Z",
-    };
+    });
 
     const { getByTestId } = render(<BaseComponent data={data} />);
 
@@ -140,10 +145,10 @@ describe("StatusBar > General Tests", () => {
     "12023-06-20T09:13:58",
   ];
   it.each(invalidDates)("defaults the last updated date to N/A for invalid date %p", (date) => {
-    const data = {
+    const data = applicationFactory.build({
       status: "In Progress",
       updatedAt: date,
-    };
+    });
 
     const { getByTestId } = render(<BaseComponent data={data} />);
 
@@ -156,17 +161,17 @@ describe("StatusBar > General Tests", () => {
     ["2031-01-07T19:01:09Z", "1/7/2031"],
   ];
   it.each(validDates)("formats the last updated date %p as %p", (input, output) => {
-    const data = {
+    const data = applicationFactory.build({
       status: "In Progress",
       updatedAt: input,
-    };
+    });
 
     const { getByTestId } = render(<BaseComponent data={data} />);
 
     expect(getByTestId("status-bar-last-updated")).toHaveTextContent(output);
   });
 
-  const statusWithIcon = [
+  const statusWithIcon: [ApplicationStatus, string][] = [
     ["Rejected", StatusRejected],
     ["Approved", StatusApproved],
   ];
@@ -182,7 +187,7 @@ describe("StatusBar > General Tests", () => {
     }
   );
 
-  const statusWithoutIcon = ["In Progress", "Submitted", "In Review", "New"];
+  const statusWithoutIcon: ApplicationStatus[] = ["In Progress", "Submitted", "In Review", "New"];
   it.each(statusWithoutIcon)("does not render an icon for status %p", (status) => {
     const { getByTestId } = render(<BaseComponent data={{ status }} />);
 
@@ -192,13 +197,13 @@ describe("StatusBar > General Tests", () => {
 
 describe("StatusBar > Comments Modal Tests", () => {
   it("does not render the modal if there are no comments in the history", () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { reviewComment: "", dateTime: "2019-11-23T14:26:01Z" },
-        { reviewComment: "", dateTime: "2019-11-26T15:36:01Z" },
-        { reviewComment: "", dateTime: "2019-11-30T01:26:01Z" },
+        historyEventFactory.build({ reviewComment: "", dateTime: "2019-11-23T14:26:01Z" }),
+        historyEventFactory.build({ reviewComment: "", dateTime: "2019-11-26T15:36:01Z" }),
+        historyEventFactory.build({ reviewComment: "", dateTime: "2019-11-30T01:26:01Z" }),
       ],
-    };
+    });
 
     const { getByText } = render(<BaseComponent data={data} />);
 
@@ -206,13 +211,13 @@ describe("StatusBar > Comments Modal Tests", () => {
   });
 
   it("renders the modal when there historical comments", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        {
+        historyEventFactory.build({
           reviewComment: "abc 123",
-        },
+        }),
       ],
-    };
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -222,16 +227,22 @@ describe("StatusBar > Comments Modal Tests", () => {
   });
 
   it("renders the most recent comment by date", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { reviewComment: "not visible", dateTime: "2019-11-23T14:26:01Z" },
-        { reviewComment: "not visible", dateTime: "2019-11-26T15:36:01Z" },
-        {
+        historyEventFactory.build({
+          reviewComment: "not visible",
+          dateTime: "2019-11-23T14:26:01Z",
+        }),
+        historyEventFactory.build({
+          reviewComment: "not visible",
+          dateTime: "2019-11-26T15:36:01Z",
+        }),
+        historyEventFactory.build({
           reviewComment: "this is the most recent comment",
           dateTime: "2019-11-30T11:26:01Z",
-        },
+        }),
       ],
-    };
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -243,17 +254,26 @@ describe("StatusBar > Comments Modal Tests", () => {
   });
 
   it("uses the most recent comment regardless of sorting", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { reviewComment: "not visible", dateTime: "2023-11-30T01:25:45Z" },
-        {
+        historyEventFactory.build({
+          reviewComment: "not visible",
+          dateTime: "2023-11-30T01:25:45Z",
+        }),
+        historyEventFactory.build({
           reviewComment: "this is the most recent comment",
           dateTime: "2023-12-30T11:26:01Z",
-        },
-        { reviewComment: "not visible", dateTime: "2023-11-23T14:26:01Z" },
-        { reviewComment: "not visible", dateTime: "2023-11-26T15:36:01Z" },
+        }),
+        historyEventFactory.build({
+          reviewComment: "not visible",
+          dateTime: "2023-11-23T14:26:01Z",
+        }),
+        historyEventFactory.build({
+          reviewComment: "not visible",
+          dateTime: "2023-11-26T15:36:01Z",
+        }),
       ],
-    };
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -265,17 +285,17 @@ describe("StatusBar > Comments Modal Tests", () => {
   });
 
   it("uses the last event with a comment", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { reviewComment: "", dateTime: "2023-11-23T14:26:01Z" },
-        {
+        historyEventFactory.build({ reviewComment: "", dateTime: "2023-11-23T14:26:01Z" }),
+        historyEventFactory.build({
           reviewComment: "not the latest, but has a comment",
           dateTime: "2023-11-26T15:36:01Z",
-        },
-        { reviewComment: "", dateTime: "2023-11-30T01:25:45Z" },
-        { reviewComment: "", dateTime: "2023-12-30T01:26:01Z" },
+        }),
+        historyEventFactory.build({ reviewComment: "", dateTime: "2023-11-30T01:25:45Z" }),
+        historyEventFactory.build({ reviewComment: "", dateTime: "2023-12-30T01:26:01Z" }),
       ],
-    };
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -287,9 +307,14 @@ describe("StatusBar > Comments Modal Tests", () => {
   });
 
   it("provides the unformatted review date as a title attribute", () => {
-    const data = {
-      history: [{ dateTime: "2009-11-24T11:42:45Z", reviewComment: "abc comment 123" }],
-    };
+    const data = applicationFactory.build({
+      history: [
+        historyEventFactory.build({
+          dateTime: "2009-11-24T11:42:45Z",
+          reviewComment: "abc comment 123",
+        }),
+      ],
+    });
 
     const { getByText } = render(<BaseComponent data={data} />);
 
@@ -302,9 +327,9 @@ describe("StatusBar > Comments Modal Tests", () => {
   });
 
   it("closes the modal with the Close button", async () => {
-    const data = {
-      history: [{ reviewComment: "comment" }],
-    };
+    const data = applicationFactory.build({
+      history: [historyEventFactory.build({ reviewComment: "comment" })],
+    });
 
     const { queryByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -320,9 +345,9 @@ describe("StatusBar > Comments Modal Tests", () => {
 
 describe("StatusBar > History Modal Tests", () => {
   it("does not render the modal if there are no historical events", () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [],
-    };
+    });
 
     const { getByText } = render(<BaseComponent data={data} />);
 
@@ -330,9 +355,9 @@ describe("StatusBar > History Modal Tests", () => {
   });
 
   it("renders the modal if there are historical events", () => {
-    const data = {
-      history: [{ dateTime: "2019-11-23T14:26:01Z", status: "New" }],
-    };
+    const data = applicationFactory.build({
+      history: [historyEventFactory.build({ dateTime: "2019-11-23T14:26:01Z", status: "New" })],
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -342,13 +367,13 @@ describe("StatusBar > History Modal Tests", () => {
   });
 
   it("sorts the historical events by date in descending order", () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { dateTime: "2023-11-24T13:25:45Z", status: "Rejected" },
-        { dateTime: "2023-11-20T14:26:01Z", status: "New" },
-        { dateTime: "2023-11-22T15:36:01Z", status: "In Progress" },
+        historyEventFactory.build({ dateTime: "2023-11-24T13:25:45Z", status: "Rejected" }),
+        historyEventFactory.build({ dateTime: "2023-11-20T14:26:01Z", status: "New" }),
+        historyEventFactory.build({ dateTime: "2023-11-22T15:36:01Z", status: "In Progress" }),
       ],
-    };
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -377,12 +402,15 @@ describe("StatusBar > History Modal Tests", () => {
   });
 
   it("renders only the most recent event with an icon", () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { dateTime: "2023-11-24T01:25:45Z", status: "Rejected" },
-        { dateTime: "2023-11-22T15:36:01Z", status: "Completed" },
+        historyEventFactory.build({ dateTime: "2023-11-24T01:25:45Z", status: "Rejected" }),
+        historyEventFactory.build({
+          dateTime: "2023-11-22T15:36:01Z",
+          status: "Completed" as ApplicationStatus,
+        }),
       ],
-    };
+    });
 
     const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -394,10 +422,10 @@ describe("StatusBar > History Modal Tests", () => {
 
   it.each(Object.entries(HistoryIconMap))(
     "renders the correct icon for the status %s",
-    (status, svg) => {
-      const data = {
-        history: [{ dateTime: "2023-11-24T01:25:45Z", status }],
-      };
+    (status: ApplicationStatus, svg) => {
+      const data = applicationFactory.build({
+        history: [historyEventFactory.build({ dateTime: "2023-11-24T01:25:45Z", status })],
+      });
 
       const { getByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -412,9 +440,11 @@ describe("StatusBar > History Modal Tests", () => {
   );
 
   it("provides the unformatted event date as a title attribute", () => {
-    const data = {
-      history: [{ dateTime: "2009-11-24T01:25:45Z", status: "Rejected" }],
-    };
+    const data = applicationFactory.build({
+      history: [
+        historyEventFactory.build({ dateTime: "2009-11-24T01:25:45Z", status: "Rejected" }),
+      ],
+    });
 
     const { getByText } = render(<BaseComponent data={data} />);
 
@@ -424,9 +454,11 @@ describe("StatusBar > History Modal Tests", () => {
   });
 
   it("closes the modal with the Close button", async () => {
-    const data = {
-      history: [{ dateTime: "2009-11-24T01:25:45Z", status: "Rejected" }],
-    };
+    const data = applicationFactory.build({
+      history: [
+        historyEventFactory.build({ dateTime: "2009-11-24T01:25:45Z", status: "Rejected" }),
+      ],
+    });
 
     const { queryByTestId, getByText } = render(<BaseComponent data={data} />);
 
@@ -440,14 +472,14 @@ describe("StatusBar > History Modal Tests", () => {
   });
 
   it("should render a icon when there are pending conditions and the status is 'Approved'", async () => {
-    const data = {
+    const data = applicationFactory.build({
       history: [
-        { dateTime: "2009-11-24T01:25:45Z", status: "Approved" },
-        { dateTime: "2009-11-24T01:10:45Z", status: "In Progress" },
+        historyEventFactory.build({ dateTime: "2009-11-24T01:25:45Z", status: "Approved" }),
+        historyEventFactory.build({ dateTime: "2009-11-24T01:10:45Z", status: "In Progress" }),
       ],
       pendingConditions: ["condition xyz please resolve it"],
       conditional: true,
-    };
+    });
 
     const { getByTestId, getByText, getByRole } = render(<BaseComponent data={data} />);
 
@@ -491,9 +523,9 @@ describe("StatusBar > History Modal Tests", () => {
   ])(
     "should provide a tooltip on the history item for the status '%s'",
     async (status, tooltip) => {
-      const data = {
-        history: [{ dateTime: "2009-11-24T01:25:45Z", status }],
-      };
+      const data = applicationFactory.build({
+        history: [historyEventFactory.build({ dateTime: "2009-11-24T01:25:45Z", status })],
+      });
 
       const { getByText, getByTestId, getByRole } = render(<BaseComponent data={data} />);
 
