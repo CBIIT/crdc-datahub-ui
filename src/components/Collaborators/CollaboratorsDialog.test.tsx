@@ -145,6 +145,18 @@ describe("CollaboratorsDialog Component", () => {
     );
   });
 
+  it("should have a disclaimer in the dialog", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsDialog open onClose={vi.fn()} onSave={vi.fn()} />
+      </TestParent>
+    );
+
+    expect(getByTestId("collaborators-dialog-disclaimer")).toHaveTextContent(
+      "Note: It is the responsibility of the person adding collaborators to ensure that the collaborators have permission to see and access the data that will be visible to them and that they will abide by all pre-release program-level restrictions."
+    );
+  });
+
   it("does not render the dialog when open is false", () => {
     const { queryByTestId } = render(
       <TestParent>
