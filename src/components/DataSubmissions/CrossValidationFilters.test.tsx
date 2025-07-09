@@ -262,10 +262,10 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 4,
             batches: [
-              batchFactory.build({ displayID: 4, _id: "batch-4" }),
-              batchFactory.build({ displayID: 3, _id: "batch-3" }),
-              batchFactory.build({ displayID: 1, _id: "batch-1" }),
-              batchFactory.build({ displayID: 2, _id: "batch-2" }),
+              batchFactory.build({ displayID: 4, _id: "batch-4" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 3, _id: "batch-3" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 1, _id: "batch-1" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 2, _id: "batch-2" }).withTypename("Batch"),
             ],
           },
         },
@@ -446,8 +446,8 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 2,
             batches: [
-              batchFactory.build({ displayID: 4, _id: "batch-4" }),
-              batchFactory.build({ displayID: 1, _id: "batch-1" }),
+              batchFactory.build({ displayID: 4, _id: "batch-4" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 1, _id: "batch-1" }).withTypename("Batch"),
             ],
           },
         },
