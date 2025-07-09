@@ -116,7 +116,7 @@ describe("Accessibility", () => {
     );
 
     await waitFor(() => {
-      expect(getByText("Submission Request List")).toBeInTheDocument();
+      expect(getByText("Submission Requests")).toBeInTheDocument();
     });
 
     await act(async () => {
