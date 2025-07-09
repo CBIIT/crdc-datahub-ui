@@ -1,4 +1,4 @@
-import { cloneDeep } from "@apollo/client/utilities/common/cloneDeep";
+import { cloneDeep } from "lodash";
 
 /**
  * Attaches a __typename property to a single object
