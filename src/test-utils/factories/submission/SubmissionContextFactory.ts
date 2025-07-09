@@ -17,6 +17,7 @@ export const baseSubmissionCtxState: SubmissionCtxState = {
         .pick(["isBatchUploading", "hasOrphanError"])
         .build(),
     },
+    submissionStats: null,
   },
   error: null,
   refetch: null,

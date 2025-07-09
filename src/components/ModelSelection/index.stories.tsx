@@ -2,21 +2,23 @@ import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within } from "@storybook/test";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import { Roles } from "../../config/AuthRoles";
 import {
-  GetSubmissionResp,
   UPDATE_MODEL_VERSION,
   UpdateModelVersionInput,
   UpdateModelVersionResp,
 } from "../../graphql";
-import {
-  Context as AuthContext,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+import { Context as AuthContext } from "../Contexts/AuthContext";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
 
 import Button from "./index";
+
+const mockDC = "MOCK-DC";
 
 type CustomStoryProps = React.ComponentProps<typeof Button> & {
   userRole: UserRole;
@@ -48,32 +50,50 @@ const meta: Meta<CustomStoryProps> = {
   decorators: [
     (Story, context) => (
       <AuthContext.Provider
-        value={{
-          ...baseContext,
-          user: {
-            ...baseUser,
+        value={authCtxStateFactory.build({
+          user: userFactory.build({
+            _id: "current-user",
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
             role: context.args.userRole,
             permissions: context.args.permissions,
-          },
-        }}
+          }),
+        })}
       >
         <Story />
       </AuthContext.Provider>
     ),
     (Story, context) => (
       <SubmissionContext.Provider
-        value={{
+        value={submissionCtxStateFactory.build({
           data: {
-            getSubmission: {
-              ...baseSubmission,
+            getSubmission: submissionFactory.build({
+              _id: "",
+              submitterID: "current-user",
+              organization: null,
+              dataCommons: mockDC,
+              dataCommonsDisplayName: "A Mock Data Commons",
+              crossSubmissionStatus: null,
+              otherSubmissions: null,
+              intention: "New/Update",
+              dataType: "Metadata and Data Files",
+              validationStarted: "",
+              validationEnded: "",
+              validationScope: "New",
+              validationType: ["metadata", "file"],
+              metadataValidationStatus: "New",
+              fileValidationStatus: "New",
+              dataFileSize: null,
               modelVersion: "3.0.0",
               status: context.args.status,
-            },
-          } as GetSubmissionResp,
+            }),
+            submissionStats: null,
+            getSubmissionAttributes: null,
+          },
           updateQuery: fn(),
           status: SubmissionCtxStatus.LOADED,
           error: null,
-        }}
+        })}
       >
         <Story />
       </SubmissionContext.Provider>
@@ -82,7 +102,7 @@ const meta: Meta<CustomStoryProps> = {
       sessionStorage.setItem(
         "manifest",
         JSON.stringify({
-          "MOCK-DC": {
+          [mockDC]: {
             "model-files": [],
             versions: ["6.1.2", "5.0.4", "3.0.0", "1.9.2"],
           },
@@ -96,66 +116,6 @@ const meta: Meta<CustomStoryProps> = {
 
 type Story = StoryObj<CustomStoryProps>;
 
-const baseSubmission: Omit<Submission, "status"> = {
-  _id: "",
-  name: "",
-  submitterID: "current-user",
-  submitterName: "",
-  organization: null,
-  dataCommons: "MOCK-DC",
-  dataCommonsDisplayName: "A Mock Data Commons",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  dataFileSize: null,
-};
-
-const baseContext: AuthCtxState = {
-  status: AuthStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [baseSubmission.dataCommons],
-  dataCommonsDisplayNames: [baseSubmission.dataCommons],
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
-
 const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
   request: {
     query: UPDATE_MODEL_VERSION,
@@ -164,7 +124,7 @@ const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
   result: {
     data: {
       updateSubmissionModelVersion: {
-        _id: baseSubmission._id,
+        _id: "",
         modelVersion: "API RESPONSE VERSION",
       },
     },

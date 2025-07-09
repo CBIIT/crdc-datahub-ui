@@ -1,16 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+
 import { Roles } from "../../config/AuthRoles";
 import { GetSubmissionResp } from "../../graphql";
-import {
-  Context as AuthContext,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+import { Context as AuthContext } from "../Contexts/AuthContext";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
 
 import MetadataUpload from "./MetadataUpload";
+
+const mockDC = "MOCK-DC";
 
 type CustomStoryProps = React.ComponentProps<typeof MetadataUpload> & {
   submission: Submission;
@@ -38,14 +40,15 @@ const meta: Meta<CustomStoryProps> = {
   decorators: [
     (Story, context) => (
       <AuthContext.Provider
-        value={{
-          ...baseContext,
-          user: {
-            ...baseUser,
+        value={authCtxStateFactory.build({
+          user: userFactory.build({
+            _id: "current-user",
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
             role: context.args.userRole,
             permissions: context.args.permissions,
-          },
-        }}
+          }),
+        })}
       >
         <Story />
       </AuthContext.Provider>
@@ -67,7 +70,7 @@ const meta: Meta<CustomStoryProps> = {
       sessionStorage.setItem(
         "manifest",
         JSON.stringify({
-          "MOCK-DC": {
+          [mockDC]: {
             "model-files": [],
             versions: ["6.1.2", "5.1.2", "5.0.4", "3.0.0", "1.9.2"],
           },
@@ -81,66 +84,11 @@ const meta: Meta<CustomStoryProps> = {
 
 type Story = StoryObj<CustomStoryProps>;
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
+const baseSubmission: Submission = submissionFactory.build({
   submitterID: "current-user",
-  submitterName: "",
   organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  status: "New",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
   validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  dataFileSize: null,
-};
-
-const baseContext: AuthCtxState = {
-  status: AuthStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: ["MOCK-DC"],
-  dataCommonsDisplayNames: ["MOCK-DC"],
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
+});
 
 export const Default: Story = {
   args: {
@@ -163,7 +111,7 @@ export const ModelVersionAdornment: Story = {
     submission: {
       ...baseSubmission,
       modelVersion: "5.1.2",
-      dataCommons: "MOCK-DC",
+      dataCommons: mockDC,
       dataCommonsDisplayName: "A Mock DC",
     },
     userRole: "Submitter",
@@ -182,7 +130,7 @@ export const ModelVersionChangeAdornment: Story = {
     submission: {
       ...baseSubmission,
       modelVersion: "5.1.2",
-      dataCommons: "MOCK-DC",
+      dataCommons: mockDC,
       dataCommonsDisplayName: "A Mock DC",
     },
     userRole: "Data Commons Personnel",
