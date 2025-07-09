@@ -1,28 +1,26 @@
 import { Factory } from "../Factory";
 
-import { applicantFactory } from "./ApplicantFactory";
-import { questionnaireDataFactory } from "./QuestionnaireDataFactory";
-
 /**
  * Base application object
+ * @note Created to match InitialApplication
  */
 export const baseApplication: Application = {
-  _id: "",
+  _id: "new",
+  applicant: null,
   status: "New",
   createdAt: "",
   updatedAt: "",
   submittedDate: "",
   history: [],
-  ORCID: "",
-  applicant: applicantFactory.build(),
-  PI: "",
   controlledAccess: false,
   openAccess: false,
+  ORCID: "",
+  programName: "",
   studyAbbreviation: "",
-  questionnaireData: questionnaireDataFactory.build(),
+  PI: "",
+  questionnaireData: undefined,
   conditional: false,
   pendingConditions: [],
-  programName: "",
   programAbbreviation: "",
   programDescription: "",
   version: "",

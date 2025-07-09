@@ -10,7 +10,7 @@ export const baseBatch: Batch = {
   type: "metadata",
   fileCount: 0,
   files: [],
-  status: "Uploading",
+  status: "Uploaded",
   errors: [],
   createdAt: "",
   updatedAt: "",

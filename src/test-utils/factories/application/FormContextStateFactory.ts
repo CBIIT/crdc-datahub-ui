@@ -7,7 +7,7 @@ import { applicationFactory } from "./ApplicationFactory";
  * Base FormContextState object
  */
 export const baseFormContextState: FormContextState = {
-  status: Status.LOADING,
+  status: Status.LOADED,
   data: applicationFactory.build(),
 };
 

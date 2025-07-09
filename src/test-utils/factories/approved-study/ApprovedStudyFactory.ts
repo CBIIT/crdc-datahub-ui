@@ -1,3 +1,4 @@
+import { userFactory } from "../auth/UserFactory";
 import { Factory } from "../Factory";
 
 /**
@@ -14,23 +15,7 @@ export const baseApprovedStudy: ApprovedStudy = {
   PI: "",
   ORCID: "",
   programs: [],
-  primaryContact: {
-    _id: "",
-    firstName: "",
-    lastName: "",
-    role: "User",
-    email: "",
-    dataCommons: [],
-    dataCommonsDisplayNames: [],
-    studies: [],
-    institution: undefined,
-    IDP: "nih",
-    userStatus: "Active",
-    permissions: [],
-    notifications: [],
-    updateAt: "",
-    createdAt: "",
-  },
+  primaryContact: userFactory.build(),
   useProgramPC: false,
   pendingModelChange: false,
   createdAt: "",
