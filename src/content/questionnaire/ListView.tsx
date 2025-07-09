@@ -263,7 +263,7 @@ const columns: Column<T>[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  usePageTitle("Submission Request List");
+  usePageTitle("Submission Requests");
 
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -329,12 +329,12 @@ const ListingView: FC = () => {
         fetchPolicy: "no-cache",
       });
       if (error || !d?.listApplications) {
-        throw new Error("Unable to retrieve Data Submission List results.");
+        throw new Error("Unable to retrieve Submission Requests results.");
       }
 
       setData(d.listApplications);
     } catch (err) {
-      Logger.error(`ListView: Unable to retrieve Data Submission List results`, err);
+      Logger.error(`ListView: Unable to retrieve Submission Requests results`, err);
       setError(true);
     } finally {
       setLoading(false);
@@ -396,7 +396,7 @@ const ListingView: FC = () => {
   return (
     <>
       <PageBanner
-        title="Submission Request List"
+        title="Submission Requests"
         subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
         padding="57px 25px 0 25px"
         body={

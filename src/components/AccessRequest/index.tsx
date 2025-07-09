@@ -4,6 +4,7 @@ import { FC, memo, useState } from "react";
 import { hasPermission } from "../../config/AuthPermissions";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { InstitutionProvider } from "../Contexts/InstitutionListContext";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 import FormDialog from "./FormDialog";
 
@@ -49,15 +50,23 @@ const AccessRequest: FC = (): React.ReactNode => {
 
   return (
     <>
-      <StyledButton
-        variant="text"
-        onClick={handleClick}
-        data-testid="request-access-button"
-        disableFocusRipple
-        disableRipple
+      <StyledTooltip
+        title="Request role change, study access, or institution update."
+        placement="top"
+        arrow
       >
-        Request Access
-      </StyledButton>
+        <span>
+          <StyledButton
+            variant="text"
+            onClick={handleClick}
+            data-testid="request-access-button"
+            disableFocusRipple
+            disableRipple
+          >
+            Request Access
+          </StyledButton>
+        </span>
+      </StyledTooltip>
       {dialogOpen && (
         <MemoizedProvider filterInactive>
           <FormDialog open onClose={handleClose} />

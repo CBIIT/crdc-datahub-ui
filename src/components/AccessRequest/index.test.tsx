@@ -124,4 +124,16 @@ describe("Implementation Requirements", () => {
 
     expect(queryByTestId("request-access-button")).not.toBeInTheDocument();
   });
+
+  it("should show the tooltip when hovering over the 'Request Access' button", async () => {
+    const { getByTestId, findByText } = render(<AccessRequest />, {
+      wrapper: (p) => <MockParent {...p} mocks={[]} role="User" permissions={["access:request"]} />,
+    });
+
+    userEvent.hover(getByTestId("request-access-button"));
+
+    expect(
+      await findByText("Request role change, study access, or institution update.")
+    ).toBeInTheDocument();
+  });
 });
