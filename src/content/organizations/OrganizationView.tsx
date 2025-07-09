@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -6,7 +6,6 @@ import {
   Box,
   Container,
   MenuItem,
-  Popper,
   Stack,
   TextField,
   Typography,
@@ -33,10 +32,17 @@ import {
   EditOrgInput,
   CreateOrgInput,
   ListApprovedStudiesInput,
+  GetOrgInput,
 } from "../../graphql";
 import ConfirmDialog from "../../components/AdminPortal/Organizations/ConfirmDialog";
 import usePageTitle from "../../hooks/usePageTitle";
-import { filterAlphaNumeric, formatFullStudyName, mapOrganizationStudyToId } from "../../utils";
+import {
+  filterAlphaNumeric,
+  formatFullStudyName,
+  hasStudyWithMultiplePrograms,
+  mapOrganizationStudyToId,
+  validateUTF8,
+} from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
@@ -44,6 +50,7 @@ import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutli
 import BaseAutocomplete, {
   StyledPaper as BasePaper,
 } from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseDialog from "../../components/DeleteDialog";
 
 type Props = {
   /**
@@ -125,10 +132,6 @@ const StyledPaper = styled(BasePaper)({
   "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
 });
 
-const StyledPopper = styled(Popper)({
-  width: "463px !important",
-});
-
 const StyledTag = styled("div")({
   position: "absolute",
   paddingLeft: "12px",
@@ -189,6 +192,9 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const [studyOptions, setStudyOptions] = useState<string[]>([]);
+  const [showMultipleProgramsWarning, setShowMultipleProgramsWarning] = useState<boolean>(false);
+  const [autocompleteMinWidth, setAutocompleteMinWidth] = useState<number | null>(null);
+  const autocompleteRef = useRef<HTMLElement | null>(null);
 
   const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
@@ -233,7 +239,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const [getOrganization] = useLazyQuery<GetOrgResp>(GET_ORG, {
+  const [getOrganization] = useLazyQuery<GetOrgResp, GetOrgInput>(GET_ORG, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -351,7 +357,13 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   };
 
   const handleBypassWarning = () => {
-    setConfirmOpen(false);
+    if (confirmOpen) {
+      setConfirmOpen(false);
+    }
+    if (showMultipleProgramsWarning) {
+      setShowMultipleProgramsWarning(false);
+    }
+
     handleSubmit(onSubmit)();
   };
 
@@ -373,6 +385,15 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         setConfirmOpen(true);
         return;
       }
+    }
+
+    const studies = approvedStudies?.listApprovedStudies?.studies?.filter(
+      (s) => data?.studies?.includes(s._id)
+    );
+
+    if (hasStudyWithMultiplePrograms(studies, organization?._id)) {
+      setShowMultipleProgramsWarning(true);
+      return;
     }
 
     onSubmit(data);
@@ -465,7 +486,12 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   Program <BaseAsterisk />
                 </StyledLabel>
                 <StyledTextField
-                  {...register("name", { required: true })}
+                  {...register("name", {
+                    required: true,
+                    setValueAs: (val) => val?.trim(),
+                    validate: { utf8: validateUTF8 },
+                  })}
+                  readOnly={organization?.readOnly}
                   inputProps={{ "aria-labelledby": "organizationName" }}
                   error={!!errors.name}
                   required
@@ -485,6 +511,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       onChange={(e) => {
                         field.onChange(filterAlphaNumeric(e.target.value?.toUpperCase(), "- "));
                       }}
+                      readOnly={organization?.readOnly}
                       inputProps={{
                         "aria-labelledby": "abbreviationLabel",
                         maxLength: 100,
@@ -504,6 +531,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                     "aria-labelledby": "descriptionLabel",
                     maxLength: 500,
                   }}
+                  readOnly={organization?.readOnly}
                   error={!!errors.description}
                   placeholder="500 characters allowed"
                   rows={2}
@@ -511,7 +539,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                 />
               </StyledField>
               <StyledField>
-                <StyledLabel id="primaryContactLabel">Primary Contact</StyledLabel>
+                <StyledLabel id="dataConciergeLabel">Data Concierge</StyledLabel>
                 <Controller
                   name="conciergeID"
                   control={control}
@@ -522,7 +550,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                       value={field.value || ""}
                       MenuProps={{ disablePortal: true }}
                       inputProps={{
-                        "aria-labelledby": "primaryContactLabel",
+                        "aria-labelledby": "dataConciergeLabel",
                       }}
                       error={!!errors.conciergeID}
                     >
@@ -545,6 +573,7 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
                   render={({ field }) => (
                     <StyledAutocomplete
                       {...field}
+                      ref={autocompleteRef}
                       renderInput={({ inputProps, ...params }) => (
                         <TextField
                           {...params}
@@ -564,12 +593,25 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
 
                         return <StyledTag>{value?.length} studies selected</StyledTag>;
                       }}
+                      onOpen={(event) => {
+                        setAutocompleteMinWidth(
+                          autocompleteRef.current ? autocompleteRef.current?.offsetWidth : null
+                        );
+                      }}
+                      slotProps={{
+                        popper: {
+                          sx: {
+                            width: autocompleteMinWidth
+                              ? `${autocompleteMinWidth}px !important`
+                              : "auto !important",
+                          },
+                        },
+                      }}
                       options={studyOptions}
                       getOptionLabel={(option: string) => formattedStudyMap[option]}
                       onChange={(_, data: string[]) => field.onChange(data)}
                       loading={approvedStudiesLoading}
                       PaperComponent={StyledPaper}
-                      PopperComponent={StyledPopper}
                       disableCloseOnSelect
                       multiple
                     />
@@ -625,6 +667,19 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
         open={confirmOpen}
         onSubmit={handleBypassWarning}
         onClose={() => setConfirmOpen(false)}
+      />
+      <BaseDialog
+        scroll="body"
+        open={showMultipleProgramsWarning}
+        onClose={() => setShowMultipleProgramsWarning(false)}
+        header="Warning: Multiple Program Assignments"
+        description="Saving this change will assign the study to multiple programs. If this was unintentional, please review and remove any unnecessary program associations. Do you want to proceed?"
+        confirmText="Confirm"
+        onConfirm={handleBypassWarning}
+        confirmButtonProps={{
+          disabled: saving,
+          color: "success",
+        }}
       />
     </>
   );

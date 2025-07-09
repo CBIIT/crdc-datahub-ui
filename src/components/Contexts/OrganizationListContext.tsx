@@ -1,11 +1,11 @@
 import React, { FC, createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { LIST_ORGS, ListOrgsResp } from "../../graphql";
+import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 
 export type ContextState = {
   status: Status;
-  data: Partial<Organization>[];
-  activeOrganizations: Partial<Organization>[];
+  data: ListOrgsResp["listPrograms"]["programs"];
+  activeOrganizations: ListOrgsResp["listPrograms"]["programs"];
 };
 
 export enum Status {
@@ -69,8 +69,9 @@ type ProviderProps = {
 export const OrganizationProvider: FC<ProviderProps> = ({ preload, children }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
-  const { data, loading, error } = useQuery<ListOrgsResp>(LIST_ORGS, {
+  const { data, loading, error } = useQuery<ListOrgsResp, ListOrgsInput>(LIST_ORGS, {
     context: { clientName: "backend" },
+    variables: { status: "All", first: -1, orderBy: "name", sortDirection: "asc" },
     fetchPolicy: "no-cache",
     skip: !preload,
   });
@@ -85,17 +86,13 @@ export const OrganizationProvider: FC<ProviderProps> = ({ preload, children }: P
       return;
     }
 
-    const sortedOrganizations = data?.listOrganizations?.sort(
-      (a, b) => a.name?.localeCompare(b.name)
-    ) as Partial<Organization>[];
-
-    const activeOrganizations = sortedOrganizations?.filter(
-      (org: Partial<Organization>) => org.status === "Active"
+    const activeOrganizations = data?.listPrograms?.programs.filter(
+      (org) => org.status === "Active"
     );
 
     setState({
       status: Status.LOADED,
-      data: sortedOrganizations || [],
+      data: data?.listPrograms?.programs || [],
       activeOrganizations: activeOrganizations || [],
     });
   }, [loading, error, data]);

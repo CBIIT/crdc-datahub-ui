@@ -5,7 +5,7 @@ import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderPropert
 import { ReactComponent as EmailIconSvg } from "../../assets/icons/email_icon.svg";
 import HistoryDialog from "../HistoryDialog";
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
-import ReviewCommentsDialog from "../Shared/ReviewCommentsDialog";
+import ReviewCommentsDialog from "../ReviewCommentsDialog";
 import { SortHistory } from "../../utils";
 import TruncatedText from "../TruncatedText";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
@@ -245,7 +245,16 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
               </StyledTooltip>
             }
           />
-          <SubmissionHeaderProperty label="Study" value={dataSubmission?.studyAbbreviation} />
+          <SubmissionHeaderProperty
+            label="Study"
+            value={dataSubmission?.studyAbbreviation || "NA"}
+            tooltipText={dataSubmission?.studyName}
+            disableTooltip={!dataSubmission?.studyName}
+            copyText={dataSubmission?.studyName}
+            copyTooltipText="Copy the Study full name"
+            truncateAfter={25}
+            showCopyTextIcon
+          />
           <SubmissionHeaderProperty
             label="Data Commons"
             value={dataSubmission?.dataCommonsDisplayName}
@@ -253,10 +262,16 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           />
           <SubmissionHeaderProperty
             label="Program"
-            value={dataSubmission?.organization?.name ?? "NA"}
+            value={dataSubmission?.organization?.abbreviation || "NA"}
+            tooltipText={dataSubmission?.organization?.name}
+            disableTooltip={!dataSubmission?.organization?.name}
+            copyText={dataSubmission?.organization?.name}
+            copyTooltipText="Copy the Program full name"
+            truncateAfter={23}
+            showCopyTextIcon
           />
           <SubmissionHeaderProperty
-            label="Primary Contact"
+            label="Data Concierge"
             value={
               <Stack direction="row" alignItems="center" spacing={1.375}>
                 <StyledConciergeName>
@@ -270,7 +285,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 {dataSubmission?.conciergeName && dataSubmission?.conciergeEmail && (
                   <StyledEmailWrapper
                     href={`mailto:${dataSubmission?.conciergeEmail}`}
-                    aria-label="Email Primary Contact"
+                    aria-label="Email Data Concierge"
                     data-testid="email-primary-contact-link"
                   >
                     <EmailIconSvg />
@@ -293,7 +308,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       <ReviewCommentsDialog
         open={openDialog === "review comments"}
         onClose={handleCloseDialog}
-        title="Data Submission"
+        preTitle="Data Submission"
         lastReview={lastReview}
       />
       <CollaboratorsProvider>

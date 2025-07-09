@@ -10,12 +10,14 @@ export const query = gql`
       organization {
         _id
         name
+        abbreviation
       }
       dataCommons
       dataCommonsDisplayName
       modelVersion
       studyID
       studyAbbreviation
+      studyName
       dbGaPID
       bucketName
       rootPath
@@ -64,6 +66,9 @@ export const query = gql`
         collaboratorID
         collaboratorName
         permission
+      }
+      dataFileSize {
+        size
       }
       createdAt
       updatedAt

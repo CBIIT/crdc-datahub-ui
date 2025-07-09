@@ -1,6 +1,6 @@
 import React, { FC, createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { LIST_INSTITUTIONS, ListInstitutionsResp } from "../../graphql";
+import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
 
 export type InstitutionCtxState = {
   /**
@@ -8,9 +8,13 @@ export type InstitutionCtxState = {
    */
   status: InstitutionCtxStatus;
   /**
+   * The total number of institutions
+   */
+  total: number;
+  /**
    * An array of Submission Request institutions
    */
-  data: string[];
+  data: Institution[];
 };
 
 export enum InstitutionCtxStatus {
@@ -19,14 +23,18 @@ export enum InstitutionCtxStatus {
   ERROR = "ERROR",
 }
 
-const initialState: InstitutionCtxState = { status: InstitutionCtxStatus.LOADING, data: [] };
+const initialState: InstitutionCtxState = {
+  status: InstitutionCtxStatus.LOADING,
+  total: 0,
+  data: [],
+};
 
 /**
  * Institution List Context
  *
  * @note Do NOT use this context directly. This is exported for testing purposes only.
- * @see {@link InstitutionCtxState} – Organization context state
- * @see {@link useInstitutionList} – Organization context hook
+ * @see {@link InstitutionCtxState} – Institution context state
+ * @see {@link useInstitutionList} – Institution context hook
  */
 export const InstitutionCtx = createContext<InstitutionCtxState>(null);
 InstitutionCtx.displayName = "InstitutionListContext";
@@ -50,6 +58,7 @@ export const useInstitutionList = (): InstitutionCtxState => {
 };
 
 type ProviderProps = {
+  filterInactive?: boolean;
   children: React.ReactNode;
 };
 
@@ -59,28 +68,41 @@ type ProviderProps = {
  * @see {@link useInstitutionList} The context hook
  * @returns React Context Provider
  */
-export const InstitutionProvider: FC<ProviderProps> = ({ children }: ProviderProps) => {
+export const InstitutionProvider: FC<ProviderProps> = ({
+  filterInactive = true,
+  children,
+}: ProviderProps) => {
   const [state, setState] = useState<InstitutionCtxState>(initialState);
 
-  const { data, loading, error } = useQuery<ListInstitutionsResp>(LIST_INSTITUTIONS, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-  });
+  const { data, loading, error } = useQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: {
+        status: filterInactive ? "Active" : undefined,
+        first: -1,
+        orderBy: "name",
+        sortDirection: "asc",
+      },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   useEffect(() => {
     if (loading) {
-      setState({ status: InstitutionCtxStatus.LOADING, data: [] });
+      setState({ status: InstitutionCtxStatus.LOADING, total: 0, data: [] });
       return;
     }
-    if (error || Array.isArray(data?.listInstitutions) === false) {
-      setState({ status: InstitutionCtxStatus.ERROR, data: [] });
+    if (error || Array.isArray(data?.listInstitutions?.institutions) === false) {
+      setState({ status: InstitutionCtxStatus.ERROR, total: 0, data: [] });
       return;
     }
 
-    const sortedData = [...data.listInstitutions]
-      .filter((v) => !!v && typeof v === "string")
-      .sort((a, b) => a.localeCompare(b));
-    setState({ status: InstitutionCtxStatus.LOADED, data: sortedData });
+    setState({
+      status: InstitutionCtxStatus.LOADED,
+      total: data.listInstitutions.total,
+      data: data.listInstitutions.institutions,
+    });
   }, [loading, error, data]);
 
   return <InstitutionCtx.Provider value={state}>{children}</InstitutionCtx.Provider>;

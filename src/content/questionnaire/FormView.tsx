@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
   unstable_useBlocker as useBlocker,
@@ -27,9 +27,9 @@ import PageBanner from "../../components/PageBanner";
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
-import ExportRequestButton from "../../components/ExportRequestButton";
 import { Logger } from "../../utils";
 import { hasPermission } from "../../config/AuthPermissions";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -164,10 +164,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1]
-    ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
+    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
     : null;
   const nextSection = sectionKeys[sectionIndex + 1]
-    ? `/submission/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
+    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
   const formContentRef = useRef(null);
@@ -228,7 +228,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     try {
       const r = await submitData();
       setOpenSubmitDialog(false);
-      navigate("/submissions");
+      navigate("/submission-requests");
 
       return r;
     } catch (err) {
@@ -258,7 +258,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     const res = await approveForm(reviewComment, true);
     setOpenApproveDialog(false);
     if (res?.status === "success") {
-      navigate("/submissions");
+      navigate("/submission-requests");
     } else {
       enqueueSnackbar(
         res.errorMessage || "An error occurred while approving the form. Please try again.",
@@ -292,7 +292,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
         variant: "error",
       });
     } else {
-      navigate("/submissions");
+      navigate("/submission-requests");
     }
     setOpenInquireDialog(false);
     return res;
@@ -320,7 +320,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
         variant: "error",
       });
     } else {
-      navigate("/submissions");
+      navigate("/submission-requests");
     }
     setOpenRejectDialog(false);
     return res;
@@ -345,7 +345,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
     const res = await reopenForm();
     if (!res) {
-      navigate("/submissions", {
+      navigate("/submission-requests", {
         state: {
           error: "An error occurred while marking the form as In Progress. Please try again.",
         },
@@ -414,7 +414,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
       saveResult.id !== data?.["_id"]
     ) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
-      navigate(`/submission/${saveResult.id}/${activeSection}`, { replace: true });
+      navigate(`/submission-request/${saveResult.id}/${activeSection}`, {
+        replace: true,
+        preventScrollReset: true,
+      });
     }
 
     if (saveResult?.status === "success") {
@@ -493,7 +496,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const res = await saveForm();
-    const reviewSectionUrl = `/submission/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
+    const reviewSectionUrl = `/submission-request/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);
@@ -572,7 +575,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (status === FormStatus.SAVING || !prevSection) {
       return;
     }
-    navigate(prevSection);
+    navigate(prevSection, { preventScrollReset: true });
   };
 
   const handleNextClick = () => {
@@ -582,8 +585,15 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (isSectionD && !allSectionsComplete) {
       return;
     }
-    navigate(nextSection);
+    navigate(nextSection, { preventScrollReset: true });
   };
+
+  const handleOnCancel = useCallback(() => {
+    enqueueSnackbar("Successfully canceled that Submission Request.", {
+      variant: "success",
+    });
+    navigate("/submission-requests");
+  }, [enqueueSnackbar, navigate]);
 
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
@@ -637,7 +647,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
   // Redirect to ListView if no data is found and the form is in the error state
   if (status === FormStatus.ERROR && !data?._id) {
-    return <Navigate to="/submissions" state={{ error: error || "Unknown error" }} />;
+    return <Navigate to="/submission-requests" state={{ error: error || "Unknown error" }} />;
   }
 
   return (
@@ -673,6 +683,20 @@ const FormView: FC<Props> = ({ section }: Props) => {
               >
                 Back
               </StyledLoadingButton>
+
+              {activeSection === "REVIEW" &&
+                hasPermission(user, "submission_request", "submit", data) && (
+                  <StyledExtendedLoadingButton
+                    id="submission-form-submit-button"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    size="large"
+                    onClick={handleSubmitForm}
+                  >
+                    Submit
+                  </StyledExtendedLoadingButton>
+                )}
               {activeSection !== "REVIEW" && formMode === "Edit" && (
                 <StyledLoadingButton
                   id="submission-form-save-button"
@@ -684,6 +708,9 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   Save
                 </StyledLoadingButton>
               )}
+
+              <CancelApplicationButton onCancel={handleOnCancel} />
+
               {activeSection !== "REVIEW" && (
                 <StyledLoadingButton
                   id="submission-form-next-button"
@@ -703,20 +730,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                 </StyledLoadingButton>
               )}
 
-              {activeSection === "REVIEW" &&
-                hasPermission(user, "submission_request", "submit", data) && (
-                  <StyledExtendedLoadingButton
-                    id="submission-form-submit-button"
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    size="large"
-                    onClick={handleSubmitForm}
-                  >
-                    Submit
-                  </StyledExtendedLoadingButton>
-                )}
-
               {activeSection === "REVIEW" && formMode === "Review" && (
                 <>
                   <StyledExtendedLoadingButton
@@ -728,15 +741,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Approve
                   </StyledExtendedLoadingButton>
-                  <StyledLoadingButton
-                    id="submission-form-inquire-button"
-                    variant="contained"
-                    color="error"
-                    size="large"
-                    onClick={handleInquireForm}
-                  >
-                    Request Additional Information
-                  </StyledLoadingButton>
                   <StyledExtendedLoadingButton
                     id="submission-form-reject-button"
                     variant="contained"
@@ -746,11 +750,16 @@ const FormView: FC<Props> = ({ section }: Props) => {
                   >
                     Reject
                   </StyledExtendedLoadingButton>
+                  <StyledLoadingButton
+                    id="submission-form-inquire-button"
+                    variant="contained"
+                    color="info"
+                    size="large"
+                    onClick={handleInquireForm}
+                  >
+                    Request Additional Information
+                  </StyledLoadingButton>
                 </>
-              )}
-
-              {activeSection === "REVIEW" && (
-                <ExportRequestButton disabled={!allSectionsComplete} />
               )}
             </StyledControls>
           </StyledContent>

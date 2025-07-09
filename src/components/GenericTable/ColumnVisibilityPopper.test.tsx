@@ -9,11 +9,12 @@ type Column = {
   fieldKey?: string;
   label: string;
   hideable?: boolean;
+  defaultHidden?: boolean;
 };
 
 const columns: Column[] = [
   { field: "name", label: "Name", hideable: false },
-  { field: "age", label: "Age" },
+  { field: "age", label: "Age", defaultHidden: true },
   { field: "email", label: "Email" },
 ];
 
@@ -169,11 +170,10 @@ describe("ColumnVisibilityPopper", () => {
     });
   });
 
-  it("resets columns to visible", () => {
-    // Set age and email to false
+  it("should reset columns back to default", () => {
     columnVisibilityModel = {
-      name: true,
-      age: false,
+      name: false,
+      age: true,
       email: false,
     };
 
@@ -184,7 +184,7 @@ describe("ColumnVisibilityPopper", () => {
 
     expect(setColumnVisibilityModel).toHaveBeenCalledWith({
       name: true,
-      age: true,
+      age: false, // default hidden
       email: true,
     });
   });

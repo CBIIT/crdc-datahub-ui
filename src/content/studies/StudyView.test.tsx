@@ -14,6 +14,10 @@ import {
   GetApprovedStudyInput,
   LIST_ACTIVE_DCPS,
   ListActiveDCPsResp,
+  CreateApprovedStudyResp,
+  CreateApprovedStudyInput,
+  UpdateApprovedStudyResp,
+  UpdateApprovedStudyInput,
 } from "../../graphql";
 import StudyView from "./StudyView";
 
@@ -284,12 +288,13 @@ describe("StudyView Component", () => {
   });
 
   it("creates a new study successfully", async () => {
-    const createApprovedStudyMock = {
+    const createApprovedStudyMock: MockedResponse<
+      CreateApprovedStudyResp,
+      CreateApprovedStudyInput
+    > = {
       request: {
         query: CREATE_APPROVED_STUDY,
         variables: {
-          studyName: "Test Study Name",
-          studyAbbreviation: "TSN",
           PI: "John Doe",
           dbGaPID: "db123456",
           ORCID: "0000-0001-2345-6789",
@@ -298,13 +303,13 @@ describe("StudyView Component", () => {
           name: "Test Study Name",
           acronym: "TSN",
           primaryContactID: "dcp-1",
+          useProgramPC: false,
         },
       },
       result: {
         data: {
           createApprovedStudy: {
             _id: "new-study-id",
-            studyName: "Test Study Name",
           },
         },
       },
@@ -369,7 +374,7 @@ describe("StudyView Component", () => {
 
   it("updates an existing study successfully", async () => {
     const studyId = "existing-study-id";
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
         variables: { _id: studyId },
@@ -390,20 +395,25 @@ describe("StudyView Component", () => {
                 _id: "program-1",
                 conciergeID: "primary-contact-1",
                 conciergeName: "John Doe",
+                name: "",
               },
             ],
+            primaryContact: null,
+            useProgramPC: true,
+            createdAt: "",
           },
         },
       },
     };
 
-    const updateApprovedStudyMock = {
+    const updateApprovedStudyMock: MockedResponse<
+      UpdateApprovedStudyResp,
+      UpdateApprovedStudyInput
+    > = {
       request: {
         query: UPDATE_APPROVED_STUDY,
         variables: {
           studyID: studyId,
-          studyName: "Updated Study Name",
-          studyAbbreviation: "ES",
           PI: "Jane Smith",
           dbGaPID: "db654321",
           ORCID: "0000-0002-3456-7890",
@@ -411,13 +421,14 @@ describe("StudyView Component", () => {
           controlledAccess: true,
           name: "Updated Study Name",
           acronym: "ES",
+          primaryContactID: undefined,
+          useProgramPC: true,
         },
       },
       result: {
         data: {
           updateApprovedStudy: {
             _id: studyId,
-            studyName: "Updated Study Name",
           },
         },
       },
@@ -449,12 +460,13 @@ describe("StudyView Component", () => {
   });
 
   it("handles API errors gracefully when creating a new study", async () => {
-    const createApprovedStudyMock = {
+    const createApprovedStudyMock: MockedResponse<
+      CreateApprovedStudyResp,
+      CreateApprovedStudyInput
+    > = {
       request: {
         query: CREATE_APPROVED_STUDY,
         variables: {
-          studyName: "Test Study Name",
-          studyAbbreviation: "TSN",
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
@@ -463,6 +475,7 @@ describe("StudyView Component", () => {
           name: "Test Study Name",
           acronym: "TSN",
           primaryContactID: "dcp-1",
+          useProgramPC: false,
         },
       },
       error: new Error("Unable to create approved study."),
@@ -523,7 +536,7 @@ describe("StudyView Component", () => {
 
   it("handles API errors gracefully when updating an existing study", async () => {
     const studyId = "existing-study-id";
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
         variables: { _id: studyId },
@@ -544,20 +557,25 @@ describe("StudyView Component", () => {
                 _id: "program-1",
                 conciergeID: "primary-contact-1",
                 conciergeName: "John Doe",
+                name: "",
               },
             ],
+            primaryContact: null,
+            useProgramPC: true,
+            createdAt: "",
           },
         },
       },
     };
 
-    const updateApprovedStudyMock = {
+    const updateApprovedStudyMock: MockedResponse<
+      UpdateApprovedStudyResp,
+      UpdateApprovedStudyInput
+    > = {
       request: {
         query: UPDATE_APPROVED_STUDY,
         variables: {
           studyID: studyId,
-          studyName: "Updated Study Name",
-          studyAbbreviation: "USN",
           PI: "Jane Smith",
           dbGaPID: "db654321",
           ORCID: "0000-0002-3456-7890",
@@ -565,6 +583,8 @@ describe("StudyView Component", () => {
           controlledAccess: true,
           name: "Updated Study Name",
           acronym: "USN",
+          primaryContactID: undefined,
+          useProgramPC: true,
         },
       },
       error: new Error("Unable to save changes"),
@@ -596,12 +616,13 @@ describe("StudyView Component", () => {
   });
 
   it("disables checkboxes and sets readOnly prop when saving is true", async () => {
-    const createApprovedStudyMock = {
+    const createApprovedStudyMock: MockedResponse<
+      CreateApprovedStudyResp,
+      CreateApprovedStudyInput
+    > = {
       request: {
         query: CREATE_APPROVED_STUDY,
         variables: {
-          studyName: "Test Study Name",
-          studyAbbreviation: "",
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
@@ -610,13 +631,13 @@ describe("StudyView Component", () => {
           name: "Test Study Name",
           acronym: "",
           primaryContactID: "dcp-1",
+          useProgramPC: false,
         },
       },
       result: {
         data: {
           createApprovedStudy: {
             _id: "new-study-id",
-            studyName: "Test Study Name",
           },
         },
       },
@@ -759,12 +780,13 @@ describe("StudyView Component", () => {
   });
 
   it("sets error message when createApprovedStudy mutation fails", async () => {
-    const createApprovedStudyMock = {
+    const createApprovedStudyMock: MockedResponse<
+      CreateApprovedStudyResp,
+      CreateApprovedStudyInput
+    > = {
       request: {
         query: CREATE_APPROVED_STUDY,
         variables: {
-          studyName: "Test Study Name",
-          studyAbbreviation: "",
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
@@ -773,6 +795,7 @@ describe("StudyView Component", () => {
           name: "Test Study Name",
           acronym: "",
           primaryContactID: "dcp-1",
+          useProgramPC: false,
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -833,7 +856,7 @@ describe("StudyView Component", () => {
 
   it("sets error message when updateApprovedStudy mutation fails", async () => {
     const studyId = "existing-study-id";
-    const getApprovedStudyMock = {
+    const getApprovedStudyMock: MockedResponse<GetApprovedStudyResp, GetApprovedStudyInput> = {
       request: {
         query: GET_APPROVED_STUDY,
         variables: { _id: studyId },
@@ -854,20 +877,25 @@ describe("StudyView Component", () => {
                 _id: "program-1",
                 conciergeID: "primary-contact-1",
                 conciergeName: "John Doe",
+                name: "",
               },
             ],
+            primaryContact: null,
+            useProgramPC: true,
+            createdAt: "",
           },
         },
       },
     };
 
-    const updateApprovedStudyMock = {
+    const updateApprovedStudyMock: MockedResponse<
+      UpdateApprovedStudyResp,
+      UpdateApprovedStudyInput
+    > = {
       request: {
         query: UPDATE_APPROVED_STUDY,
         variables: {
           studyID: studyId,
-          studyName: "Updated Study Name",
-          studyAbbreviation: "ES",
           PI: "Jane Smith",
           dbGaPID: "db654321",
           ORCID: "0000-0002-3456-7890",
@@ -875,6 +903,8 @@ describe("StudyView Component", () => {
           controlledAccess: true,
           name: "Updated Study Name",
           acronym: "ES",
+          primaryContactID: undefined,
+          useProgramPC: true,
         },
       },
       error: new ApolloError({ errorMessage: null }),

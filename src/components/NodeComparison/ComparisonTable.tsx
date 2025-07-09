@@ -10,8 +10,9 @@ import {
   TableRow,
 } from "@mui/material";
 import { FC, memo, useMemo } from "react";
+import { isEqual } from "lodash";
 import { RetrieveReleasedDataResp } from "../../graphql";
-import { safeParse } from "../../utils";
+import { coerceToString, safeParse } from "../../utils";
 import Repeater from "../Repeater";
 
 const StyledAlert = styled(Alert)({
@@ -51,13 +52,20 @@ const StyledTableHead = styled(TableHead)({
   },
 });
 
-const StyledTableCell = styled(TableCell)({
-  color: "#083A50",
+const StyledTableCell = styled(TableCell, {
+  shouldForwardProp: (p) => p !== "highlight" && p !== "gray",
+})<{
+  highlight?: boolean;
+  gray?: boolean;
+}>(({ highlight, gray }) => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
   border: "0.5px solid #a7a7a7",
+  backgroundColor: gray ? "#F2F6FA" : "transparent",
   padding: "8px 15px",
-});
+  color: highlight ? "#CA4F1A" : "#083A50",
+  fontWeight: highlight ? 700 : 400,
+}));
 
 /**
  * The number of placeholder columns to display in the loading state
@@ -68,6 +76,11 @@ const PLACEHOLDER_NUM_COLS = 5;
  * The width of the new/existing column
  */
 const BLANK_COL_WIDTH = 55;
+
+/**
+ * The special symbol used to indicate that the data processing system should delete the property data
+ */
+const DELETE_DATA_SYMBOL = "<delete>";
 
 export type ComparisonTableProps = {
   /**
@@ -84,6 +97,8 @@ export type ComparisonTableProps = {
   loading: boolean;
 };
 
+type ParsedNodeProps = Record<string, string | number | boolean>;
+
 /**
  * Builds a dynamic table to compare the dataset between two data records
  * Handles loading state
@@ -91,12 +106,9 @@ export type ComparisonTableProps = {
  * @returns The NodeComparisonTable component
  */
 const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, loading }) => {
-  const newProps = useMemo<Record<string, string | number>>(
-    () => safeParse(newNode?.props),
-    [newNode]
-  );
+  const newProps = useMemo<ParsedNodeProps>(() => safeParse(newNode?.props), [newNode]);
 
-  const existingProps = useMemo<Record<string, string | number>>(
+  const existingProps = useMemo<ParsedNodeProps>(
     () => safeParse(existingNode?.props),
     [existingNode]
   );
@@ -106,6 +118,19 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
     const existingKeys = Object.keys(existingProps);
     return [...new Set([...newKeys, ...existingKeys])];
   }, [newProps, existingProps]);
+
+  const changedPropertyNames = useMemo<string[]>(
+    () =>
+      allPropertyNames.filter((property) => {
+        const [newVal, oldVal] = [newProps?.[property], existingProps?.[property]];
+
+        return (
+          (!isEqual(newVal, oldVal) && newVal !== "" && newVal !== null) ||
+          newVal === DELETE_DATA_SYMBOL
+        );
+      }),
+    [newProps, existingProps, allPropertyNames]
+  );
 
   if (!loading && !allPropertyNames.length) {
     return (
@@ -138,15 +163,26 @@ const ComparisonTable: FC<ComparisonTableProps> = ({ newNode, existingNode, load
               <TableRow data-testid="node-comparison-table-existing">
                 <StyledTableCell width={BLANK_COL_WIDTH}>Existing</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>
-                    {existingProps?.[property] || ""}
+                  <StyledTableCell
+                    key={property}
+                    data-testid={`node-comparison-table-existing-${property}`}
+                    gray={!changedPropertyNames.includes(property)}
+                  >
+                    {coerceToString(existingProps?.[property])}
                   </StyledTableCell>
                 ))}
               </TableRow>
               <TableRow data-testid="node-comparison-table-new">
                 <StyledTableCell width={BLANK_COL_WIDTH}>New</StyledTableCell>
                 {allPropertyNames.map((property) => (
-                  <StyledTableCell key={property}>{newProps?.[property] || ""}</StyledTableCell>
+                  <StyledTableCell
+                    key={property}
+                    data-testid={`node-comparison-table-new-${property}`}
+                    highlight={changedPropertyNames.includes(property)}
+                    gray={!changedPropertyNames.includes(property)}
+                  >
+                    {coerceToString(newProps?.[property])}
+                  </StyledTableCell>
                 ))}
               </TableRow>
             </>

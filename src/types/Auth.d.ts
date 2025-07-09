@@ -39,6 +39,13 @@ type User = {
    */
   studies: Partial<ApprovedStudy>[] | null;
   /**
+   * The institution the user is associated with.
+   * Null if the user is not associated with an institution.
+   *
+   * @see {@link Institution} for available fields
+   */
+  institution: Pick<Institution, "_id" | "name"> | null;
+  /**
    * The SSO IDP used to login
    */
   IDP: "nih" | "login.gov";
@@ -124,6 +131,10 @@ type Organization = {
    * An array of assigned studies to the organization
    */
   studies: ApprovedStudy[];
+  /**
+   * A flag indicating this organization is system-managed and not editable
+   */
+  readOnly: boolean;
   /**
    * The date of the object creation
    *

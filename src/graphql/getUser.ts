@@ -20,6 +20,10 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         studyName
         studyAbbreviation
       }
+      institution {
+        _id
+        name
+      }
       permissions
       notifications
     }

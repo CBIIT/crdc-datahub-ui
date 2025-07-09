@@ -3,6 +3,7 @@
  */
 export const ValidationErrorCodes = {
   UPDATING_DATA: "M018",
+  ORPHANED_FILE_FOUND: "F008",
 } as const;
 
 /**
