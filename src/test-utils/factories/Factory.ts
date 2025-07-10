@@ -1,7 +1,7 @@
 import cloneDeep from "lodash/cloneDeep";
 import pick from "lodash/pick";
 
-import { attachMultipleWithTypename, attachSingleWithTypename } from "@/utils/factoryUtils";
+import { attachMultipleWithTypename, attachSingleWithTypename } from "./factoryUtils";
 
 export class Factory<T extends object> {
   constructor(private generateFn: (overrides?: Partial<T>) => T) {}
