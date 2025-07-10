@@ -1,4 +1,5 @@
 import React, { createElement } from "react";
+
 import config from "../../../config/SectionConfig";
 
 type Props = Omit<FormSectionProps, "SectionOption"> & {

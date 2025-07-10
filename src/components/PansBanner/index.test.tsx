@@ -1,6 +1,8 @@
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
 import dayjs from "dayjs";
+import { axe } from "vitest-axe";
+
+import { render } from "../../test-utils";
+
 import PansBanner from "./index";
 
 describe("Accessibility", () => {

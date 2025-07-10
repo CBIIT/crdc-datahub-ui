@@ -1,31 +1,32 @@
-import React, { FC, useEffect, useRef, useState } from "react";
-import dayjs from "dayjs";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep } from "lodash";
-import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
+import dayjs from "dayjs";
+import { cloneDeep } from "lodash";
+import React, { FC, useEffect, useRef, useState } from "react";
+
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
+import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
+import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import SectionGroup, { StyledDescription } from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
+import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
+import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
+import { fileTypeOptions } from "../../../config/FileTypeConfig";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
+import SectionMetadata from "../../../config/SectionMetadata";
+import useFormMode from "../../../hooks/useFormMode";
 import {
   mapObjectWithKey,
   filterPositiveIntegerString,
   reshapeCheckboxGroupOptions,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/AddRemoveButton";
-import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
-import { fileTypeOptions } from "../../../config/FileTypeConfig";
-import TableTextInput from "../../../components/Questionnaire/TableTextInput";
-import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
-import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
-import useFormMode from "../../../hooks/useFormMode";
-import SectionMetadata from "../../../config/SectionMetadata";
-import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
-import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import { InitialQuestionnaire } from "../../../config/InitialValues";
 
 export type KeyedFileTypeData = {
   key: string;

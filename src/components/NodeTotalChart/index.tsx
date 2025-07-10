@@ -1,11 +1,13 @@
+import { Box, styled } from "@mui/material";
 import { FC, useCallback, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Box, styled } from "@mui/material";
-import BarTooltip from "./BarTooltip";
-import LabelToolTip from "./LabelTooltip";
-import CustomTick from "./CustomTick";
-import ActiveBar from "./ActiveBar";
+
 import { calculateMaxDomain, calculateTextWidth, formatTick } from "../../utils";
+
+import ActiveBar from "./ActiveBar";
+import BarTooltip from "./BarTooltip";
+import CustomTick from "./CustomTick";
+import LabelToolTip from "./LabelTooltip";
 
 const StyledChartContainer = styled(Box, {
   shouldForwardProp: (p) => p !== "height" && p !== "width",

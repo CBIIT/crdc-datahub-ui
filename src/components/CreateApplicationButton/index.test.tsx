@@ -1,12 +1,14 @@
-import { render, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC, useMemo } from "react";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
-import CreateApplicationButton from "./index";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+import { Context as AuthContext, Status as AuthStatus } from "../Contexts/AuthContext";
+
+import CreateApplicationButton from "./index";
 
 const mockUser: User = {
   _id: "user-1",
@@ -50,7 +52,7 @@ const MockParent: FC<MockParentProps> = ({ mocks = [], user = mockUser, children
 
 describe("Accessibility", () => {
   it("should have no accessibility violations (button)", async () => {
-    const { container, findByTestId } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+    const { container, findByTestId } = render(<CreateApplicationButton onCreate={vi.fn()} />, {
       wrapper: MockParent,
     });
 
@@ -61,7 +63,7 @@ describe("Accessibility", () => {
 
   it("should have no accessibility violations (disabled button)", async () => {
     const { container, findByTestId } = render(
-      <CreateApplicationButton onCreate={jest.fn()} disabled />,
+      <CreateApplicationButton onCreate={vi.fn()} disabled />,
       {
         wrapper: MockParent,
       }
@@ -75,7 +77,7 @@ describe("Accessibility", () => {
 
   it("should have no accessibility violations (dialog)", async () => {
     const { container, findByTestId, findByRole } = render(
-      <CreateApplicationButton onCreate={jest.fn()} />,
+      <CreateApplicationButton onCreate={vi.fn()} />,
       {
         wrapper: MockParent,
       }
@@ -92,7 +94,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   it("should call onCreate with the application ID on success", async () => {
-    const mockOnCreate = jest.fn();
+    const mockOnCreate = vi.fn();
 
     const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
@@ -127,7 +129,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onCreate with null on error (API)", async () => {
-    const mockOnCreate = jest.fn();
+    const mockOnCreate = vi.fn();
 
     const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
@@ -160,7 +162,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onCreate with null on error (GraphQL)", async () => {
-    const mockOnCreate = jest.fn();
+    const mockOnCreate = vi.fn();
 
     const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
@@ -191,7 +193,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onCreate with null on error (Network)", async () => {
-    const mockOnCreate = jest.fn();
+    const mockOnCreate = vi.fn();
 
     const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
@@ -220,7 +222,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should disable the confirmation button while creating", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const mockSaveApplication: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
@@ -237,7 +239,7 @@ describe("Basic Functionality", () => {
       delay: 5000,
     };
 
-    const { findByTestId, findByText } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+    const { findByTestId, findByText } = render(<CreateApplicationButton onCreate={vi.fn()} />, {
       wrapper: ({ children }) => <MockParent mocks={[mockSaveApplication]}>{children}</MockParent>,
     });
 
@@ -249,14 +251,14 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => expect(confirmButton).toBeDisabled());
 
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 });
 
 describe("Implementation Requirements", () => {
   it("should render with the correct button text", async () => {
-    const { findByText } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+    const { findByText } = render(<CreateApplicationButton onCreate={vi.fn()} />, {
       wrapper: MockParent,
     });
 
@@ -264,7 +266,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should be hidden if the user does not have permission", async () => {
-    const { queryByTestId } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+    const { queryByTestId } = render(<CreateApplicationButton onCreate={vi.fn()} />, {
       wrapper: ({ children }) => (
         <MockParent mocks={[]} user={{ ...mockUser, permissions: [] }}>
           {children}
@@ -276,7 +278,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should require confirmation before creating a new application", async () => {
-    const { findByTestId, findByText } = render(<CreateApplicationButton onCreate={jest.fn()} />, {
+    const { findByTestId, findByText } = render(<CreateApplicationButton onCreate={vi.fn()} />, {
       wrapper: MockParent,
     });
 
@@ -287,7 +289,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should not do anything if the user cancels the confirmation", async () => {
-    const mockOnCreate = jest.fn();
+    const mockOnCreate = vi.fn();
 
     const { findByTestId, findByText } = render(
       <CreateApplicationButton onCreate={mockOnCreate} />,

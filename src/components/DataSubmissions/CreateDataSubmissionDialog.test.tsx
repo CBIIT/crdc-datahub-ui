@@ -1,15 +1,9 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
-import {
-  Context as AuthCtx,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+
 import {
   CREATE_SUBMISSION,
   CreateSubmissionResp,
@@ -18,6 +12,31 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import {
+  Context as AuthCtx,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
+
+import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
+
+const baseApprovedStudy: ApprovedStudy = {
+  _id: "",
+  originalOrg: "",
+  studyName: "",
+  studyAbbreviation: "",
+  dbGaPID: "",
+  controlledAccess: false,
+  openAccess: false,
+  PI: "",
+  ORCID: "",
+  programs: [],
+  primaryContact: null,
+  useProgramPC: false,
+  createdAt: "",
+  pendingModelChange: false,
+};
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
   {
@@ -26,6 +45,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "SN",
     dbGaPID: "phsTEST",
     controlledAccess: null,
+    pendingModelChange: false,
   },
   {
     _id: "study2",
@@ -33,6 +53,7 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "CS",
     dbGaPID: "phsTEST",
     controlledAccess: true,
+    pendingModelChange: false,
   },
   {
     _id: "no-dbGaP-ID",
@@ -40,6 +61,15 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     studyAbbreviation: "DB",
     dbGaPID: null,
     controlledAccess: true,
+    pendingModelChange: false,
+  },
+  {
+    _id: "pending-model-changes",
+    studyName: "study with pending model changes",
+    studyAbbreviation: "PMC",
+    dbGaPID: "phsTEST",
+    controlledAccess: null,
+    pendingModelChange: true,
   },
 ];
 
@@ -109,10 +139,10 @@ const TestParent: FC<ParentProps> = ({
 );
 
 describe("Basic Functionality", () => {
-  const handleCreate = jest.fn();
+  const handleCreate = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders dialog and form inputs correctly", async () => {
@@ -742,10 +772,11 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -794,10 +825,11 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -857,6 +889,7 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: "phsTEST",
         controlledAccess: true,
+        pendingModelChange: false,
       },
       {
         _id: "non-controlled",
@@ -864,10 +897,11 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "NCS",
         dbGaPID: null,
         controlledAccess: false,
+        pendingModelChange: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -930,10 +964,11 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
@@ -985,7 +1020,7 @@ describe("Implementation Requirements", () => {
   it.each<UserRole>(["Data Commons Personnel"])(
     "should fetch all of the studies if the user's role is %s",
     async (role) => {
-      const mockMatcher = jest.fn().mockImplementation(() => true);
+      const mockMatcher = vi.fn().mockImplementation(() => true);
       const listApprovedStudiesMock: MockedResponse<
         ListApprovedStudiesResp,
         ListApprovedStudiesInput
@@ -1000,6 +1035,7 @@ describe("Implementation Requirements", () => {
               total: 1,
               studies: [
                 {
+                  ...baseApprovedStudy,
                   _id: "study1",
                   studyName: "study-1-from-api",
                   studyAbbreviation: "study-1-from-api-abbr",
@@ -1007,19 +1043,20 @@ describe("Implementation Requirements", () => {
                   controlledAccess: false,
                 },
                 {
+                  ...baseApprovedStudy,
                   _id: "study2",
                   studyName: "study-2-from-api",
                   studyAbbreviation: "study-2-from-api-abbr",
                   dbGaPID: "",
                   controlledAccess: false,
                 },
-              ] as ApprovedStudy[],
+              ],
             },
           },
         },
       };
 
-      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
         wrapper: (p) => (
           <TestParent
             mocks={[listApprovedStudiesMock]}
@@ -1038,7 +1075,7 @@ describe("Implementation Requirements", () => {
   );
 
   it("should fetch all of the studies if the user's assigned studies contains the 'All' study", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const listApprovedStudiesMock: MockedResponse<
       ListApprovedStudiesResp,
       ListApprovedStudiesInput
@@ -1053,19 +1090,20 @@ describe("Implementation Requirements", () => {
             total: 1,
             studies: [
               {
+                ...baseApprovedStudy,
                 _id: "study1",
                 studyName: "study-1-from-api",
                 studyAbbreviation: "study-1-from-api-abbr",
                 dbGaPID: "",
                 controlledAccess: false,
               },
-            ] as ApprovedStudy[],
+            ],
           },
         },
       },
     };
 
-    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[listApprovedStudiesMock]}
@@ -1095,5 +1133,56 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
     });
+  });
+
+  it("disables the Create button and shows a tooltip if the selected study has pending model changes", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={{
+              ...baseAuthCtx,
+              user: { ...baseUser, role: "Submitter", studies: baseStudies },
+            }}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending model changes study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-model-changes")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-model-changes"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
+      )
+    ).toBeInTheDocument();
   });
 });

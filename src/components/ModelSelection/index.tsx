@@ -1,19 +1,21 @@
-import { FC, memo, useCallback, useMemo, useState } from "react";
-import { isEqual } from "lodash";
-import { IconButton, IconButtonProps, styled } from "@mui/material";
-import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
-import { ReactComponent as CogIcon } from "../../assets/icons/cog_icon.svg";
-import { useAuthContext } from "../Contexts/AuthContext";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import { IconButton, IconButtonProps, styled } from "@mui/material";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import { FC, memo, useCallback, useMemo, useState } from "react";
+
+import CogIcon from "../../assets/icons/cog_icon.svg?react";
+import { hasPermission } from "../../config/AuthPermissions";
 import {
   UPDATE_MODEL_VERSION,
   UpdateModelVersionInput,
   UpdateModelVersionResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+
 import FormDialog, { InputForm } from "./FormDialog";
 
 const StyledTooltip = styled(StyledFormTooltip)({

@@ -1,14 +1,15 @@
-import React, { useMemo, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
+import React, { useMemo, useState } from "react";
+
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import CustomDialog from "../../components/GenericDialog";
-import { ReleaseInfo, shouldDisableRelease, shouldEnableSubmit } from "../../utils";
-import Tooltip from "../../components/Tooltip";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
-import { hasPermission } from "../../config/AuthPermissions";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import CustomDialog from "../../components/GenericDialog";
+import Tooltip from "../../components/Tooltip";
+import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import { ReleaseInfo, shouldDisableRelease, shouldEnableSubmit } from "../../utils";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -152,7 +153,7 @@ type Props = {
 
 const DataSubmissionActions = ({ onAction }: Props) => {
   const { user } = useAuthContext();
-  const { data, qcData } = useSubmissionContext();
+  const { data } = useSubmissionContext();
   const { getSubmission: submission } = data || {};
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
@@ -164,8 +165,8 @@ const DataSubmissionActions = ({ onAction }: Props) => {
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data, qcData?.submissionQCResults?.results, user);
-  }, [data, qcData?.submissionQCResults?.results, user]);
+    return shouldEnableSubmit(data, user);
+  }, [data, user]);
 
   const releaseActionButton: ReleaseInfo = useMemo(
     () => shouldDisableRelease(data?.getSubmission),

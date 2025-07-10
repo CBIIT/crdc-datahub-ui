@@ -1,7 +1,9 @@
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
-import ComparisonTable from "./ComparisonTable";
+import { axe } from "vitest-axe";
+
 import { RetrieveReleasedDataResp } from "../../graphql";
+import { render } from "../../test-utils";
+
+import ComparisonTable from "./ComparisonTable";
 
 const baseNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number] = {
   nodeType: "",

@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useId, useMemo, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
   Button,
   DialogProps,
@@ -10,21 +11,22 @@ import {
 } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { useLazyQuery } from "@apollo/client";
-import { LoadingButton } from "@mui/lab";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon.svg";
-import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
-import DefaultDialog from "../StyledDialogComponents/StyledDialog";
-import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
-import GenericTable, { Column } from "../GenericTable";
-import { FormatDate, Logger, paginateAndSort } from "../../utils";
-import FileListContext, { FileListContextState } from "./Contexts/FileListContext";
+import React, { FC, useCallback, useId, useMemo, useState } from "react";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import DownloadIcon from "../../assets/icons/download_icon.svg?react";
 import {
   DOWNLOAD_METADATA_FILE,
   DownloadMetadataFileInput,
   DownloadMetadataFileResp,
 } from "../../graphql";
+import { FormatDate, Logger, paginateAndSort } from "../../utils";
+import GenericTable, { Column } from "../GenericTable";
+import DefaultDialog from "../StyledDialogComponents/StyledDialog";
+import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
+import DefaultDialogHeader from "../StyledDialogComponents/StyledHeader";
+
+import FileListContext, { FileListContextState } from "./Contexts/FileListContext";
 
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {
@@ -268,6 +270,15 @@ const FileListDialog: FC<FileListDialogProps> = ({
     [downloading, batch?.status, batch?.fileCount]
   );
 
+  const noContentText = useMemo<string>(() => {
+    // If the data file batch succeeded with no files, show an explanation
+    if (batch?.type === "data file" && batch?.status === "Uploaded") {
+      return "All files in this manifest have been previously uploaded. No files were uploaded in this batch.";
+    }
+
+    return "No files were uploaded.";
+  }, [batch?.type, batch?.status]);
+
   const handleCloseDialog = () => {
     setBatchFiles([]);
     setPrevBatchFilesFetch(null);
@@ -371,7 +382,7 @@ const FileListDialog: FC<FileListDialogProps> = ({
           defaultOrder="asc"
           defaultRowsPerPage={20}
           paginationPlacement="center"
-          noContentText="No files were uploaded."
+          noContentText={noContentText}
           numRowsNoContent={5}
           onFetchData={handleFetchBatchFiles}
           setItemKey={(item, idx) => `${idx}_${item.fileName}_${item.createdAt}`}
@@ -392,6 +403,4 @@ const FileListDialog: FC<FileListDialogProps> = ({
   );
 };
 
-export default React.memo<FileListDialogProps>(FileListDialog, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
-);
+export default React.memo<FileListDialogProps>(FileListDialog, isEqual);

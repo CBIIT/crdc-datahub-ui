@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo } from "react";
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import CollaboratorsTable from "./CollaboratorsTable";
+import React, { useEffect, useMemo } from "react";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import { hasPermission } from "../../config/AuthPermissions";
+import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
-import { hasPermission } from "../../config/AuthPermissions";
+
+import CollaboratorsTable from "./CollaboratorsTable";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -90,7 +92,10 @@ const StyledDescription = styled(Typography)({
   fontSize: "16px",
   fontWeight: 400,
   lineHeight: "22px",
-  marginBottom: "44px",
+  "&:last-of-type": {
+    marginTop: "12px",
+    marginBottom: "44px",
+  },
 });
 
 /**
@@ -187,7 +192,11 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
         added, each collaborator can contribute to the submission by uploading data, running
         validations, and submitting.
       </StyledDescription>
-
+      <StyledDescription data-testid="collaborators-dialog-disclaimer">
+        <strong>Note:</strong> It is the responsibility of the person adding collaborators to ensure
+        that the collaborators have permission to see and access the data that will be visible to
+        them and that they will abide by all pre-release program-level restrictions.
+      </StyledDescription>
       <form id="manage-collaborators-dialog-form" onSubmit={handleOnSave}>
         <CollaboratorsTable isEdit={canModifyCollaborators} />
 

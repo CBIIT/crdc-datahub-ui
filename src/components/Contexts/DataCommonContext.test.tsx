@@ -1,7 +1,9 @@
 import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
-import { useDataCommonContext, Status as DCStatus, DataCommonProvider } from "./DataCommonContext";
+
 import { DataCommons } from "../../config/DataCommons";
+import { render, waitFor } from "../../test-utils";
+
+import { useDataCommonContext, Status as DCStatus, DataCommonProvider } from "./DataCommonContext";
 
 const TestChild: FC = () => {
   const { status, error } = useDataCommonContext();
@@ -27,8 +29,8 @@ const TestParent: FC<Props> = ({ dc, children }: Props) => (
   <DataCommonProvider displayName={dc}>{children ?? <TestChild />}</DataCommonProvider>
 );
 
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   fetchManifest: async () =>
     new Promise((r) => {
       r({});
@@ -37,22 +39,23 @@ jest.mock("../../utils", () => ({
 
 describe("DataCommonContext > useDataCommonContext Tests", () => {
   it("should throw an exception when used outside of a DataCommonProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useDataCommonContext cannot be used outside of the DataCommonProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 
 describe("DataCommonContext > DataCommonProvider Tests", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
   it("should render without crashing", () => {
-    render(<TestParent dc="XYZ" />);
+    const { container } = render(<TestParent dc="XYZ" />);
+    expect(container).toBeInTheDocument();
   });
 
   it("should set a error state if the DataCommon is not supported", () => {

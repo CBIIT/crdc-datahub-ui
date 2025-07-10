@@ -1,5 +1,6 @@
 import { styled } from "@mui/material";
-import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
+
+import ChevronRight from "../../assets/icons/chevron_right.svg?react";
 
 const StyledButton = styled("button")({
   color: "#3D4551",

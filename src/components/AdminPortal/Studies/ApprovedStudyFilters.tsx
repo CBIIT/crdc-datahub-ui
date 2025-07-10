@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { debounce, sortBy } from "lodash";
 import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
+import { debounce, sortBy } from "lodash";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+
+import { Status, useOrganizationListContext } from "../../Contexts/OrganizationListContext";
+import { useSearchParamsContext } from "../../Contexts/SearchParamsContext";
 import StyledOutlinedInput from "../../StyledFormComponents/StyledOutlinedInput";
 import StyledSelect from "../../StyledFormComponents/StyledSelect";
-import { useSearchParamsContext } from "../../Contexts/SearchParamsContext";
-import { Status, useOrganizationListContext } from "../../Contexts/OrganizationListContext";
 import SuspenseLoader from "../../SuspenseLoader";
 
 const StyledFilterContainer = styled(Box)({

@@ -1,25 +1,26 @@
-import React, { FC, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLazyQuery } from "@apollo/client";
 import { Alert, Container, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import { useLazyQuery } from "@apollo/client";
+import React, { FC, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
-import PageBanner from "../../components/PageBanner";
-import { FormatDate, Logger } from "../../utils";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
-import usePageTitle from "../../hooks/usePageTitle";
 import CreateDataSubmissionDialog from "../../components/DataSubmissions/CreateDataSubmissionDialog";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
-import TruncatedText from "../../components/TruncatedText";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import DataSubmissionListFilters, {
   defaultValues,
   FilterForm,
 } from "../../components/DataSubmissions/DataSubmissionListFilters";
 import NavigatorLink from "../../components/DataSubmissions/NavigatorLink";
+import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import TruncatedText from "../../components/TruncatedText";
+import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
+import { useColumnVisibility } from "../../hooks/useColumnVisibility";
+import usePageTitle from "../../hooks/usePageTitle";
+import { FormatDate, Logger } from "../../utils";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
@@ -233,7 +234,7 @@ const columns: Column<T>[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  usePageTitle("Data Submission List");
+  usePageTitle("Data Submissions");
 
   const { state } = useLocation();
   const { status: authStatus } = useAuthContext();
@@ -301,7 +302,7 @@ const ListingView: FC = () => {
         fetchPolicy: "no-cache",
       });
       if (error || !d?.listSubmissions) {
-        throw new Error("Unable to retrieve Data Submission List results.");
+        throw new Error("Unable to retrieve Data Submission results.");
       }
 
       setData(d.listSubmissions.submissions);
@@ -317,7 +318,7 @@ const ListingView: FC = () => {
       );
       setTotalData(d.listSubmissions.total);
     } catch (err) {
-      Logger.error("Error while fetching Data Submission list", err);
+      Logger.error("Error while fetching Data Submissions", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -334,7 +335,7 @@ const ListingView: FC = () => {
 
       const { data: d } = await refetch();
       if (error || !d?.listSubmissions) {
-        throw new Error("Unable to retrieve Data Submission List results.");
+        throw new Error("Unable to retrieve Data Submission results.");
       }
       setData(d.listSubmissions.submissions);
       setOrganizations(
@@ -349,7 +350,7 @@ const ListingView: FC = () => {
       );
       setTotalData(d.listSubmissions.total);
     } catch (err) {
-      Logger.error("Error updating the Data Submission list", err);
+      Logger.error("Error updating the Data Submissions", err);
       setError(true);
     } finally {
       setLoading(false);
@@ -372,7 +373,7 @@ const ListingView: FC = () => {
   return (
     <>
       <PageBanner
-        title="Data Submission List"
+        title="Data Submissions"
         subTitle="Below is a list of data submissions that are associated with your account. Please click on any of the data submissions to review or continue work."
         padding="57px 0 0 25px"
         body={

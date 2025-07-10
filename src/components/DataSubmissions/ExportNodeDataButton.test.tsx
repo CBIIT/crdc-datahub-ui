@@ -1,15 +1,17 @@
-import { FC } from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import UserEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { axe } from "jest-axe";
-import { ExportNodeDataButton } from "./ExportNodeDataButton";
+import { FC } from "react";
+import { axe } from "vitest-axe";
+
 import {
   GET_SUBMISSION_NODES,
   GetSubmissionNodesInput,
   GetSubmissionNodesResp,
 } from "../../graphql";
+import { render, fireEvent, waitFor } from "../../test-utils";
+
+import { ExportNodeDataButton } from "./ExportNodeDataButton";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -22,9 +24,9 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   </MockedProvider>
 );
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -61,7 +63,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should only execute the GET_SUBMISSION_NODES query onClick", async () => {
@@ -104,7 +106,7 @@ describe("Basic Functionality", () => {
     expect(called).toBe(false);
 
     // NOTE: This must be separate from the expect below to ensure its not called multiple times
-    UserEvent.click(getByTestId("export-node-data-button"));
+    userEvent.click(getByTestId("export-node-data-button"));
     await waitFor(() => {
       expect(called).toBe(true);
     });
@@ -276,7 +278,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip present on the button for Metadata", async () => {
@@ -289,7 +291,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    UserEvent.hover(getByTestId("export-node-data-button"));
+    userEvent.hover(getByTestId("export-node-data-button"));
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
@@ -306,7 +308,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    UserEvent.hover(getByTestId("export-node-data-button"));
+    userEvent.hover(getByTestId("export-node-data-button"));
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
@@ -323,7 +325,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    UserEvent.hover(getByTestId("export-node-data-button"));
+    userEvent.hover(getByTestId("export-node-data-button"));
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toHaveTextContent("Export submitted metadata for selected node type");
@@ -337,7 +339,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    UserEvent.hover(getByTestId("export-node-data-button"));
+    userEvent.hover(getByTestId("export-node-data-button"));
 
     expect(tooltip).toHaveTextContent("Export a list of all uploaded data files");
   });
@@ -394,7 +396,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should safely create the TSV filename using Submission Name, Node Type, and Exported Date",
     async ({ name, nodeType, date, expected }) => {
-      jest.useFakeTimers().setSystemTime(date);
+      vi.useFakeTimers().setSystemTime(date);
 
       const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
         {
@@ -441,8 +443,57 @@ describe("Implementation Requirements", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
     }
   );
+
+  it("should include the `type` column in the TSV export", async () => {
+    const nodeType = "a_unique_node_type";
+
+    const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 1,
+              IDPropName: "a",
+              properties: ["a"],
+              nodes: [
+                {
+                  nodeType,
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({ a: 1 }),
+                  status: "Passed",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <ExportNodeDataButton
+          submission={{ _id: "mock-type-test", name: "test-type-column" }}
+          nodeType={nodeType}
+        />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("export-node-data-button"));
+
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalled();
+    });
+
+    expect(mockDownloadBlob.mock.calls[0][0]).toContain(
+      `type\ta\tstatus\r\n${nodeType}\t1\tPassed`
+    );
+  });
 });

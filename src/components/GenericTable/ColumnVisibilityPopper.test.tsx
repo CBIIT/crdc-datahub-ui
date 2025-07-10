@@ -1,7 +1,10 @@
-import React from "react";
-import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
+import React from "react";
+import { Mock } from "vitest";
+import { axe } from "vitest-axe";
+
+import { render } from "../../test-utils";
+
 import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
 
 type Column = {
@@ -23,8 +26,8 @@ const getColumnLabel = (column: Column) => column.label;
 
 describe("Accessibility", () => {
   let columnVisibilityModel: { [key: string]: boolean };
-  let setColumnVisibilityModel: jest.Mock;
-  const onClose = jest.fn();
+  let setColumnVisibilityModel: Mock;
+  const onClose = vi.fn();
 
   beforeEach(() => {
     columnVisibilityModel = {
@@ -32,7 +35,7 @@ describe("Accessibility", () => {
       age: true,
       email: true,
     };
-    setColumnVisibilityModel = jest.fn((model) => {
+    setColumnVisibilityModel = vi.fn((model) => {
       columnVisibilityModel = model;
     });
     onClose.mockClear();
@@ -57,8 +60,8 @@ describe("Accessibility", () => {
 
 describe("ColumnVisibilityPopper", () => {
   let columnVisibilityModel: { [key: string]: boolean };
-  let setColumnVisibilityModel: jest.Mock;
-  const onClose = jest.fn();
+  let setColumnVisibilityModel: Mock;
+  const onClose = vi.fn();
 
   beforeEach(() => {
     columnVisibilityModel = {
@@ -66,7 +69,7 @@ describe("ColumnVisibilityPopper", () => {
       age: true,
       email: true,
     };
-    setColumnVisibilityModel = jest.fn((model) => {
+    setColumnVisibilityModel = vi.fn((model) => {
       columnVisibilityModel = model;
     });
     onClose.mockClear();

@@ -1,13 +1,15 @@
-import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { useMemo } from "react";
-import { ValidationStatus } from "./ValidationStatus";
+import { axe } from "vitest-axe";
+
+import { render, waitFor } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
+
+import { ValidationStatus } from "./ValidationStatus";
 
 const BaseSubmission: Omit<
   Submission,
@@ -66,7 +68,7 @@ const TestParent: React.FC<TestParentProps> = ({ submission, children }) => {
         submissionStats: {
           stats: [],
         },
-        batchStatusList: null,
+        getSubmissionAttributes: null,
       },
     }),
     [submission]
@@ -114,7 +116,7 @@ describe("Accessibility", () => {
 // NOTE: We're testing component behavior here, not requirement-based behavior
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not crash if the submission is null", async () => {
@@ -182,7 +184,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip appear on hover", async () => {

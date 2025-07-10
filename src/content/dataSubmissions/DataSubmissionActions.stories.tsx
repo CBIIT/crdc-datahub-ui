@@ -1,17 +1,19 @@
-import { ComponentPropsWithoutRef } from "react";
 import type { Decorator, Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+import { ComponentPropsWithoutRef } from "react";
+
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,
 } from "../../components/Contexts/AuthContext";
-import DataSubmissionActions from "./DataSubmissionActions";
-import { Roles } from "../../config/AuthRoles";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../../components/Contexts/SubmissionContext";
+import { Roles } from "../../config/AuthRoles";
+
+import DataSubmissionActions from "./DataSubmissionActions";
 
 const baseSubmission: Submission = {
   _id: "submission-1",
@@ -57,7 +59,7 @@ const baseSubmission: Submission = {
 
 const baseSubmissionCtx: SubmissionCtxState = {
   status: SubmissionCtxStatus.LOADING,
-  data: { getSubmission: baseSubmission, batchStatusList: null, submissionStats: null },
+  data: { getSubmission: baseSubmission, getSubmissionAttributes: null, submissionStats: null },
   error: null,
   startPolling: fn(),
   stopPolling: fn(),
@@ -104,8 +106,8 @@ type ContextArgs = {
   dataType: SubmissionDataType;
   intention: SubmissionIntention;
   dataFileSize: number;
-  submissionQCResults: ValidationResult<Pick<QCResult, "errors">> | null;
-  batchStatusList: { batches: Pick<Batch, "_id" | "status">[] } | null;
+  hasOrphanError: boolean;
+  isBatchUploading: boolean;
 };
 
 type ComponentProps = ComponentPropsWithoutRef<typeof DataSubmissionActions>;
@@ -122,8 +124,8 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
     dataType,
     intention,
     dataFileSize,
-    submissionQCResults,
-    batchStatusList,
+    hasOrphanError = false,
+    isBatchUploading = false,
   } = context.args;
 
   return (
@@ -157,10 +159,12 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
                 size: dataFileSize,
               },
             },
-            batchStatusList,
-          },
-          qcData: {
-            submissionQCResults,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError,
+                isBatchUploading,
+              },
+            },
           },
         }}
       >
@@ -233,16 +237,16 @@ const meta = {
         type: "number",
       },
     },
-    submissionQCResults: {
-      name: "submissionQCResults",
+    hasOrphanError: {
+      name: "hasOrphanError",
       control: {
-        type: "text",
+        type: "boolean",
       },
     },
-    batchStatusList: {
-      name: "batchStatusList",
+    isBatchUploading: {
+      name: "isBatchUploading",
       control: {
-        type: "text",
+        type: "boolean",
       },
     },
   },
@@ -255,8 +259,8 @@ const meta = {
     dataType: "Metadata and Data Files",
     intention: "New/Update",
     dataFileSize: 1000,
-    submissionQCResults: null,
-    batchStatusList: null,
+    hasOrphanError: false,
+    isBatchUploading: false,
     onAction: fn(),
   },
   tags: ["autodocs"],
@@ -301,12 +305,7 @@ export const MetadataAndDataFileShouldNotHaveNewStatus: Story = {
 export const SubmissionShouldNotHaveOrphanedFiles: Story = {
   name: "Submission should not have orphaned files",
   args: {
-    submissionQCResults: {
-      total: 1,
-      results: [
-        { errors: [{ title: "Orphaned file found", code: "F008" as const, description: "" }] },
-      ],
-    },
+    hasOrphanError: true,
   },
 };
 
@@ -317,7 +316,7 @@ export const ValidationShouldNotCurrentlyBeRunning: Story = {
 
 export const BatchesShouldNotBeUploading: Story = {
   name: "No Batches should have 'Uploading' status",
-  args: { batchStatusList: { batches: [{ _id: "batch-1", status: "Uploading" as BatchStatus }] } },
+  args: { isBatchUploading: true },
 };
 
 export const ThereShouldBeNoValidationErrorsForMetadataOrDataFiles: Story = {

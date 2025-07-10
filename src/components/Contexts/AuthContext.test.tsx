@@ -1,9 +1,11 @@
-import React, { FC } from "react";
-import { GraphQLError } from "graphql";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { AuthProvider, Status as AuthStatus, useAuthContext } from "./AuthContext";
+import { GraphQLError } from "graphql";
+import React, { FC } from "react";
+
 import { query as GET_MY_USER } from "../../graphql/getMyUser";
+import { render, waitFor } from "../../test-utils";
+
+import { AuthProvider, Status as AuthStatus, useAuthContext } from "./AuthContext";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -39,11 +41,11 @@ const TestParent: FC<Props> = ({ mocks, children }: Props) => (
 
 describe("AuthContext > useAuthContext Tests", () => {
   it("should throw an exception when used outside of a AuthProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "AuthContext cannot be used outside of the AuthProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 
@@ -53,7 +55,7 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should render without crashing", () => {
-    render(<TestParent />);
+    expect(() => render(<TestParent />)).not.toThrow();
   });
 
   it("should restore the user from localStorage cache", async () => {

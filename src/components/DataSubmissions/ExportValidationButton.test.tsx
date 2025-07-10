@@ -1,11 +1,8 @@
-import React, { FC } from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { axe } from "jest-axe";
-
-import { ExportValidationButton } from "./ExportValidationButton";
+import React, { FC } from "react";
+import { axe } from "vitest-axe";
 
 import {
   SUBMISSION_QC_RESULTS,
@@ -13,11 +10,14 @@ import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   AggregatedSubmissionQCResultsResp,
 } from "../../graphql";
+import { render, fireEvent, waitFor } from "../../test-utils";
 
-const mockDownloadBlob = jest.fn();
+import { ExportValidationButton } from "./ExportValidationButton";
 
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args: unknown[]) => mockDownloadBlob(...args),
 }));
 
@@ -93,7 +93,7 @@ const baseAggregatedQCResult: AggregatedQCResult = {
 
 describe("ExportValidationButton (Expanded View) tests", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not have accessibility violations", async () => {
@@ -187,7 +187,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
   ])(
     "should safely create the CSV filename using submission name and export date",
     async ({ original, expected }) => {
-      jest.useFakeTimers().setSystemTime(new Date("2021-01-19T14:54:01Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2021-01-19T14:54:01Z"));
 
       const mocks: MockedResponse<SubmissionQCResultsResp>[] = [
         {
@@ -226,7 +226,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
       ];
 
       const fields = {
-        ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
+        ID: vi.fn().mockImplementation((result: QCResult) => result.submissionID),
       };
 
       const { getByTestId } = render(
@@ -253,8 +253,8 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
     }
   );
 
@@ -362,10 +362,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
     ];
 
     const fields = {
-      DisplayID: jest.fn().mockImplementation((result: QCResult) => result.displayID),
-      ValidationType: jest.fn().mockImplementation((result: QCResult) => result.validationType),
+      DisplayID: vi.fn().mockImplementation((result: QCResult) => result.displayID),
+      ValidationType: vi.fn().mockImplementation((result: QCResult) => result.validationType),
       // Testing the fallback of falsy values
-      NullValueField: jest.fn().mockImplementation(() => null),
+      NullValueField: vi.fn().mockImplementation(() => null),
     };
 
     const { getByTestId } = render(
@@ -516,7 +516,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
 describe("ExportValidationButton (Aggregated View) tests", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should execute the AGGREGATED_SUBMISSION_QC_RESULTS query onClick if isAggregated is true", async () => {
@@ -616,7 +616,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
   });
 
   it("should create a valid CSV filename and call downloadBlob for aggregated results", async () => {
-    jest.useFakeTimers().setSystemTime(new Date("2025-01-01T08:30:00Z"));
+    vi.useFakeTimers().setSystemTime(new Date("2025-01-01T08:30:00Z"));
     const aggregatorID = "aggregated-filename-test";
 
     const aggregatorMocks: MockedResponse<AggregatedSubmissionQCResultsResp>[] = [

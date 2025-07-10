@@ -1,10 +1,12 @@
+import { MockedProvider } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
-import HomePage from "./index";
+import { axe } from "vitest-axe";
+
 import { ContextState, Context, Status } from "../components/Contexts/AuthContext";
+import { render } from "../test-utils";
+
+import HomePage from "./index";
 
 const Parent: FC<{ children: React.ReactElement; loggedIn: boolean }> = ({
   children,

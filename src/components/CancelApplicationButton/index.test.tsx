@@ -1,9 +1,11 @@
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
-import { useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -14,7 +16,7 @@ import {
   Status as FormStatus,
   ContextState as FormContextState,
 } from "../Contexts/FormContext";
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
+
 import Button from "./index";
 
 const baseAuthCtx: AuthContextState = {
@@ -149,7 +151,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", async () => {
@@ -346,7 +348,7 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const onCancelMock = jest.fn();
+    const onCancelMock = vi.fn();
 
     const { getByRole, getByTestId } = render(<Button onCancel={onCancelMock} />, {
       wrapper: ({ children }) => (
@@ -386,7 +388,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should not call the onCancel callback when the cancel operation fails", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -403,7 +405,7 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const onCancelMock = jest.fn();
+    const onCancelMock = vi.fn();
 
     const { getByRole, getByTestId } = render(<Button onCancel={onCancelMock} />, {
       wrapper: ({ children }) => (
@@ -447,7 +449,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should be labeled 'Cancel Request' when the application is in a cancellable state", async () => {
@@ -649,7 +651,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should require a reason for canceling", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -710,7 +712,7 @@ describe("Implementation Requirements", () => {
   it.each<{ scenario: string; status: ApplicationStatus }>([{ scenario: "Cancel", status: "New" }])(
     "should limit the reason field to 500 characters ($scenario Action)",
     async ({ status }) => {
-      const mockMatcher = jest.fn().mockImplementation(() => true);
+      const mockMatcher = vi.fn().mockImplementation(() => true);
       const mocks: MockedResponse[] = [
         {
           request: {

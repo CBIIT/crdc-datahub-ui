@@ -1,6 +1,8 @@
-import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import {
   APPROVE_APP,
   GET_APP,
@@ -21,8 +23,8 @@ import {
   ApproveAppInput,
   SaveAppInput,
 } from "../../graphql";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import { Logger } from "../../utils";
+import { FormInput as ApproveFormInput } from "../Questionnaire/ApproveFormDialog";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -33,7 +35,7 @@ export type ContextState = {
   data: Application;
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
-  approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
+  approveForm?: (data: ApproveFormInput, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
   setData?: (Application) => Promise<SetDataReturnType>;
@@ -154,7 +156,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     const { data: d, errors } = await saveApp({
       variables: {
         application: {
-          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+          _id: newState?.data?._id === "new" ? undefined : newState?.data?._id,
           studyName: data?.study?.name,
           studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
           questionnaireData: JSON.stringify(data),
@@ -169,7 +171,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !d?.saveApplication?.["_id"]) {
+    if (errors || !d?.saveApplication?._id) {
       const errorMessage = errors?.[0]?.message || "An unknown GraphQL Error occurred";
 
       Logger.error("Unable to save application", errors);
@@ -185,10 +187,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       };
     }
 
-    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    if (d?.saveApplication?._id && data["_id"] === "new") {
       newState.data = {
         ...newState.data,
-        _id: d.saveApplication["_id"],
+        _id: d.saveApplication._id,
         applicant: d?.saveApplication?.applicant,
       };
     }
@@ -205,7 +208,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState({ ...newState, status: Status.LOADED, error: null });
     return {
       status: "success",
-      id: d.saveApplication["_id"],
+      id: d.saveApplication._id,
     };
   };
 
@@ -214,7 +217,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await submitApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
       },
     });
 
@@ -224,12 +227,12 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.submitApplication?.["_id"] || false;
+    return res?.submitApplication?._id || false;
   };
 
   // Here we approve the form to the API with a comment and wholeProgram
   const approveForm = async (
-    comment: string,
+    data: ApproveFormInput,
     wholeProgram: boolean
   ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
@@ -242,14 +245,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await approveApp({
       variables: {
-        id: state?.data?.["_id"],
-        comment,
+        id: state?.data?._id,
+        comment: data?.reviewComment,
         wholeProgram,
         institutions,
+        pendingModelChange: data?.pendingModelChange,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.approveApplication?.["_id"]) {
+    if (errors || !res?.approveApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return {
         status: "failed",
@@ -260,7 +264,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
     return {
       status: "success",
-      id: res?.approveApplication?.["_id"],
+      id: res?.approveApplication?._id,
     };
   };
 
@@ -270,18 +274,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await inquireApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
         comment,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.inquireApplication?.["_id"]) {
+    if (errors || !res?.inquireApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.inquireApplication?.["_id"];
+    return res?.inquireApplication?._id;
   };
 
   // Here we reject the form to the API with a comment
@@ -290,18 +294,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await rejectApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
         comment,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.rejectApplication?.["_id"]) {
+    if (errors || !res?.rejectApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.rejectApplication?.["_id"];
+    return res?.rejectApplication?._id;
   };
 
   // Reopen a form when it has been rejected and they submit an updated form
@@ -310,11 +314,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await reopenApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.reopenApplication?.["_id"]) {
+    if (errors || !res?.reopenApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -327,7 +331,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
       status: Status.LOADED,
     }));
-    return res?.reopenApplication?.["_id"];
+    return res?.reopenApplication?._id;
   };
 
   useEffect(() => {

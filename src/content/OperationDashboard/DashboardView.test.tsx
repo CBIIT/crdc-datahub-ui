@@ -1,12 +1,14 @@
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
-import { MemoryRouter } from "react-router-dom";
 import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthContextStatus,
 } from "../../components/Contexts/AuthContext";
+import { render } from "../../test-utils";
+
 import DashboardView from "./DashboardView";
 
 const baseUser: Omit<User, "role" | "permissions"> = {

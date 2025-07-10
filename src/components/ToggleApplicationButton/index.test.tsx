@@ -1,14 +1,9 @@
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
-import { useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -17,6 +12,13 @@ import {
   RestoreAppInput,
   RestoreAppResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
+
 import Button from "./index";
 
 const baseAuthCtx: AuthContextState = {
@@ -194,7 +196,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", async () => {
@@ -387,7 +389,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onCancel callback when the cancel operation is successful", async () => {
-    const onCancel = jest.fn();
+    const onCancel = vi.fn();
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -626,7 +628,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onCancel callback when the restore operation is successful", async () => {
-    const onCancel = jest.fn();
+    const onCancel = vi.fn();
     const mocks: MockedResponse<RestoreAppResp, RestoreAppInput>[] = [
       {
         request: {
@@ -688,7 +690,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip present on the Cancel button", async () => {
@@ -1022,7 +1024,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should require a reason for canceling", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -1088,7 +1090,7 @@ describe("Implementation Requirements", () => {
     { scenario: "Cancel", status: "New" },
     { scenario: "Restore", status: "Canceled" },
   ])("should limit the reason field to 500 characters ($scenario Action)", async ({ status }) => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse[] = [
       {
         request: {
@@ -1110,7 +1112,7 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, findByRole } = render(
+    const { rerender, getByRole, getByTestId, findByRole } = render(
       <Button
         application={{
           ...baseApp,
@@ -1142,6 +1144,17 @@ describe("Implementation Requirements", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
 
     userEvent.type(input, "X".repeat(550));
+
+    // NOTE: Force rerender to ensure the input is re-evaluated for maxLength
+    rerender(
+      <Button
+        application={{
+          ...baseApp,
+          status,
+          applicant: { ...baseApp.applicant, applicantID: "owner" },
+        }}
+      />
+    );
 
     // NOTE: the button is still enabled because of the maxLength on the input field
     await waitFor(() => {

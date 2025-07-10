@@ -1,24 +1,26 @@
-import { FC, useMemo } from "react";
-import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
-import ExportRequestButton from "./index";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { render, waitFor } from "../../test-utils";
+import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import {
   ContextState as FormContextState,
   Context as FormContext,
   Status as FormStatus,
 } from "../Contexts/FormContext";
-import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 
-const mockGenerate = jest.fn();
-jest.mock("./pdf/Generate", () => ({
+import ExportRequestButton from "./index";
+
+const mockGenerate = vi.fn();
+vi.mock("./pdf/Generate", () => ({
   GenerateDocument: (...args) => mockGenerate(...args),
 }));
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -88,7 +90,7 @@ const TestParent: FC<TestParentProps> = ({
 
 describe("Accessibility", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any violations", async () => {
@@ -124,11 +126,11 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   it("should render without crashing", () => {
@@ -138,7 +140,6 @@ describe("Basic Functionality", () => {
   });
 
   it("should disable the button when building the document", async () => {
-    jest.useFakeTimers();
     mockGenerate.mockImplementation(
       () =>
         new Promise((res) => {
@@ -178,7 +179,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should display an error message on failed export", async () => {
-    jest.spyOn(console, "error").mockImplementation(() => null);
+    vi.spyOn(console, "error").mockImplementation(() => null);
 
     mockGenerate.mockRejectedValue(new Error("mock error"));
 
@@ -214,7 +215,8 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    process.env.TZ = "UTC";
   });
 
   it("should have a tooltip on hover", async () => {
@@ -253,6 +255,13 @@ describe("Implementation Requirements", () => {
   );
 
   it("should format the PDF filename as 'CRDCSubmissionPortal-Request-{studyAbbr}-{submittedDate}.pdf'", async () => {
+    mockGenerate.mockImplementation(
+      () =>
+        new Promise((res) => {
+          res("mock-data");
+        })
+    );
+
     const mockFormObject: Partial<Application> = {
       status: "Submitted",
       updatedAt: "2024-09-30T09:10:00.000Z",
@@ -279,7 +288,7 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
       expect(mockDownloadBlob).toHaveBeenCalledWith(
-        undefined,
+        "mock-data",
         "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
         "application/pdf"
       );
@@ -289,6 +298,13 @@ describe("Implementation Requirements", () => {
   it.each(["", null, undefined])(
     "should fallback to the study name if the abbreviation is not provided",
     async (abbreviation) => {
+      mockGenerate.mockImplementation(
+        () =>
+          new Promise((res) => {
+            res("mock-data");
+          })
+      );
+
       const mockFormObject: Partial<Application> = {
         status: "Submitted",
         updatedAt: "2024-09-30T09:10:00.000Z",
@@ -315,7 +331,7 @@ describe("Implementation Requirements", () => {
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
         expect(mockDownloadBlob).toHaveBeenCalledWith(
-          undefined,
+          "mock-data",
           "CRDCSubmissionPortal-Request-Test Study-2024-09-30.pdf",
           "application/pdf"
         );
@@ -324,6 +340,13 @@ describe("Implementation Requirements", () => {
   );
 
   it("should use the updatedAt date if the status is 'In Progress'", async () => {
+    mockGenerate.mockImplementation(
+      () =>
+        new Promise((res) => {
+          res("mock-data");
+        })
+    );
+
     const mockFormObject: Partial<Application> = {
       status: "In Progress",
       updatedAt: "2024-09-30T09:10:00.000Z",
@@ -350,7 +373,7 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
       expect(mockDownloadBlob).toHaveBeenCalledWith(
-        undefined,
+        "mock-data",
         "CRDCSubmissionPortal-Request-TEST-2024-09-30.pdf",
         "application/pdf"
       );

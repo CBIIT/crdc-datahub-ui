@@ -1,18 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, styled, Tab, TabProps, Tabs, TabScrollButton } from "@mui/material";
 import { useLazyQuery } from "@apollo/client";
-import { useSnackbar } from "notistack";
+import { Box, styled, Tab, TabProps, Tabs, TabScrollButton } from "@mui/material";
 import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import ChevronLeft from "../../assets/icons/chevron_left.svg?react";
+import ChevronRight from "../../assets/icons/chevron_right.svg?react";
 import {
   GET_RELATED_NODES,
   GetRelatedNodesInput,
   GetRelatedNodesResp,
   GetRelatedNodesRespPropsOnly,
 } from "../../graphql";
-import GenericTable, { Column } from "../GenericTable";
 import { capitalizeFirstLetter, coerceToString, moveToFrontOfArray, safeParse } from "../../utils";
-import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
-import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
+import GenericTable, { Column } from "../GenericTable";
 
 const StyledTabs = styled(Tabs)(() => ({
   position: "relative",

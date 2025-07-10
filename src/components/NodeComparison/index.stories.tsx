@@ -1,11 +1,13 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
-import NodeComparison from "./index";
+import type { Meta, StoryObj } from "@storybook/react";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
   RetrieveReleasedDataResp,
 } from "../../graphql";
+
+import NodeComparison from "./index";
 
 const nominalMock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
   request: {

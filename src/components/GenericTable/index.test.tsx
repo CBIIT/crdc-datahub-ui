@@ -1,11 +1,13 @@
-import React, { FC } from "react";
-import { render, fireEvent, within, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import React, { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import GenericTable, { Column, Props } from ".";
+import { axe } from "vitest-axe";
+
+import { render, fireEvent, within, waitFor } from "../../test-utils";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import GenericTable, { Column, Props } from ".";
 
 const mockData = [
   { _id: "1", name: "Alice", role: "Developer" },
@@ -38,10 +40,10 @@ const defaultProps: Props<(typeof mockData)[0]> = {
   position: "bottom",
   defaultRowsPerPage: 1,
   defaultOrder: "asc",
-  onFetchData: jest.fn(),
-  onOrderChange: jest.fn(),
-  onOrderByChange: jest.fn(),
-  onPerPageChange: jest.fn(),
+  onFetchData: vi.fn(),
+  onOrderChange: vi.fn(),
+  onOrderByChange: vi.fn(),
+  onPerPageChange: vi.fn(),
 };
 
 const TestParent: FC<{ mocks?: MockedResponse[]; children: React.ReactNode }> = ({
@@ -235,7 +237,9 @@ describe("GenericTable", () => {
         tableProps: { sx: { backgroundColor: "red" } },
       });
 
-      expect(container.querySelector("table")).toHaveStyle("background-color: red");
+      expect(container.querySelector("table")).toHaveStyle({
+        "background-color": "rgb(255, 0, 0)",
+      });
     });
 
     it("applies borderBottom style conditionally based on row position", () => {
@@ -252,6 +256,10 @@ describe("GenericTable", () => {
   });
 
   describe("Early Return Conditions", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
     it("does not invoke data fetching when onFetchData is not provided", () => {
       const { getByText } = setup({
         ...defaultProps,

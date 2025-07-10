@@ -8,12 +8,13 @@ import {
   styled,
 } from "@mui/material";
 import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
-import Tooltip from "../Tooltip";
+
 import { updateInputValidity } from "../../utils";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
-import StyledHelperText from "../StyledFormComponents/StyledHelperText";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledAutocomplete from "../StyledFormComponents/StyledAutocomplete";
+import StyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import Tooltip from "../Tooltip";
 
 const StyledFormControl = styled(FormControl)({
   height: "100%",

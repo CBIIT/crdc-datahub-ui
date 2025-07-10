@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
-import { within } from "@storybook/testing-library";
-import Dialog from "./index";
+import type { Meta, StoryObj } from "@storybook/react";
+import { userEvent, within } from "@storybook/test";
+
+import { Roles } from "../../config/AuthRoles";
 import {
   LIST_APPROVED_STUDIES,
   LIST_INSTITUTIONS,
@@ -11,7 +12,8 @@ import {
   ListInstitutionsResp,
 } from "../../graphql";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
-import { Roles } from "../../config/AuthRoles";
+
+import Dialog from "./index";
 
 const meta: Meta<typeof Dialog> = {
   title: "Dialogs / Access Request",
@@ -48,6 +50,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             programs: [],
             useProgramPC: false,
             createdAt: "",
+            pendingModelChange: false,
           },
           {
             _id: "study-2",
@@ -63,6 +66,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             programs: [],
             useProgramPC: false,
             createdAt: "",
+            pendingModelChange: false,
           },
         ],
       },
@@ -137,6 +141,42 @@ export const Default: Story = {
     canvas.getByText("Request Access").click();
 
     await canvas.findByText("Request Access");
+  },
+  decorators: [
+    (Story, context) => (
+      <AuthContext.Provider
+        value={
+          {
+            isLoggedIn: true,
+            user: {
+              firstName: "Example",
+              role: context.args.role,
+              permissions: context.args.permissions,
+            } as User,
+          } as AuthCtxState
+        }
+      >
+        <Story />
+      </AuthContext.Provider>
+    ),
+  ],
+};
+
+export const Hovered: Story = {
+  args: {
+    role: "Submitter",
+    permissions: ["access:request"],
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [studiesMock, institutionsMock],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByTestId("request-access-button");
+    userEvent.hover(button);
+    await canvas.findByText("Request role change, study access, or institution update.");
   },
   decorators: [
     (Story, context) => (

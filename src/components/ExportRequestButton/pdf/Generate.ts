@@ -1,9 +1,9 @@
 import { jsPDF as JsPDF } from "jspdf";
-import { loadFont } from "./utils";
-import fonts from "./Fonts";
-import { FormatDate, formatFullStudyName } from "../../../utils";
-import env from "../../../env";
+
 import Logo from "../../../assets/header/Logo.jpg";
+import env from "../../../env";
+import { FormatDate, formatFullStudyName } from "../../../utils";
+
 import {
   COLOR_HR,
   COLOR_FIELD_BASE,
@@ -12,6 +12,8 @@ import {
   COLOR_HYPERLINK,
   COLOR_DOC_FOOTER,
 } from "./Colors";
+import fonts from "./Fonts";
+import { loadFont } from "./utils";
 
 /**
  * Describes the minimal padding from the edges of the document.
@@ -122,7 +124,7 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   // Click to view (overlapping link)
   doc.setTextColor(...COLOR_HYPERLINK);
   doc.textWithLink("here", CONTENT_MARGIN + 22, y, {
-    url: `${env.REACT_APP_NIH_REDIRECT_URL}/submission-request/${request._id}`,
+    url: `${env.VITE_NIH_REDIRECT_URL}/submission-request/${request._id}`,
     align: "left",
   });
 

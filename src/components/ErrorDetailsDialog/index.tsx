@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
 import React from "react";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import { FormatDate } from "../../utils";
 import NodeComparison, { NodeComparisonProps } from "../NodeComparison";
 

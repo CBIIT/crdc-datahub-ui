@@ -1,31 +1,34 @@
-import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { useMutation } from "@apollo/client";
-import { Box, Card, CardActions, CardContent, Container, Tabs, styled } from "@mui/material";
+import { Box, Card, CardActions, CardContent, Container, Stack, Tabs, styled } from "@mui/material";
 import { useSnackbar, VariantType } from "notistack";
+import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+
 import bannerPng from "../../assets/banner/submission_banner.png";
 import summaryBannerPng from "../../assets/banner/summary_banner.png";
-import LinkTab from "../../components/DataSubmissions/LinkTab";
-import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
-import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
-import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
-import DataSubmissionActions from "./DataSubmissionActions";
-import QualityControl from "./QualityControl";
-import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
-import ValidationControls from "../../components/DataSubmissions/ValidationControls";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import usePageTitle from "../../hooks/usePageTitle";
-import BackButton from "../../components/DataSubmissions/BackButton";
-import SubmittedData from "./SubmittedData";
-import { UserGuide } from "../../components/DataSubmissions/UserGuide";
-import { DataUpload } from "../../components/DataSubmissions/DataUpload";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
-import DataActivity, { DataActivityRef } from "./DataActivity";
-import CrossValidation from "./CrossValidation";
+import BackButton from "../../components/DataSubmissions/BackButton";
 import CopyAdornment from "../../components/DataSubmissions/CopyAdornment";
-import { Logger } from "../../utils";
+import DataSubmissionSummary from "../../components/DataSubmissions/DataSubmissionSummary";
+import { DataUpload } from "../../components/DataSubmissions/DataUpload";
+import LinkTab from "../../components/DataSubmissions/LinkTab";
+import MetadataUpload from "../../components/DataSubmissions/MetadataUpload";
+import { UserGuide } from "../../components/DataSubmissions/UserGuide";
+import ValidationControls from "../../components/DataSubmissions/ValidationControls";
+import ValidationStatistics from "../../components/DataSubmissions/ValidationStatistics";
+import DbGaPSheetExport from "../../components/DbGaPSheetExport";
 import { hasPermission } from "../../config/AuthPermissions";
+import { SUBMISSION_ACTION, SubmissionActionResp } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
+import { Logger } from "../../utils";
+
+import CrossValidation from "./CrossValidation";
+import DataActivity, { DataActivityRef } from "./DataActivity";
+import DataSubmissionActions from "./DataSubmissionActions";
+import QualityControl from "./QualityControl";
+import SubmittedData from "./SubmittedData";
 
 const StyledBanner = styled("div")(({ bannerSrc }: { bannerSrc: string }) => ({
   background: `url(${bannerSrc})`,
@@ -95,17 +98,8 @@ const StyledCardActions = styled(CardActions)(() => ({
   },
 }));
 
-const StyledTabs = styled(Tabs)(() => ({
+const StyledTabStack = styled(Stack)({
   position: "relative",
-  display: "flex",
-  alignItems: "flex-end",
-  zIndex: 3,
-  "& .MuiTabs-flexContainer": {
-    justifyContent: "center",
-  },
-  "& .MuiTabs-indicator": {
-    display: "none !important",
-  },
   "&::before": {
     content: '""',
     position: "absolute",
@@ -115,7 +109,26 @@ const StyledTabs = styled(Tabs)(() => ({
     borderBottom: "1.25px solid #6CACDA",
     zIndex: 1,
   },
-}));
+});
+
+const StyledTabs = styled(Tabs)({
+  marginLeft: "auto",
+  marginRight: "auto",
+  display: "flex",
+  alignItems: "flex-end",
+  zIndex: 3,
+  "& .MuiTabs-flexContainer": {
+    justifyContent: "center",
+  },
+  "& .MuiTabs-indicator": {
+    display: "none !important",
+  },
+});
+
+const StyledSheetWrapper = styled("div")({
+  position: "absolute",
+  right: "40px",
+});
 
 const StyledWrapper = styled("div")({
   background: "#FBFDFF",
@@ -158,7 +171,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
   const { user } = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
-  const { data, error, refetch: getSubmission, qcError } = useSubmissionContext();
+  const { data, error, refetch: getSubmission } = useSubmissionContext();
 
   const dataSubmissionListPageUrl = `/data-submissions${
     lastSearchParams?.["/data-submissions"] ?? ""
@@ -230,15 +243,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
       navigate(dataSubmissionListPageUrl, {
         state: { error: "Oops! An error occurred while retrieving that Data Submission." },
       });
-    } else if (qcError) {
-      navigate(dataSubmissionListPageUrl, {
-        state: {
-          error:
-            "There was an issue while retrieving the validation results for that Data Submission.",
-        },
-      });
     }
-  }, [error, qcError]);
+  }, [error]);
 
   useEffect(() => {
     if (!isValidTab) {
@@ -254,10 +260,7 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
         <StyledCard>
           <StyledCardContent>
             <DataSubmissionSummary dataSubmission={data?.getSubmission} />
-            <ValidationStatistics
-              dataSubmission={data?.getSubmission}
-              statistics={data?.submissionStats?.stats}
-            />
+            <ValidationStatistics />
             <StyledFlowContainer>
               <UserGuide />
               <MetadataUpload
@@ -268,34 +271,43 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               <DataUpload submission={data?.getSubmission} />
               <ValidationControls />
             </StyledFlowContainer>
-            <StyledTabs value={isValidTab ? tab : URLTabs.UPLOAD_ACTIVITY}>
-              <LinkTab
-                value={URLTabs.UPLOAD_ACTIVITY}
-                label="Upload Activities"
-                to={`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`}
-                selected={tab === URLTabs.UPLOAD_ACTIVITY}
-              />
-              <LinkTab
-                value={URLTabs.VALIDATION_RESULTS}
-                label="Validation Results"
-                to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
-                selected={tab === URLTabs.VALIDATION_RESULTS}
-              />
-              {crossValidationVisible && (
+            <StyledTabStack direction="row" alignItems="center">
+              <StyledTabs value={isValidTab ? tab : URLTabs.UPLOAD_ACTIVITY}>
                 <LinkTab
-                  value={URLTabs.CROSS_VALIDATION_RESULTS}
-                  label="Cross Validation Results"
-                  to={`/data-submission/${submissionId}/${URLTabs.CROSS_VALIDATION_RESULTS}`}
-                  selected={tab === URLTabs.CROSS_VALIDATION_RESULTS}
+                  value={URLTabs.UPLOAD_ACTIVITY}
+                  label="Upload Activities"
+                  to={`/data-submission/${submissionId}/${URLTabs.UPLOAD_ACTIVITY}`}
+                  selected={tab === URLTabs.UPLOAD_ACTIVITY}
+                  preventScrollReset
                 />
-              )}
-              <LinkTab
-                value={URLTabs.SUBMITTED_DATA}
-                label="Data View"
-                to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
-                selected={tab === URLTabs.SUBMITTED_DATA}
-              />
-            </StyledTabs>
+                <LinkTab
+                  value={URLTabs.VALIDATION_RESULTS}
+                  label="Validation Results"
+                  to={`/data-submission/${submissionId}/${URLTabs.VALIDATION_RESULTS}`}
+                  selected={tab === URLTabs.VALIDATION_RESULTS}
+                  preventScrollReset
+                />
+                {crossValidationVisible && (
+                  <LinkTab
+                    value={URLTabs.CROSS_VALIDATION_RESULTS}
+                    label="Cross Validation Results"
+                    to={`/data-submission/${submissionId}/${URLTabs.CROSS_VALIDATION_RESULTS}`}
+                    selected={tab === URLTabs.CROSS_VALIDATION_RESULTS}
+                    preventScrollReset
+                  />
+                )}
+                <LinkTab
+                  value={URLTabs.SUBMITTED_DATA}
+                  label="Data View"
+                  to={`/data-submission/${submissionId}/${URLTabs.SUBMITTED_DATA}`}
+                  selected={tab === URLTabs.SUBMITTED_DATA}
+                  preventScrollReset
+                />
+              </StyledTabs>
+              <StyledSheetWrapper>
+                <DbGaPSheetExport disabled={data?.getSubmission?.status === "New"} />
+              </StyledSheetWrapper>
+            </StyledTabStack>
 
             <StyledMainContentArea>
               {/* Primary Tab Content */}
@@ -306,11 +318,8 @@ const DataSubmission: FC<Props> = ({ submissionId, tab = URLTabs.UPLOAD_ACTIVITY
               )}
               {tab === URLTabs.SUBMITTED_DATA && <SubmittedData />}
 
-              {/* Return to Data Submission List Button */}
-              <BackButton
-                navigateTo={dataSubmissionListPageUrl}
-                text="Back to Data Submissions List"
-              />
+              {/* Return to Data Submissions Button */}
+              <BackButton navigateTo={dataSubmissionListPageUrl} text="Back to Data Submissions" />
             </StyledMainContentArea>
           </StyledCardContent>
           <StyledCardActions>

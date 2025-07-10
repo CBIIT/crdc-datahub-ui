@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
   Dialog,
@@ -9,15 +9,16 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { useForm } from "react-hook-form";
 import { isEqual } from "lodash";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
+import React, { FC, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
-import Tooltip from "../Tooltip";
 import StyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import Tooltip from "../Tooltip";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

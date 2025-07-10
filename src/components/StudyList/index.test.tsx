@@ -1,7 +1,9 @@
-import React from "react";
-import { render, within } from "@testing-library/react";
-import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
+import React from "react";
+import { axe } from "vitest-axe";
+
+import { render, within } from "../../test-utils";
+
 import StudyList from "./index";
 
 describe("Accessibility", () => {

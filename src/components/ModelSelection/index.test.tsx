@@ -1,9 +1,16 @@
-import { FC, ReactNode, useMemo } from "react";
 import { MockedResponse, MockedProvider } from "@apollo/client/testing";
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, ReactNode, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import {
+  GetSubmissionResp,
+  UPDATE_MODEL_VERSION,
+  UpdateModelVersionInput,
+  UpdateModelVersionResp,
+} from "../../graphql";
+import { render, waitFor } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,
@@ -14,17 +21,12 @@ import {
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
-import {
-  GetSubmissionResp,
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
-} from "../../graphql";
+
 import ModelSelection from "./index";
 
-const mockListAvailableModelVersions = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockListAvailableModelVersions = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   listAvailableModelVersions: async (...args) => mockListAvailableModelVersions(...args),
 }));
 
@@ -86,7 +88,7 @@ const MockParent: FC<{
   submission?: Submission;
   updateQuery?: SubmissionCtxState["updateQuery"];
   children: ReactNode;
-}> = ({ mocks, submission, user, updateQuery = jest.fn(), children }) => {
+}> = ({ mocks, submission, user, updateQuery = vi.fn(), children }) => {
   const authCtxState = useMemo<AuthCtxState>(
     () => ({
       status: AuthStatus.LOADED,
@@ -121,7 +123,7 @@ const MockParent: FC<{
 
 describe("Accessibility", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have no violations for the button", async () => {
@@ -171,7 +173,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -339,7 +341,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip present on the button", async () => {
@@ -520,7 +522,7 @@ describe("Implementation Requirements", () => {
   it("should update the local cache state when the model version is changed", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mockUpdateQuery = jest.fn();
+    const mockUpdateQuery = vi.fn();
 
     const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
       request: {
@@ -581,11 +583,16 @@ describe("Implementation Requirements", () => {
         fileValidationStatus: "Passed",
       },
       submissionStats: null,
-      batchStatusList: null,
+      getSubmissionAttributes: {
+        submissionAttributes: {
+          hasOrphanError: false,
+          isBatchUploading: false,
+        },
+      },
     };
 
     let updateQueryResult: GetSubmissionResp | undefined;
-    const mockUpdateQuery = jest.fn((updater: (prev: GetSubmissionResp) => GetSubmissionResp) => {
+    const mockUpdateQuery = vi.fn((updater: (prev: GetSubmissionResp) => GetSubmissionResp) => {
       updateQueryResult = updater(prevState);
     });
 

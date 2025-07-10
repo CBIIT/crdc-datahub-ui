@@ -1,17 +1,13 @@
-import { memo, useCallback, useId, useMemo, useState } from "react";
-import { isEqual } from "lodash";
-import { Box, ButtonProps, IconButton, IconButtonProps, styled } from "@mui/material";
-import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
+import { Box, ButtonProps, IconButton, IconButtonProps, styled } from "@mui/material";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import { memo, useCallback, useId, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ReactComponent as RestoreIcon } from "../../assets/icons/filled_circular_back.svg";
-import { ReactComponent as DeleteIcon } from "../../assets/icons/filled_circular_delete.svg";
-import DeleteDialog from "../DeleteDialog";
-import { useAuthContext } from "../Contexts/AuthContext";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import BaseOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
-import Asterisk from "../StyledFormComponents/StyledAsterisk";
+
+import RestoreIcon from "../../assets/icons/filled_circular_back.svg?react";
+import DeleteIcon from "../../assets/icons/filled_circular_delete.svg?react";
+import { hasPermission } from "../../config/AuthPermissions";
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -21,7 +17,12 @@ import {
   RestoreAppResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
+import { useAuthContext } from "../Contexts/AuthContext";
+import DeleteDialog from "../DeleteDialog";
+import Asterisk from "../StyledFormComponents/StyledAsterisk";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import BaseOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   "& .MuiTooltip-tooltip": {

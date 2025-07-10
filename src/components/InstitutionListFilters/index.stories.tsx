@@ -1,8 +1,8 @@
-import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/testing-library";
-import { fn } from "@storybook/test";
+import { fn, userEvent, within } from "@storybook/test";
+
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
 import InstitutionListFilters from "./index";
 
 const meta: Meta<typeof InstitutionListFilters> = {

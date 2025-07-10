@@ -1,13 +1,21 @@
-import { FC, useCallback, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { Alert, Container, Button, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { isEqual } from "lodash";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
-import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
-import PageBanner from "../../components/PageBanner";
-import { extractVersion, FormatDate, Logger } from "../../utils";
+import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import CreateApplicationButton from "../../components/CreateApplicationButton";
+import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import TooltipList from "../../components/SummaryList/TooltipList";
+import ToggleApplicationButton from "../../components/ToggleApplicationButton";
+import Tooltip from "../../components/Tooltip";
+import TruncatedText from "../../components/TruncatedText";
+import { hasPermission } from "../../config/AuthPermissions";
 import {
   LIST_APPLICATIONS,
   ListApplicationsInput,
@@ -17,15 +25,10 @@ import {
   ReviewAppResp,
 } from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
-import GenericTable, { Column } from "../../components/GenericTable";
+import { extractVersion, FormatDate, Logger } from "../../utils";
+
 import QuestionnaireContext from "./Contexts/QuestionnaireContext";
-import TruncatedText from "../../components/TruncatedText";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import Tooltip from "../../components/Tooltip";
-import { hasPermission } from "../../config/AuthPermissions";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
-import ToggleApplicationButton from "../../components/ToggleApplicationButton";
-import CreateApplicationButton from "../../components/CreateApplicationButton";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
@@ -96,6 +99,7 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
 const StyledSpecialStatus = styled(Stack)({
   color: "#C94313",
   fontWeight: 600,
+  cursor: "pointer",
 });
 
 const StyledBellIcon = styled(BellIcon)({
@@ -132,7 +136,7 @@ const columns: Column<T>[] = [
 
       return (
         <Tooltip
-          title={pendingConditions?.join(" ")}
+          title={<TooltipList data={pendingConditions} />}
           placement="top"
           open={undefined}
           disableHoverListener={false}
@@ -197,10 +201,7 @@ const columns: Column<T>[] = [
             ["New", "In Progress", "Inquired"].includes(a.status)
           ) {
             return (
-              <Link
-                to={`/submission-request/${a?.["_id"]}`}
-                state={{ from: "/submission-requests" }}
-              >
+              <Link to={`/submission-request/${a?._id}`} state={{ from: "/submission-requests" }}>
                 <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
                   Resume
                 </StyledActionButton>
@@ -224,7 +225,7 @@ const columns: Column<T>[] = [
           }
 
           return (
-            <Link to={`/submission-request/${a?.["_id"]}`} state={{ from: "/submission-requests" }}>
+            <Link to={`/submission-request/${a?._id}`} state={{ from: "/submission-requests" }}>
               <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
                 View
               </StyledActionButton>
@@ -262,7 +263,7 @@ const columns: Column<T>[] = [
  * @returns {JSX.Element}
  */
 const ListingView: FC = () => {
-  usePageTitle("Submission Request List");
+  usePageTitle("Submission Requests");
 
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -328,12 +329,12 @@ const ListingView: FC = () => {
         fetchPolicy: "no-cache",
       });
       if (error || !d?.listApplications) {
-        throw new Error("Unable to retrieve Data Submission List results.");
+        throw new Error("Unable to retrieve Submission Requests results.");
       }
 
       setData(d.listApplications);
     } catch (err) {
-      Logger.error(`ListView: Unable to retrieve Data Submission List results`, err);
+      Logger.error(`ListView: Unable to retrieve Submission Requests results`, err);
       setError(true);
     } finally {
       setLoading(false);
@@ -395,7 +396,7 @@ const ListingView: FC = () => {
   return (
     <>
       <PageBanner
-        title="Submission Request List"
+        title="Submission Requests"
         subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
         padding="57px 25px 0 25px"
         body={

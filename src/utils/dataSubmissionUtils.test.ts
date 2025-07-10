@@ -1,4 +1,7 @@
+import { MockedFunction } from "vitest";
+
 import { SUBMIT_BUTTON_CONDITIONS, SubmitButtonCondition } from "../config/SubmitButtonConfig";
+
 import * as utils from "./dataSubmissionUtils";
 import { ReleaseInfo } from "./dataSubmissionUtils";
 
@@ -62,8 +65,6 @@ const baseUser: User = {
   notifications: [],
 };
 
-const baseQCResults: QCResult[] = [];
-
 describe("General Submit", () => {
   it("should disable submit without isAdminOverride when Submission status is 'New'", () => {
     const submission: Submission = {
@@ -71,8 +72,8 @@ describe("General Submit", () => {
       status: "New",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
 
@@ -88,8 +89,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -103,8 +104,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -118,8 +119,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -133,8 +134,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Error",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -148,8 +149,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Warning",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -164,8 +165,8 @@ describe("General Submit", () => {
       fileValidationStatus: null,
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -179,8 +180,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -194,8 +195,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -213,8 +214,8 @@ describe("General Submit", () => {
       },
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -230,8 +231,8 @@ describe("General Submit", () => {
       intention: "Delete",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -250,8 +251,8 @@ describe("General Submit", () => {
       },
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -266,8 +267,8 @@ describe("General Submit", () => {
       intention: "Delete",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -282,8 +283,8 @@ describe("General Submit", () => {
       intention: "Delete",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -297,8 +298,8 @@ describe("General Submit", () => {
       fileValidationStatus: null,
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -312,8 +313,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Validating",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -327,8 +328,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -342,8 +343,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Validating",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -357,8 +358,8 @@ describe("General Submit", () => {
       fileValidationStatus: "New",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -372,8 +373,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -387,8 +388,8 @@ describe("General Submit", () => {
       fileValidationStatus: "New",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -402,8 +403,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Warning",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -417,8 +418,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Passed",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -432,8 +433,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Warning",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -447,8 +448,8 @@ describe("General Submit", () => {
       fileValidationStatus: "Warning",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(true);
@@ -456,7 +457,7 @@ describe("General Submit", () => {
   });
 
   it("should disable submit when submission is null", () => {
-    const result = utils.shouldEnableSubmit(null, baseQCResults, baseUser);
+    const result = utils.shouldEnableSubmit(null, baseUser);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -475,8 +476,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(true);
@@ -494,8 +494,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(true);
@@ -514,8 +513,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(false);
@@ -533,8 +531,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(false);
@@ -554,8 +551,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(true);
@@ -589,15 +585,14 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
-  it("should not allow submitter to submit when Submission level errors exist", () => {
+  it("should not allow submitter to submit when Submission has orphaned file errors", () => {
     const submission: Submission = {
       ...baseSubmission,
       metadataValidationStatus: "Passed",
@@ -618,12 +613,15 @@ describe("Admin Submit", () => {
         },
       ],
     };
-    const qcResults: Pick<QCResult, "errors">[] = [
-      { errors: [{ code: "F008", title: "Orphaned file found", description: "" }] },
-    ];
+
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      qcResults,
+      {
+        getSubmission: submission,
+        getSubmissionAttributes: {
+          submissionAttributes: { hasOrphanError: true, isBatchUploading: false },
+        },
+        submissionStats: null,
+      },
       baseUser
     );
     expect(result._identifier).toBe("Submission should not have orphaned files");
@@ -645,8 +643,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(true);
@@ -665,8 +662,7 @@ describe("Admin Submit", () => {
       permissions: ["data_submission:view", "data_submission:admin_submit"],
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
       user
     );
     expect(result.enabled).toBe(false);
@@ -683,8 +679,8 @@ describe("Submit > Submission Type/Intention", () => {
       fileValidationStatus: "Error",
     };
     const result = utils.shouldEnableSubmit(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults,
+      { getSubmission: submission, getSubmissionAttributes: null, submissionStats: null },
+
       baseUser
     );
     expect(result.enabled).toBe(false);
@@ -719,13 +715,13 @@ describe("shouldAllowAdminOverride", () => {
   });
 
   it("should disable submit without isAdminOverride when submission is null", () => {
-    const result = utils.shouldAllowAdminOverride(null, baseQCResults);
+    const result = utils.shouldAllowAdminOverride(null);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
 
   it("should disable submit without isAdminOverride when submission is undefined", () => {
-    const result = utils.shouldAllowAdminOverride(undefined, baseQCResults);
+    const result = utils.shouldAllowAdminOverride(undefined);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
   });
@@ -737,10 +733,11 @@ describe("shouldAllowAdminOverride", () => {
       metadataValidationStatus: "Error",
       fileValidationStatus: null,
     };
-    const result = utils.shouldAllowAdminOverride(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults
-    );
+    const result = utils.shouldAllowAdminOverride({
+      getSubmission: submission,
+      getSubmissionAttributes: null,
+      submissionStats: null,
+    });
     expect(result._identifier).toBe("Admin Override - Submission has validation errors");
     expect(result.enabled).toBe(true);
     expect(result.isAdminOverride).toBe(true);
@@ -753,10 +750,11 @@ describe("shouldAllowAdminOverride", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: null,
     };
-    const result = utils.shouldAllowAdminOverride(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults
-    );
+    const result = utils.shouldAllowAdminOverride({
+      getSubmission: submission,
+      getSubmissionAttributes: null,
+      submissionStats: null,
+    });
     expect(result._identifier).toBe(undefined);
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
@@ -769,10 +767,11 @@ describe("shouldAllowAdminOverride", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Validating",
     };
-    const result = utils.shouldAllowAdminOverride(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults
-    );
+    const result = utils.shouldAllowAdminOverride({
+      getSubmission: submission,
+      getSubmissionAttributes: null,
+      submissionStats: null,
+    });
     expect(result._identifier).toBe("Validation should not currently be running");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
@@ -788,10 +787,11 @@ describe("shouldAllowAdminOverride", () => {
       fileValidationStatus: "Passed",
     };
 
-    const result = utils.shouldAllowAdminOverride(
-      { getSubmission: submission, batchStatusList: null, submissionStats: null },
-      baseQCResults
-    );
+    const result = utils.shouldAllowAdminOverride({
+      getSubmission: submission,
+      getSubmissionAttributes: null,
+      submissionStats: null,
+    });
     expect(result._identifier).toBe("test-identifier-1");
     expect(result.enabled).toBe(false);
     expect(result.isAdminOverride).toBe(false);
@@ -943,28 +943,28 @@ describe("unpackQCResultSeverities cases", () => {
 });
 
 describe("downloadBlob cases", () => {
-  const mockSetAttribute = jest.fn();
-  const mockClick = jest.fn();
-  const mockRemove = jest.fn();
+  const mockSetAttribute = vi.fn();
+  const mockClick = vi.fn();
+  const mockRemove = vi.fn();
 
   beforeEach(() => {
-    URL.createObjectURL = jest.fn().mockReturnValue("blob-url");
+    URL.createObjectURL = vi.fn().mockReturnValue("blob-url");
 
     // Spy on document.createElement calls and override the return value
-    jest.spyOn(document, "createElement").mockReturnValue({
+    vi.spyOn(document, "createElement").mockReturnValue({
       ...document.createElement("a"),
       setAttribute: mockSetAttribute,
       click: mockClick,
       remove: mockRemove,
-    }) as jest.MockedFunction<typeof document.createElement>;
+    }) as MockedFunction<typeof document.createElement>;
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should create a ObjectURL with the file content blob", () => {

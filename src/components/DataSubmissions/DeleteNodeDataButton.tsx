@@ -1,16 +1,17 @@
-import { memo, useMemo, useState } from "react";
-import { isEqual } from "lodash";
-import { IconButton, IconButtonProps, styled } from "@mui/material";
-import { useSnackbar } from "notistack";
 import { useMutation } from "@apollo/client";
-import { ReactComponent as DeleteAllFilesIcon } from "../../assets/icons/delete_all_files_icon.svg";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import DeleteDialog from "../DeleteDialog";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import { useAuthContext } from "../Contexts/AuthContext";
+import { IconButton, IconButtonProps, styled } from "@mui/material";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import { memo, useMemo, useState } from "react";
+
+import DeleteAllFilesIcon from "../../assets/icons/delete_all_files_icon.svg?react";
+import { hasPermission } from "../../config/AuthPermissions";
 import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
 import { titleCase } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
+import { useAuthContext } from "../Contexts/AuthContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import DeleteDialog from "../DeleteDialog";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   opacity: disabled ? 0.26 : 1,

@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, ApolloLink, HttpLink, DefaultOptions } from "@apollo/client";
+
 import env from "./env";
 
 const defaultOptions: DefaultOptions = {
@@ -8,7 +9,7 @@ const defaultOptions: DefaultOptions = {
 };
 
 const backendService = new HttpLink({
-  uri: env.REACT_APP_BACKEND_API,
+  uri: env.VITE_BACKEND_API,
 });
 
 const mockService = new HttpLink({

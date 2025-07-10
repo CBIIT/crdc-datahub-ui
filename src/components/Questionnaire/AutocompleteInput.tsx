@@ -10,9 +10,10 @@ import {
   styled,
 } from "@mui/material";
 import { ReactNode, SyntheticEvent, useEffect, useId, useRef, useState } from "react";
-import { ReactComponent as DropdownArrowsIconSvg } from "../../assets/icons/dropdown_arrows.svg";
-import Tooltip from "../Tooltip";
+
+import DropdownArrowsIconSvg from "../../assets/icons/dropdown_arrows.svg?react";
 import { updateInputValidity } from "../../utils";
+import Tooltip from "../Tooltip";
 
 const StyledFormControl = styled(FormControl)(() => ({
   height: "100%",

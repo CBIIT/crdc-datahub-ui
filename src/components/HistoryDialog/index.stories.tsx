@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
+import ArrowUpIcon from "../../assets/icons/arrow_up.svg?url";
+
 import Dialog, { IconType } from "./index";
-import ArrowUpIcon from "../../assets/icons/arrow_up.svg";
 
 const meta = {
   title: "Dialogs / History",

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useQuery } from "@apollo/client";
 import {
   Divider,
   Stack,
@@ -9,12 +9,14 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useQuery } from "@apollo/client";
 import { useSnackbar } from "notistack";
+import { useEffect } from "react";
+
 import { GET_NODE_DETAIL, GetNodeDetailInput, GetNodeDetailResp } from "../../graphql";
 import { capitalizeFirstLetter } from "../../utils";
-import RelatedNodes from "./RelatedNodes";
 import SuspenseLoader from "../SuspenseLoader";
+
+import RelatedNodes from "./RelatedNodes";
 
 const StyledSectionDivider = styled(Divider)(() => ({
   "&.MuiDivider-root": {

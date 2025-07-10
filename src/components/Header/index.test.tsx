@@ -1,14 +1,16 @@
+import { MockedProvider } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
-import Header from "./index";
+import { axe } from "vitest-axe";
+
+import { render, waitFor } from "../../test-utils";
 import { ContextState, Context, Status } from "../Contexts/AuthContext";
 
-const mockUseMediaQuery = jest.fn();
-jest.mock("@mui/material", () => ({
-  ...jest.requireActual("@mui/material"),
+import Header from "./index";
+
+const mockUseMediaQuery = vi.fn();
+vi.mock("@mui/material", async () => ({
+  ...(await vi.importActual("@mui/material")),
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 

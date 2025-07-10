@@ -1,9 +1,11 @@
-import React, { ReactNode, useState } from "react";
-import { IconButton, Stack, styled } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { ReactComponent as TableColumnsIcon } from "../../assets/icons/table_columns_icon.svg";
-import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
+import { IconButton, Stack, styled } from "@mui/material";
+import React, { ReactNode, useState } from "react";
+
+import TableColumnsIcon from "../../assets/icons/table_columns_icon.svg?react";
 import Tooltip from "../Tooltip";
+
+import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
 
 const StyledIconButton = styled(IconButton)({
   padding: 0,

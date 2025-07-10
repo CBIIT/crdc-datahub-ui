@@ -1,3 +1,7 @@
+import { LoadingButton } from "@mui/lab";
+import { Container, Divider, Stack, styled } from "@mui/material";
+import { isEqual, cloneDeep } from "lodash";
+import { useSnackbar } from "notistack";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import {
   useNavigate,
@@ -5,31 +9,31 @@ import {
   unstable_Blocker as Blocker,
   Navigate,
 } from "react-router-dom";
-import { isEqual, cloneDeep } from "lodash";
-import { Container, Divider, Stack, styled } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { useSnackbar } from "notistack";
-import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
-import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
+
+import bannerPng from "../../assets/banner/submission_banner.png";
+import ChevronLeft from "../../assets/icons/chevron_left.svg?react";
+import ChevronRight from "../../assets/icons/chevron_right.svg?react";
+import CancelApplicationButton from "../../components/CancelApplicationButton";
+import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
 import { Status as FormStatus, useFormContext } from "../../components/Contexts/FormContext";
-import SuspenseLoader from "../../components/SuspenseLoader";
-import StatusBar from "../../components/StatusBar/StatusBar";
+import PageBanner from "../../components/PageBanner";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
-import Section from "./sections";
-import map, { InitialSections } from "../../config/SectionConfig";
-import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
-import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
-import useFormMode from "../../hooks/useFormMode";
+import ApproveFormDialog, {
+  FormInput as ApproveFormInput,
+} from "../../components/Questionnaire/ApproveFormDialog";
 import InquireFormDialog from "../../components/Questionnaire/InquireFormDialog";
 import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
-import ApproveFormDialog from "../../components/Questionnaire/ApproveFormDialog";
-import PageBanner from "../../components/PageBanner";
-import bannerPng from "../../assets/banner/submission_banner.png";
-import { Status as AuthStatus, useAuthContext } from "../../components/Contexts/AuthContext";
+import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
+import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
+import StatusBar from "../../components/StatusBar/StatusBar";
+import SuspenseLoader from "../../components/SuspenseLoader";
+import { hasPermission } from "../../config/AuthPermissions";
+import map, { InitialSections } from "../../config/SectionConfig";
+import useFormMode from "../../hooks/useFormMode";
 import usePageTitle from "../../hooks/usePageTitle";
 import { Logger } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
-import CancelApplicationButton from "../../components/CancelApplicationButton";
+
+import Section from "./sections";
 
 const StyledContainer = styled(Container)(() => ({
   "&.MuiContainer-root": {
@@ -164,10 +168,10 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const sectionKeys = Object.keys(map);
   const sectionIndex = sectionKeys.indexOf(activeSection);
   const prevSection = sectionKeys[sectionIndex - 1]
-    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex - 1]}`
+    ? `/submission-request/${data?._id}/${sectionKeys[sectionIndex - 1]}`
     : null;
   const nextSection = sectionKeys[sectionIndex + 1]
-    ? `/submission-request/${data?.["_id"]}/${sectionKeys[sectionIndex + 1]}`
+    ? `/submission-request/${data?._id}/${sectionKeys[sectionIndex + 1]}`
     : null;
   const isSectionD = activeSection === "D";
   const formContentRef = useRef(null);
@@ -245,7 +249,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
    *
    * @returns {Promise<boolean>} true if the approval submission was successful, false otherwise
    */
-  const submitApproveForm = async (reviewComment): Promise<string | boolean> => {
+  const submitApproveForm = async (data: ApproveFormInput): Promise<string | boolean> => {
     if (formMode !== "Review") {
       return false;
     }
@@ -255,19 +259,19 @@ const FormView: FC<Props> = ({ section }: Props) => {
       return false;
     }
 
-    const res = await approveForm(reviewComment, true);
+    const res = await approveForm(data, true);
     setOpenApproveDialog(false);
     if (res?.status === "success") {
       navigate("/submission-requests");
     } else {
       enqueueSnackbar(
-        res.errorMessage || "An error occurred while approving the form. Please try again.",
+        res?.errorMessage || "An error occurred while approving the form. Please try again.",
         {
           variant: "error",
         }
       );
     }
-    return res.status === "success";
+    return res?.status === "success";
   };
 
   /**
@@ -410,8 +414,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
     if (
       !blockedNavigate &&
       saveResult?.status === "success" &&
-      data["_id"] === "new" &&
-      saveResult.id !== data?.["_id"]
+      data._id === "new" &&
+      saveResult.id !== data?._id
     ) {
       // NOTE: This currently triggers a form data refetch, which is not ideal
       navigate(`/submission-request/${saveResult.id}/${activeSection}`, {
@@ -496,7 +500,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const saveAndNavigate = async () => {
     // Wait for the save handler to complete
     const res = await saveForm();
-    const reviewSectionUrl = `/submission-request/${data["_id"]}/REVIEW`; // TODO: Update to dynamic url instead
+    const reviewSectionUrl = `/submission-request/${data._id}/REVIEW`; // TODO: Update to dynamic url instead
     const isNavigatingToReviewSection = blocker?.location?.pathname === reviewSectionUrl;
 
     setBlockedNavigate(false);
@@ -782,7 +786,8 @@ const FormView: FC<Props> = ({ section }: Props) => {
       <ApproveFormDialog
         open={openApproveDialog}
         onCancel={handleCloseApproveFormDialog}
-        onSubmit={(reviewComment) => submitApproveForm(reviewComment)}
+        onSubmit={(data) => submitApproveForm(data)}
+        loading={status === FormStatus.SUBMITTING}
       />
       <InquireFormDialog
         open={openInquireDialog}

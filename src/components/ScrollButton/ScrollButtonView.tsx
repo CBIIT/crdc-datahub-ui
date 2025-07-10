@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, memo } from "react";
 import { styled } from "@mui/material";
-import ArrowUp from "../../assets/icons/arrow_up.svg";
+import { useState, useEffect, useRef, memo } from "react";
+
+import ArrowUp from "../../assets/icons/arrow_up.svg?url";
 
 const StyledScrollButton = styled("button")(({ theme }) => ({
   background: "#007bbd",
@@ -33,7 +34,7 @@ const StyledScrollButton = styled("button")(({ theme }) => ({
     "&:after": {
       background: "none",
       backgroundColor: "#fff",
-      mask: `url(${ArrowUp}) no-repeat center/contain`,
+      mask: `url("${ArrowUp}") no-repeat center/contain`,
       display: "inline-block",
       height: "4ex",
       marginLeft: "1px",

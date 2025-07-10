@@ -1,16 +1,18 @@
-import { render, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
+
+import { render, waitFor } from "../../test-utils";
+
 import Footer from "./index";
 
-const mockUseMediaQuery = jest.fn();
-jest.mock("@mui/material", () => ({
-  ...jest.requireActual("@mui/material"),
+const mockUseMediaQuery = vi.fn();
+vi.mock("@mui/material", async () => ({
+  ...(await vi.importActual("@mui/material")),
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the desktop footer for large screens", () => {

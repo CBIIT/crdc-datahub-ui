@@ -1,6 +1,7 @@
-import { FC, useState } from "react";
 import { styled } from "@mui/material";
+import { FC, useState } from "react";
 import Carousel, { CarouselProps } from "react-multi-carousel";
+
 import "react-multi-carousel/lib/styles.css";
 import CustomLeftArrow from "./CustomLeftArrow";
 import CustomRightArrow from "./CustomRightArrow";

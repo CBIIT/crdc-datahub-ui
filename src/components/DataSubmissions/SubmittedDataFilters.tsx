@@ -1,17 +1,18 @@
+import { useQuery } from "@apollo/client";
+import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
+import { cloneDeep, debounce, isEqual } from "lodash";
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { cloneDeep, debounce, isEqual } from "lodash";
-import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
-import { useQuery } from "@apollo/client";
-import { compareNodeStats } from "../../utils";
+
 import {
   GetSubmissionNodesInput,
   SUBMISSION_STATS,
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
-import StyledSelect from "../StyledFormComponents/StyledSelect";
+import { compareNodeStats } from "../../utils";
 import StyledInput from "../StyledFormComponents/StyledOutlinedInput";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 export type FilterProps = {
   /**

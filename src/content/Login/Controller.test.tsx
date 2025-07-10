@@ -1,17 +1,25 @@
-import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+
+import { render } from "../../test-utils";
+
 import LoginController from "./Controller";
 
-jest.mock("../../env", () => ({
-  ...process.env,
-  REACT_APP_NIH_AUTHORIZE_URL: "https://mock-sso-url",
-  REACT_APP_NIH_CLIENT_ID: "mock-client-id",
-  REACT_APP_NIH_REDIRECT_URL: "mock-redirect-url",
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
+  return {
+    default: {
+      ...mod.default,
+      VITE_NIH_AUTHORIZE_URL: "https://mock-sso-url",
+      VITE_NIH_CLIENT_ID: "mock-client-id",
+      VITE_NIH_REDIRECT_URL: "mock-redirect-url",
+    },
+  };
+});
+
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", () => ({
+  ...vi.importActual("../../hooks/usePageTitle"),
   __esModule: true,
   default: (p) => mockUsePageTitle(p),
 }));

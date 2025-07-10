@@ -1,4 +1,5 @@
 import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
+
 import * as utils from "./formUtils";
 
 describe("filterNonNumeric cases", () => {

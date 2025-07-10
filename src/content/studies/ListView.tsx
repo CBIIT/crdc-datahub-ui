@@ -1,23 +1,25 @@
-import { ElementType, useRef, useState } from "react";
-import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
-import { Link, LinkProps, useLocation } from "react-router-dom";
 import { useLazyQuery } from "@apollo/client";
-import PageBanner from "../../components/PageBanner";
-import usePageTitle from "../../hooks/usePageTitle";
+import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } from "@mui/material";
+import { ElementType, useRef, useState } from "react";
+import { Link, LinkProps, useLocation } from "react-router-dom";
+
+import ApprovedStudyFilters, {
+  FilterForm,
+} from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
 import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
+import Asterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
+import SummaryList from "../../components/SummaryList";
+import TruncatedText from "../../components/TruncatedText";
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
 import { FormatDate } from "../../utils";
 import { formatAccessTypes } from "../../utils/studyUtils";
-import ApprovedStudyFilters, {
-  FilterForm,
-} from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
-import TruncatedText from "../../components/TruncatedText";
-import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
-import SummaryList from "../../components/SummaryList";
 
 const StyledButton = styled(Button)<{ component: ElementType } & LinkProps>({
   padding: "14px 20px",
@@ -97,6 +99,10 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
 
+const StyledAsterisk = styled(Asterisk)(() => ({
+  cursor: "pointer",
+}));
+
 const columns: Column<ApprovedStudy>[] = [
   {
     label: "Name",
@@ -109,7 +115,20 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Acronym",
-    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
+    renderValue: (a) => (
+      <>
+        <TruncatedText text={a.studyAbbreviation} />
+        {a.pendingModelChange ? (
+          <StyledTooltip
+            title="Data submission is Pending on Data Model Review."
+            placement="top"
+            arrow
+          >
+            <StyledAsterisk />
+          </StyledTooltip>
+        ) : null}
+      </>
+    ),
     field: "studyAbbreviation",
     sx: {
       width: "144px",
@@ -195,7 +214,7 @@ const columns: Column<ApprovedStudy>[] = [
       </Stack>
     ),
     renderValue: (a) => (
-      <StyledLink to={`/studies/${a?.["_id"]}`}>
+      <StyledLink to={`/studies/${a?._id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>

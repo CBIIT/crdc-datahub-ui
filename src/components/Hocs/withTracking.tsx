@@ -1,7 +1,8 @@
 import { FC, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useAnalytics } from "../Contexts/AnalyticsContext";
+
 import reportWebVitals from "../../reportWebVitals";
+import { useAnalytics } from "../Contexts/AnalyticsContext";
 
 /**
  * A HOC to wrap a component with Google Analytics page change tracking

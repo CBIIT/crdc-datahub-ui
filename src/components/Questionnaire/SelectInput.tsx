@@ -1,4 +1,3 @@
-import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -8,12 +7,14 @@ import {
   SelectProps,
   styled,
 } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
-import Tooltip from "../Tooltip";
+import React, { FC, ReactNode, useEffect, useId, useRef, useState } from "react";
+
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 import { updateInputValidity } from "../../utils";
+import Tooltip from "../Tooltip";
 
 const DropdownArrowsIcon = styled("div")(() => ({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundImage: `url("${dropdownArrowsIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "10px",

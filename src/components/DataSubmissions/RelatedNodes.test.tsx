@@ -1,10 +1,12 @@
-import { FC } from "react";
-import { queryByTestId, render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
+import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
+
 import { GET_RELATED_NODES } from "../../graphql";
+import { queryByTestId, render, waitFor } from "../../test-utils";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
 import RelatedNodes from "./RelatedNodes";
 
 const mocks = [
@@ -321,6 +323,8 @@ describe("RelatedNodes", () => {
             getRelatedNodes: {
               properties: ["child_node_id", "child_node_type"],
               IDPropName: "sample_id",
+              nodes: null,
+              total: null,
             },
           },
         },

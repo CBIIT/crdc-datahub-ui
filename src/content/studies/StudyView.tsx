@@ -1,5 +1,5 @@
-import { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
   Alert,
   Box,
@@ -12,17 +12,19 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery } from "@apollo/client";
-import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
+import { FC, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import studyIcon from "../../assets/icons/study_icon.svg";
-import usePageTitle from "../../hooks/usePageTitle";
-import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?url";
+import studyIcon from "../../assets/icons/study_icon.svg?url";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
-import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import Tooltip from "../../components/Tooltip";
 import options from "../../config/AccessTypesConfig";
 import {
@@ -38,9 +40,8 @@ import {
   UpdateApprovedStudyInput,
   UpdateApprovedStudyResp,
 } from "../../graphql";
-import SuspenseLoader from "../../components/SuspenseLoader";
-import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
-import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import usePageTitle from "../../hooks/usePageTitle";
+import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -53,7 +54,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
 }));
 
 const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
-  backgroundImage: `url(${CheckboxCheckedIconSvg})`,
+  backgroundImage: `url("${CheckboxCheckedIconSvg}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",
@@ -214,6 +215,7 @@ type FormInput = Pick<
   | "openAccess"
   | "controlledAccess"
   | "useProgramPC"
+  | "pendingModelChange"
 > & { primaryContactID: string };
 
 type Props = {
@@ -246,6 +248,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       primaryContactID: "",
       openAccess: false,
       controlledAccess: false,
+      pendingModelChange: false,
     },
   });
   const isControlled = watch("controlledAccess");
@@ -274,6 +277,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           openAccess,
           controlledAccess,
           useProgramPC,
+          pendingModelChange,
         } = data?.getApprovedStudy || {};
 
         setSameAsProgramPrimaryContact(useProgramPC);
@@ -288,6 +292,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           controlledAccess,
           useProgramPC,
           primaryContactID: primaryContact?._id,
+          pendingModelChange,
         });
       },
       onError: (error) =>
@@ -339,6 +344,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     PI,
     ORCID,
     primaryContactID,
+    pendingModelChange,
   }: FormInput) => {
     reset({
       studyName: studyName || "",
@@ -349,6 +355,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       PI: PI || "",
       ORCID: ORCID || "",
       primaryContactID: primaryContactID || "",
+      pendingModelChange: pendingModelChange || false,
     });
   };
 
@@ -707,6 +714,38 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                       </StyledSelect>
                     )}
                   />
+                </Stack>
+              </StyledField>
+
+              <StyledField sx={{ alignItems: "flex-start" }}>
+                <StyledLabel id="pendingConditionsLabel" sx={{ paddingTop: "10px" }}>
+                  Pending Conditions
+                </StyledLabel>
+                <Stack direction="column">
+                  <StyledCheckboxFormGroup>
+                    <Controller
+                      name="pendingModelChange"
+                      control={control}
+                      render={({ field }) => (
+                        <StyledFormControlLabel
+                          control={
+                            <StyledCheckbox
+                              {...field}
+                              checked={!!field.value}
+                              onChange={(_, checked) => field.onChange(checked)}
+                              checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
+                              icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
+                              disabled={saving || retrievingStudy}
+                              inputProps={
+                                { "data-testid": "pendingConditions-checkbox" } as unknown
+                              }
+                            />
+                          }
+                          label="Pending on Data Model review"
+                        />
+                      )}
+                    />
+                  </StyledCheckboxFormGroup>
                 </Stack>
               </StyledField>
 

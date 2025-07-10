@@ -1,5 +1,9 @@
 # Release Notes
 
+## 3.4.0
+
+N/A
+
 ## 3.3.0 (Released 07/09/2025)
 
 #### Submission Request
@@ -91,7 +95,7 @@ This production patch includes a critical fix to resolve a timeout and crash iss
 
 - Added Submission Request Version Support to ensure backward compatibility.
 - Released Submission Request Form 3.0 with added question and UI improvements
-- Provided filtering capability on the Submission Request List Page.
+- Provided filtering capability on the Submission Requests Page.
 - Users can now cancel and restore Submission Requests.
 - Added support for conditionally approved studies.
 - Study Primary Contacts and PIs will now receive Submission Request email notifications for their study

@@ -1,7 +1,7 @@
-import React, { FC } from "react";
-import { Avatar, styled } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import CheckIcon from "@mui/icons-material/Check";
+import { Avatar, styled } from "@mui/material";
+import React, { FC } from "react";
 
 type Props = {
   icon: SectionStatus | "Review" | "ReviewDisabled";

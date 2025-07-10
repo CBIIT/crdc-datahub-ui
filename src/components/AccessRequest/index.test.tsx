@@ -1,14 +1,8 @@
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
-import AccessRequest from "./index";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
 import {
   LIST_APPROVED_STUDIES,
   LIST_INSTITUTIONS,
@@ -17,6 +11,14 @@ import {
   ListInstitutionsInput,
   ListInstitutionsResp,
 } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
+
+import AccessRequest from "./index";
 
 const mockUser: Omit<User, "role" | "permissions"> = {
   _id: "",
@@ -135,5 +137,17 @@ describe("Implementation Requirements", () => {
     });
 
     expect(queryByTestId("request-access-button")).not.toBeInTheDocument();
+  });
+
+  it("should show the tooltip when hovering over the 'Request Access' button", async () => {
+    const { getByTestId, findByText } = render(<AccessRequest />, {
+      wrapper: (p) => <MockParent {...p} mocks={[]} role="User" permissions={["access:request"]} />,
+    });
+
+    userEvent.hover(getByTestId("request-access-button"));
+
+    expect(
+      await findByText("Request role change, study access, or institution update.")
+    ).toBeInTheDocument();
   });
 });

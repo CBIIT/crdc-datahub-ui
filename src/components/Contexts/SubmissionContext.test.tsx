@@ -1,8 +1,7 @@
-import { FC } from "react";
-import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { SubmissionCtxStatus, SubmissionProvider, useSubmissionContext } from "./SubmissionContext";
+import { FC } from "react";
+
 import {
   GET_SUBMISSION,
   GetSubmissionInput,
@@ -10,15 +9,18 @@ import {
   SUBMISSION_QC_RESULTS,
   SubmissionQCResultsResp,
 } from "../../graphql";
+import { act, render, renderHook, waitFor } from "../../test-utils";
 
-const mockStartPolling = jest.fn();
-const mockStopPolling = jest.fn();
-jest.mock("@apollo/client", () => {
-  const originalModule = jest.requireActual("@apollo/client");
+import { SubmissionCtxStatus, SubmissionProvider, useSubmissionContext } from "./SubmissionContext";
+
+const mockStartPolling = vi.fn();
+const mockStopPolling = vi.fn();
+vi.mock("@apollo/client", async () => {
+  const originalModule = await vi.importActual<typeof import("@apollo/client")>("@apollo/client");
 
   return {
     ...originalModule,
-    useQuery: (...args) => ({
+    useQuery: (...args: Parameters<typeof originalModule.useQuery>) => ({
       ...originalModule.useQuery(...args),
       startPolling: mockStartPolling,
       stopPolling: mockStopPolling,
@@ -26,7 +28,7 @@ jest.mock("@apollo/client", () => {
   };
 });
 
-const baseSubmission: Submission = {
+const baseSubmission: Submission & { __typename: string } = {
   _id: "",
   name: "",
   submitterID: "",
@@ -63,12 +65,19 @@ const baseSubmission: Submission = {
   studyID: "",
   collaborators: [],
   dataFileSize: null,
+  __typename: "Submission",
 };
 
 const TestChild: FC = () => {
-  const { status } = useSubmissionContext();
+  const { status, error, data } = useSubmissionContext();
 
-  return <div data-testid="ctx-status">{status}</div>;
+  return (
+    <>
+      <div data-testid="ctx-status">{status}</div>
+      <div data-testid="ctx-error">{error?.message}</div>
+      <div data-testid="ctx-id">{JSON.stringify(data)?.toString()}</div>
+    </>
+  );
 };
 
 type TestParentProps = {
@@ -85,11 +94,11 @@ const TestParent: FC<TestParentProps> = ({ mocks = [], _id = "", children }: Tes
 
 describe("useSubmissionContext", () => {
   it("should throw an exception when used outside of a SubmissionProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useSubmissionContext cannot be used outside of the SubmissionProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 
   it("should render nominally when used inside a SubmissionProvider", () => {
@@ -103,7 +112,7 @@ describe("useSubmissionContext", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            batchStatusList: null,
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -131,7 +140,8 @@ describe("useSubmissionContext", () => {
 
 describe("SubmissionProvider", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should handle API network errors without crashing", async () => {
@@ -209,7 +219,7 @@ describe("SubmissionProvider", () => {
           data: {
             getSubmission: null,
             submissionStats: null,
-            batchStatusList: null,
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -251,8 +261,11 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
             },
           },
         },
@@ -304,8 +317,41 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
+            },
+          },
+        },
+      },
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-validating-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-validating-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
             },
           },
         },
@@ -328,10 +374,10 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
+    render(<TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-validating-id" />);
 
-    // Should poll getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    // Should poll getSubmission
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -357,9 +403,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -383,8 +427,8 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-validating-id" />);
 
-    // Should stop polling getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
+    // Should stop polling getSubmission
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -405,13 +449,41 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-0001",
-                  status: "Uploading",
-                },
-              ],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                isBatchUploading: true,
+                hasOrphanError: false,
+              },
+            },
+          },
+        },
+      },
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-validating-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-validating-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: true,
+              },
             },
           },
         },
@@ -434,10 +506,10 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
+    render(<TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-uploading-id" />);
 
-    // Should poll getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    // Should poll getSubmission
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -458,13 +530,11 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-0001",
-                  status: "Uploaded",
-                },
-              ],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                isBatchUploading: false,
+                hasOrphanError: false,
+              },
             },
           },
         },
@@ -487,10 +557,10 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    // Should stop polling getSubmission + submissionQCResults
+    // Should stop polling getSubmission
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-uploading-id" />);
 
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
@@ -500,8 +570,11 @@ describe("SubmissionProvider", () => {
         maxUsageCount: 1,
         request: {
           query: GET_SUBMISSION,
+          variables: {
+            id: "test-deleting-id",
+            partial: false,
+          },
         },
-        variableMatcher: () => true,
         result: {
           data: {
             getSubmission: {
@@ -512,8 +585,41 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
+            },
+          },
+        },
+      },
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-deleting-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-deleting-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: true,
+            },
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
             },
           },
         },
@@ -536,10 +642,10 @@ describe("SubmissionProvider", () => {
       },
     ];
 
-    render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
+    render(<TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-deleting-id" />);
 
-    // Should poll getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    // Should poll getSubmission
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStopPolling).not.toHaveBeenCalled();
   });
 
@@ -549,8 +655,11 @@ describe("SubmissionProvider", () => {
         maxUsageCount: 1,
         request: {
           query: GET_SUBMISSION,
+          variables: {
+            id: "test-deleting-id",
+            partial: false,
+          },
         },
-        variableMatcher: () => true,
         result: {
           data: {
             getSubmission: {
@@ -561,9 +670,7 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
-            },
+            getSubmissionAttributes: null,
           },
         },
       },
@@ -587,18 +694,22 @@ describe("SubmissionProvider", () => {
 
     render(<TestParent mocks={[...mocks, ...qcMocks]} _id="test-deleting-id" />);
 
-    // Should stop polling getSubmission + submissionQCResults
-    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(2));
+    // Should stop polling getSubmission
+    await waitFor(() => expect(mockStopPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).not.toHaveBeenCalled();
   });
 
   it("should use the polling wrapper functions to start and stop polling", async () => {
     const mocks: MockedResponse<GetSubmissionResp, GetSubmissionInput>[] = [
       {
+        maxUsageCount: 2, // Initial + after polling stops
         request: {
           query: GET_SUBMISSION,
+          variables: {
+            id: "test-wrapper-id",
+            partial: false,
+          },
         },
-        variableMatcher: () => true,
         result: {
           data: {
             getSubmission: {
@@ -608,13 +719,41 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-0001",
-                  status: "Uploaded",
-                },
-              ],
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                isBatchUploading: false,
+                hasOrphanError: false,
+              },
+            },
+          },
+        },
+      },
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-wrapper-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-wrapper-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
+            submissionStats: undefined,
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
             },
           },
         },
@@ -639,7 +778,7 @@ describe("SubmissionProvider", () => {
 
     const { result } = renderHook(() => useSubmissionContext(), {
       wrapper: ({ children }) => (
-        <TestParent mocks={[...mocks, ...qcMocks]} _id="test-wrapper-id">
+        <TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-wrapper-id">
           {children}
         </TestParent>
       ),
@@ -653,7 +792,7 @@ describe("SubmissionProvider", () => {
       startPolling(1000);
     });
 
-    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockStartPolling).toHaveBeenCalledTimes(1));
     expect(mockStartPolling).toHaveBeenCalledWith(1000);
 
     act(() => {
@@ -679,8 +818,38 @@ describe("SubmissionProvider", () => {
             submissionStats: {
               stats: [],
             },
-            batchStatusList: {
-              batches: [],
+            getSubmissionAttributes: null,
+          },
+        },
+      },
+    ];
+    const pollingMocks: MockedResponse<GetSubmissionResp<true>, GetSubmissionInput>[] = [
+      {
+        maxUsageCount: Infinity,
+        request: {
+          query: GET_SUBMISSION,
+          variables: {
+            id: "test-polling-id",
+            partial: true,
+          },
+        },
+        result: {
+          data: {
+            getSubmission: {
+              _id: "test-polling-id",
+              crossSubmissionStatus: null,
+              fileValidationStatus: null,
+              metadataValidationStatus: null,
+              deletingData: false,
+            },
+            submissionStats: {
+              stats: [],
+            },
+            getSubmissionAttributes: {
+              submissionAttributes: {
+                hasOrphanError: false,
+                isBatchUploading: false,
+              },
             },
           },
         },
@@ -705,7 +874,7 @@ describe("SubmissionProvider", () => {
 
     const { result } = renderHook(() => useSubmissionContext(), {
       wrapper: ({ children }) => (
-        <TestParent mocks={[...mocks, ...qcMocks]} _id="test-polling-id">
+        <TestParent mocks={[...mocks, ...pollingMocks, ...qcMocks]} _id="test-polling-id">
           {children}
         </TestParent>
       ),

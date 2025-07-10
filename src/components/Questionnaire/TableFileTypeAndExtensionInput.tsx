@@ -1,4 +1,3 @@
-import React, { FC, useEffect, useState, useRef } from "react";
 import {
   Autocomplete,
   TextField,
@@ -8,12 +7,14 @@ import {
   styled,
   Paper,
 } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+import React, { FC, useEffect, useState, useRef } from "react";
+
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 import { fileTypeExtensions } from "../../config/FileTypeConfig";
 import useFormMode from "../../hooks/useFormMode";
 
 const DropdownArrowsIcon = styled("div")(() => ({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundImage: `url("${dropdownArrowsIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "9.17px",

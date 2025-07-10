@@ -48,6 +48,10 @@ type ApprovedStudy = {
    */
   useProgramPC: boolean;
   /**
+   * Indicates whether the study has a pending data model change
+   */
+  pendingModelChange: boolean;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;
@@ -59,3 +63,8 @@ type ApprovedStudyOfMyOrganization = Pick<
 >;
 
 type AccessType = "All" | "Controlled" | "Open";
+
+type ReleasedStudy = Pick<ApprovedStudy, "_id" | "studyName" | "dbGaPID" | "studyAbbreviation"> & {
+  dataCommons: string[];
+  dataCommonsDisplayNames: string[];
+};

@@ -1,5 +1,3 @@
-import React, { FC, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   List,
   ListItem,
@@ -9,12 +7,16 @@ import {
   ListItemAvatar,
   styled,
 } from "@mui/material";
+import React, { FC, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import { hasPermission } from "../../config/AuthPermissions";
 import config from "../../config/SectionConfig";
-import { Status, useFormContext } from "../Contexts/FormContext";
-import StatusAdornment from "./StatusAdornment";
 import useFormMode from "../../hooks/useFormMode";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { hasPermission } from "../../config/AuthPermissions";
+import { Status, useFormContext } from "../Contexts/FormContext";
+
+import StatusAdornment from "./StatusAdornment";
 
 type Props = {
   section: string;

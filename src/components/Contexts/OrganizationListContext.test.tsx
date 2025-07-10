@@ -1,13 +1,15 @@
-import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import React, { FC } from "react";
+
+import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+
 import {
   OrganizationProvider,
   Status as OrgStatus,
   useOrganizationListContext,
 } from "./OrganizationListContext";
-import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -53,11 +55,11 @@ const TestParent: FC<Props> = ({ mocks, preload = true, children }: Props) => (
 
 describe("OrganizationListContext > useOrganizationListContext Tests", () => {
   it("should throw an exception when used outside of the OrganizationProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "OrganizationListContext cannot be used outside of the OrganizationProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 
@@ -80,7 +82,7 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
   ];
 
   it("should render without crashing", () => {
-    render(<TestParent mocks={emptyMocks} />);
+    expect(() => render(<TestParent mocks={emptyMocks} />)).not.toThrow();
   });
 
   it("should handle loading state correctly", async () => {

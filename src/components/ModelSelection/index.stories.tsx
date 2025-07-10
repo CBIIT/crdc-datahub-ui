@@ -1,20 +1,22 @@
+import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within } from "@storybook/test";
-import { MockedResponse } from "@apollo/client/testing";
-import {
-  Context as AuthContext,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
-import Button from "./index";
+
 import { Roles } from "../../config/AuthRoles";
-import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
 import {
   GetSubmissionResp,
   UPDATE_MODEL_VERSION,
   UpdateModelVersionInput,
   UpdateModelVersionResp,
 } from "../../graphql";
+import {
+  Context as AuthContext,
+  ContextState as AuthCtxState,
+  Status as AuthStatus,
+} from "../Contexts/AuthContext";
+import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
+
+import Button from "./index";
 
 type CustomStoryProps = React.ComponentProps<typeof Button> & {
   userRole: UserRole;

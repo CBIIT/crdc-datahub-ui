@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Context as AuthContext, ContextState as AuthCtxState } from "../../Contexts/AuthContext";
-import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
+
 import { Roles } from "../../../config/AuthRoles";
 import { HeaderLinks } from "../../../config/HeaderConfig";
+import { Context as AuthContext, ContextState as AuthCtxState } from "../../Contexts/AuthContext";
+
+import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
 
 const HeaderTitles =
   HeaderLinks?.filter((link) => "columns" in link).map((link) => link.name) || [];

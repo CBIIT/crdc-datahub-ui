@@ -1,17 +1,19 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor, within } from "@testing-library/react";
-import { axe } from "jest-axe";
-import userEvent from "@testing-library/user-event";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import Dialog from "./index";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+import { axe } from "vitest-axe";
+
 import {
   DownloadMetadataFileResp,
   DownloadMetadataFileInput,
   DOWNLOAD_METADATA_FILE,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import Dialog from "./index";
 
 const baseBatch: Batch = {
   _id: "mock-batch-id",
@@ -102,7 +104,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -119,7 +121,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -136,7 +138,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <Dialog open batch={baseBatch} onClose={mockOnClose} />
@@ -193,7 +195,7 @@ describe("Basic Functionality", () => {
       expect(getByTestId("generic-table")).toBeVisible();
     });
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     userEvent.click(getByTestId("download-file2-button"));
 
@@ -201,7 +203,7 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-file1-button")).toBeDisabled();
     expect(getByTestId("download-all-button")).toBeDisabled();
 
-    jest.advanceTimersByTime(3001); // Simulate the delay for the download to complete
+    vi.advanceTimersByTime(3001); // Simulate the delay for the download to complete
 
     await waitFor(() => {
       expect(getByTestId("download-file2-button")).toBeEnabled();
@@ -210,8 +212,8 @@ describe("Basic Functionality", () => {
     expect(getByTestId("download-file1-button")).toBeEnabled();
     expect(getByTestId("download-all-button")).toBeEnabled();
 
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("should disable the download all button when there are no files to download", async () => {
@@ -335,11 +337,50 @@ describe("Implementation Requirements", () => {
     expect(within(getByTestId("file-list-dialog")).getByText(expected)).toBeVisible();
   });
 
-  it("should render the placeholder text when there are no files", () => {
+  it("should render the placeholder text when there are no files (metadata)", () => {
     const { getByText } = render(
-      <TestParent>
-        <Dialog open batch={{ ...baseBatch, files: [], fileCount: 0 }} />
-      </TestParent>
+      <Dialog open batch={{ ...baseBatch, type: "metadata", files: [], fileCount: 0 }} />,
+      { wrapper: TestParent }
+    );
+
+    expect(getByText(/No files were uploaded./)).toBeInTheDocument();
+  });
+
+  it("should render an explanation for successful but empty 'data file' batches", () => {
+    const { getByText } = render(
+      <Dialog
+        open
+        batch={{
+          ...baseBatch,
+          type: "data file",
+          status: "Uploaded",
+          files: [],
+          fileCount: 0,
+        }}
+      />,
+      { wrapper: TestParent }
+    );
+
+    expect(
+      getByText(
+        /All files in this manifest have been previously uploaded. No files were uploaded in this batch./i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("should render the 'No files uploaded' message for unsuccessful 'data file' batches", () => {
+    const { getByText } = render(
+      <Dialog
+        open
+        batch={{
+          ...baseBatch,
+          type: "data file",
+          status: "Failed",
+          files: [],
+          fileCount: 0,
+        }}
+      />,
+      { wrapper: TestParent }
     );
 
     expect(getByText(/No files were uploaded./)).toBeInTheDocument();
@@ -457,7 +498,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should open the presigned URL in a new tab", async () => {
-    jest.spyOn(global, "open").mockImplementation(() => null);
+    vi.spyOn(global, "open").mockImplementation(() => null);
 
     const mock: MockedResponse<DownloadMetadataFileResp, DownloadMetadataFileInput> = {
       request: {

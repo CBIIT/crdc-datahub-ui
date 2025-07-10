@@ -1,16 +1,19 @@
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
+import { axe } from "vitest-axe";
+
+import { render, waitFor } from "../../test-utils";
+
 import CustomTick from "./CustomTick";
 
-const mockTitleCase = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockTitleCase = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   titleCase: (...args) => mockTitleCase(...args),
 }));
 
-const originalTitleCase = jest.requireActual("../../utils").titleCase;
-beforeEach(() => {
+const originalTitleCase = (await vi.importActual<typeof import("../../utils")>("../../utils"))
+  .titleCase;
+beforeEach(async () => {
   mockTitleCase.mockImplementation(originalTitleCase);
 });
 
@@ -119,7 +122,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should call onMouseEnter when the mouse enters the tick label", async () => {
-    const handleMouseEnter = jest.fn();
+    const handleMouseEnter = vi.fn();
     const { container } = render(
       <CustomTick
         x={226}
@@ -143,7 +146,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should call onMouseLeave when the mouse leaves the tick label", async () => {
-    const handleMouseLeave = jest.fn();
+    const handleMouseLeave = vi.fn();
     const { container } = render(
       <CustomTick
         x={226}

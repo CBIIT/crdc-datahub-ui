@@ -1,6 +1,6 @@
-import React from "react";
 import { Stack, styled, Switch, SwitchProps, Typography } from "@mui/material";
 import { isEqual } from "lodash";
+import React from "react";
 
 const StyledSwitch = styled((props: SwitchProps) => (
   <Switch

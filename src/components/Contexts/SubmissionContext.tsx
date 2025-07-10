@@ -1,13 +1,16 @@
-import React, { FC, createContext, useCallback, useContext, useMemo, useState } from "react";
 import { ApolloError, ApolloQueryResult, useQuery } from "@apollo/client";
-import { cloneDeep, isEqual } from "lodash";
-import {
-  GetSubmissionResp,
-  GET_SUBMISSION,
-  GetSubmissionInput,
-  SubmissionQCResultsResp,
-  SUBMISSION_QC_RESULTS,
-} from "../../graphql";
+import { cloneDeep, isEqual, merge } from "lodash";
+import React, {
+  FC,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import { GetSubmissionResp, GET_SUBMISSION, GetSubmissionInput } from "../../graphql";
 import { compareNodeStats, Logger } from "../../utils";
 
 export type SubmissionCtxState = {
@@ -24,17 +27,9 @@ export type SubmissionCtxState = {
    */
   error: ApolloError | null;
   /**
-   * The partial Validation Results data
+   * Initiates polling for the query at the specified interval, with options to skip queries
    */
-  qcData?: SubmissionQCResultsResp<true> | null;
-  /**
-   * The error returned by the Validation Results query
-   */
-  qcError?: ApolloError | null;
-  /**
-   * Initiates polling for the query at the specified interval
-   */
-  startPolling?: (pollInterval: number) => void;
+  startPolling?: (pollInterval: number, partial?: boolean) => void;
   /**
    * Stops polling for the query
    */
@@ -42,7 +37,9 @@ export type SubmissionCtxState = {
   /**
    * Force refetch the query
    */
-  refetch?: () => Promise<ApolloQueryResult<GetSubmissionResp>>;
+  refetch?: (
+    variables?: Partial<GetSubmissionInput>
+  ) => Promise<ApolloQueryResult<GetSubmissionResp>>;
   /**
    * Update the cached query data without a network request
    *
@@ -117,6 +114,11 @@ const MemoedProvider = React.memo<{ value: SubmissionCtxState; children: React.R
  */
 export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: ProviderProps) => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
+  const [mergedData, setMergedData] = useState<GetSubmissionResp>(null);
+
+  useEffect(() => {
+    setMergedData(null);
+  }, [_id]);
 
   const {
     data,
@@ -128,7 +130,7 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     updateQuery,
   } = useQuery<GetSubmissionResp, GetSubmissionInput>(GET_SUBMISSION, {
     notifyOnNetworkStatusChange: true,
-    variables: { id: _id },
+    variables: { id: _id, partial: isPolling ?? false },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
     onCompleted: (d) => {
@@ -137,18 +139,12 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
         d?.getSubmission?.metadataValidationStatus === "Validating" ||
         d?.getSubmission?.crossSubmissionStatus === "Validating";
       const isDeleting = d?.getSubmission?.deletingData === true;
-      const hasUploadingBatches = d?.batchStatusList?.batches?.some(
-        (b) => b.status === "Uploading"
-      );
-
+      const hasUploadingBatches =
+        d?.getSubmissionAttributes?.submissionAttributes?.isBatchUploading;
       if (!isValidating && !hasUploadingBatches && !isDeleting) {
-        stopApolloPolling();
-        stopQCPolling();
-        setIsPolling(false);
-      } else {
-        startApolloPolling(1000);
-        startQCPolling(1000);
-        setIsPolling(true);
+        stopPolling();
+      } else if (!isPolling) {
+        startPolling(1000);
       }
     },
     onError: (e) => {
@@ -156,47 +152,42 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
     },
   });
 
-  const {
-    data: qcData,
-    error: qcError,
-    startPolling: startQCPolling,
-    stopPolling: stopQCPolling,
-  } = useQuery<SubmissionQCResultsResp<true>>(SUBMISSION_QC_RESULTS, {
-    variables: { id: _id, partial: true },
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
-    notifyOnNetworkStatusChange: true,
-    onError: (err) => {
-      Logger.error("Error fetching submission validation results data", err);
-    },
-  });
-
   const status: SubmissionCtxStatus = useMemo<SubmissionCtxStatus>(() => {
-    if (error || (!loading && !data?.getSubmission?._id)) {
+    if (error || (!loading && !mergedData)) {
       return SubmissionCtxStatus.ERROR;
     }
     if (isPolling) {
       return SubmissionCtxStatus.POLLING;
     }
-    if (loading && !data) {
+    if (loading && !mergedData) {
       return SubmissionCtxStatus.LOADING;
     }
 
     return SubmissionCtxStatus.LOADED;
-  }, [loading, error, data, isPolling]);
+  }, [loading, error, isPolling, mergedData]);
 
-  const memoedData: GetSubmissionResp = useMemo<GetSubmissionResp>(() => {
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
     let sortedStats = [];
-    if (Array.isArray(data?.submissionStats?.stats)) {
+    if (Array.isArray(data.submissionStats?.stats)) {
       sortedStats = cloneDeep(data.submissionStats.stats);
       sortedStats.sort(compareNodeStats);
     }
+    // Polled partial data will replace existing data
+    if (isPolling) {
+      setMergedData((prev) => merge({}, prev, data));
+      return;
+    }
 
-    return {
+    // Otherwise, just replace all existing data with new data
+    setMergedData((prev) => ({
+      ...prev,
       getSubmission: data?.getSubmission,
       submissionStats: { stats: sortedStats },
-      batchStatusList: data?.batchStatusList,
-    };
+      getSubmissionAttributes: data?.getSubmissionAttributes,
+    }));
   }, [data]);
 
   /**
@@ -205,34 +196,30 @@ export const SubmissionProvider: FC<ProviderProps> = ({ _id, children }: Provide
   const startPolling = useCallback(
     (interval: number) => {
       startApolloPolling(interval);
-      startQCPolling(interval);
       setIsPolling(true);
     },
-    [startApolloPolling, startQCPolling]
+    [startApolloPolling]
   );
 
   /**
-   * Wrapper function to stop polling for the submission and QC results
+   * Wrapper function to stop polling for the submission
    */
   const stopPolling = useCallback(() => {
     stopApolloPolling();
-    stopQCPolling();
     setIsPolling(false);
-  }, [stopApolloPolling, stopQCPolling]);
+  }, [stopApolloPolling]);
 
   const value: SubmissionCtxState = useMemo<SubmissionCtxState>(
     () => ({
       status,
-      data: memoedData,
+      data: mergedData,
       error,
-      qcData,
-      qcError,
       startPolling,
       stopPolling,
       refetch,
       updateQuery,
     }),
-    [status, memoedData, error, startPolling, stopPolling, refetch, updateQuery, qcData, qcError]
+    [status, mergedData, error, startPolling, stopPolling, refetch, updateQuery]
   );
 
   return <MemoedProvider value={value}>{children}</MemoedProvider>;

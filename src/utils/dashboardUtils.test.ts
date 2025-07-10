@@ -1,16 +1,17 @@
 import { DashboardContentOptions } from "amazon-quicksight-embedding-sdk";
+
 import { addStudiesParameter, addDataCommonsParameter } from "./dashboardUtils";
 import { Logger } from "./logger";
 
-jest.mock("./logger", () => ({
+vi.mock("./logger", () => ({
   Logger: {
-    error: jest.fn(),
+    error: vi.fn(),
   },
 }));
 
 describe("addStudiesParameter", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return an empty array if user has 'All' as the first study", () => {
@@ -99,7 +100,7 @@ describe("addStudiesParameter", () => {
 
 describe("addDataCommonsParameter", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return an array with dataCommonsParameter if user has valid dataCommons", () => {

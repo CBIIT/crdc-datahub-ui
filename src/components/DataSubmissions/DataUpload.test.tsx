@@ -1,27 +1,35 @@
-import { FC, useMemo } from "react";
-import { act, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+import { act, render, waitFor } from "../../test-utils";
 import {
   Context as AuthCtx,
   ContextState as AuthCtxState,
   Status as AuthStatus,
 } from "../Contexts/AuthContext";
-import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+
 import { DataUpload } from "./DataUpload";
 
-jest.mock("../../env", () => ({
-  ...jest.requireActual("../../env"),
-  REACT_APP_BACKEND_API: "mocked-backend-api-url",
-  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+  return {
+    default: {
+      ...mod.default,
+      VITE_BACKEND_API: "mocked-backend-api-url",
+      VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+    },
+  };
+});
+
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
@@ -232,7 +240,10 @@ describe("Basic Functionality", () => {
     userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
     userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
-    userEvent.click(getByText("Download"));
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(getByText("Download"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -475,7 +486,7 @@ describe("Implementation Requirements", () => {
     { input: "CRDCDH-1234", expected: "cli-config-CRDCDH-1234.yml" },
     { input: "SPACE-AT-END ", expected: "cli-config-SPACE-AT-END.yml" },
   ])(
-    "should safely name the Uploader CLI config file based on the submission name",
+    "should safely name the Uploader CLI config file based on the submission name '%s'",
     async ({ input, expected }) => {
       const mocks: MockedResponse<RetrieveCLIConfigResp>[] = [
         {
@@ -503,7 +514,10 @@ describe("Implementation Requirements", () => {
       userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
       userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
-      userEvent.click(getByText("Download"));
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+      await act(async () => {
+        userEvent.click(getByText("Download"));
+      });
 
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledWith(
