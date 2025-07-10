@@ -20,6 +20,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -45,6 +46,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 type ParentProps = {

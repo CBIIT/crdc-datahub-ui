@@ -22,6 +22,7 @@ const BaseSubmission: Omit<
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -43,6 +44,7 @@ const BaseSubmission: Omit<
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 type TestParentProps = {

@@ -174,7 +174,9 @@ const SelectInput: FC<Props> = ({
 
   const [val, setVal] = useState(multiple ? [] : "");
   const [error, setError] = useState(false);
+  const [minWidth, setMinWidth] = useState<number | null>(null);
   const helperText = helpText || (required ? "This field is required" : " ");
+  const selectRef = useRef(null);
   const inputRef = useRef(null);
 
   const processValue = (newValue: string | string[]) => {
@@ -216,6 +218,14 @@ const SelectInput: FC<Props> = ({
     setError(false);
   };
 
+  const handleOpen = () => {
+    if (!selectRef.current) {
+      return;
+    }
+
+    setMinWidth(selectRef.current.offsetWidth);
+  };
+
   useEffect(() => {
     const invalid = () => setError(true);
 
@@ -238,12 +248,17 @@ const SelectInput: FC<Props> = ({
           {tooltipText && <Tooltip placement="right" title={tooltipText} />}
         </StyledFormLabel>
         <StyledSelect
+          ref={selectRef}
           size="small"
           value={val}
           onChange={(e) => onChangeWrapper(e.target.value)}
           required={required}
           IconComponent={DropdownArrowsIcon}
-          MenuProps={{ disablePortal: true }}
+          onOpen={handleOpen}
+          MenuProps={{
+            disablePortal: true,
+            sx: { width: minWidth ? `${minWidth}px` : "auto" },
+          }}
           slotProps={{ input: { id } }}
           multiple={multiple}
           placeholderText={placeholder}

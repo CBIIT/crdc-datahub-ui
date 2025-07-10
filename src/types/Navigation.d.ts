@@ -12,7 +12,7 @@ type NavBarItem = {
   /**
    * The link to navigate to when the Navigation Item is clicked
    */
-  link: string;
+  link?: string;
   /**
    * The class name of the Navigation Item
    *
@@ -29,6 +29,10 @@ type NavBarItem = {
    *   otherwise it will be hidden
    */
   permissions?: AuthPermissions[];
+  /**
+   * Defines the columns of sub-navigation items
+   */
+  columns?: NavBarSubItem[][];
 };
 
 type NavBarSubItem = {
@@ -64,12 +68,6 @@ type NavBarSubItem = {
    */
   text?: string;
   /**
-   * The onClick function to be called when the Navigation Sub Item is clicked
-   *
-   * @note Only works if the className is `navMobileSubItem action`
-   */
-  onClick?: () => void;
-  /**
    * Defines a list of permissions necessary for the Navigation Sub Item to be shown
    *
    * Guide:
@@ -77,6 +75,10 @@ type NavBarSubItem = {
    *   otherwise it will be hidden
    */
   permissions?: AuthPermissions[];
+  /**
+   * A unique identifier to define an action to take place when thhe item is clicked
+   */
+  actionId?: string;
 };
 
 type FooterConfiguration = {

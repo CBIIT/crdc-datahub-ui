@@ -32,7 +32,7 @@ import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import Tooltip from "../Tooltip";
-import { Logger, validateEmoji } from "../../utils";
+import { Logger, formatFullStudyName, validateEmoji } from "../../utils";
 import { RequiresStudiesAssigned } from "../../config/AuthRoles";
 import { hasPermission } from "../../config/AuthPermissions";
 
@@ -192,7 +192,7 @@ const StyledBellIcon = styled(BellIcon)({
   width: "18px",
   position: "absolute",
   right: "-28px",
-  color: "#D82F00",
+  color: "#C94313",
 });
 
 type Props = {
@@ -223,6 +223,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const [error, setError] = useState<boolean>(false);
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
+  const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
 
   const shouldFetchAllStudies = useMemo<boolean>(
     () =>
@@ -470,14 +471,24 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                   <StyledSelect
                     {...field}
                     value={field.value || ""}
-                    MenuProps={{ disablePortal: true }}
+                    onOpen={(event) =>
+                      setSelectMinWidth((event.currentTarget as HTMLElement)?.offsetWidth || null)
+                    }
+                    MenuProps={{
+                      disablePortal: true,
+                      sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                    }}
                     aria-describedby="submission-study-abbreviation-helper-text"
                     inputProps={{ "aria-labelledby": "study" }}
                     data-testid="create-data-submission-dialog-study-id-input"
                   >
                     {studies.map((study) => (
-                      <MenuItem key={study._id} value={study._id}>
-                        {study.studyAbbreviation}
+                      <MenuItem
+                        key={study._id}
+                        value={study._id}
+                        data-testid={`study-option-${study._id}`}
+                      >
+                        {formatFullStudyName(study.studyName, study.studyAbbreviation)}
                       </MenuItem>
                     ))}
                   </StyledSelect>

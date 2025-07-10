@@ -3,12 +3,13 @@ type Submission = {
   name: string;
   submitterID: string;
   submitterName: string; // <first name> <last name>
-  organization: Pick<Organization, "_id" | "name">; // Organization
+  organization: Pick<Organization, "_id" | "name" | "abbreviation">; // Organization
   dataCommons: string;
   dataCommonsDisplayName: string;
   modelVersion: string;
   studyID: string;
   studyAbbreviation: string;
+  studyName: string;
   dbGaPID: string; // # aka. phs number
   bucketName: string; // # populated from organization
   rootPath: string; // # a submission folder will be created under this path, default is / or "" meaning root folder
@@ -68,6 +69,10 @@ type Submission = {
    * A list of additional submitters who can view and edit the submission
    */
   collaborators: Collaborator[];
+  /**
+   * The total size of data files in the Submission
+   */
+  dataFileSize: FileSize;
   createdAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
   updatedAt: string; // ISO 8601 date time format with UTC or offset e.g., 2023-05-01T09:23:30Z
 };
@@ -205,6 +210,11 @@ type RecordParentNode = {
   parentType: string; // node type of the parent node, e.g. "study"
   parentIDPropName: string; // ID property name can be used to identify parent node, e.g., "study_id"
   parentIDValue: string; // Value for above ID property, e.g. "CDS-study-007"
+};
+
+type FileSize = {
+  formatted: string;
+  size: number;
 };
 
 type AggregatedQCResult = {

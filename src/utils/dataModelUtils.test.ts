@@ -22,6 +22,7 @@ describe("fetchManifest cases", () => {
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
         "release-notes": "release-notes.md",
+        "model-navigator-config": null,
         versions: [],
       },
     };
@@ -41,6 +42,7 @@ describe("fetchManifest cases", () => {
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
         "release-notes": "release-notes.md",
+        "model-navigator-config": null,
         versions: [],
       },
     };
@@ -63,6 +65,7 @@ describe("fetchManifest cases", () => {
         "loading-file": "cds-loading.zip",
         "current-version": "1.0",
         "release-notes": "release-notes.md",
+        "model-navigator-config": null,
         versions: [],
       },
     };
@@ -106,6 +109,74 @@ describe("fetchManifest cases", () => {
     await utils.fetchManifest();
 
     expect(fetch).toHaveBeenCalledWith(`${MODEL_FILE_REPO}prod/cache/content.json`);
+  });
+});
+
+describe("listAvailableModelVersions", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    sessionStorage.clear();
+  });
+
+  it("should return available model versions", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: ["XXX", "1.0", "2.0", "3.0"],
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual(["XXX", "1.0", "2.0", "3.0"]);
+  });
+
+  it("should catch fetchManifest exception and return empty array", async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("fetch error")));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("should return an empty array if the model is not found in the manifest", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: ["mock-version"],
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("this-model-does-not-exist");
+
+    expect(versions).toEqual([]);
+  });
+
+  it("should return an empty array if no versions are found (empty)", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: [],
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual([]);
+  });
+
+  it("should return an empty array if no versions are found (non-array)", async () => {
+    const fakeManifest: DataModelManifest = {
+      CDS: {
+        versions: null,
+      } as ManifestAssets,
+    };
+    sessionStorage.setItem("manifest", JSON.stringify(fakeManifest));
+
+    const versions = await utils.listAvailableModelVersions("CDS");
+
+    expect(versions).toEqual([]);
   });
 });
 
@@ -305,35 +376,29 @@ describe("buildBaseFilterContainers tests", () => {
   });
 
   it("should return an empty object if facetFilterSearchData is not an array or is an empty array", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: null,
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: null,
+    } as ModelNavigatorConfig;
 
     const result = utils.buildBaseFilterContainers(dc);
     expect(result).toEqual({});
 
-    const dc2: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc2: ModelNavigatorConfig = {
+      facetFilterSearchData: [],
+    } as ModelNavigatorConfig;
 
     const result2 = utils.buildBaseFilterContainers(dc2);
     expect(result2).toEqual({});
   });
 
   it("should build filter containers correctly", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [
-          { datafield: "field1" },
-          { datafield: "field2" },
-          { datafield: null },
-        ] as FacetSearchData[],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: [
+        { datafield: "field1" },
+        { datafield: "field2" },
+        { datafield: null },
+      ] as FacetSearchData[],
+    } as ModelNavigatorConfig;
 
     const result = utils.buildBaseFilterContainers(dc);
     expect(result).toEqual({
@@ -354,35 +419,29 @@ describe("buildFilterOptionsList tests", () => {
   });
 
   it("should return an empty array if facetFilterSearchData is not an array or is an empty array", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: null,
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: null,
+    } as ModelNavigatorConfig;
 
     const result = utils.buildFilterOptionsList(dc);
     expect(result).toEqual([]);
 
-    const dc2: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc2: ModelNavigatorConfig = {
+      facetFilterSearchData: [],
+    } as ModelNavigatorConfig;
 
     const result2 = utils.buildFilterOptionsList(dc2);
     expect(result2).toEqual([]);
   });
 
   it("should build filter options list correctly", () => {
-    const dc: DataCommon = {
-      configuration: {
-        facetFilterSearchData: [
-          { checkboxItems: [{ name: "Item 1" }, { name: "Item 2" }] },
-          { checkboxItems: [{ name: "Item 3" }, { name: "Item 4" }] },
-          { checkboxItems: null },
-        ] as FacetSearchData[],
-      } as ModelNavigatorConfig,
-    } as DataCommon;
+    const dc: ModelNavigatorConfig = {
+      facetFilterSearchData: [
+        { checkboxItems: [{ name: "Item 1" }, { name: "Item 2" }] },
+        { checkboxItems: [{ name: "Item 3" }, { name: "Item 4" }] },
+        { checkboxItems: null },
+      ] as FacetSearchData[],
+    } as ModelNavigatorConfig;
 
     const result = utils.buildFilterOptionsList(dc);
     expect(result).toEqual(["item 1", "item 2", "item 3", "item 4"]);

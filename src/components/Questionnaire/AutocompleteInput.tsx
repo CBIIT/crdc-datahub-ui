@@ -168,7 +168,7 @@ const AutocompleteInput = <T,>({
   const processValue = (newValue: T) => {
     if (typeof validate === "function") {
       const customIsValid = validate(newValue);
-      updateInputValidity(inputRef, !customIsValid ? helpText : "");
+      updateInputValidity(inputRef, !customIsValid ? helperText : "");
     } else if (required) {
       updateInputValidity(inputRef, !newValue ? helperText : "");
     }

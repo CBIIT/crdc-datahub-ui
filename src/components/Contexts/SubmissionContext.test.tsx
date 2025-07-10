@@ -36,6 +36,7 @@ const baseSubmission: Submission = {
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -61,6 +62,7 @@ const baseSubmission: Submission = {
   updatedAt: "",
   studyID: "",
   collaborators: [],
+  dataFileSize: null,
 };
 
 const TestChild: FC = () => {

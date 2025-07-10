@@ -2,8 +2,8 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const mutation: TypedDocumentNode<Response, Input> = gql`
-  mutation cancelApplication($_id: ID!) {
-    cancelApplication: deleteApplication(_id: $_id) {
+  mutation cancelApplication($_id: ID!, $comment: String!) {
+    cancelApplication: deleteApplication(_id: $_id, comment: $comment) {
       _id
     }
   }
@@ -14,6 +14,10 @@ export type Input = {
    * ID of the application to cancel
    */
   _id: string;
+  /**
+   * Justification for canceling the application
+   */
+  comment: string;
 };
 
 export type Response = {

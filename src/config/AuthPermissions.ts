@@ -1,3 +1,4 @@
+import { getUserPermissionExtensions, getUserPermissionKey } from "../utils/profileUtils";
 import {
   Roles as ALL_ROLES,
   CanDeleteOtherSubmissionRequests,
@@ -11,7 +12,7 @@ const NO_CONDITIONS = "NO CONDITIONS";
 
 type PermissionCheck<Key extends keyof Permissions> =
   | typeof NO_CONDITIONS
-  | ((user: User, data: Permissions[Key]["dataType"]) => boolean);
+  | ((user: User, data: Permissions[Key]["dataType"], extensions: string[][]) => boolean);
 
 type PermissionMap = {
   [Key in keyof Permissions]: Partial<{
@@ -19,7 +20,7 @@ type PermissionMap = {
   }>;
 };
 
-type Permissions = {
+export type Permissions = {
   access: {
     dataType: null;
     action: "request";
@@ -48,6 +49,10 @@ type Permissions = {
     dataType: null;
     action: "manage";
   };
+  institution: {
+    dataType: null;
+    action: "manage";
+  };
 };
 
 export const PERMISSION_MAP = {
@@ -57,7 +62,7 @@ export const PERMISSION_MAP = {
     submit: (user, application) => {
       const { role } = user;
       const isFormOwner = application?.applicant?.applicantID === user?._id;
-      const hasPermissionKey = user?.permissions?.includes("submission_request:submit");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "submission_request:submit"));
       const submitStatuses: ApplicationStatus[] = ["In Progress", "Inquired"];
 
       if (!submitStatuses?.includes(application?.status)) {
@@ -72,7 +77,7 @@ export const PERMISSION_MAP = {
     },
     review: NO_CONDITIONS,
     cancel: (user, application) => {
-      const hasPermissionKey = user?.permissions?.includes("submission_request:cancel");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "submission_request:cancel"));
       if (!hasPermissionKey) {
         return false;
       }
@@ -103,7 +108,7 @@ export const PERMISSION_MAP = {
   data_submission: {
     view: NO_CONDITIONS,
     create: (user, submission) => {
-      const hasPermissionKey = user?.permissions?.includes("data_submission:create");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:create"));
       const isSubmissionOwner = submission?.submitterID === user?._id;
       const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
 
@@ -118,7 +123,7 @@ export const PERMISSION_MAP = {
     },
     review: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = user?.permissions?.includes("data_submission:review");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:review"));
 
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
@@ -134,7 +139,7 @@ export const PERMISSION_MAP = {
     },
     admin_submit: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = user?.permissions?.includes("data_submission:admin_submit");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:admin_submit"));
 
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
@@ -150,7 +155,7 @@ export const PERMISSION_MAP = {
     },
     confirm: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = user?.permissions?.includes("data_submission:confirm");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:confirm"));
 
       if (role === "Federal Lead" && hasPermissionKey) {
         return studies?.some((s) => s._id === submission.studyID || s._id === "All");
@@ -166,7 +171,7 @@ export const PERMISSION_MAP = {
     },
     cancel: (user, submission) => {
       const { role, dataCommons, studies } = user;
-      const hasPermissionKey = user?.permissions?.includes("data_submission:cancel");
+      const hasPermissionKey = Boolean(getUserPermissionKey(user, "data_submission:cancel"));
       const isSubmissionOwner = submission?.submitterID === user?._id;
       const isCollaborator = submission?.collaborators?.some((c) => c.collaboratorID === user?._id);
 
@@ -199,6 +204,9 @@ export const PERMISSION_MAP = {
     manage: NO_CONDITIONS,
   },
   study: {
+    manage: NO_CONDITIONS,
+  },
+  institution: {
     manage: NO_CONDITIONS,
   },
 } as const satisfies PermissionMap;
@@ -234,11 +242,12 @@ export const hasPermission = <Resource extends keyof Permissions>(
   }
 
   const permission = (PERMISSION_MAP as PermissionMap)?.[resource]?.[action];
-  const permissionKey = `${resource}:${action}`;
+  const rawPermissionKey = `${resource}:${action}`;
+  const userPermissionKey = getUserPermissionKey(user, rawPermissionKey);
 
   // If no conditions need to be checked, just check if user has permission key
   if (onlyKey || permission === NO_CONDITIONS) {
-    return user.permissions?.includes(permissionKey as AuthPermissions);
+    return Boolean(userPermissionKey);
   }
 
   // If permission not defined, then deny permission
@@ -246,6 +255,9 @@ export const hasPermission = <Resource extends keyof Permissions>(
     return false;
   }
 
+  // Parse all additional permission extensions and group them together
+  const extensions = getUserPermissionExtensions(userPermissionKey);
+
   // Check conditions
-  return !!data && permission(user, data);
+  return !!data && permission(user, data, extensions);
 };

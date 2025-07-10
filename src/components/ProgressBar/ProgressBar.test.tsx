@@ -21,6 +21,7 @@ const BaseUser: User = {
   dataCommons: [],
   dataCommonsDisplayNames: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   permissions: [],

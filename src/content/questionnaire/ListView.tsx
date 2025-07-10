@@ -1,7 +1,6 @@
 import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Alert, Container, Button, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
 import { isEqual } from "lodash";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import bannerSvg from "../../assets/banner/submission_banner.png";
@@ -16,9 +15,6 @@ import {
   REVIEW_APP,
   ReviewAppInput,
   ReviewAppResp,
-  SAVE_APP,
-  SaveAppInput,
-  SaveAppResp,
 } from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -28,24 +24,10 @@ import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import Tooltip from "../../components/Tooltip";
 import { hasPermission } from "../../config/AuthPermissions";
 import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
-import CancelApplicationButton from "../../components/CancelApplicationButton";
+import ToggleApplicationButton from "../../components/ToggleApplicationButton";
+import CreateApplicationButton from "../../components/CreateApplicationButton";
 
 type T = ListApplicationsResp["listApplications"]["applications"][number];
-
-const StyledButton = styled(LoadingButton)({
-  padding: "14px 20px",
-  fontWeight: 700,
-  fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
-  letterSpacing: "2%",
-  lineHeight: "20.14px",
-  borderRadius: "8px",
-  color: "#fff",
-  textTransform: "none",
-  borderColor: "#26B893 !important",
-  background: "#1B8369 !important",
-  marginRight: "25px",
-});
 
 const StyledBannerBody = styled(Stack)({
   marginTop: "-20px",
@@ -112,7 +94,7 @@ const StyledDateTooltip = styled(StyledTooltip)(() => ({
 }));
 
 const StyledSpecialStatus = styled(Stack)({
-  color: "#D82F00",
+  color: "#C94313",
   fontWeight: 600,
 });
 
@@ -215,7 +197,10 @@ const columns: Column<T>[] = [
             ["New", "In Progress", "Inquired"].includes(a.status)
           ) {
             return (
-              <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+              <Link
+                to={`/submission-request/${a?.["_id"]}`}
+                state={{ from: "/submission-requests" }}
+              >
                 <StyledActionButton bg="#99E3BB" text="#156071" border="#63BA90">
                   Resume
                 </StyledActionButton>
@@ -239,7 +224,7 @@ const columns: Column<T>[] = [
           }
 
           return (
-            <Link to={`/submission/${a?.["_id"]}`} state={{ from: "/submissions" }}>
+            <Link to={`/submission-request/${a?.["_id"]}`} state={{ from: "/submission-requests" }}>
               <StyledActionButton bg="#89DDE6" text="#156071" border="#84B4BE">
                 View
               </StyledActionButton>
@@ -260,7 +245,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => (
       <QuestionnaireContext.Consumer>
         {({ tableRef }) => (
-          <CancelApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
+          <ToggleApplicationButton application={a} onCancel={() => tableRef.current?.refresh?.()} />
         )}
       </QuestionnaireContext.Consumer>
     ),
@@ -272,7 +257,7 @@ const columns: Column<T>[] = [
 ];
 
 /**
- * View for List of Questionnaire/Submissions
+ * View for List of Submission Requests
  *
  * @returns {JSX.Element}
  */
@@ -283,12 +268,11 @@ const ListingView: FC = () => {
   const { state } = useLocation();
   const { user, status: authStatus } = useAuthContext();
 
-  const [creatingApplication, setCreatingApplication] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<ListApplicationsResp["listApplications"]>(null);
-  const filtersRef = useRef<FilterForm>({ ...defaultValues });
 
+  const filtersRef = useRef<FilterForm>({ ...defaultValues });
   const tableRef = useRef<TableMethods>(null);
 
   const [listApplications] = useLazyQuery<ListApplicationsResp, ListApplicationsInput>(
@@ -299,51 +283,28 @@ const ListingView: FC = () => {
     }
   );
 
-  const [saveApp] = useMutation<SaveAppResp, SaveAppInput>(SAVE_APP, {
-    context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
-  });
-
   const [reviewApp] = useMutation<ReviewAppResp, ReviewAppInput>(REVIEW_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
 
-  const createApp = async () => {
-    setCreatingApplication(true);
-    const { data: d, errors } = await saveApp({
-      variables: {
-        application: {
-          _id: undefined,
-          studyName: "",
-          studyAbbreviation: "",
-          questionnaireData: "{}",
-          controlledAccess: false,
-          openAccess: false,
-          ORCID: "",
-          PI: "",
-          programName: "",
-          programAbbreviation: "",
-          programDescription: "",
-        },
-      },
-    }).catch((e) => ({ data: null, errors: e }));
+  const handleCreate = useCallback(
+    (_id: string) => {
+      if (!_id) {
+        navigate("", {
+          state: {
+            error: "Unable to create a submission request. Please try again later",
+          },
+        });
+        return;
+      }
 
-    setCreatingApplication(false);
-
-    if (errors) {
-      navigate("", {
-        state: {
-          error: "Unable to create a submission request. Please try again later",
-        },
+      navigate(`/submission-request/${_id}`, {
+        state: { from: "/submission-requests" },
       });
-      return;
-    }
-
-    navigate(`/submission/${d?.saveApplication?.["_id"] || "new"}`, {
-      state: { from: "/submissions" },
-    });
-  };
+    },
+    [navigate]
+  );
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -395,9 +356,9 @@ const ListingView: FC = () => {
   const handleOnReviewClick = useCallback(
     async ({ _id, status }: T) => {
       if (status !== "Submitted") {
-        navigate(`/submission/${_id}`, {
+        navigate(`/submission-request/${_id}`, {
           state: {
-            from: "/submissions",
+            from: "/submission-requests",
           },
         });
         return;
@@ -414,9 +375,9 @@ const ListingView: FC = () => {
           throw new Error("Unable to review Submission Request.");
         }
 
-        navigate(`/submission/${_id}`, {
+        navigate(`/submission-request/${_id}`, {
           state: {
-            from: "/submissions",
+            from: "/submission-requests",
           },
         });
       } catch (err) {
@@ -436,14 +397,10 @@ const ListingView: FC = () => {
       <PageBanner
         title="Submission Request List"
         subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
-        padding="57px 0 0 25px"
+        padding="57px 25px 0 25px"
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
-            {hasPermission(user, "submission_request", "create") && (
-              <StyledButton type="button" onClick={createApp} loading={creatingApplication}>
-                Start a Submission Request
-              </StyledButton>
-            )}
+            <CreateApplicationButton onCreate={handleCreate} />
           </StyledBannerBody>
         }
         bannerSrc={bannerSvg}

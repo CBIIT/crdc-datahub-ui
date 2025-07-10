@@ -7,6 +7,7 @@ import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import PermissionPanel from "./index";
 import {
+  EditUserInput,
   RETRIEVE_PBAC_DEFAULTS,
   RetrievePBACDefaultsInput,
   RetrievePBACDefaultsResp,
@@ -77,6 +78,7 @@ describe("Accessibility", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -85,6 +87,7 @@ describe("Accessibility", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -95,6 +98,7 @@ describe("Accessibility", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -103,6 +107,7 @@ describe("Accessibility", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -199,6 +204,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -207,6 +213,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -215,6 +222,7 @@ describe("Basic Functionality", () => {
                   _id: "program:manage",
                   group: "Admin",
                   name: "Manage Programs",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -225,6 +233,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -233,6 +242,7 @@ describe("Basic Functionality", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -304,6 +314,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Group1",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -312,6 +323,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group1",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -320,6 +332,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:review",
                   group: "Group2",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -328,6 +341,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group3",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -336,6 +350,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:view",
                   group: "Group4",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -344,6 +359,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:create",
                   group: "Group5",
                   name: "Create",
+                  inherited: ["data_submission:view"],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -352,6 +368,7 @@ describe("Basic Functionality", () => {
                   _id: "study:manage",
                   group: "Group6",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -429,6 +446,7 @@ describe("Basic Functionality", () => {
                   _id: "access:requested",
                   group: "Group1",
                   name: "Notification 1",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -437,6 +455,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:deleted",
                   group: "Group1",
                   name: "Notification 1-2",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -445,6 +464,7 @@ describe("Basic Functionality", () => {
                   _id: "account:disabled",
                   group: "Group2",
                   name: "Notification 2",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -453,6 +473,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:cancelled",
                   group: "Group3",
                   name: "Notification 3",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -461,6 +482,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:to_be_reviewed",
                   group: "Group4",
                   name: "Notification 4",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -469,6 +491,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:withdrawn",
                   group: "Group5",
                   name: "Notification 5",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -477,6 +500,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:deleted",
                   group: "Group6",
                   name: "Notification 6",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -552,6 +576,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:create",
                   group: "Group1",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 1,
                   checked: true,
                   disabled: false,
@@ -560,6 +585,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:submit",
                   group: "Group1",
                   name: "Submit",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -568,6 +594,7 @@ describe("Basic Functionality", () => {
                   _id: "submission_request:review",
                   group: "Group1",
                   name: "Review",
+                  inherited: [],
                   order: 2,
                   checked: true,
                   disabled: false,
@@ -578,6 +605,7 @@ describe("Basic Functionality", () => {
                   _id: "access:requested",
                   group: "Group1",
                   name: "Notification 1",
+                  inherited: [],
                   order: 1,
                   checked: true,
                   disabled: false,
@@ -586,6 +614,7 @@ describe("Basic Functionality", () => {
                   _id: "data_submission:deleted",
                   group: "Group1",
                   name: "Notification 1-2",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -594,6 +623,7 @@ describe("Basic Functionality", () => {
                   _id: "account:disabled",
                   group: "Group1",
                   name: "Notification 2",
+                  inherited: [],
                   order: 2,
                   checked: true,
                   disabled: false,
@@ -702,6 +732,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -710,6 +741,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -718,6 +750,7 @@ describe("Implementation Requirements", () => {
                   _id: "program:manage",
                   group: "Admin",
                   name: "Manage Programs",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -728,6 +761,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -736,6 +770,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -825,6 +860,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -833,6 +869,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -843,6 +880,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -851,6 +889,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -864,6 +903,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false, // Original submitter had this checked
                   disabled: false,
@@ -872,6 +912,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -882,6 +923,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: false, // Original submitter had this checked
                   disabled: false,
@@ -890,6 +932,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -901,7 +944,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const formValues = {
+    const formValues: Partial<EditUserInput> = {
       role: "Submitter",
       permissions: ["submission_request:create"],
       notifications: ["data_submission:cancelled"],
@@ -1007,6 +1050,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -1015,6 +1059,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:view",
                   group: "Data Submission",
                   name: "View",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -1025,6 +1070,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: true,
@@ -1033,6 +1079,7 @@ describe("Implementation Requirements", () => {
                   _id: "account:disabled",
                   group: "Account",
                   name: "Disabled",
+                  inherited: [],
                   order: 0,
                   checked: true,
                   disabled: false,
@@ -1045,7 +1092,7 @@ describe("Implementation Requirements", () => {
       maxUsageCount: 999,
     };
 
-    const formValues = {
+    const formValues: Partial<EditUserInput> = {
       role: "Federal Lead",
       permissions: [],
       notifications: [],
@@ -1148,6 +1195,7 @@ describe("Implementation Requirements", () => {
                   _id: "submission_request:create",
                   group: "Submission Request",
                   name: "Create",
+                  inherited: ["submission_request:view"],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -1158,6 +1206,7 @@ describe("Implementation Requirements", () => {
                   _id: "data_submission:cancelled",
                   group: "Data Submissions",
                   name: "Cancelled",
+                  inherited: [],
                   order: 0,
                   checked: false,
                   disabled: false,
@@ -1169,7 +1218,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const formValues = {
+    const formValues: Partial<EditUserInput> = {
       role: "Submitter",
       permissions: [],
       notifications: [],
@@ -1202,7 +1251,12 @@ describe("Implementation Requirements", () => {
       })
     );
 
-    expect(mockSetValue).toHaveBeenCalledWith("permissions", ["submission_request:create"]);
+    rerender(<PermissionPanel />); // Force the watch() to be called again and update the form values
+
+    expect(mockSetValue).toHaveBeenCalledWith("permissions", [
+      "submission_request:create", // Selected permission
+      "submission_request:view", // Inherited permission
+    ]);
 
     rerender(<PermissionPanel />); // Force the watch() to be called again and update the form values
 
@@ -1212,7 +1266,9 @@ describe("Implementation Requirements", () => {
       })
     );
 
-    expect(mockSetValue).toHaveBeenCalledWith("permissions", []);
+    expect(mockSetValue).toHaveBeenCalledWith("permissions", [
+      "submission_request:view", // Inherited permission not unchecked
+    ]);
 
     userEvent.click(
       within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
@@ -1259,5 +1315,822 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("no-notifications-notice")).toHaveTextContent(
       /No notification options found for this role./i
     );
+  });
+
+  it("should mark multiple inherited permissions as disabled", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:view",
+                  group: "Submission Request",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  inherited: [
+                    "submission_request:view",
+                    "submission_request:cancel",
+                    "access:request",
+                  ],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "submission_request:cancel",
+                  group: "Submission Request",
+                  name: "Cancel",
+                  inherited: ["submission_request:view"],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancel",
+                  group: "Data Submission",
+                  name: "Cancel",
+                  inherited: ["data_submission:view"],
+                  order: 1,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 1,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "access:request",
+                  group: "Misc",
+                  name: "Access Request",
+                  inherited: [],
+                  order: 2,
+                  checked: true,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: ["submission_request:create", "data_submission:cancel"],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId } = render(<PermissionPanel />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permissions-group-Submission Request")).toBeInTheDocument();
+    });
+
+    const inheritedPermissions: AuthPermissions[] = [
+      "submission_request:view",
+      "submission_request:cancel",
+      "access:request",
+      "data_submission:view",
+    ];
+
+    const nonInheritedPermissions: AuthPermissions[] = [
+      "submission_request:create",
+      "data_submission:cancel",
+    ];
+
+    inheritedPermissions.forEach((p) => {
+      const checkbox = within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+        hidden: true,
+      });
+      expect(checkbox).toBeChecked();
+      expect(checkbox).toBeDisabled();
+    });
+
+    nonInheritedPermissions.forEach((p) => {
+      const checkbox = within(getByTestId(`permission-${p}`)).getByRole("checkbox", {
+        hidden: true,
+      });
+      expect(checkbox).toBeChecked();
+      expect(checkbox).not.toBeDisabled();
+    });
+  });
+
+  it("should disable all options when readOnly is specified", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false, // NOT DISABLED
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false, // NOT DISABLED
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false, // NOT DISABLED
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false, // NOT DISABLED
+                },
+              ],
+            },
+          ],
+        },
+      },
+      maxUsageCount: 999,
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Federal Lead",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    // Trigger role change
+    formValues.role = "Submitter";
+
+    rerender(<PermissionPanel />);
+
+    await waitFor(() => {
+      expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
+    });
+
+    expect(
+      within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeEnabled();
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeEnabled();
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeEnabled();
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeEnabled();
+
+    // Change the readOnly prop
+    rerender(<PermissionPanel readOnly />);
+
+    await waitFor(() => {
+      expect(
+        within(getByTestId("permission-submission_request:create")).getByRole("checkbox", {
+          hidden: true,
+        })
+      ).toBeDisabled();
+    });
+
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeDisabled();
+  });
+
+  it("should display the total number of checked permissions and notifications", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "submission_request:create",
+                  group: "Submission Request",
+                  name: "Create",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancel",
+                  group: "Data Submission",
+                  name: "Cancel",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  inherited: [],
+                  order: 0,
+                  checked: true,
+                  disabled: false,
+                },
+                {
+                  _id: "account:inactivated",
+                  group: "Account",
+                  name: "Inactivated",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: ["submission_request:create", "data_submission:view"],
+      notifications: ["data_submission:cancelled", "account:disabled"],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-submission_request:create")).toBeInTheDocument();
+    });
+
+    rerender(<PermissionPanel />);
+
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(2)/);
+    expect(getByTestId("notifications-count")).toHaveTextContent(/(2)/);
+
+    // Change the permissions and notifications
+    userEvent.click(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+    userEvent.click(
+      within(getByTestId("notification-account:inactivated")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    rerender(<PermissionPanel />);
+
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(3)/);
+    expect(getByTestId("notifications-count")).toHaveTextContent(/(3)/);
+  });
+
+  // NOTE: This is to test an edge case where linked values did not update the form values as expected
+  it("should reflect inherited checkboxes in the total number of checked permissions and notifications", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancel",
+                  group: "Data Submission",
+                  name: "Cancel",
+                  inherited: ["data_submission:view"],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  inherited: ["account:inactivated"],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:inactivated",
+                  group: "Account",
+                  name: "Inactivated",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-data_submission:view")).toBeInTheDocument();
+    });
+
+    rerender(<PermissionPanel />);
+
+    // Nothing is checked initially
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(0)/);
+    expect(getByTestId("notifications-count")).toHaveTextContent(/(0)/);
+
+    // Check the checkboxes with inherited values
+    userEvent.click(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+    userEvent.click(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+
+    // NOTE: We are just checking the counts here, the checkboxes are checked in another test
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(2)/);
+    expect(getByTestId("notifications-count")).toHaveTextContent(/(2)/);
+  });
+
+  // NOTE: This test ensures that a inherited permission's inherited permissions are also considered
+  it("should check multi-level inherited permissions", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "data_submission:view",
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:create",
+                  group: "Data Submission",
+                  name: "Create",
+                  inherited: ["data_submission:view"], // Depends on the ability to view
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancel",
+                  group: "Data Submission",
+                  name: "Cancel",
+                  inherited: ["data_submission:create"], // Depends on the ability to create
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-data_submission:view")).toBeInTheDocument();
+    });
+
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(0)/);
+
+    // Check the cancel permission which has a multi-level dependency
+    userEvent.click(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    // Force rerenders to trigger the useEffect. The mock functions in this test do not automatically trigger updates.
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+
+    await waitFor(() => {
+      expect(getByTestId("permissions-count")).toHaveTextContent(/(3)/);
+    });
+
+    // Check that all the inherited permissions are checked
+    expect(
+      within(getByTestId("permission-data_submission:view")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("permission-data_submission:create")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("permission-data_submission:cancel")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+  });
+
+  it("should check multi-level inherited notifications", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [],
+              notifications: [
+                {
+                  _id: "account:inactivated",
+                  group: "Account",
+                  name: "Inactivated",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "account:disabled",
+                  group: "Account",
+                  name: "Disabled",
+                  inherited: ["account:inactivated"], // Depends on the inactivation
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+                {
+                  _id: "data_submission:cancelled",
+                  group: "Data Submissions",
+                  name: "Cancelled",
+                  inherited: ["account:disabled"], // Depends on the disabled account
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: [],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId, rerender } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("notification-account:inactivated")).toBeInTheDocument();
+    });
+
+    expect(getByTestId("notifications-count")).toHaveTextContent(/(0)/);
+
+    // Check the cancelled notification which has a multi-level dependency
+    userEvent.click(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    );
+
+    // Force rerenders to trigger the useEffect. The mock functions in this test do not automatically trigger updates.
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+    rerender(<PermissionPanel />);
+
+    await waitFor(() => {
+      expect(getByTestId("notifications-count")).toHaveTextContent(/(3)/);
+    });
+
+    // Check that all the inherited notifications are checked
+    expect(
+      within(getByTestId("notification-account:inactivated")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("notification-account:disabled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+    expect(
+      within(getByTestId("notification-data_submission:cancelled")).getByRole("checkbox", {
+        hidden: true,
+      })
+    ).toBeChecked();
+  });
+
+  it("should check permissions when both user permission and defaults have scopes", async () => {
+    const mock: MockedResponse<RetrievePBACDefaultsResp, RetrievePBACDefaultsInput> = {
+      request: {
+        query: RETRIEVE_PBAC_DEFAULTS,
+        variables: { roles: ["All"] },
+      },
+      result: {
+        data: {
+          retrievePBACDefaults: [
+            {
+              role: "Submitter",
+              permissions: [
+                {
+                  _id: "data_submission:view:scope:scope-value" as AuthPermissions,
+                  group: "Data Submission",
+                  name: "View",
+                  inherited: [],
+                  order: 0,
+                  checked: false,
+                  disabled: false,
+                },
+              ],
+              notifications: [],
+            },
+          ],
+        },
+      },
+    };
+
+    const formValues: Partial<EditUserInput> = {
+      role: "Submitter",
+      permissions: ["data_submission:view:scope:scope-value" as AuthPermissions],
+      notifications: [],
+    };
+
+    const mockWatcher = jest.fn().mockImplementation((field) => formValues[field] ?? "");
+
+    const mockSetValue = jest.fn().mockImplementation((field, value) => {
+      formValues[field] = value;
+    });
+
+    const { getByTestId } = render(<PermissionPanel readOnly={false} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mock]}
+          methods={{ watch: mockWatcher, setValue: mockSetValue } as unknown as FormProviderProps}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("permission-data_submission:view:scope:scope-value")).toBeInTheDocument();
+    });
+
+    expect(getByTestId("permissions-count")).toHaveTextContent(/(1)/);
+
+    expect(
+      within(getByTestId("permission-data_submission:view:scope:scope-value")).getByRole(
+        "checkbox",
+        {
+          hidden: true,
+        }
+      )
+    ).toBeChecked();
   });
 });

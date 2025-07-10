@@ -6,6 +6,9 @@ const components: Components = {
       disableElevation: true,
     },
     styleOverrides: {
+      text: {
+        textTransform: "none",
+      },
       contained: {
         display: "flex",
         justifyContent: "center",
@@ -31,7 +34,7 @@ const components: Components = {
             opacity: 0.4,
           },
           "&.MuiButton-containedInfo": {
-            fontWeight: 500,
+            fontWeight: 700,
             color: "#EDEDED",
             background: "#B1B1B1",
             border: "1.5px solid #6B7294",
@@ -83,7 +86,7 @@ const components: Components = {
       },
       containedInfo: {
         border: "1.5px solid #6B7294",
-        fontWeight: 500,
+        fontWeight: 700,
         "&:hover": {
           border: "1.5px solid #6B7294",
           background: "#C0DAF3",

@@ -39,6 +39,17 @@ type ModelNavigatorConfig = {
      */
     landscape?: boolean;
   };
+  /**
+   * A map of MDF category names to icon names.
+   *
+   * @example
+   * {
+   *   "mock-category": "case",
+   * }
+   */
+  iconMap?: {
+    [category: string]: string;
+  };
   facetFilterSearchData: FacetSearchData[];
   facetFilterSectionVariables: {
     [key: string]: unknown;

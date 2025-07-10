@@ -27,6 +27,7 @@ const BaseSubmission: Submission = {
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -52,6 +53,7 @@ const BaseSubmission: Submission = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 const baseAuthCtx: AuthContextState = {
@@ -69,6 +71,7 @@ const baseUser: User = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [],
   dataCommonsDisplayNames: [],
   createdAt: "",

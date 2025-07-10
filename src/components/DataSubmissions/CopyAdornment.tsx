@@ -1,7 +1,7 @@
 import { FC, memo } from "react";
-import { IconButton, Stack, styled, Typography } from "@mui/material";
+import { Stack, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon_2.svg";
+import CopyTextButton from "../CopyTextButton";
 
 const StyledCopyWrapper = styled(Stack)({
   height: "42px",
@@ -36,14 +36,6 @@ const StyledCopyValue = styled(Typography)({
   userSelect: "all",
 });
 
-const StyledCopyIDButton = styled(IconButton)({
-  padding: 0,
-  "&.MuiIconButton-root.Mui-disabled": {
-    color: "#B0B0B0",
-  },
-  marginLeft: "auto !important",
-});
-
 type Props = {
   /**
    * The Data Submission ID
@@ -58,33 +50,21 @@ type Props = {
  *
  * @returns {React.FC}
  */
-const CopyAdornment: FC<Props> = ({ _id }) => {
-  const handleCopyID = () => {
-    if (!_id) {
-      return;
-    }
-
-    navigator.clipboard.writeText(_id);
-  };
-
-  return (
-    <StyledCopyWrapper direction="row" gap="13px" alignItems="center">
-      <StyledCopyLabel data-testid="data-submission-id-label" variant="body1">
-        SUBMISSION ID:
-      </StyledCopyLabel>
-      <StyledCopyValue data-testid="data-submission-id-value" variant="body1">
-        {_id}
-      </StyledCopyValue>
-      <StyledCopyIDButton
-        data-testid="data-submission-copy-id-button"
-        aria-label="Copy ID"
-        onClick={handleCopyID}
-        disabled={!_id}
-      >
-        <CopyIconSvg />
-      </StyledCopyIDButton>
-    </StyledCopyWrapper>
-  );
-};
+const CopyAdornment: FC<Props> = ({ _id }) => (
+  <StyledCopyWrapper direction="row" gap="13px" alignItems="center">
+    <StyledCopyLabel data-testid="data-submission-id-label" variant="body1">
+      SUBMISSION ID:
+    </StyledCopyLabel>
+    <StyledCopyValue data-testid="data-submission-id-value" variant="body1">
+      {_id}
+    </StyledCopyValue>
+    <CopyTextButton
+      data-testid="data-submission-copy-id-button"
+      aria-label="Copy ID"
+      disabled={!_id}
+      copyText={_id}
+    />
+  </StyledCopyWrapper>
+);
 
 export default memo(CopyAdornment, isEqual);

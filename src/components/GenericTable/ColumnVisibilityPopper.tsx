@@ -12,6 +12,7 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
+import { isEqual } from "lodash";
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
@@ -145,7 +146,7 @@ type Props<C extends { hideable?: boolean }> = {
  * @param {Props} props
  * @returns {JSX.Element}
  */
-const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
+const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: boolean }>({
   anchorEl,
   open,
   columns,
@@ -156,6 +157,27 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   getColumnKey,
   getColumnLabel,
 }: Props<C>): JSX.Element => {
+  /**
+   * The defined default column visibility.
+   */
+  const defaultVisibilityModel = useMemo(
+    () =>
+      columns.reduce<ColumnVisibilityModel>((model, column) => {
+        const key = getColumnKey(column);
+        model[key] = !column.defaultHidden;
+        return model;
+      }, {}),
+    [columns, getColumnKey]
+  );
+
+  /**
+   * Indicates whether the current columns match the default model.
+   */
+  const isShowingDefaultVisibleColumns = useMemo(
+    () => isEqual(columnVisibilityModel, defaultVisibilityModel),
+    [columnVisibilityModel, defaultVisibilityModel]
+  );
+
   /**
    * Handles the change event for individual column checkboxes.
    * Ensures non-hideable columns remain checked.
@@ -198,16 +220,11 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
   };
 
   /**
-   * Resets all columns to visible.
+   * Resets all columns to the default visibility model.
    * Non-hideable columns remain visible.
    */
   const handleReset = (): void => {
-    const resetModel = columns.reduce<ColumnVisibilityModel>((model, column) => {
-      const key = getColumnKey(column);
-      model[key] = true; // Set all columns to visible
-      return model;
-    }, {});
-    onColumnVisibilityModelChange(resetModel);
+    onColumnVisibilityModelChange({ ...defaultVisibilityModel });
   };
 
   const sortedColumns = useMemo(() => {
@@ -222,17 +239,11 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
     });
   }, [columns, getColumnLabel, sortAlphabetically]);
 
-  // Filter hideable columns for computing 'allChecked' state
   const hideableColumns = columns.filter((column) => column.hideable !== false);
 
   const allHideableChecked = hideableColumns.every((column) => {
     const key = getColumnKey(column);
     return columnVisibilityModel[key];
-  });
-
-  const anyHidden = hideableColumns.some((column) => {
-    const key = getColumnKey(column);
-    return !columnVisibilityModel[key];
   });
 
   return (
@@ -312,7 +323,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean }>({
             <StyledResetButton
               variant="text"
               onClick={handleReset}
-              disabled={!anyHidden}
+              disabled={isShowingDefaultVisibleColumns}
               data-testid="reset-button"
             >
               RESET

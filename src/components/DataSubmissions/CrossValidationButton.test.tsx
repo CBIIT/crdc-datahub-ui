@@ -34,6 +34,7 @@ const baseSubmission: Omit<
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -56,6 +57,7 @@ const baseSubmission: Omit<
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 const baseAuthCtx: AuthCtxState = {
@@ -82,6 +84,7 @@ const baseUser: Omit<User, "role"> = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [],
   dataCommonsDisplayNames: [],
   createdAt: "",
