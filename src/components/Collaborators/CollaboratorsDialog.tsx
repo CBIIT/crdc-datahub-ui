@@ -182,7 +182,7 @@ const CollaboratorsDialog = ({ onClose, onSave, open, ...rest }: Props) => {
         <br />
         Collaborators
       </StyledHeader>
-      <StyledDescription data-testid="collaborators-dialog-description">
+      <StyledDescription data-testid="collaborators-dialog-description-disclaimer">
         Below is a list of collaborators who have been granted access to this data submission. Once
         added, each collaborator can contribute to the submission by uploading data, running
         validations, and submitting.

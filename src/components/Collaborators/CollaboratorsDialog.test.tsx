@@ -148,7 +148,7 @@ describe("CollaboratorsDialog Component", () => {
     expect(getByTestId("collaborators-dialog-header")).toHaveTextContent(
       "Data SubmissionCollaborators" // line break between "Submission" and "Collaborators" text
     );
-    expect(getByTestId("collaborators-dialog-description")).toHaveTextContent(
+    expect(getByTestId("collaborators-dialog-description-disclaimer")).toHaveTextContent(
       "Below is a list of collaborators who have been granted access to this data submission. Once added, each collaborator can contribute to the submission by uploading data, running validations, and submitting."
     );
   });
