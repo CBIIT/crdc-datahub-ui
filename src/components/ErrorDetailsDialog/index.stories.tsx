@@ -1,7 +1,7 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { submissionNodeFactory } from "@/test-utils/factories/submission/SubmissionNodeFactory";
+import { submissionNodeFactory } from "@/factories/submission/SubmissionNodeFactory";
 
 import {
   RETRIEVE_RELEASED_DATA,

@@ -1,8 +1,8 @@
 import { Stack } from "@mui/material";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { questionnaireDataFactory } from "@/test-utils/factories/application/QuestionnaireDataFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
 
 import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
 

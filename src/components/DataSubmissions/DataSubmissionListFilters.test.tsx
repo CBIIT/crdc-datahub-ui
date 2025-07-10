@@ -3,8 +3,8 @@ import React, { FC, useMemo } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import { ListSubmissionsResp } from "../../graphql";
 import { render, waitFor, within } from "../../test-utils";

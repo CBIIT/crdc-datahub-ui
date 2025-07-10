@@ -5,10 +5,10 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { collaboratorFactory } from "@/test-utils/factories/submission/CollaboratorFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
 import { act, render, waitFor } from "../../test-utils";

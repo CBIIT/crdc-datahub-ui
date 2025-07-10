@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 
-import { fontResourceFactory } from "@/test-utils/factories/application/FontResource";
+import { fontResourceFactory } from "@/factories/application/FontResource";
 
 import { FontResource } from "./Fonts";
 import * as utils from "./utils";

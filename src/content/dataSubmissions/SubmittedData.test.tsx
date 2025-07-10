@@ -5,12 +5,12 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { submissionAttributesFactory } from "@/test-utils/factories/submission/SubmissionAttributesFactory";
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
-import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
 
 import { Context as AuthContext } from "../../components/Contexts/AuthContext";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";

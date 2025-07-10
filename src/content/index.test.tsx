@@ -3,7 +3,7 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
 
 import { ContextState, Context, Status } from "../components/Contexts/AuthContext";
 import { render } from "../test-utils";

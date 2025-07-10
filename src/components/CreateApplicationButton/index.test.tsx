@@ -4,8 +4,8 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import { SAVE_APP, SaveAppResp, SaveAppInput } from "../../graphql";
 import { render, waitFor } from "../../test-utils";

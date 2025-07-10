@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { Roles } from "../../config/AuthRoles";
 import { GetSubmissionResp } from "../../graphql";

@@ -5,10 +5,10 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
-import { qcResultFactory } from "@/test-utils/factories/submission/QCResultFactory";
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {

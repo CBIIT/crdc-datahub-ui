@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { submissionAttributesFactory } from "@/test-utils/factories/submission/SubmissionAttributesFactory";
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
 
 import { GetSubmissionResp } from "../../graphql";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";

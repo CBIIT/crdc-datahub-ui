@@ -4,14 +4,14 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
-import { batchFileInfoFactory } from "@/test-utils/factories/submission/BatchFileInfoFactory";
-import { collaboratorFactory } from "@/test-utils/factories/submission/CollaboratorFactory";
-import { fileURLFactory } from "@/test-utils/factories/submission/FileURLFactory";
-import { newBatchFactory } from "@/test-utils/factories/submission/NewBatchFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { batchFileInfoFactory } from "@/factories/submission/BatchFileInfoFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { fileURLFactory } from "@/factories/submission/FileURLFactory";
+import { newBatchFactory } from "@/factories/submission/NewBatchFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { CREATE_BATCH, CreateBatchResp, UPDATE_BATCH, UpdateBatchResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";

@@ -4,10 +4,10 @@ import { GraphQLError } from "graphql";
 import { useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { applicantFactory } from "@/test-utils/factories/application/ApplicantFactory";
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import {
   CANCEL_APP,

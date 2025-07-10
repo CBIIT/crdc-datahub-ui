@@ -1,8 +1,8 @@
 import { axe } from "vitest-axe";
 
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
-import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
 
 import { render, waitFor } from "../../test-utils";
 import * as SubmissionCtx from "../Contexts/SubmissionContext";

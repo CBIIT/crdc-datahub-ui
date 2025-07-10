@@ -2,9 +2,9 @@ import userEvent from "@testing-library/user-event";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { questionnaireDataFactory } from "@/test-utils/factories/application/QuestionnaireDataFactory";
-import { studyFactory } from "@/test-utils/factories/application/StudyFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { studyFactory } from "@/factories/application/StudyFactory";
 
 import { render, waitFor } from "../../test-utils";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";

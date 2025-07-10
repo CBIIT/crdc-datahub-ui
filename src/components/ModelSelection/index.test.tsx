@@ -4,10 +4,10 @@ import { GraphQLError } from "graphql";
 import { FC, ReactNode, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { submissionAttributesFactory } from "@/test-utils/factories/submission/SubmissionAttributesFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   GetSubmissionResp,

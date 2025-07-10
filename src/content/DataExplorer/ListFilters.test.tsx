@@ -3,7 +3,7 @@ import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { releasedStudyFactory } from "@/test-utils/factories/approved-study/ReleasedStudyFactory";
+import { releasedStudyFactory } from "@/factories/approved-study/ReleasedStudyFactory";
 
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import { render, waitFor, within } from "../../test-utils";

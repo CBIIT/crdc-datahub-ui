@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import { query as GET_MY_USER } from "../../graphql/getMyUser";
 import { render, waitFor } from "../../test-utils";

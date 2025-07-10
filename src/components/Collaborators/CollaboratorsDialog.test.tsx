@@ -3,10 +3,10 @@ import React from "react";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
 
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { collaboratorFactory } from "@/test-utils/factories/submission/CollaboratorFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { render, fireEvent, waitFor } from "../../test-utils";
 import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";

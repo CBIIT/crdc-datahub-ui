@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 
-import { pieSectorDataItemFactory } from "@/test-utils/factories/statistics/PieSectorDataItemFactory";
+import { pieSectorDataItemFactory } from "@/factories/statistics/PieSectorDataItemFactory";
 
 import { render, waitFor, within } from "../../test-utils";
 

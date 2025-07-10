@@ -1,7 +1,7 @@
-import { applicantFactory } from "@/test-utils/factories/application/ApplicantFactory";
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { questionnaireDataFactory } from "@/test-utils/factories/application/QuestionnaireDataFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import * as utils from "./formModeUtils";
 

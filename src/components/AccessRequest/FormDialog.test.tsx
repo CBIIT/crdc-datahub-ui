@@ -4,9 +4,9 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { institutionFactory } from "@/test-utils/factories/institution/InstitutionFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
 
 import {
   LIST_APPROVED_STUDIES,

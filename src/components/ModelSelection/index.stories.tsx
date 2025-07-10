@@ -2,10 +2,10 @@ import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within } from "@storybook/test";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { Roles } from "../../config/AuthRoles";
 import {

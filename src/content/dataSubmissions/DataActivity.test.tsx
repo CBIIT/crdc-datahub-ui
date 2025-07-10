@@ -4,8 +4,8 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import * as SubmissionCtx from "../../components/Contexts/SubmissionContext";

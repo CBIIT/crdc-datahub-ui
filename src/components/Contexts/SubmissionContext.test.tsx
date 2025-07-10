@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { FC } from "react";
 
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   GET_SUBMISSION,

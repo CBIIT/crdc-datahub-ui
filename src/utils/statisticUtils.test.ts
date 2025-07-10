@@ -1,4 +1,4 @@
-import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
 
 import * as utils from "./statisticUtils";
 

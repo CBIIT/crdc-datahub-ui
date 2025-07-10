@@ -2,7 +2,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { axe } from "vitest-axe";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
 
 import { render, within } from "../../test-utils";
 

@@ -3,7 +3,7 @@ import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { axe } from "vitest-axe";
 
-import { submissionNodeFactory } from "@/test-utils/factories/submission/SubmissionNodeFactory";
+import { submissionNodeFactory } from "@/factories/submission/SubmissionNodeFactory";
 
 import {
   RETRIEVE_RELEASED_DATA,

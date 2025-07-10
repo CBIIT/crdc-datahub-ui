@@ -1,8 +1,8 @@
 import React, { FC, useMemo } from "react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import {
   Context as AuthContext,

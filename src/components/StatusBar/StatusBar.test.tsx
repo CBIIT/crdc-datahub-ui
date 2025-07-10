@@ -3,9 +3,9 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { formContextStateFactory } from "@/test-utils/factories/application/FormContextStateFactory";
-import { historyEventFactory } from "@/test-utils/factories/application/HistoryEventFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { formContextStateFactory } from "@/factories/application/FormContextStateFactory";
+import { historyEventFactory } from "@/factories/application/HistoryEventFactory";
 
 import StatusApproved from "../../assets/history/submissionRequest/StatusApproved.svg?url";
 import StatusRejected from "../../assets/history/submissionRequest/StatusRejected.svg?url";

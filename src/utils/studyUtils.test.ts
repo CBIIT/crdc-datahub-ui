@@ -1,5 +1,5 @@
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 
 import * as utils from "./studyUtils";
 

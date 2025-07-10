@@ -2,10 +2,10 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { formContextStateFactory } from "@/test-utils/factories/application/FormContextStateFactory";
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { formContextStateFactory } from "@/factories/application/FormContextStateFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import config from "../../config/SectionConfig";

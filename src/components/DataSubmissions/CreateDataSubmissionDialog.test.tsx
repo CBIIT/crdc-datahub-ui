@@ -4,9 +4,9 @@ import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
-import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import {
   CREATE_SUBMISSION,

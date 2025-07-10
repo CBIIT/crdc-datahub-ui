@@ -1,6 +1,6 @@
 import { axe } from "vitest-axe";
 
-import { submissionNodeFactory } from "@/test-utils/factories/submission/SubmissionNodeFactory";
+import { submissionNodeFactory } from "@/factories/submission/SubmissionNodeFactory";
 
 import { RetrieveReleasedDataResp } from "../../graphql";
 import { render } from "../../test-utils";

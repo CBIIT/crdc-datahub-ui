@@ -1,4 +1,4 @@
-import { pbacDefaultFactory } from "@/test-utils/factories/auth/PBACDefaultFactory";
+import { pbacDefaultFactory } from "@/factories/auth/PBACDefaultFactory";
 
 import * as utils from "./profileUtils";
 

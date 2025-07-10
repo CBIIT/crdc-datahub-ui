@@ -3,7 +3,7 @@ import UserEvent from "@testing-library/user-event";
 import { FC } from "react";
 import { axe } from "vitest-axe";
 
-import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
 
 import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
 import { render, waitFor, within } from "../../test-utils";

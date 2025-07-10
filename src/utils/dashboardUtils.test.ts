@@ -1,7 +1,7 @@
 import { DashboardContentOptions } from "amazon-quicksight-embedding-sdk";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import { addStudiesParameter, addDataCommonsParameter } from "./dashboardUtils";
 import { Logger } from "./logger";

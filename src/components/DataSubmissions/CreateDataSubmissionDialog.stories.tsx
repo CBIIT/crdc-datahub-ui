@@ -3,8 +3,8 @@ import { Box } from "@mui/material";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within, screen, expect } from "@storybook/test";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import {
   GetMyUserResp,

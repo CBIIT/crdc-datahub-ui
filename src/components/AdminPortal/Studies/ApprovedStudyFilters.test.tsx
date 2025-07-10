@@ -4,7 +4,7 @@ import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 
 import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../../graphql";
 import { fireEvent, render, waitFor, within } from "../../../test-utils";

@@ -5,8 +5,8 @@ import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {

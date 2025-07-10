@@ -1,9 +1,9 @@
 import { MockedFunction } from "vitest";
 
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { errorMessageFactory } from "@/test-utils/factories/submission/ErrorMessageFactory";
-import { qcResultFactory } from "@/test-utils/factories/submission/QCResultFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
+import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { SUBMIT_BUTTON_CONDITIONS, SubmitButtonCondition } from "../config/SubmitButtonConfig";
 

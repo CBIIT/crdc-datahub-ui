@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import {
   LIST_APPROVED_STUDIES,

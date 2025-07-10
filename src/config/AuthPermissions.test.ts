@@ -1,7 +1,7 @@
-import { applicantFactory } from "@/test-utils/factories/application/ApplicantFactory";
-import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
-import { userFactory } from "@/test-utils/factories/auth/UserFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { hasPermission } from "./AuthPermissions";
 

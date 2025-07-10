@@ -4,7 +4,7 @@ import React, { FC } from "react";
 import { MemoryRouter, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { approvedStudyFactory } from "@/test-utils/factories/approved-study/ApprovedStudyFactory";
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
 
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {

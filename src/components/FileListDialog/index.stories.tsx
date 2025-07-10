@@ -2,8 +2,8 @@ import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within } from "@storybook/test";
 
-import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
-import { batchFileInfoFactory } from "@/test-utils/factories/submission/BatchFileInfoFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { batchFileInfoFactory } from "@/factories/submission/BatchFileInfoFactory";
 
 import {
   DOWNLOAD_METADATA_FILE,

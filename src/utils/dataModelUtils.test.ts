@@ -1,8 +1,8 @@
 import { Mock } from "vitest";
 
-import { dataCommonFactory } from "@/test-utils/factories/data-common/DataCommonFactory";
-import { manifestAssetsFactory } from "@/test-utils/factories/data-common/ManifestAssetsFactory";
-import { modelNavigatorConfigFactory } from "@/test-utils/factories/data-common/ModelNavigatorConfigFactory";
+import { dataCommonFactory } from "@/factories/data-common/DataCommonFactory";
+import { manifestAssetsFactory } from "@/factories/data-common/ManifestAssetsFactory";
+import { modelNavigatorConfigFactory } from "@/factories/data-common/ModelNavigatorConfigFactory";
 
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 

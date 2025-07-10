@@ -4,10 +4,10 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { crossValidationResultFactory } from "@/test-utils/factories/submission/CrossValidationResultFactory";
-import { errorMessageFactory } from "@/test-utils/factories/submission/ErrorMessageFactory";
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { crossValidationResultFactory } from "@/factories/submission/CrossValidationResultFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   CrossValidationResultsInput,

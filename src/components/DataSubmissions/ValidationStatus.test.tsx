@@ -2,8 +2,8 @@ import userEvent from "@testing-library/user-event";
 import { useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { render, waitFor } from "../../test-utils";
 import {

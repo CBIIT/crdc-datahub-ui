@@ -5,12 +5,12 @@ import { MemoryRouter } from "react-router-dom";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
 
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
-import { aggregatedQCResultFactory } from "@/test-utils/factories/submission/AggregatedQCResultFactory";
-import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
-import { submissionCtxStateFactory } from "@/test-utils/factories/submission/SubmissionContextFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
-import { submissionStatisticFactory } from "@/test-utils/factories/submission/SubmissionStatisticFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { aggregatedQCResultFactory } from "@/factories/submission/AggregatedQCResultFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
 
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,

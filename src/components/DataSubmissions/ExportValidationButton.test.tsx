@@ -4,10 +4,10 @@ import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 import { axe } from "vitest-axe";
 
-import { aggregatedQCResultFactory } from "@/test-utils/factories/submission/AggregatedQCResultFactory";
-import { errorMessageFactory } from "@/test-utils/factories/submission/ErrorMessageFactory";
-import { qcResultFactory } from "@/test-utils/factories/submission/QCResultFactory";
-import { submissionFactory } from "@/test-utils/factories/submission/SubmissionFactory";
+import { aggregatedQCResultFactory } from "@/factories/submission/AggregatedQCResultFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
+import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   SUBMISSION_QC_RESULTS,

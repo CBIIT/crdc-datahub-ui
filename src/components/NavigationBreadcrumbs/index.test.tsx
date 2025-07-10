@@ -1,7 +1,7 @@
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { breadcrumbEntryFactory } from "@/test-utils/factories/navigation/BreadcrumbEntryFactory";
+import { breadcrumbEntryFactory } from "@/factories/navigation/BreadcrumbEntryFactory";
 
 import { render } from "../../test-utils";
 

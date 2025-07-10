@@ -5,8 +5,8 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { batchFactory } from "@/test-utils/factories/submission/BatchFactory";
-import { batchFileInfoFactory } from "@/test-utils/factories/submission/BatchFileInfoFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { batchFileInfoFactory } from "@/factories/submission/BatchFileInfoFactory";
 
 import {
   DownloadMetadataFileResp,

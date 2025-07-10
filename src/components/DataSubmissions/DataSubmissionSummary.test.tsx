@@ -6,11 +6,11 @@ import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
-import { organizationFactory } from "@/test-utils/factories/auth/OrganizationFactory";
-import { collaboratorFactory } from "@/test-utils/factories/submission/CollaboratorFactory";
-import { submissionHistoryEventFactory } from "@/test-utils/factories/submission/SubmissionHistoryEvent";
+import { submissionHistoryEventFactory } from "@/factories/submission/SubmissionHistoryEvent";
 
 import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
