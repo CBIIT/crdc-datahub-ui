@@ -27,8 +27,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
+      "@/factories/*": ["./src/test-utils/factories/*"],
       "@/*": ["./src/*"],
-      "@/factories/*": ["./src/test-utils/factories/*"]
     }
   },
   "include": [
