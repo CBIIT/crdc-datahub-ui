@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 
 export const mutation: TypedDocumentNode<Response, Input> = gql`
   mutation cancelApplication($_id: ID!, $comment: String!) {
-    cancelApplication: deleteApplication(_id: $_id, comment: $comment) {
+    cancelApplication: cancelApplication(_id: $_id, comment: $comment) {
       _id
     }
   }
