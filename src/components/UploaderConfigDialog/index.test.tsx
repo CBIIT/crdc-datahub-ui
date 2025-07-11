@@ -329,7 +329,9 @@ describe("Implementation Requirements", () => {
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent("Enter the full path for the Archive Manifest file on your local machine or S3 bucket.");
+    expect(tooltip).toHaveTextContent(
+      "Enter the full path for the Archive Manifest file on your local machine or S3 bucket."
+    );
 
     userEvent.unhover(getByTestId("archive-manifest-input-tooltip"));
 
