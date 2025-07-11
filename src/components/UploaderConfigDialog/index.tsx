@@ -217,7 +217,7 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             <StyledLabel id="archive-manifest-input-label">
               Full Path to Archive Manifest File
               <Tooltip
-                title="TODO"
+                title="Enter the full path for the Archive Manifest file on your local machine or S3 bucket."
                 open={undefined}
                 disableHoverListener={false}
                 data-testid="archive-manifest-input-tooltip"

@@ -329,7 +329,7 @@ describe("Implementation Requirements", () => {
 
     const tooltip = await findByRole("tooltip");
     expect(tooltip).toBeInTheDocument();
-    expect(tooltip).toHaveTextContent("TODO");
+    expect(tooltip).toHaveTextContent("Enter the full path for the Archive Manifest file on your local machine or S3 bucket.");
 
     userEvent.unhover(getByTestId("archive-manifest-input-tooltip"));
 
@@ -382,5 +382,22 @@ describe("Implementation Requirements", () => {
         archive_manifest: "",
       });
     });
+  });
+
+  it("should have the correct placeholder text for the Archive Manifest File input", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    const archiveManifestInput = within(
+      getByTestId("uploader-config-dialog-input-archive-manifest")
+    ).getByRole("textbox");
+
+    expect(archiveManifestInput).toHaveAttribute(
+      "placeholder",
+      "/Users/me/my-metadata-folder/my-archive-manifest.tsv"
+    );
   });
 });
