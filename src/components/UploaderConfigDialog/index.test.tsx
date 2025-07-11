@@ -140,6 +140,13 @@ describe("Basic Functionality", () => {
     fireEvent.input(manifestInput, { target: { value: "test-manifest" } });
     await waitFor(() => expect(manifestInput).toHaveValue("test-manifest"));
 
+    const archiveManifestInput = within(
+      getByTestId("uploader-config-dialog-input-archive-manifest")
+    ).getByRole("textbox");
+
+    fireEvent.input(archiveManifestInput, { target: { value: "test-archive-manifest" } });
+    await waitFor(() => expect(archiveManifestInput).toHaveValue("test-archive-manifest"));
+
     // Simulate closing dialog
     rerender(
       <TestParent>
@@ -157,6 +164,7 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(dataFolderInput).toHaveValue("");
       expect(manifestInput).toHaveValue("");
+      expect(archiveManifestInput).toHaveValue("");
     });
   });
 
@@ -175,6 +183,10 @@ describe("Basic Functionality", () => {
       getByTestId("uploader-config-dialog-input-manifest"),
       "C:/Users/me/my-manifest.tsv   "
     );
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-archive-manifest"),
+      "C:/Users/me/my-archive-manifest.tsv   "
+    );
 
     userEvent.click(getByTestId("uploader-config-dialog-download-button"));
 
@@ -182,6 +194,7 @@ describe("Basic Functionality", () => {
       expect(mockDownload).toHaveBeenCalledWith({
         dataFolder: "C:/Users/me/my-data-folder",
         manifest: "C:/Users/me/my-manifest.tsv",
+        archive_manifest: "C:/Users/me/my-archive-manifest.tsv",
       });
     });
   });
@@ -302,6 +315,72 @@ describe("Implementation Requirements", () => {
 
     await waitFor(() => {
       expect(tooltip).not.toBeVisible();
+    });
+  });
+
+  it("should have a tooltip on the Archive Manifest File input", async () => {
+    const { getByTestId, findByRole } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.hover(getByTestId("archive-manifest-input-tooltip"));
+
+    const tooltip = await findByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent("TODO");
+
+    userEvent.unhover(getByTestId("archive-manifest-input-tooltip"));
+
+    await waitFor(() => {
+      expect(tooltip).not.toBeVisible();
+    });
+  });
+
+  it("should submit with archive_manifest field when provided", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+    userEvent.type(
+      getByTestId("uploader-config-dialog-input-archive-manifest"),
+      "test-archive-manifest"
+    );
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(mockDownload).toHaveBeenCalledWith({
+        dataFolder: "test-folder",
+        manifest: "test-manifest",
+        archive_manifest: "test-archive-manifest",
+      });
+    });
+  });
+
+  it("should submit with undefined archive_manifest field when not provided", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <UploaderConfigDialog open onDownload={mockDownload} onClose={mockOnClose} />
+      </TestParent>
+    );
+
+    userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
+    userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
+
+    userEvent.click(getByTestId("uploader-config-dialog-download-button"));
+
+    await waitFor(() => {
+      expect(mockDownload).toHaveBeenCalledWith({
+        dataFolder: "test-folder",
+        manifest: "test-manifest",
+        archive_manifest: "",
+      });
     });
   });
 });

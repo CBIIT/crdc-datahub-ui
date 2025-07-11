@@ -106,13 +106,14 @@ export const DataUpload: FC<Props> = ({ submission }: Props) => {
     context: { clientName: "backend" },
   });
 
-  const handleConfigDownload = async ({ manifest, dataFolder }: InputForm) => {
+  const handleConfigDownload = async ({ manifest, dataFolder, archive_manifest }: InputForm) => {
     try {
       const { data, error } = await retrieveCLIConfig({
         variables: {
           _id,
           dataFolder,
           manifest,
+          archive_manifest,
           apiURL: env.VITE_BACKEND_API,
         },
       });

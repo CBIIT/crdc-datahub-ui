@@ -108,6 +108,7 @@ const StyledButton = styled(LoadingButton)({
 export type InputForm = {
   dataFolder: string;
   manifest: string;
+  archive_manifest?: string;
 };
 
 type Props = {
@@ -210,6 +211,28 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             />
             <StyledHelperText data-testid="uploader-config-dialog-error-manifest">
               {errors?.manifest?.message}
+            </StyledHelperText>
+          </Box>
+          <Box>
+            <StyledLabel id="archive-manifest-input-label">
+              Full Path to Archive Manifest File
+              <Tooltip
+                title="TODO"
+                open={undefined}
+                disableHoverListener={false}
+                data-testid="archive-manifest-input-tooltip"
+              />
+            </StyledLabel>
+            <StyledOutlinedInput
+              {...register("archive_manifest", {
+                setValueAs: (v: string) => v?.trim(),
+              })}
+              placeholder="/Users/me/my-metadata-folder/my-archive-manifest.tsv"
+              data-testid="uploader-config-dialog-input-archive-manifest"
+              inputProps={{ "aria-labelledby": "archive-manifest-input-label" }}
+            />
+            <StyledHelperText data-testid="uploader-config-dialog-error-archive-manifest">
+              {errors?.archive_manifest?.message}
             </StyledHelperText>
           </Box>
         </StyledForm>
