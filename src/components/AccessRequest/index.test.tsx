@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   LIST_APPROVED_STUDIES,
   LIST_INSTITUTIONS,
@@ -19,22 +21,6 @@ import {
 } from "../Contexts/AuthContext";
 
 import AccessRequest from "./index";
-
-const mockUser: Omit<User, "role" | "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  notifications: [],
-};
 
 const mockListApprovedStudies: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
   request: {
@@ -78,7 +64,7 @@ const MockParent: FC<MockParentProps> = ({ mocks, role, permissions, children })
     () => ({
       isLoggedIn: true,
       status: AuthContextStatus.LOADED,
-      user: { ...mockUser, role, permissions },
+      user: userFactory.build({ role, permissions }),
     }),
     [role]
   );

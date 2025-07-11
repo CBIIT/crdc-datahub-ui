@@ -3,6 +3,9 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -19,23 +22,6 @@ vi.mock("../../hooks/usePageTitle", () => ({
   __esModule: true,
   default: (p) => mockUsePageTitle(p),
 }));
-
-// NOTE: Omitting fields depended on by the component
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
 
 type ParentProps = {
   role: UserRole;
@@ -55,11 +41,12 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: ctxStatus,
-      isLoggedIn: role !== null,
-      user: { ...baseUser, role, permissions },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: ctxStatus,
+        isLoggedIn: role !== null,
+        user: userFactory.build({ role, permissions }),
+      }),
     [role, ctxStatus]
   );
 

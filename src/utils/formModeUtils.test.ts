@@ -1,47 +1,34 @@
-import { InitialApplication, InitialQuestionnaire } from "../config/InitialValues";
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import * as utils from "./formModeUtils";
 
 describe("getFormMode tests based on provided requirements", () => {
-  const baseUser: Omit<User, "role"> = {
-    _id: "user-123",
-    firstName: "John",
-    lastName: "Doe",
-    userStatus: "Active" as User["userStatus"],
-    email: "johndoe@example.com",
-    IDP: "nih",
-    createdAt: "2023-05-01T09:23:30Z",
-    updateAt: "2023-05-02T09:23:30Z",
-    studies: null,
-    institution: null,
-    dataCommons: [],
-    dataCommonsDisplayNames: [],
-    permissions: [],
-    notifications: [],
-  };
-
   // submission created by baseUser and part of the same org
-  const baseSubmission: Application = {
-    ...InitialApplication,
+  const baseSubmission: Application = applicationFactory.build({
     _id: "submission-123",
-    questionnaireData: InitialQuestionnaire,
+    questionnaireData: questionnaireDataFactory.build(),
     status: "New",
-    applicant: {
-      applicantID: baseUser._id,
-      applicantName: baseUser.firstName,
-      applicantEmail: baseUser.email,
-    },
+    applicant: applicantFactory.build({
+      applicantID: "current-user",
+      applicantName: "John",
+      applicantEmail: "johndoe@example.com",
+    }),
     createdAt: "2023-05-01T09:23:30Z",
     updatedAt: "2023-05-02T09:23:30Z",
-  };
+  });
 
   // User Tests
   describe("getFormMode > User tests", () => {
-    const user: User = {
-      ...baseUser,
+    const user: User = userFactory.build({
+      _id: "current-user",
+      firstName: "John",
+      email: "johndoe@example.com",
       role: "Submitter",
       permissions: ["submission_request:create", "submission_request:submit"],
-    };
+    });
 
     it("should allow User to edit when form status is New", () => {
       expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
@@ -81,11 +68,13 @@ describe("getFormMode tests based on provided requirements", () => {
 
   // Submitter Tests
   describe("getFormMode > Submitter tests", () => {
-    const user: User = {
-      ...baseUser,
+    const user: User = userFactory.build({
+      _id: "current-user",
+      firstName: "John",
+      email: "johndoe@example.com",
       role: "Submitter",
       permissions: ["submission_request:create", "submission_request:submit"],
-    };
+    });
 
     it("should allow Submitter to edit when form status is New", () => {
       expect(utils.getFormMode(user, baseSubmission)).toBe(utils.FormModes.EDIT);
@@ -112,15 +101,17 @@ describe("getFormMode tests based on provided requirements", () => {
 
   // Federal Lead Tests
   describe("getFormMode > Fed Lead tests", () => {
-    const user: User = {
-      ...baseUser,
+    const user: User = userFactory.build({
+      _id: "current-user",
+      firstName: "John",
+      email: "johndoe@example.com",
       role: "Federal Lead",
       permissions: [
         "submission_request:view",
         "submission_request:submit",
         "submission_request:review",
       ],
-    };
+    });
 
     it("should set Review mode for Fed Lead when status is 'In Review'", () => {
       expect(utils.getFormMode(user, { ...baseSubmission, status: "In Review" })).toBe(
@@ -161,7 +152,13 @@ describe("getFormMode tests based on provided requirements", () => {
 
   // Admin Tests
   describe("getFormMode > Admin tests", () => {
-    const user: User = { ...baseUser, role: "Admin", permissions: ["submission_request:view"] };
+    const user: User = userFactory.build({
+      _id: "current-user",
+      firstName: "John",
+      email: "johndoe@example.com",
+      role: "Admin",
+      permissions: ["submission_request:view"],
+    });
 
     it("should always set View Only for Admin", () => {
       const statuses: ApplicationStatus[] = [
@@ -208,11 +205,13 @@ describe("getFormMode tests based on provided requirements", () => {
         "Inquired",
       ];
 
-      const user: User = {
-        ...baseUser,
+      const user: User = userFactory.build({
+        _id: "current-user",
+        firstName: "John",
+        email: "johndoe@example.com",
         role: "Data Commons Personnel",
         permissions: ["submission_request:view"],
-      };
+      });
       statuses.forEach((status) => {
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
           utils.FormModes.VIEW_ONLY
@@ -234,8 +233,10 @@ describe("getFormMode tests based on provided requirements", () => {
       const status: ApplicationStatus = "Rejected";
 
       roles.forEach((role) => {
-        const user: User = {
-          ...baseUser,
+        const user: User = userFactory.build({
+          _id: "current-user",
+          firstName: "John",
+          email: "johndoe@example.com",
           role,
           permissions: [
             "submission_request:create",
@@ -243,7 +244,7 @@ describe("getFormMode tests based on provided requirements", () => {
             "submission_request:submit",
             "submission_request:review",
           ],
-        };
+        });
         expect(utils.getFormMode(user, { ...baseSubmission, status })).toBe(
           utils.FormModes.VIEW_ONLY
         );
@@ -262,21 +263,22 @@ describe("getFormMode tests based on provided requirements", () => {
           applicantID: "user-456-another-user",
         },
       };
-      const fedLead: User = {
-        ...baseUser,
+      const fedLead: User = userFactory.build({
+        _id: "current-user",
+        firstName: "John",
+        email: "johndoe@example.com",
         role: "Federal Lead",
         permissions: [
           "submission_request:view",
           "submission_request:submit",
           "submission_request:review",
         ],
-      };
-      const submitterOwner: User = {
-        ...baseUser,
+      });
+      const submitterOwner: User = userFactory.build({
         role: "Submitter",
         permissions: ["submission_request:create", "submission_request:submit"],
         _id: "user-456-another-user",
-      };
+      });
 
       expect(utils.getFormMode(fedLead, submission)).toBe(utils.FormModes.VIEW_ONLY);
       expect(utils.getFormMode(submitterOwner, submission)).toBe(utils.FormModes.EDIT);
@@ -291,7 +293,7 @@ describe("getFormMode tests based on provided requirements", () => {
       });
 
       it("should set Unauthorized when a null data Submission is provided", () => {
-        const user: User = { ...baseUser, role: "User" };
+        const user: User = userFactory.build({ role: "User" });
 
         expect(utils.getFormMode(user, null)).toBe(utils.FormModes.UNAUTHORIZED);
       });
@@ -301,7 +303,7 @@ describe("getFormMode tests based on provided requirements", () => {
       });
 
       it("should set Unauthorized form if user does not have the required permissions and is not submission owner", () => {
-        const user: User = { ...baseUser, role: undefined, permissions: [] };
+        const user: User = userFactory.build({ role: undefined, permissions: [] });
         const submission: Application = {
           ...baseSubmission,
           applicant: { ...baseSubmission.applicant, applicantID: "some-other-user" },
@@ -311,7 +313,10 @@ describe("getFormMode tests based on provided requirements", () => {
       });
 
       it("should set 'View Only' if form status is unknown or not defined", () => {
-        const user: User = { ...baseUser, role: "User", permissions: ["submission_request:view"] };
+        const user: User = userFactory.build({
+          role: "User",
+          permissions: ["submission_request:view"],
+        });
         const submission: Application = {
           ...baseSubmission,
           status: undefined,

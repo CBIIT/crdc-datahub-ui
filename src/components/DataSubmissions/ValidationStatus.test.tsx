@@ -2,6 +2,9 @@ import userEvent from "@testing-library/user-event";
 import { useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import { render, waitFor } from "../../test-utils";
 import {
   SubmissionContext,
@@ -10,44 +13,6 @@ import {
 } from "../Contexts/SubmissionContext";
 
 import { ValidationStatus } from "./ValidationStatus";
-
-const BaseSubmission: Omit<
-  Submission,
-  "validationStarted" | "validationEnded" | "validationType" | "validationScope"
-> = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  archived: false,
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
 
 type TestParentProps = {
   submission: Pick<
@@ -59,18 +24,24 @@ type TestParentProps = {
 
 const TestParent: React.FC<TestParentProps> = ({ submission, children }) => {
   const value = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-      isPolling: false,
-      data: {
-        getSubmission: { ...BaseSubmission, ...submission },
-        submissionStats: {
-          stats: [],
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+        data: {
+          getSubmission: submissionFactory.build({
+            validationStarted: undefined,
+            validationEnded: undefined,
+            validationType: undefined,
+            validationScope: undefined,
+            ...submission,
+          }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: null,
         },
-        getSubmissionAttributes: null,
-      },
-    }),
+      }),
     [submission]
   );
 

@@ -2,6 +2,8 @@ import { MockedProvider, MockedProviderProps, MockedResponse } from "@apollo/cli
 import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+
 import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 
@@ -96,26 +98,12 @@ describe("useInstitutionList", () => {
           data: {
             listInstitutions: {
               total: 3,
-              institutions: [
-                {
-                  _id: "inst 1",
-                  name: "inst 1",
-                  status: "Active",
-                  submitterCount: 0,
-                },
-                {
-                  _id: "inst 2",
-                  name: "inst 2",
-                  status: "Active",
-                  submitterCount: 0,
-                },
-                {
-                  _id: "inst 3",
-                  name: "inst 3",
-                  status: "Active",
-                  submitterCount: 0,
-                },
-              ],
+              institutions: institutionFactory.build(3, (index) => ({
+                _id: `inst ${index + 1}`,
+                name: `inst ${index + 1}`,
+                status: "Active",
+                submitterCount: 0,
+              })),
             },
           },
         },

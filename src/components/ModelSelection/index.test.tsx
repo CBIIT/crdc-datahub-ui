@@ -4,6 +4,11 @@ import { GraphQLError } from "graphql";
 import { FC, ReactNode, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   GetSubmissionResp,
   UPDATE_MODEL_VERSION,
@@ -11,11 +16,7 @@ import {
   UpdateModelVersionResp,
 } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -30,79 +31,34 @@ vi.mock("../../utils", async () => ({
   listAvailableModelVersions: async (...args) => mockListAvailableModelVersions(...args),
 }));
 
-const baseSubmission: Omit<Submission, "status"> = {
-  _id: "",
-  name: "",
-  submitterID: "current-user",
-  submitterName: "",
-  organization: null,
-  dataCommons: "MOCK-DC",
-  dataCommonsDisplayName: "Mock Data Common",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  dataFileSize: null,
-};
-
-const baseUser: Omit<User, "role" | "permissions" | "dataCommons" | "dataCommonsDisplayNames"> = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
+const mockDC = "MOCK-DC";
 
 const MockParent: FC<{
   mocks?: MockedResponse[];
-  user?: User;
-  submission?: Submission;
+  user?: Partial<User>;
+  submission?: Partial<Submission>;
   updateQuery?: SubmissionCtxState["updateQuery"];
   children: ReactNode;
 }> = ({ mocks, submission, user, updateQuery = vi.fn(), children }) => {
   const authCtxState = useMemo<AuthCtxState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      isLoggedIn: false,
-      user,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ _id: "current-user", ...user }),
+      }),
     [user]
   );
 
   const submissionContextState = useMemo<SubmissionCtxState>(
     () => ({
       data: {
-        getSubmission: submission,
-      } as GetSubmissionResp,
+        getSubmission: submissionFactory.build({
+          submitterID: "current-user",
+          dataCommons: mockDC,
+          ...submission,
+        }),
+        submissionStats: null,
+        getSubmissionAttributes: null,
+      },
       updateQuery,
       status: SubmissionCtxStatus.LOADED,
       error: null,
@@ -130,13 +86,12 @@ describe("Accessibility", () => {
     const { container, getByTestId } = render(<ModelSelection />, {
       wrapper: ({ children }) => (
         <MockParent
-          submission={{ ...baseSubmission, status: "New" }}
+          submission={{ status: "New" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -152,13 +107,12 @@ describe("Accessibility", () => {
     const { container, getByTestId } = render(<ModelSelection disabled />, {
       wrapper: ({ children }) => (
         <MockParent
-          submission={{ ...baseSubmission, status: "New" }}
+          submission={{ status: "New" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -205,13 +159,12 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
-          submission={{ ...baseSubmission, status: "New", modelVersion: "1.0.0" }}
+          submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -252,13 +205,12 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
-          submission={{ ...baseSubmission, status: "New", modelVersion: "1.0.0" }}
+          submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -306,13 +258,12 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
-          submission={{ ...baseSubmission, status: "New", modelVersion: "1.0.0" }}
+          submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -348,13 +299,12 @@ describe("Implementation Requirements", () => {
     const { getByTestId, findByRole } = render(<ModelSelection />, {
       wrapper: ({ children }) => (
         <MockParent
-          submission={{ ...baseSubmission, status: "New" }}
+          submission={{ status: "New" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -379,13 +329,12 @@ describe("Implementation Requirements", () => {
   it("should not be rendered when the user is missing the required permission", () => {
     const { rerender, getByTestId } = render(
       <MockParent
-        submission={{ ...baseSubmission, status: "New" }}
+        submission={{ status: "New" }}
         user={{
-          ...baseUser,
           role: "Data Commons Personnel",
           permissions: [],
-          dataCommons: [baseSubmission.dataCommons],
-          dataCommonsDisplayNames: [baseSubmission.dataCommons],
+          dataCommons: [mockDC],
+          dataCommonsDisplayNames: [mockDC],
         }}
       >
         <ModelSelection />
@@ -396,13 +345,12 @@ describe("Implementation Requirements", () => {
 
     rerender(
       <MockParent
-        submission={{ ...baseSubmission, status: "New" }}
+        submission={{ status: "New" }}
         user={{
-          ...baseUser,
           role: "Data Commons Personnel",
           permissions: ["data_submission:review"],
-          dataCommons: [baseSubmission.dataCommons],
-          dataCommonsDisplayNames: [baseSubmission.dataCommons],
+          dataCommons: [mockDC],
+          dataCommonsDisplayNames: [mockDC],
         }}
       >
         <ModelSelection />
@@ -417,14 +365,13 @@ describe("Implementation Requirements", () => {
     async (userRole) => {
       const { rerender, getByTestId } = render(
         <MockParent
-          submission={{ ...baseSubmission, status: "New" }}
+          submission={{ status: "New" }}
           user={{
-            ...baseUser,
             role: userRole,
             permissions: ["data_submission:review"],
             // NOTE: Technically other roles don't have DC assigned, but this is required to test this scenario
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           <ModelSelection />
@@ -435,13 +382,12 @@ describe("Implementation Requirements", () => {
 
       rerender(
         <MockParent
-          submission={{ ...baseSubmission, status: "New" }}
+          submission={{ status: "New" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           <ModelSelection />
@@ -455,13 +401,12 @@ describe("Implementation Requirements", () => {
   it("should not be rendered when the user is not assigned to the same data commons", () => {
     const { rerender, getByTestId } = render(
       <MockParent
-        submission={{ ...baseSubmission, dataCommons: "a different dc", status: "New" }}
+        submission={{ dataCommons: "a different dc", status: "New" }}
         user={{
-          ...baseUser,
           role: "Data Commons Personnel",
           permissions: ["data_submission:review"],
           dataCommons: ["A fake data commons that is not definitely not MOCK-DC"],
-          dataCommonsDisplayNames: [baseSubmission.dataCommons],
+          dataCommonsDisplayNames: [mockDC],
         }}
       >
         <ModelSelection />
@@ -472,9 +417,8 @@ describe("Implementation Requirements", () => {
 
     rerender(
       <MockParent
-        submission={{ ...baseSubmission, dataCommons: "a different dc", status: "New" }}
+        submission={{ dataCommons: "a different dc", status: "New" }}
         user={{
-          ...baseUser,
           role: "Data Commons Personnel",
           permissions: ["data_submission:review"],
           dataCommons: ["a different dc"], // Change to the same data commons
@@ -501,13 +445,12 @@ describe("Implementation Requirements", () => {
       const { getByTestId } = render(<ModelSelection />, {
         wrapper: ({ children }) => (
           <MockParent
-            submission={{ ...baseSubmission, status: submissionStatus }}
+            submission={{ status: submissionStatus }}
             user={{
-              ...baseUser,
               role: "Data Commons Personnel",
               permissions: ["data_submission:review"],
-              dataCommons: [baseSubmission.dataCommons],
-              dataCommonsDisplayNames: [baseSubmission.dataCommons],
+              dataCommons: [mockDC],
+              dataCommonsDisplayNames: [mockDC],
             }}
           >
             {children}
@@ -532,7 +475,7 @@ describe("Implementation Requirements", () => {
       result: {
         data: {
           updateSubmissionModelVersion: {
-            _id: baseSubmission._id,
+            _id: "",
             modelVersion: "API RESPONSE VERSION",
           },
         },
@@ -544,13 +487,12 @@ describe("Implementation Requirements", () => {
         <MockParent
           mocks={[mock]}
           updateQuery={mockUpdateQuery}
-          submission={{ ...baseSubmission, status: "New", modelVersion: "1.0.0" }}
+          submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}
@@ -575,19 +517,22 @@ describe("Implementation Requirements", () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
     const prevState: GetSubmissionResp = {
-      getSubmission: {
-        ...baseSubmission,
+      getSubmission: submissionFactory.build({
+        submitterID: "current-user",
+        dataCommons: mockDC,
         status: "New",
         modelVersion: "1.0.0",
         metadataValidationStatus: "Passed",
         fileValidationStatus: "Passed",
-      },
+      }),
       submissionStats: null,
       getSubmissionAttributes: {
-        submissionAttributes: {
-          hasOrphanError: false,
-          isBatchUploading: false,
-        },
+        submissionAttributes: submissionAttributesFactory
+          .pick(["hasOrphanError", "isBatchUploading"])
+          .build({
+            hasOrphanError: false,
+            isBatchUploading: false,
+          }),
       },
     };
 
@@ -604,7 +549,7 @@ describe("Implementation Requirements", () => {
       result: {
         data: {
           updateSubmissionModelVersion: {
-            _id: baseSubmission._id,
+            _id: "",
             modelVersion: "API RESPONSE VERSION",
           },
         },
@@ -618,11 +563,10 @@ describe("Implementation Requirements", () => {
           updateQuery={mockUpdateQuery}
           submission={{ ...prevState.getSubmission }}
           user={{
-            ...baseUser,
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [baseSubmission.dataCommons],
-            dataCommonsDisplayNames: [baseSubmission.dataCommons],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
           }}
         >
           {children}

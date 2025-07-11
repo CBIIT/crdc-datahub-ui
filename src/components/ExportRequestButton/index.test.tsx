@@ -2,7 +2,10 @@ import userEvent from "@testing-library/user-event";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { studyFactory } from "@/factories/application/StudyFactory";
+
 import { render, waitFor } from "../../test-utils";
 import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
 import {
@@ -59,11 +62,10 @@ const TestParent: FC<TestParentProps> = ({
       status: formStatus,
       data:
         formStatus === FormStatus.LOADED
-          ? {
-              ...InitialApplication,
+          ? applicationFactory.build({
               ...formData,
-              questionnaireData: { ...InitialQuestionnaire, ...formData?.questionnaireData },
-            }
+              questionnaireData: questionnaireDataFactory.build({ ...formData?.questionnaireData }),
+            })
           : null,
     }),
     [formStatus, formData]
@@ -266,14 +268,12 @@ describe("Implementation Requirements", () => {
       status: "Submitted",
       updatedAt: "2024-09-30T09:10:00.000Z",
       submittedDate: "2024-09-30T09:10:00.000Z",
-      questionnaireData: {
-        ...InitialQuestionnaire,
-        study: {
-          ...InitialQuestionnaire.study,
+      questionnaireData: questionnaireDataFactory.build({
+        study: studyFactory.build({
           abbreviation: "TEST",
           name: "Test Study",
-        },
-      },
+        }),
+      }),
       history: [],
     };
 
@@ -309,14 +309,12 @@ describe("Implementation Requirements", () => {
         status: "Submitted",
         updatedAt: "2024-09-30T09:10:00.000Z",
         submittedDate: "2024-09-30T09:10:00.000Z",
-        questionnaireData: {
-          ...InitialQuestionnaire,
-          study: {
-            ...InitialQuestionnaire.study,
+        questionnaireData: questionnaireDataFactory.build({
+          study: studyFactory.build({
             abbreviation,
             name: "Test Study",
-          },
-        },
+          }),
+        }),
         history: [],
       };
 
@@ -351,14 +349,12 @@ describe("Implementation Requirements", () => {
       status: "In Progress",
       updatedAt: "2024-09-30T09:10:00.000Z",
       submittedDate: "2024-10-22T14:10:00.000Z",
-      questionnaireData: {
-        ...InitialQuestionnaire,
-        study: {
-          ...InitialQuestionnaire.study,
+      questionnaireData: questionnaireDataFactory.build({
+        study: studyFactory.build({
           abbreviation: "TEST",
           name: "Test Study",
-        },
-      },
+        }),
+      }),
       history: [],
     };
 

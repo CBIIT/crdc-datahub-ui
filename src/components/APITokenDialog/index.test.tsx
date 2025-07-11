@@ -5,13 +5,12 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
 
 import ApiTokenDialog from "./index";
 
@@ -21,29 +20,6 @@ Object.assign(navigator, {
     writeText: mockWriteText,
   },
 });
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: Omit<User, "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: null,
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
 
 type ParentProps = {
   children: React.ReactNode;
@@ -59,11 +35,7 @@ const TestParent: FC<ParentProps> = ({
   children,
 }) => {
   const authState = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      isLoggedIn: true,
-      user: { ...baseUser, role, permissions },
-    }),
+    () => authCtxStateFactory.build({ user: userFactory.build({ role, permissions }) }),
     [role]
   );
 
