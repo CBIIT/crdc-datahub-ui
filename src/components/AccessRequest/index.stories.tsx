@@ -1,6 +1,6 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/test";
+import { userEvent, within, screen, expect } from "@storybook/test";
 
 import { Roles } from "../../config/AuthRoles";
 import {
@@ -176,7 +176,10 @@ export const Hovered: Story = {
     const canvas = within(canvasElement);
     const button = canvas.getByTestId("request-access-button");
     userEvent.hover(button);
-    await canvas.findByText("Request role change, study access, or institution update.");
+    const tooltip = await screen.findByText(
+      /Request role change, study access, or institution update./i
+    );
+    expect(tooltip).toBeInTheDocument();
   },
   decorators: [
     (Story, context) => (
