@@ -1,3 +1,6 @@
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+
 import * as utils from "./studyUtils";
 
 describe("formatAccessTypes", () => {
@@ -50,118 +53,101 @@ describe("formatAccessTypes", () => {
 });
 
 describe("hasStudyWithMultiplePrograms", () => {
-  const baseStudy = (
-    programs: Pick<ApprovedStudy["programs"][number], "_id" | "name">[] = []
-  ): ApprovedStudy => ({
-    _id: "study1",
-    programs: programs?.map((p) => ({
-      ...p,
-      abbreviation: "",
-      description: "",
-      status: "Active",
-      conciergeID: "",
-      conciergeName: "",
-      conciergeEmail: "",
-      studies: [],
-      readOnly: false,
-      createdAt: "",
-      updateAt: "",
-    })),
-    originalOrg: "",
-    studyName: "",
-    studyAbbreviation: "",
-    dbGaPID: "",
-    controlledAccess: false,
-    openAccess: false,
-    PI: "",
-    ORCID: "",
-    primaryContact: {
-      _id: "",
-      firstName: "",
-      lastName: "",
-      role: "User",
-      email: "",
-      dataCommons: [],
-      dataCommonsDisplayNames: [],
-      studies: [],
-      institution: undefined,
-      IDP: "nih",
-      userStatus: "Active",
-      permissions: [],
-      notifications: [],
-      updateAt: "",
-      createdAt: "",
-    },
-    useProgramPC: false,
-    createdAt: "",
-    pendingModelChange: false,
-  });
-
   it("returns false when studies array is empty", () => {
     expect(utils.hasStudyWithMultiplePrograms([], "prog1")).toBe(false);
   });
 
   it("returns false when newProgramId is an empty string", () => {
-    const studies = [baseStudy([{ _id: "a", name: "Test" }])];
+    const studies = [
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "a", name: "Test" })],
+      }),
+    ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "")).toBe(false);
   });
 
   it("ignores 'NA' program and returns false when adding a new program results in a single entry", () => {
-    const studies = [baseStudy([{ _id: "na1", name: "NA" }])];
+    const studies = [
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "na1", name: "NA" })],
+      }),
+    ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(false);
   });
 
   it("ignores 'NA' program and returns true when study is assigned to multiple programs", () => {
     const studies = [
-      baseStudy([
-        { _id: "na1", name: "NA" },
-        { _id: "prog1", name: "Alpha" },
-      ]),
+      approvedStudyFactory.build({
+        programs: [
+          organizationFactory.build({ _id: "na1", name: "NA" }),
+          organizationFactory.build({ _id: "prog1", name: "Alpha" }),
+        ],
+      }),
     ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog2")).toBe(true);
   });
 
   it("returns false when the only existing program matches the newProgramId and is the only program", () => {
-    const studies = [baseStudy([{ _id: "prog1", name: "Alpha" }])];
+    const studies = [
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "prog1", name: "Alpha" })],
+      }),
+    ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(false);
   });
 
   it("returns true when a study has one other program and the newProgramId is different", () => {
-    const studies = [baseStudy([{ _id: "prog2", name: "Beta" }])];
+    const studies = [
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "prog2", name: "Beta" })],
+      }),
+    ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(true);
   });
 
   it("returns false when study has null programs", () => {
-    const studies = [baseStudy(null)];
+    const studies = [approvedStudyFactory.build({ programs: null })];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(false);
   });
 
   it("returns true when a study has multiple programs even before adding the new one", () => {
     const studies = [
-      baseStudy([
-        { _id: "prog2", name: "Beta" },
-        { _id: "prog3", name: "Gamma" },
-      ]),
+      approvedStudyFactory.build({
+        programs: [
+          organizationFactory.build({ _id: "prog2", name: "Beta" }),
+          organizationFactory.build({ _id: "prog3", name: "Gamma" }),
+        ],
+      }),
     ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(true);
   });
 
   it("returns true if at least one study in the list would become multi-program", () => {
     const studies = [
-      baseStudy([{ _id: "na1", name: "NA" }]), // stays single
-      baseStudy([{ _id: "X", name: "X" }]), // becomes multi
-      baseStudy([
-        { _id: "Y", name: "Y" },
-        { _id: "na2", name: "NA" },
-      ]), // also multi
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "na1", name: "NA" })],
+      }), // stays single
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "X", name: "X" })],
+      }), // becomes multi
+      approvedStudyFactory.build({
+        programs: [
+          organizationFactory.build({ _id: "Y", name: "Y" }),
+          organizationFactory.build({ _id: "na2", name: "NA" }),
+        ],
+      }), // also multi
     ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(true);
   });
 
   it("returns false when none of the studies would become multi-program", () => {
     const studies = [
-      baseStudy([{ _id: "na1", name: "NA" }]),
-      baseStudy([{ _id: "prog1", name: "Existing" }]),
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "na1", name: "NA" })],
+      }),
+      approvedStudyFactory.build({
+        programs: [organizationFactory.build({ _id: "prog1", name: "Existing" })],
+      }),
     ];
     expect(utils.hasStudyWithMultiplePrograms(studies, "prog1")).toBe(false);
   });

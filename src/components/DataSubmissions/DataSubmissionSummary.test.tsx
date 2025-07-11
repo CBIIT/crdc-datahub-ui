@@ -5,12 +5,15 @@ import React, { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionHistoryEventFactory } from "@/factories/submission/SubmissionHistoryEvent";
+
 import { render, waitFor } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
 import {
   SubmissionContext,
   SubmissionCtxState,
@@ -20,31 +23,7 @@ import {
 import HistoryIconMap from "./DataSubmissionIconMap";
 import DataSubmissionSummary from "./DataSubmissionSummary";
 
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: User = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: null,
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view"],
-  notifications: [],
-};
-
-const baseSubmissionCtx: SubmissionCtxState = {
+const baseSubmissionCtx: SubmissionCtxState = submissionCtxStateFactory.build({
   status: SubmissionCtxStatus.LOADING,
   data: null,
   error: null,
@@ -52,7 +31,7 @@ const baseSubmissionCtx: SubmissionCtxState = {
   stopPolling: vi.fn(),
   refetch: vi.fn(),
   updateQuery: vi.fn(),
-};
+});
 
 type SummaryProps = {
   dataSubmission: Submission;
@@ -72,11 +51,11 @@ const BaseComponent: FC<Props> = ({
   children,
 }) => {
   const authState = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      isLoggedIn: true,
-      user: { ...baseUser, role },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        isLoggedIn: true,
+        user: userFactory.build({ role, permissions: ["data_submission:view"] }),
+      }),
     [role]
   );
 
@@ -95,12 +74,12 @@ describe("DataSubmissionSummary Accessibility Tests", () => {
   it("has no accessibility violations when there are review comments", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           reviewComment: "This is a review comment",
           status: "New",
           dateTime: "",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -120,26 +99,19 @@ describe("Basic Functionality", () => {
       name: "Test Submission AAAAAA",
       intention: "Test Intention AAAAAA" as SubmissionIntention,
       submitterName: "Submitter Test AAAAAA",
-      collaborators: [
-        {
-          collaboratorID: "col-1",
-          collaboratorName: "",
-          permission: "Can Edit",
-        },
-        {
-          collaboratorID: "col-2",
-          collaboratorName: "",
-          permission: "Can Edit",
-        },
-      ],
+      collaborators: collaboratorFactory.build(2, (index) => ({
+        collaboratorID: `col-${index + 1}`,
+        collaboratorName: `Collaborator ${index + 1}`,
+        permission: "Can Edit",
+      })),
       studyAbbreviation: "AAAAAAAAAAAAAAAAAAAAAAAAAA",
       dataCommons: "Test Commons AAAAAA",
       dataCommonsDisplayName: "A Display Name of TC AAAAAA",
-      organization: {
+      organization: organizationFactory.pick(["_id", "name", "abbreviation"]).build({
         _id: "",
         name: "Test Program AAAAAA",
         abbreviation: "Test Program Abbreviation",
-      },
+      }),
       conciergeName: "Test Concierge AAAAAA",
       conciergeEmail: "concierge@test.com",
     };
@@ -178,23 +150,11 @@ describe("Basic Functionality", () => {
 
   it("renders the Collaborators property with correct number and tooltip", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
-      collaborators: [
-        {
-          collaboratorID: "1",
-          collaboratorName: "",
-          permission: "Can Edit",
-        },
-        {
-          collaboratorID: "2",
-          collaboratorName: "",
-          permission: "Can Edit",
-        },
-        {
-          collaboratorID: "3",
-          collaboratorName: "",
-          permission: "Can Edit",
-        },
-      ],
+      collaborators: collaboratorFactory.build(3, (index) => ({
+        collaboratorID: `${index + 1}`,
+        collaboratorName: `Collaborator ${index + 1}`,
+        permission: "Can Edit",
+      })),
     };
 
     const { getByTestId } = render(
@@ -271,10 +231,10 @@ describe("Basic Functionality", () => {
 
   it("renders the Study as NA when no study abbreviation is assigned", () => {
     const dataSubmission: RecursivePartial<Submission> = {
-      organization: {
+      organization: organizationFactory.pick(["_id", "name", "abbreviation"]).build({
         _id: "org-1",
         abbreviation: "some-org",
-      },
+      }),
       studyAbbreviation: null,
     };
 
@@ -372,12 +332,12 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
   it("renders the Review Comments button if there is a review comment", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           reviewComment: "This is a review comment",
           status: "New",
           dateTime: "",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -392,12 +352,12 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
   it("shows the correct content in the Review Comments dialog", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           status: "Rejected",
           reviewComment: "This is the most recent review comment",
           dateTime: "2023-11-30T11:26:01Z",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -417,18 +377,18 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
   it("only shows the review comment for the latest 'Rejected' submission, ignoring other statuses", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           status: "Rejected",
           reviewComment: "This is a rejected comment",
           dateTime: "2023-11-29T11:26:01Z",
           userID: "",
-        },
-        {
+        }),
+        submissionHistoryEventFactory.build({
           status: "Submitted",
           reviewComment: "Admin Submit - This should not be displayed",
           dateTime: "2023-11-30T11:26:01Z",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -449,12 +409,12 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
   it("closes the Review Comments dialog with the close button", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           status: "Rejected",
           reviewComment: "Comment for closing test",
           dateTime: "2023-11-30T11:26:01Z",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -476,12 +436,12 @@ describe("DataSubmissionSummary Review Comments Dialog Tests", () => {
   it("closes the Review Comments dialog with the close icon button", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           status: "Rejected",
           reviewComment: "Another comment for close icon test",
           dateTime: "2023-11-30T11:26:01Z",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -508,11 +468,11 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
   it("renders the Full History button if there are historical events", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        {
+        submissionHistoryEventFactory.build({
           dateTime: "2023-11-23T14:26:01Z",
           status: "New",
           userID: "",
-        },
+        }),
       ],
     };
 
@@ -527,8 +487,14 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
   it("renders the history events correctly in the dialog", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        { dateTime: "2023-11-30T11:26:01Z", status: "Submitted" },
-        { dateTime: "2023-11-25T10:00:00Z", status: "In Progress" },
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-30T11:26:01Z",
+          status: "Submitted",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-25T10:00:00Z",
+          status: "In Progress",
+        }),
       ],
     };
 
@@ -549,14 +515,38 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
   it("renders the modal and displays history events in descending order", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        { dateTime: "2023-01-02T10:00:00Z", status: "In Progress" },
-        { dateTime: "2023-01-01T10:00:00Z", status: "New" },
-        { dateTime: "2023-01-03T10:00:00Z", status: "Submitted" },
-        { dateTime: "2023-01-04T10:00:00Z", status: "Rejected" },
-        { dateTime: "2023-01-05T10:00:00Z", status: "In Progress" },
-        { dateTime: "2023-01-06T10:00:00Z", status: "Submitted" },
-        { dateTime: "2023-01-07T10:00:00Z", status: "Released" },
-        { dateTime: "2023-01-08T10:00:00Z", status: "Completed" },
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-02T10:00:00Z",
+          status: "In Progress",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-01T10:00:00Z",
+          status: "New",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-03T10:00:00Z",
+          status: "Submitted",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-04T10:00:00Z",
+          status: "Rejected",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-05T10:00:00Z",
+          status: "In Progress",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-06T10:00:00Z",
+          status: "Submitted",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-07T10:00:00Z",
+          status: "Released",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-01-08T10:00:00Z",
+          status: "Completed",
+        }),
       ],
     };
 
@@ -580,7 +570,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 
   it("closes the History dialog with the close button", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
-      history: [{ dateTime: "2023-11-30T11:26:01Z", status: "Submitted" }],
+      history: [
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-30T11:26:01Z",
+          status: "Submitted",
+        }),
+      ],
     };
 
     const { getByText, queryByTestId } = render(
@@ -601,9 +596,18 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
   it("sorts the historical events by date in descending order", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        { dateTime: "2023-11-20T10:00:00Z", status: "New" },
-        { dateTime: "2023-11-22T10:00:00Z", status: "In Progress" },
-        { dateTime: "2023-11-24T10:00:00Z", status: "Submitted" },
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-20T10:00:00Z",
+          status: "New",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-22T10:00:00Z",
+          status: "In Progress",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-24T10:00:00Z",
+          status: "Submitted",
+        }),
       ],
     };
 
@@ -629,8 +633,14 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
   it("renders only the most recent event with an icon", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       history: [
-        { dateTime: "2023-11-24T01:25:45Z", status: "Rejected" },
-        { dateTime: "2023-11-22T15:36:01Z", status: "Completed" },
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-24T01:25:45Z",
+          status: "Rejected",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-22T15:36:01Z",
+          status: "Completed",
+        }),
       ],
     };
 
@@ -650,7 +660,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
     "renders the correct icon for the status %s",
     (status, svg) => {
       const dataSubmission: RecursivePartial<Submission> = {
-        history: [{ dateTime: "2023-11-24T01:25:45Z", status: status as SubmissionStatus }],
+        history: [
+          submissionHistoryEventFactory.build({
+            dateTime: "2023-11-24T01:25:45Z",
+            status: status as SubmissionStatus,
+          }),
+        ],
       };
 
       const { getByTestId, getByText } = render(
@@ -673,7 +688,12 @@ describe("DataSubmissionSummary History Dialog Tests", () => {
 describe("DataSubmissionSummary Collaborators Dialog Tests", () => {
   it("closes the Collaborators dialog with the close button", async () => {
     const dataSubmission: RecursivePartial<Submission> = {
-      history: [{ dateTime: "2023-11-30T11:26:01Z", status: "Submitted" }],
+      history: [
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-30T11:26:01Z",
+          status: "Submitted",
+        }),
+      ],
     };
 
     const { getByTestId, queryByTestId } = render(

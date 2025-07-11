@@ -2,6 +2,11 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { contactFactory } from "@/factories/application/ContactFactory";
+import { piFactory } from "@/factories/application/PIFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+
 import {
   APPROVE_APP,
   ApproveAppInput,
@@ -20,95 +25,9 @@ import { act, render, renderHook, waitFor } from "../../test-utils";
 
 import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 
-const baseApplication: Omit<Application, "questionnaireData"> = {
-  _id: "",
-  status: "New",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
-  history: [],
-  controlledAccess: false,
-  openAccess: false,
-  ORCID: "",
-  PI: "",
-  applicant: {
-    applicantID: "",
-    applicantName: "",
-    applicantEmail: "",
-  },
-  programName: "",
-  studyAbbreviation: "",
-  conditional: false,
-  pendingConditions: [],
-  programAbbreviation: "",
-  programDescription: "",
-  version: "",
-};
-
-const baseQuestionnaireData: QuestionnaireData = {
-  sections: [],
-  pi: {
-    firstName: "",
-    lastName: "",
-    position: "",
-    email: "",
-    ORCID: "",
-    institution: "",
-    address: "",
-  },
-  piAsPrimaryContact: false,
-  primaryContact: {
-    position: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    institution: "",
-  },
-  additionalContacts: [],
-  program: {
-    _id: "",
-    name: "",
-    abbreviation: "",
-    description: "",
-  },
-  study: {
-    name: "",
-    abbreviation: "",
-    description: "",
-    publications: [],
-    plannedPublications: [],
-    repositories: [],
-    funding: [],
-    isDbGapRegistered: false,
-    dbGaPPPHSNumber: "",
-  },
-  accessTypes: [],
-  targetedSubmissionDate: "",
-  targetedReleaseDate: "",
-  timeConstraints: [],
-  cancerTypes: [],
-  otherCancerTypes: "",
-  otherCancerTypesEnabled: false,
-  preCancerTypes: "",
-  numberOfParticipants: 0,
-  species: [],
-  otherSpeciesEnabled: false,
-  otherSpeciesOfSubjects: "",
-  cellLines: false,
-  modelSystems: false,
-  imagingDataDeIdentified: false,
-  dataDeIdentified: false,
-  dataTypes: [],
-  otherDataTypes: "",
-  clinicalData: {
-    dataTypes: [],
-    otherDataTypes: "",
-    futureDataTypes: false,
-  },
-  files: [],
-  submitterComment: "",
-};
+const baseApplication: Omit<Application, "questionnaireData"> = applicationFactory.build({
+  questionnaireData: undefined,
+});
 
 type Props = {
   appId: string;
@@ -415,10 +334,11 @@ describe("approveForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
@@ -484,32 +404,20 @@ describe("approveForm Tests", () => {
         data: {
           getApplication: {
             ...baseApplication,
-            questionnaireData: JSON.stringify({
-              ...baseQuestionnaireData,
-              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-              pi: {
-                ...baseQuestionnaireData.pi,
-                institution: "PI-INST-NAME",
-              },
-              primaryContact: {
-                ...baseQuestionnaireData.primaryContact,
-                institution: "PC-INST-NAME",
-              },
-              additionalContacts: [
-                {
-                  ...baseQuestionnaireData.primaryContact,
-                  institution: "AC-INST-NAME-0",
-                },
-                {
-                  ...baseQuestionnaireData.primaryContact,
-                  institution: "AC-INST-NAME-1",
-                },
-                {
-                  ...baseQuestionnaireData.primaryContact,
-                  institution: "AC-INST-NAME-2",
-                },
-              ],
-            }),
+            questionnaireData: JSON.stringify(
+              questionnaireDataFactory.build({
+                sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+                pi: piFactory.build({
+                  institution: "PI-INST-NAME",
+                }),
+                primaryContact: contactFactory.build({
+                  institution: "PC-INST-NAME",
+                }),
+                additionalContacts: contactFactory.build(3, (index) => ({
+                  institution: `AC-INST-NAME-${index}`,
+                })),
+              })
+            ),
           },
         },
       },
@@ -646,10 +554,11 @@ describe("inquireForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
@@ -761,10 +670,11 @@ describe("rejectForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
@@ -876,10 +786,11 @@ describe("reopenForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },

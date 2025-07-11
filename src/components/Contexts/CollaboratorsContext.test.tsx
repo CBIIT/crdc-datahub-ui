@@ -2,6 +2,10 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   LIST_POTENTIAL_COLLABORATORS,
   EDIT_SUBMISSION_COLLABORATORS,
@@ -15,21 +19,21 @@ import { act, fireEvent, render, renderHook, waitFor } from "../../test-utils";
 import { useCollaboratorsContext, CollaboratorsProvider } from "./CollaboratorsContext";
 
 const dummySubmissionData = {
-  getSubmission: {
+  getSubmission: submissionFactory.build({
     _id: "submission-id-123",
     collaborators: [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-1",
         permission: "Can Edit",
         collaboratorName: "Smith, Alice",
-      },
-      {
+      }),
+      collaboratorFactory.build({
         collaboratorID: "user-2",
         permission: "Can Edit",
         collaboratorName: "Johnson, Bob",
-      },
+      }),
     ],
-  } as Submission,
+  }),
 };
 
 let mockSubmissionData = dummySubmissionData;
@@ -41,57 +45,24 @@ vi.mock("./SubmissionContext", async () => ({
 }));
 
 const mockPotentialCollaborators: User[] = [
-  {
+  userFactory.build({
     _id: "user-1",
     firstName: "Alice",
     lastName: "Smith",
     role: "User",
-    email: "",
-    dataCommons: [],
-    dataCommonsDisplayNames: [],
-    studies: [],
-    institution: null,
-    IDP: "nih",
-    userStatus: "Active",
-    updateAt: "",
-    createdAt: "",
-    permissions: [],
-    notifications: [],
-  },
-  {
+  }),
+  userFactory.build({
     _id: "user-2",
     firstName: "Bob",
     lastName: "Johnson",
     role: "User",
-    email: "",
-    dataCommons: [],
-    dataCommonsDisplayNames: [],
-    studies: [],
-    institution: null,
-    IDP: "nih",
-    userStatus: "Active",
-    updateAt: "",
-    createdAt: "",
-    permissions: [],
-    notifications: [],
-  },
-  {
+  }),
+  userFactory.build({
     _id: "user-3",
     firstName: "Charlie",
     lastName: "Brown",
     role: "User",
-    email: "",
-    dataCommons: [],
-    dataCommonsDisplayNames: [],
-    studies: [],
-    institution: null,
-    IDP: "nih",
-    userStatus: "Active",
-    updateAt: "",
-    createdAt: "",
-    permissions: [],
-    notifications: [],
-  },
+  }),
 ];
 
 const listPotentialCollaboratorsMock: MockedResponse<
@@ -117,7 +88,7 @@ const editSubmissionCollaboratorsMock: MockedResponse<
     query: EDIT_SUBMISSION_COLLABORATORS,
     variables: {
       submissionID: "submission-id-123",
-      collaborators: [{ collaboratorID: "user-3", permission: "Can Edit" }],
+      collaborators: [{ collaboratorID: "user-3", permission: "Can Edit" } as Collaborator],
     },
   },
   result: {
@@ -538,12 +509,16 @@ describe("CollaboratorsContext", () => {
 
   it("should not load potential collaborators if submissionID is null", async () => {
     const testSubmissionData = {
-      getSubmission: {
+      getSubmission: submissionFactory.build({
         _id: null,
         collaborators: [
-          { collaboratorID: "user-4", permission: "Can Edit", collaboratorName: "Doe, John" },
+          collaboratorFactory.build({
+            collaboratorID: "user-4",
+            permission: "Can Edit",
+            collaboratorName: "Doe, John",
+          }),
         ],
-      } as Submission,
+      }),
     };
 
     mockSubmissionData = testSubmissionData;
@@ -578,10 +553,10 @@ describe("CollaboratorsContext", () => {
 
   it("should handle collaborators not in potential collaborators", async () => {
     const testSubmissionData = {
-      getSubmission: {
+      getSubmission: submissionFactory.build({
         _id: "submission-id-123",
-        collaborators: [{ collaboratorID: "user-4", permission: "Can Edit" }],
-      } as Submission,
+        collaborators: [{ collaboratorID: "user-4", permission: "Can Edit" } as Collaborator],
+      }),
     };
 
     mockSubmissionData = testSubmissionData;
