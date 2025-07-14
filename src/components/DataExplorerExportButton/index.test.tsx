@@ -482,9 +482,7 @@ describe("Implementation Requirements", () => {
     }
   );
 
-  // NOTE: This component utilizes the API to filter which columns we build the TSV with
-  // We're just asserting that the component sends the correct list to the API
-  it("should only request the visible columns in the API request", async () => {
+  it("should only export the current visible columns", async () => {
     const mockColumns: DataExplorerExportButtonProps["columns"] = [
       { label: "visible_col01", field: "visible_col01", renderValue: () => null },
       { label: "visible_col02", field: "visible_col02", renderValue: () => null },
@@ -502,7 +500,10 @@ describe("Implementation Requirements", () => {
             total: 1,
             nodes: [
               {
-                mock_value: "mock_value",
+                "HIDDEN-parent.id": "HIDDEN-mock-parent-id", // HIDDEN
+                visible_col01: "value1",
+                visible_col02: "value2",
+                HIDDEN_col: "HIDDEN-should-not-be-included", // HIDDEN
               },
             ],
           },
@@ -520,12 +521,54 @@ describe("Implementation Requirements", () => {
     userEvent.click(getByTestId("data-explorer-export-button"));
 
     await waitFor(() => {
-      expect(mockMatcher).toHaveBeenCalledWith(
-        expect.objectContaining({
-          properties: ["visible_col01", "visible_col02"],
-        })
-      );
+      expect(mockDownloadBlob).toHaveBeenCalledOnce();
     });
+
+    const downloadContent = mockDownloadBlob.mock.calls[0][0];
+    expect(downloadContent).toContain("visible_col01\tvisible_col02");
+    expect(downloadContent).toContain("value1\tvalue2");
+    expect(downloadContent).not.toContain("HIDDEN-parent.id");
+    expect(downloadContent).not.toContain("HIDDEN-should-not-be-included");
+  });
+
+  it("should handle columns not present in the data", async () => {
+    const mockColumns: DataExplorerExportButtonProps["columns"] = [
+      { label: "col1", field: "col1", renderValue: () => null },
+      { label: "col2", field: "col2", renderValue: () => null },
+    ];
+
+    const mockMatcher = vi.fn().mockReturnValue(true);
+    const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
+      request: {
+        query: LIST_RELEASED_DATA_RECORDS,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          listReleasedDataRecords: {
+            total: 1,
+            nodes: [{ col1: "value1" }], // col2 is missing
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(
+      <DataExplorerExportButton {...BaseProps} columns={mockColumns} />,
+      {
+        wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+      }
+    );
+
+    userEvent.click(getByTestId("data-explorer-export-button"));
+
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalledOnce();
+    });
+
+    const downloadContent = mockDownloadBlob.mock.calls[0][0].split("\r\n");
+    expect(downloadContent[0]).toBe("col1\tcol2");
+    expect(downloadContent[1]).toBe("value1\t");
   });
 });
 
