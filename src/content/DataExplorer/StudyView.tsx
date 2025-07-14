@@ -1,6 +1,6 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, styled } from "@mui/material";
-import { cloneDeep, isEqual, sortBy } from "lodash";
+import { cloneDeep } from "lodash";
 import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -25,6 +25,9 @@ import {
   LIST_RELEASED_DATA_RECORDS,
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
+  RETRIEVE_PROPS_FOR_NODE_TYPE,
+  RetrievePropsForNodeTypeInput,
+  RetrievePropsForNodeTypeResp,
 } from "../../graphql";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -57,7 +60,6 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
-  const [columnNames, setColumnNames] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
 
   const tableRef = useRef<TableMethods>(null);
@@ -90,6 +92,19 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     context: { clientName: "backend" },
     onError: (error) => {
       Logger.error("Error fetching node list:", error);
+    },
+  });
+
+  const { data: nodeProps, loading: nodePropsLoading } = useQuery<
+    RetrievePropsForNodeTypeResp,
+    RetrievePropsForNodeTypeInput
+  >(RETRIEVE_PROPS_FOR_NODE_TYPE, {
+    variables: { studyId, dataCommonsDisplayName, nodeType: filtersRef.current?.nodeType },
+    skip: !studyId || !dataCommonsDisplayName || !filtersRef.current?.nodeType,
+    fetchPolicy: "cache-first",
+    context: { clientName: "backend" },
+    onError: (error) => {
+      Logger.error("Error fetching node properties:", error);
     },
   });
 
@@ -163,11 +178,11 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const columns = useMemo<Column<T>[]>(
     () =>
-      columnNames?.map((prop) => ({
-        label: prop,
+      nodeProps?.retrievePropsForNodeType?.map((prop) => ({
+        label: prop.name,
         renderValue: (d: T) => (
           <TruncatedText
-            text={coerceToString(d[prop])}
+            text={coerceToString(d[prop.name])}
             maxCharacters={20}
             disableInteractiveTooltip={false}
             arrow
@@ -175,19 +190,20 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             underline
           />
         ),
-        field: prop,
-        default: prop === selectedNodeType?.IDPropName ? true : undefined,
-        hideable: prop !== selectedNodeType?.IDPropName,
-        defaultHidden: false, // TODO: from API response
+        field: prop.name,
+        default: prop.name === selectedNodeType?.IDPropName ? true : undefined,
+        hideable: prop.name !== selectedNodeType?.IDPropName,
+        defaultHidden: prop.required !== true,
       })) || [],
-    [columnNames, selectedNodeType?.IDPropName]
+    [selectedNodeType?.IDPropName, nodeProps?.retrievePropsForNodeType]
   );
 
+  // TODO: this is not reading the user preferences on load
   const { visibleColumns, columnVisibilityModel, setColumnVisibilityModel } = useColumnVisibility<
     Column<T>
   >({
     columns,
-    getColumnKey: (c) => c.fieldKey ?? c.field,
+    getColumnKey: (c) => c.field,
     localStorageKey: columnVisibilityKey,
   });
 
@@ -230,21 +246,12 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       setData(data?.listReleasedDataRecords?.nodes || []);
       setTotalData(data?.listReleasedDataRecords?.total || 0);
       prevFiltersRef.current = cloneDeep(filtersRef.current);
-
-      // NOTE: This is a temporary solution to stabilize the column orders
-      // The API is currently not returning the same array order in each request
-      const sortedNewCols = sortBy(data?.listReleasedDataRecords?.properties || []);
-      if (!isEqual(sortBy(columnNames), sortedNewCols)) {
-        setColumnNames(sortedNewCols);
-      }
-
       setLoading(false);
     },
     [
       studyId,
       nodesData?.getReleaseNodeTypes?.nodes,
       dataCommonsDisplayName,
-      columnNames,
       filtersRef.current,
       prevFiltersRef.current,
       listReleasedDataRecords,
@@ -262,6 +269,22 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   const handleSetItemKey = useCallback(
     (d: T, idx: number) => `data-${d?.[selectedNodeType?.IDPropName] || idx}`,
     [columns, selectedNodeType?.IDPropName]
+  );
+
+  const handleGetColumnGroup = useCallback(
+    (column: Column<T>) => {
+      const prop = nodeProps?.retrievePropsForNodeType.find((p) => p.name === column.field);
+      switch (prop?.group) {
+        case "not_defined":
+          return "Others";
+        case "internal":
+          return "Internal";
+        case "model_defined":
+        default:
+          return "Data Model Defined";
+      }
+    },
+    [nodeProps?.retrievePropsForNodeType]
   );
 
   const columnGroups = useMemo<ColumnVisibilityPopperGroup[]>(
@@ -288,9 +311,9 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         key="column-visibility-action"
         columns={columns}
         groups={columnGroups}
-        getColumnKey={(column) => column.fieldKey ?? column.field}
+        getColumnKey={(column) => column.field}
         getColumnLabel={(column) => column.label?.toString()}
-        getColumnGroup={() => "Data Model Defined"} // TODO: from API response
+        getColumnGroup={handleGetColumnGroup}
         columnVisibilityModel={columnVisibilityModel}
         onColumnVisibilityModelChange={setColumnVisibilityModel}
         data-testid="column-visibility-button"
@@ -358,7 +381,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             columns={visibleColumns}
             data={data}
             total={totalData || 0}
-            loading={loading}
+            // TODO: node props loading shows loading but the table is collapsed
+            loading={loading || nodePropsLoading}
             defaultRowsPerPage={20}
             defaultOrder="asc"
             disableUrlParams

@@ -207,7 +207,6 @@ describe("Basic Functionality", () => {
         data: {
           listReleasedDataRecords: {
             total: 0,
-            properties: [],
             nodes: [],
           },
         },
@@ -252,7 +251,6 @@ describe("Basic Functionality", () => {
           data: {
             listReleasedDataRecords: {
               total: 14999,
-              properties: ["some.property"],
               nodes: Array.from({ length: PAGE_SIZE }, (_, i) => ({
                 "some.property": `value-${i + 1}`,
               })),
@@ -269,7 +267,6 @@ describe("Basic Functionality", () => {
           data: {
             listReleasedDataRecords: {
               total: 14999,
-              properties: ["some.property"],
               nodes: Array.from({ length: PAGE_SIZE }, (_, i) => ({
                 "some.property": `value-${i + PAGE_SIZE + 1}`,
               })),
@@ -286,7 +283,6 @@ describe("Basic Functionality", () => {
           data: {
             listReleasedDataRecords: {
               total: 14999,
-              properties: ["some.property"],
               nodes: Array.from({ length: PAGE_SIZE - 1 }, (_, i) => ({
                 "some.property": `value-${i + PAGE_SIZE * 2 + 1}`,
               })),
@@ -452,7 +448,6 @@ describe("Implementation Requirements", () => {
           data: {
             listReleasedDataRecords: {
               total: 1,
-              properties: ["id", "foo"],
               nodes: [{ id: "mock-id", foo: "bar" }],
             },
           },
@@ -505,7 +500,6 @@ describe("Implementation Requirements", () => {
         data: {
           listReleasedDataRecords: {
             total: 1,
-            properties: ["mock_value"],
             nodes: [
               {
                 mock_value: "mock_value",

@@ -26,7 +26,6 @@ export const LIST_RELEASED_DATA_RECORDS: TypedDocumentNode<
       sortDirection: $sortDirection
     ) {
       total
-      properties
       nodes
     }
   }
@@ -58,10 +57,6 @@ export type ListReleasedDataRecordsResponse = {
      * The total number of records returned
      */
     total: number;
-    /**
-     * The list of properties available for the node type
-     */
-    properties: string[];
     /**
      * An array of JSON objects representing the nodes
      */

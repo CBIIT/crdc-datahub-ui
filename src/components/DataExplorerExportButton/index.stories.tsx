@@ -23,7 +23,6 @@ const mockSuccessResponse: MockedResponse<
     data: {
       listReleasedDataRecords: {
         total: 1,
-        properties: ["parent.id", "data_file_type", "file_size", "file_name"],
         nodes: [
           {
             "parent.id": "mock-parent-id",
