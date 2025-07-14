@@ -4,6 +4,8 @@ import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+
 import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../../graphql";
 import { fireEvent, render, waitFor, within } from "../../../test-utils";
 import { OrganizationProvider } from "../../Contexts/OrganizationListContext";
@@ -22,18 +24,12 @@ const listOrgMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
         listPrograms: {
           total: 1,
           programs: [
-            {
+            organizationFactory.build({
               _id: "option-1",
               name: "Option 1",
               abbreviation: "O1",
               conciergeName: "primary-contact-1",
-              createdAt: "",
-              description: "",
-              status: "Active",
-              studies: [],
-              readOnly: false,
-              updateAt: "",
-            },
+            }),
           ],
         },
       },

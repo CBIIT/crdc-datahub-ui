@@ -2,6 +2,9 @@ import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, userEvent, within } from "@storybook/test";
 
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { batchFileInfoFactory } from "@/factories/submission/BatchFileInfoFactory";
+
 import {
   DOWNLOAD_METADATA_FILE,
   DownloadMetadataFileInput,
@@ -11,7 +14,7 @@ import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
 import Dialog from "./index";
 
-const mockBatch: Batch = {
+const mockBatch: Batch = batchFactory.build({
   _id: "mock-batch-0001",
   displayID: 0,
   submissionID: "mock-submission-0001",
@@ -22,9 +25,9 @@ const mockBatch: Batch = {
   errors: [],
   createdAt: "2023-06-11T14:41:30.724Z",
   updatedAt: "2023-06-11T16:41:30.724Z",
-};
+});
 
-const mockFile: BatchFileInfo = {
+const mockFile: BatchFileInfo = batchFileInfoFactory.build({
   filePrefix: "",
   fileName: "",
   nodeType: "",
@@ -32,7 +35,7 @@ const mockFile: BatchFileInfo = {
   errors: [],
   createdAt: "",
   updatedAt: "",
-};
+});
 
 type CustomStoryProps = React.ComponentProps<typeof Dialog>;
 

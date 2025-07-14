@@ -1,6 +1,9 @@
 import React, { FC, useMemo } from "react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -18,24 +21,6 @@ vi.mock("./StudyView", () => ({
   default: ({ _id }) => <div data-testid="data-explorer-study-view">MOCK-STUDY-PAGE {_id}</div>,
 }));
 
-const baseUser: User = {
-  _id: "",
-  role: "Submitter",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-  permissions: [],
-};
-
 type ParentProps = {
   initialEntry?: string;
   ctxStatus?: AuthContextStatus;
@@ -48,11 +33,12 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: ctxStatus,
-      isLoggedIn: ctxStatus === AuthContextStatus.LOADED,
-      user: baseUser,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: ctxStatus,
+        isLoggedIn: ctxStatus === AuthContextStatus.LOADED,
+        user: userFactory.build(),
+      }),
     [ctxStatus]
   );
 

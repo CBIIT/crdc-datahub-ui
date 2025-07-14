@@ -3,6 +3,8 @@ import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { releasedStudyFactory } from "@/factories/approved-study/ReleasedStudyFactory";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import { render, waitFor, within } from "../../test-utils";
 
@@ -12,22 +14,22 @@ const mockData = {
   total: 2,
   dataCommonsDisplayNames: ["CommonsA", "CommonsB"],
   studies: [
-    {
+    releasedStudyFactory.build({
       _id: "1",
       studyName: "StudyA",
       dbGaPID: "DB1",
       studyAbbreviation: "SA",
       dataCommons: ["CommonsA"],
       dataCommonsDisplayNames: ["CommonsA"],
-    } as ReleasedStudy,
-    {
+    }),
+    releasedStudyFactory.build({
       _id: "2",
       studyName: "StudyB",
       dbGaPID: "DB2",
       studyAbbreviation: "SB",
       dataCommons: ["CommonsB"],
       dataCommonsDisplayNames: ["CommonsB"],
-    } as ReleasedStudy,
+    }),
   ],
 };
 

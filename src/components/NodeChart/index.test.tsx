@@ -1,14 +1,16 @@
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 
+import { pieSectorDataItemFactory } from "@/factories/statistics/PieSectorDataItemFactory";
+
 import { render, waitFor, within } from "../../test-utils";
 
 import NodeChart from "./index";
 
 const mockData: PieSectorDataItem[] = [
-  { label: "New", value: 50, color: "#000000" },
-  { label: "Passed", value: 25, color: "#ffffff" },
-  { label: "Error", value: 25, color: "#3b3b3b" },
+  pieSectorDataItemFactory.build({ label: "New", value: 50, color: "#000000" }),
+  pieSectorDataItemFactory.build({ label: "Passed", value: 25, color: "#ffffff" }),
+  pieSectorDataItemFactory.build({ label: "Error", value: 25, color: "#3b3b3b" }),
 ];
 
 describe("Accessibility", () => {

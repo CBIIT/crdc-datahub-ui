@@ -260,7 +260,7 @@ const ListView = () => {
                 total={data?.total || 0}
                 loading={loading || authStatus === AuthStatus.LOADING}
                 defaultRowsPerPage={20}
-                defaultOrder="desc"
+                defaultOrder="asc"
                 disableUrlParams={false}
                 position="bottom"
                 noContentText="You either do not have the appropriate permissions to view released studies, or there are no studies associated with your account."

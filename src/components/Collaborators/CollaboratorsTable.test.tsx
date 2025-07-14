@@ -3,6 +3,11 @@ import React, { useMemo } from "react";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import { render, fireEvent, within, waitFor } from "../../test-utils";
 import {
@@ -35,29 +40,11 @@ const mockUseAuthContext = useAuthContext as Mock;
 const mockUseSubmissionContext = useSubmissionContext as Mock;
 const mockUseCollaboratorsContext = useCollaboratorsContext as Mock;
 
-const mockUser: User = {
-  _id: "user-1",
-  role: "Submitter",
-  email: "user1@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  permissions: ["data_submission:create"],
-  notifications: [],
-};
-
-const mockSubmission: Submission = {
+const mockSubmission: Submission = submissionFactory.build({
   _id: "submission-1",
   submitterID: "user-1",
   collaborators: [],
-} as Submission;
+});
 
 const mockCollaborators: Collaborator[] = [
   {
@@ -67,28 +54,18 @@ const mockCollaborators: Collaborator[] = [
   },
 ];
 
-const mockRemainingPotentialCollaborators: Collaborator[] = [
-  {
-    collaboratorID: "user-3",
-    collaboratorName: "Bob Johnson",
+const mockRemainingPotentialCollaborators: Collaborator[] = collaboratorFactory.build(
+  2,
+  (index) => ({
+    collaboratorID: `user-${index + 3}`,
+    collaboratorName: `User ${index + 3}`,
     permission: "Can Edit",
-  },
-  {
-    collaboratorID: "user-4",
-    collaboratorName: "Alice Williams",
-    permission: "Can Edit",
-  },
-];
+  })
+);
 
 const mockHandleAddCollaborator = vi.fn();
 const mockHandleRemoveCollaborator = vi.fn();
 const mockHandleUpdateCollaborator = vi.fn();
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
 
 type Props = {
   role?: UserRole;
@@ -97,11 +74,10 @@ type Props = {
 
 const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
   const authState = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      isLoggedIn: true,
-      user: { ...mockUser, role },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ _id: "user-1", role, permissions: ["data_submission:create"] }),
+      }),
     [role]
   );
 
@@ -119,7 +95,11 @@ describe("CollaboratorsTable Accessibility Tests", () => {
     vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
-      user: mockUser,
+      user: userFactory.build({
+        _id: "user-1",
+        role: "Submitter",
+        permissions: ["data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -155,7 +135,11 @@ describe("CollaboratorsTable Component", () => {
     vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
-      user: mockUser,
+      user: userFactory.build({
+        _id: "user-1",
+        role: "Submitter",
+        permissions: ["data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 

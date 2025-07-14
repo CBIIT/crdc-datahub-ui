@@ -1,6 +1,6 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
-import { within } from "@storybook/test";
+import { userEvent, within, screen, expect } from "@storybook/test";
 
 import { Roles } from "../../config/AuthRoles";
 import {
@@ -141,6 +141,45 @@ export const Default: Story = {
     canvas.getByText("Request Access").click();
 
     await canvas.findByText("Request Access");
+  },
+  decorators: [
+    (Story, context) => (
+      <AuthContext.Provider
+        value={
+          {
+            isLoggedIn: true,
+            user: {
+              firstName: "Example",
+              role: context.args.role,
+              permissions: context.args.permissions,
+            } as User,
+          } as AuthCtxState
+        }
+      >
+        <Story />
+      </AuthContext.Provider>
+    ),
+  ],
+};
+
+export const Hovered: Story = {
+  args: {
+    role: "Submitter",
+    permissions: ["access:request"],
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [studiesMock, institutionsMock],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByTestId("request-access-button");
+    userEvent.hover(button);
+    const tooltip = await screen.findByText(
+      /Request role change, study access, or institution update./i
+    );
+    expect(tooltip).toBeInTheDocument();
   },
   decorators: [
     (Story, context) => (

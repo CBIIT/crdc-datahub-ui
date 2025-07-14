@@ -2,35 +2,18 @@ import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { formContextStateFactory } from "@/factories/application/FormContextStateFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import config from "../../config/SectionConfig";
 import { render } from "../../test-utils";
-import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
-import {
-  ContextState as FormCtxState,
-  Context as FormCtx,
-  Status as FormStatus,
-} from "../Contexts/FormContext";
+import { ContextState, Context as AuthCtx } from "../Contexts/AuthContext";
+import { ContextState as FormCtxState, Context as FormCtx } from "../Contexts/FormContext";
 
 import ProgressBar from "./ProgressBar";
-
-const BaseUser: User = {
-  _id: "base-user-id",
-  firstName: "",
-  lastName: "",
-  role: "User",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  permissions: [],
-  notifications: [],
-  updateAt: "",
-  createdAt: "",
-};
 
 const BaseApplication: Application = {
   ...InitialApplication,
@@ -39,29 +22,24 @@ const BaseApplication: Application = {
 
 type Props = {
   section: string;
-  user?: User;
-  data?: Application;
+  user?: Partial<User>;
+  data?: Partial<Application>;
 };
 
-const BaseComponent: FC<Props> = ({
-  section,
-  user = { ...BaseUser },
-  data = { ...BaseApplication },
-}: Props) => {
+const BaseComponent: FC<Props> = ({ section, user = {}, data = {} }: Props) => {
   const formValue = useMemo<FormCtxState>(
-    () => ({
-      status: FormStatus.LOADED,
-      data: data as Application,
-    }),
+    () =>
+      formContextStateFactory.build({
+        data: applicationFactory.build({ ...data }),
+      }),
     [data]
   );
 
   const authValue = useMemo<ContextState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      user,
-      isLoggedIn: true,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ ...user }),
+      }),
     [user]
   );
 
@@ -283,7 +261,6 @@ describe("Basic Functionality", () => {
           section={config.REVIEW.title}
           data={data}
           user={{
-            ...BaseUser,
             _id: "owner-of-sr",
             permissions: ["submission_request:view", "submission_request:submit"],
           }}
@@ -317,7 +294,6 @@ describe("Basic Functionality", () => {
           section={config.REVIEW.title}
           data={data}
           user={{
-            ...BaseUser,
             _id: "some-other-user",
             role: "Admin",
             permissions: ["submission_request:view", "submission_request:submit"],
@@ -352,7 +328,6 @@ describe("Basic Functionality", () => {
           section={config.REVIEW.title}
           data={data}
           user={{
-            ...BaseUser,
             _id: "user-id-01",
             role: "Admin",
             permissions: ["submission_request:view"], // Only possible to view the submission request, no submit or review

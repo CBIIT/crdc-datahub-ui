@@ -5,6 +5,11 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   SubmissionContext,
@@ -28,67 +33,6 @@ import {
 import { fireEvent, render, waitFor, within } from "../../test-utils";
 
 import QualityControl from "./QualityControl";
-
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseQCResult: QCResult = {
-  submissionID: "",
-  type: "",
-  validationType: "metadata",
-  batchID: "",
-  displayID: 0,
-  submittedID: "",
-  severity: "Error",
-  uploadedDate: "",
-  validatedDate: "",
-  errors: [],
-  warnings: [],
-};
-
-const baseBatch = {
-  _id: "",
-  displayID: 0,
-  createdAt: "",
-  updatedAt: "",
-  __typename: "Batch",
-};
 
 const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
   request: {
@@ -203,23 +147,23 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: ParentProps) => {
   const ctxValue: SubmissionCtxState = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          ...baseSubmission,
-          ...submission,
-        },
-        getSubmissionAttributes: {
-          submissionAttributes: {
-            hasOrphanError: false,
-            isBatchUploading: false,
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            ...submission,
+          }),
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              hasOrphanError: false,
+              isBatchUploading: false,
+            },
           },
+          submissionStats: { stats: [] },
         },
-        submissionStats: { stats: [] },
-      },
-      error: null,
-    }),
+        error: null,
+      }),
     [submission]
   );
 
@@ -463,11 +407,12 @@ describe("Filters", () => {
           listBatches: {
             total: 1,
             batches: [
-              {
-                ...baseBatch,
-                _id: "batch-999",
-                displayID: 999,
-              },
+              batchFactory
+                .build({
+                  _id: "batch-999",
+                  displayID: 999,
+                })
+                .withTypename("Batch"),
             ],
           },
         },
@@ -801,10 +746,34 @@ describe("Filters", () => {
           listBatches: {
             total: 3,
             batches: [
-              { ...baseBatch, _id: "batch01", displayID: 1, createdAt: "2023-05-22T00:00:00Z" },
-              { ...baseBatch, _id: "batch02", displayID: 55, createdAt: "2024-07-31T00:00:00Z" },
-              { ...baseBatch, _id: "batch03", displayID: 94, createdAt: "2024-12-12T00:00:00Z" },
-              { ...baseBatch, _id: "batch04", displayID: 1024, createdAt: "2028-10-03T00:00:00Z" },
+              batchFactory
+                .build({
+                  _id: "batch01",
+                  displayID: 1,
+                  createdAt: "2023-05-22T00:00:00Z",
+                })
+                .withTypename("Batch"),
+              batchFactory
+                .build({
+                  _id: "batch02",
+                  displayID: 55,
+                  createdAt: "2024-07-31T00:00:00Z",
+                })
+                .withTypename("Batch"),
+              batchFactory
+                .build({
+                  _id: "batch03",
+                  displayID: 94,
+                  createdAt: "2024-12-12T00:00:00Z",
+                })
+                .withTypename("Batch"),
+              batchFactory
+                .build({
+                  _id: "batch04",
+                  displayID: 1024,
+                  createdAt: "2028-10-03T00:00:00Z",
+                })
+                .withTypename("Batch"),
             ],
           },
         },
@@ -876,8 +845,7 @@ describe("Table", () => {
           submissionQCResults: {
             total: 2,
             results: [
-              {
-                ...baseQCResult,
+              qcResultFactory.build({
                 displayID: 1,
                 type: "1-fake-long-node-01",
                 submittedID: "1-submitted-id-001",
@@ -890,9 +858,8 @@ describe("Table", () => {
                     description: "mock-warning-description-1",
                   },
                 ],
-              },
-              {
-                ...baseQCResult,
+              }),
+              qcResultFactory.build({
                 displayID: 2,
                 type: "2-fake-long-node-02",
                 submittedID: "2-submitted-id-002",
@@ -905,7 +872,7 @@ describe("Table", () => {
                     description: "mock-error-description-1",
                   },
                 ],
-              },
+              }),
             ],
           },
         },
@@ -1030,7 +997,7 @@ describe("Table", () => {
         data: {
           submissionQCResults: {
             total: 1,
-            results: [{ ...baseQCResult }],
+            results: [qcResultFactory.build()],
           },
         },
       },

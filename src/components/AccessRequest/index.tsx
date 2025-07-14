@@ -1,15 +1,20 @@
-import { Button, styled } from "@mui/material";
+import { Box, Button, styled } from "@mui/material";
 import { FC, memo, useState } from "react";
 
 import { hasPermission } from "../../config/AuthPermissions";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { InstitutionProvider } from "../Contexts/InstitutionListContext";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 import FormDialog from "./FormDialog";
 
-const StyledButton = styled(Button)({
+const StyledBox = styled(Box)({
   marginLeft: "42px",
   marginBottom: "1px",
+});
+
+const StyledButton = styled(Button)({
+  margin: 0,
   color: "#0B7F99",
   textTransform: "uppercase",
   fontSize: "13px",
@@ -49,15 +54,25 @@ const AccessRequest: FC = (): React.ReactNode => {
 
   return (
     <>
-      <StyledButton
-        variant="text"
-        onClick={handleClick}
-        data-testid="request-access-button"
-        disableFocusRipple
-        disableRipple
-      >
-        Request Access
-      </StyledButton>
+      <StyledBox>
+        <StyledTooltip
+          title="Request role change, study access, or institution update."
+          placement="top"
+          arrow
+        >
+          <span>
+            <StyledButton
+              variant="text"
+              onClick={handleClick}
+              data-testid="request-access-button"
+              disableFocusRipple
+              disableRipple
+            >
+              Request Access
+            </StyledButton>
+          </span>
+        </StyledTooltip>
+      </StyledBox>
       {dialogOpen && (
         <MemoizedProvider filterInactive>
           <FormDialog open onClose={handleClose} />

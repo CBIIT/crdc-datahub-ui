@@ -4,6 +4,10 @@ import { GraphQLError } from "graphql";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesInput,
@@ -49,40 +53,14 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
     data: {
       listApprovedStudies: {
         total: 2,
-        studies: [
-          {
-            _id: "study-1",
-            studyName: "Study-1",
-            studyAbbreviation: "S1",
-            controlledAccess: false,
-            openAccess: false,
-            dbGaPID: null,
-            ORCID: "",
-            originalOrg: null,
-            PI: "",
-            primaryContact: null,
-            programs: [],
-            useProgramPC: false,
-            pendingModelChange: false,
-            createdAt: "",
-          },
-          {
-            _id: "study-2",
-            studyName: "Study-2",
-            studyAbbreviation: "S2",
-            controlledAccess: false,
-            openAccess: false,
-            dbGaPID: null,
-            ORCID: "",
-            originalOrg: null,
-            PI: "",
-            primaryContact: null,
-            programs: [],
-            useProgramPC: false,
-            pendingModelChange: false,
-            createdAt: "",
-          },
-        ],
+        studies: approvedStudyFactory.build(2, (index) => ({
+          _id: `study-${index + 1}`,
+          studyName: `Study-${index + 1}`,
+          studyAbbreviation: `S${index + 1}`,
+          dbGaPID: null,
+          originalOrg: null,
+          primaryContact: null,
+        })),
       },
     },
   },
@@ -90,64 +68,38 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
 };
 
 const mockInstitutionList: Institution[] = [
-  {
+  institutionFactory.build({
     _id: "institution-1",
     name: "Institution 1",
-    status: "Active",
     submitterCount: 0,
-  },
-  {
+  }),
+  institutionFactory.build({
     _id: "institution-2",
     name: "Institution 2",
-    status: "Active",
     submitterCount: 5,
-  },
-  {
+  }),
+  institutionFactory.build({
     _id: "institution-3",
     name: "Institution 3",
-    status: "Active",
     submitterCount: 2,
-  },
+  }),
 ];
-
-const mockUser: User = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  role: "User",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  permissions: ["access:request"],
-  notifications: [],
-};
 
 type MockParentProps = {
   mocks: MockedResponse[];
-  user?: User;
+  user?: Partial<User>;
   institutions?: Institution[];
   children: React.ReactNode;
 };
 
-const MockParent: FC<MockParentProps> = ({
-  mocks,
-  user = mockUser,
-  institutions = [],
-  children,
-}) => {
+const MockParent: FC<MockParentProps> = ({ mocks, user = {}, institutions = [], children }) => {
   const authValue: AuthContextState = useMemo<AuthContextState>(
     () => ({
       isLoggedIn: true,
       status: AuthContextStatus.LOADED,
-      user: { ...user },
+      user: userFactory.build({ permissions: ["access:request"], ...user }),
     }),
-    [mockUser]
+    [user]
   );
 
   const instValue: InstitutionCtxState = useMemo<InstitutionCtxState>(
@@ -692,8 +644,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const newUser: User = {
-      ...mockUser,
+    const newUser: Partial<User> = {
       role: "Admin", // Technically not even able to see this dialog
     };
 

@@ -2,6 +2,8 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+
 import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 
@@ -92,8 +94,8 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
 
   it("should load and display organization data", async () => {
     const orgData = [
-      { name: "Org One", status: "Active" },
-      { name: "Org Two", status: "Active" },
+      organizationFactory.build({ name: "Org One", status: "Active" }),
+      organizationFactory.build({ name: "Org Two", status: "Active" }),
     ];
 
     const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
@@ -144,8 +146,8 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
 
   it("should only show active organizations in the activeOrganizations list", async () => {
     const orgData = [
-      { name: "Active Org", status: "Active" },
-      { name: "Inactive Org", status: "Inactive" },
+      organizationFactory.build({ name: "Active Org", status: "Active" }),
+      organizationFactory.build({ name: "Inactive Org", status: "Inactive" }),
     ];
 
     const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
@@ -195,7 +197,7 @@ describe("OrganizationListContext > OrganizationProvider Tests", () => {
   });
 
   it("should correctly update all consumers when state changes", async () => {
-    const orgData = [{ name: "Org Multi", status: "Active" }];
+    const orgData = [organizationFactory.build({ name: "Org Multi", status: "Active" })];
 
     const mocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       {

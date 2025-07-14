@@ -1,6 +1,9 @@
 import React, { FC, useMemo } from "react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -27,23 +30,6 @@ vi.mock("./OrganizationView", () => ({
   default: ({ _id }) => <div data-testid="organization-view">MOCK-EDIT-PAGE {_id}</div>,
 }));
 
-const baseUser: Omit<User, "permissions"> = {
-  _id: "",
-  role: "fake role" as UserRole, // NOTE: This component does not depend on the role
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
-
 type ParentProps = {
   permissions?: AuthPermissions[];
   initialEntry?: string;
@@ -58,11 +44,12 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: ctxStatus,
-      isLoggedIn: true,
-      user: { ...baseUser, permissions },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: ctxStatus,
+        isLoggedIn: true,
+        user: userFactory.build({ permissions }),
+      }),
     [ctxStatus, permissions]
   );
 

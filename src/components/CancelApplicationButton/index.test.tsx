@@ -4,13 +4,14 @@ import { GraphQLError } from "graphql";
 import { useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+
 import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 import { render, waitFor, within } from "../../test-utils";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { authCtxStateFactory } from "../../test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "../../test-utils/factories/auth/UserFactory";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
 import {
   Context as FormContext,
   Status as FormStatus,
@@ -18,56 +19,6 @@ import {
 } from "../Contexts/FormContext";
 
 import Button from "./index";
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: User = {
-  _id: "base-user-123",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: [],
-  notifications: [],
-};
-
-const baseApp: Application = {
-  _id: "",
-  status: "New",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
-  history: [],
-  ORCID: "",
-  applicant: {
-    applicantID: "applicant-123",
-    applicantName: "",
-    applicantEmail: "",
-  },
-  PI: "",
-  controlledAccess: false,
-  openAccess: false,
-  studyAbbreviation: "",
-  conditional: false,
-  pendingConditions: [],
-  programName: "",
-  programAbbreviation: "",
-  programDescription: "",
-  version: "",
-  questionnaireData: null,
-};
 
 type TestParentProps = {
   user?: Partial<User>;
@@ -83,10 +34,7 @@ const TestParent: React.FC<TestParentProps> = ({
   children,
 }) => {
   const authCtxValue = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      user: { ...baseUser, ...user },
-    }),
+    () => authCtxStateFactory.build({ user: userFactory.build({ ...user }) }),
     [user]
   );
 
@@ -112,12 +60,11 @@ describe("Accessibility", () => {
     const { container, getByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "New",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -132,12 +79,11 @@ describe("Accessibility", () => {
     const { container, getByTestId } = render(<Button disabled />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "New",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -181,12 +127,11 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <TestParent
           mocks={mocks}
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -234,12 +179,11 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <TestParent
           mocks={mocks}
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -293,12 +237,11 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <TestParent
           mocks={mocks}
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -354,12 +297,11 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <TestParent
           mocks={mocks}
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -411,12 +353,11 @@ describe("Basic Functionality", () => {
       wrapper: ({ children }) => (
         <TestParent
           mocks={mocks}
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -456,12 +397,11 @@ describe("Implementation Requirements", () => {
     const { getByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "New",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -475,12 +415,11 @@ describe("Implementation Requirements", () => {
     const { getByTestId, findByRole } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "New",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -506,12 +445,11 @@ describe("Implementation Requirements", () => {
     const { findByRole, getByRole, getByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -536,12 +474,11 @@ describe("Implementation Requirements", () => {
     const { queryByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: [] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: [] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -557,12 +494,11 @@ describe("Implementation Requirements", () => {
     const { queryByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "In Progress",
-            applicant: { ...baseApp.applicant, applicantID: "NOT THE CURRENT USER" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "NOT THE CURRENT USER" }),
+          })}
         >
           {children}
         </TestParent>
@@ -582,12 +518,11 @@ describe("Implementation Requirements", () => {
       const { queryByTestId } = render(<Button />, {
         wrapper: ({ children }) => (
           <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-            application={{
-              ...baseApp,
+            user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+            application={applicationFactory.build({
               status,
-              applicant: { ...baseApp.applicant, applicantID: "owner" },
-            }}
+              applicant: applicantFactory.build({ applicantID: "owner" }),
+            })}
           >
             {children}
           </TestParent>
@@ -604,13 +539,12 @@ describe("Implementation Requirements", () => {
     const { getByRole, getByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "New",
             studyAbbreviation: "TEST",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -629,13 +563,12 @@ describe("Implementation Requirements", () => {
     const { getByRole, getByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <TestParent
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             status: "New",
             studyAbbreviation: "",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -672,13 +605,12 @@ describe("Implementation Requirements", () => {
       wrapper: ({ children }) => (
         <TestParent
           mocks={mocks}
-          user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          application={{
-            ...baseApp,
+          user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+          application={applicationFactory.build({
             _id: "mock-id-cancel-reason",
             status: "New",
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         >
           {children}
         </TestParent>
@@ -729,12 +661,11 @@ describe("Implementation Requirements", () => {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-            application={{
-              ...baseApp,
+            user={userFactory.build({ _id: "owner", permissions: ["submission_request:cancel"] })}
+            application={applicationFactory.build({
               status,
-              applicant: { ...baseApp.applicant, applicantID: "owner" },
-            }}
+              applicant: applicantFactory.build({ applicantID: "owner" }),
+            })}
           >
             {children}
           </TestParent>

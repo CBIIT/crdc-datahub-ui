@@ -41,7 +41,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    title: "Submission Request List",
+    title: "Submission Requests",
     subTitle:
       "Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work.",
     bannerSrc: bannerPng,
@@ -50,7 +50,7 @@ export const Default: Story = {
 
 export const WithBody: Story = {
   args: {
-    title: "Submission Request List",
+    title: "Submission Requests",
     subTitle:
       "Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work.",
     bannerSrc: bannerPng,
