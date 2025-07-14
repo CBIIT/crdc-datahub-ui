@@ -88,7 +88,7 @@ describe("Accessibility", () => {
         <MockParent
           submission={{ status: "New" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin", // Using Admin role to demonstrate permission-based access
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -109,7 +109,7 @@ describe("Accessibility", () => {
         <MockParent
           submission={{ status: "New" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin", // Using Admin role to demonstrate permission-based access
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -161,7 +161,7 @@ describe("Basic Functionality", () => {
           mocks={[mock]}
           submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin",
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -207,7 +207,7 @@ describe("Basic Functionality", () => {
           mocks={[mock]}
           submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin",
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -260,7 +260,7 @@ describe("Basic Functionality", () => {
           mocks={[mock]}
           submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin",
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -301,7 +301,7 @@ describe("Implementation Requirements", () => {
         <MockParent
           submission={{ status: "New" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin",
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -331,7 +331,7 @@ describe("Implementation Requirements", () => {
       <MockParent
         submission={{ status: "New" }}
         user={{
-          role: "Data Commons Personnel",
+          role: "Admin",
           permissions: [],
           dataCommons: [mockDC],
           dataCommonsDisplayNames: [mockDC],
@@ -347,7 +347,7 @@ describe("Implementation Requirements", () => {
       <MockParent
         submission={{ status: "New" }}
         user={{
-          role: "Data Commons Personnel",
+          role: "Admin",
           permissions: ["data_submission:review"],
           dataCommons: [mockDC],
           dataCommonsDisplayNames: [mockDC],
@@ -360,50 +360,46 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("change-model-version-button")).toBeVisible();
   });
 
-  it.each<UserRole>(["Admin", "Federal Lead", "Submitter", "User", "fake role" as UserRole])(
-    "should not be rendered when the user is not a valid role (%s)",
-    async (userRole) => {
-      const { rerender, getByTestId } = render(
-        <MockParent
-          submission={{ status: "New" }}
-          user={{
-            role: userRole,
-            permissions: ["data_submission:review"],
-            // NOTE: Technically other roles don't have DC assigned, but this is required to test this scenario
-            dataCommons: [mockDC],
-            dataCommonsDisplayNames: [mockDC],
-          }}
-        >
-          <ModelSelection />
-        </MockParent>
-      );
+  it("should be rendered for any role when user has the required permission", () => {
+    const { rerender, getByTestId } = render(
+      <MockParent
+        submission={{ status: "New" }}
+        user={{
+          role: "Admin", // Test with a different role than "Data Commons Personnel"
+          permissions: ["data_submission:review"],
+          dataCommons: [mockDC],
+          dataCommonsDisplayNames: [mockDC],
+        }}
+      >
+        <ModelSelection />
+      </MockParent>
+    );
 
-      expect(() => getByTestId("change-model-version-button")).toThrow(); // Button should not be rendered
+    expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered for any role with permission
 
-      rerender(
-        <MockParent
-          submission={{ status: "New" }}
-          user={{
-            role: "Data Commons Personnel",
-            permissions: ["data_submission:review"],
-            dataCommons: [mockDC],
-            dataCommonsDisplayNames: [mockDC],
-          }}
-        >
-          <ModelSelection />
-        </MockParent>
-      );
+    rerender(
+      <MockParent
+        submission={{ status: "New" }}
+        user={{
+          role: "Federal Lead", // Test with another role
+          permissions: ["data_submission:review"],
+          dataCommons: [mockDC],
+          dataCommonsDisplayNames: [mockDC],
+        }}
+      >
+        <ModelSelection />
+      </MockParent>
+    );
 
-      expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered
-    }
-  );
+    expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered for any role with permission
+  });
 
   it("should not be rendered when the user is not assigned to the same data commons", () => {
     const { rerender, getByTestId } = render(
       <MockParent
         submission={{ dataCommons: "a different dc", status: "New" }}
         user={{
-          role: "Data Commons Personnel",
+          role: "Admin",
           permissions: ["data_submission:review"],
           dataCommons: ["A fake data commons that is not definitely not MOCK-DC"],
           dataCommonsDisplayNames: [mockDC],
@@ -419,7 +415,7 @@ describe("Implementation Requirements", () => {
       <MockParent
         submission={{ dataCommons: "a different dc", status: "New" }}
         user={{
-          role: "Data Commons Personnel",
+          role: "Admin",
           permissions: ["data_submission:review"],
           dataCommons: ["a different dc"], // Change to the same data commons
           dataCommonsDisplayNames: ["a different dc"],
@@ -447,7 +443,7 @@ describe("Implementation Requirements", () => {
           <MockParent
             submission={{ status: submissionStatus }}
             user={{
-              role: "Data Commons Personnel",
+              role: "Admin",
               permissions: ["data_submission:review"],
               dataCommons: [mockDC],
               dataCommonsDisplayNames: [mockDC],
@@ -489,7 +485,7 @@ describe("Implementation Requirements", () => {
           updateQuery={mockUpdateQuery}
           submission={{ status: "New", modelVersion: "1.0.0" }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin",
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
@@ -563,7 +559,7 @@ describe("Implementation Requirements", () => {
           updateQuery={mockUpdateQuery}
           submission={{ ...prevState.getSubmission }}
           user={{
-            role: "Data Commons Personnel",
+            role: "Admin",
             permissions: ["data_submission:review"],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],

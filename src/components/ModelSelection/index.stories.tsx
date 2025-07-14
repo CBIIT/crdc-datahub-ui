@@ -133,7 +133,7 @@ const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
 
 export const Default: Story = {
   args: {
-    userRole: "Data Commons Personnel",
+    userRole: "Admin", // Changed from "Data Commons Personnel" to demonstrate permission-based access
     permissions: ["data_submission:review"],
     status: "In Progress",
   },
@@ -152,7 +152,7 @@ export const Default: Story = {
  */
 export const Hovered: Story = {
   args: {
-    userRole: "Data Commons Personnel",
+    userRole: "Admin", // Changed from "Data Commons Personnel" to demonstrate permission-based access
     permissions: ["data_submission:review"],
     status: "In Progress",
   },

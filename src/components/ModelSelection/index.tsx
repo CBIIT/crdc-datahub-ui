@@ -75,8 +75,7 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
     () =>
       hasPermission(user, "data_submission", "review", getSubmission, true) &&
       ENABLED_STATUSES.includes(status) &&
-      user?.dataCommons?.includes(dataCommons) &&
-      user?.role === "Data Commons Personnel",
+      user?.dataCommons?.includes(dataCommons),
     [user, getSubmission, status, dataCommons]
   );
 

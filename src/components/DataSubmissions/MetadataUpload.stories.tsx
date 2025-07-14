@@ -133,7 +133,7 @@ export const ModelVersionChangeAdornment: Story = {
       dataCommons: mockDC,
       dataCommonsDisplayName: "A Mock DC",
     },
-    userRole: "Data Commons Personnel",
+    userRole: "Admin", // Changed from "Data Commons Personnel" to demonstrate permission-based access
     permissions: ["data_submission:view", "data_submission:create", "data_submission:review"],
   },
 };
