@@ -360,16 +360,22 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("change-model-version-button")).toBeVisible();
   });
 
-  it.each<UserRole>(["Admin", "Federal Lead", "Submitter", "User", "fake role" as UserRole])(
-    "should not be rendered when the user is not a valid role (%s)",
+  it.each<UserRole>([
+    "Admin",
+    "Federal Lead",
+    "Submitter",
+    "User",
+    "Data Commons Personnel",
+    "fake role" as UserRole,
+  ])(
+    "should be rendered for any user role (%s) when user has required permissions",
     async (userRole) => {
-      const { rerender, getByTestId } = render(
+      const { getByTestId } = render(
         <MockParent
           submission={{ status: "New" }}
           user={{
             role: userRole,
             permissions: ["data_submission:review"],
-            // NOTE: Technically other roles don't have DC assigned, but this is required to test this scenario
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
           }}
@@ -378,23 +384,7 @@ describe("Implementation Requirements", () => {
         </MockParent>
       );
 
-      expect(() => getByTestId("change-model-version-button")).toThrow(); // Button should not be rendered
-
-      rerender(
-        <MockParent
-          submission={{ status: "New" }}
-          user={{
-            role: "Data Commons Personnel",
-            permissions: ["data_submission:review"],
-            dataCommons: [mockDC],
-            dataCommonsDisplayNames: [mockDC],
-          }}
-        >
-          <ModelSelection />
-        </MockParent>
-      );
-
-      expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered
+      expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered regardless of role
     }
   );
 

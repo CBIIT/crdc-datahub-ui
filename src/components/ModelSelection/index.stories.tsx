@@ -170,4 +170,21 @@ export const Hovered: Story = {
   },
 };
 
+/**
+ * A story to demonstrate that the component works with any user role,
+ * not just "Data Commons Personnel", as long as they have the required permissions.
+ */
+export const WithDifferentRole: Story = {
+  args: {
+    userRole: "Admin",
+    permissions: ["data_submission:review"],
+    status: "New",
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [mock],
+    },
+  },
+};
+
 export default meta;
