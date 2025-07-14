@@ -293,6 +293,10 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [nodeProps?.retrievePropsForNodeType]
   );
 
+  const handleGetColumnKey = useCallback((column: Column<T>) => column.field, []);
+
+  const handleGetColumnLabel = useCallback((column: Column<T>) => column.label?.toString(), []);
+
   const columnGroups = useMemo<ColumnVisibilityPopperGroup[]>(
     () => [
       {
@@ -317,8 +321,8 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         key="column-visibility-action"
         columns={columns}
         groups={columnGroups}
-        getColumnKey={(column) => column.field}
-        getColumnLabel={(column) => column.label?.toString()}
+        getColumnKey={handleGetColumnKey}
+        getColumnLabel={handleGetColumnLabel}
         getColumnGroup={handleGetColumnGroup}
         columnVisibilityModel={columnVisibilityModel}
         onColumnVisibilityModelChange={setColumnVisibilityModel}
@@ -341,6 +345,9 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       filtersRef?.current?.nodeType,
       dataCommonsDisplayName,
       setColumnVisibilityModel,
+      handleGetColumnGroup,
+      handleGetColumnKey,
+      handleGetColumnLabel,
     ]
   );
 
