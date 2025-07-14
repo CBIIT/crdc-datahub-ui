@@ -395,6 +395,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             data={data}
             total={totalData}
             loading={loading || nodePropsLoading}
+            delayedLoadingTimeMs={0}
             defaultRowsPerPage={20}
             defaultOrder="asc"
             disableUrlParams
@@ -403,6 +404,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             setItemKey={handleSetItemKey}
             containerProps={{
               sx: {
+                minHeight: "175px",
                 marginBottom: "8px",
                 border: 0,
                 borderTopLeftRadius: 0,
