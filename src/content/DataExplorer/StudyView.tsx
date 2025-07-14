@@ -2,7 +2,7 @@ import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
 import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
@@ -56,6 +56,7 @@ type StudyViewProps = {
 const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   usePageTitle(`Data Explorer - ${studyId}`);
 
+  const navigate = useNavigate();
   const { searchParams, lastSearchParams } = useSearchParamsContext();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -105,6 +106,12 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     context: { clientName: "backend" },
     onError: (error) => {
       Logger.error("Error fetching node properties:", error);
+      navigate("/data-explorer", {
+        state: {
+          alert: true,
+          error: "Oops! Unable to display metadata for the selected study or data commons.",
+        },
+      });
     },
   });
 
@@ -198,7 +205,6 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [selectedNodeType?.IDPropName, nodeProps?.retrievePropsForNodeType]
   );
 
-  // TODO: this is not reading the user preferences on load
   const { visibleColumns, columnVisibilityModel, setColumnVisibilityModel } = useColumnVisibility<
     Column<T>
   >({
@@ -380,8 +386,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             ref={tableRef}
             columns={visibleColumns}
             data={data}
-            total={totalData || 0}
-            // TODO: node props loading shows loading but the table is collapsed
+            total={totalData}
             loading={loading || nodePropsLoading}
             defaultRowsPerPage={20}
             defaultOrder="asc"
