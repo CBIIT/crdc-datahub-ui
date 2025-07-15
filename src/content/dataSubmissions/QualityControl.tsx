@@ -8,7 +8,7 @@ import { useSubmissionContext } from "../../components/Contexts/SubmissionContex
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
 import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
-import ErrorDetailsDialogV2, { ErrorDetailsIssue } from "../../components/ErrorDetailsDialogV2";
+import ErrorDetailsDialog, { ErrorDetailsIssue } from "../../components/ErrorDetailsDialog/v2";
 import GenericTable, { Column } from "../../components/GenericTable";
 import NodeComparison from "../../components/NodeComparison";
 import PVRequestButton from "../../components/PVRequestButton";
@@ -545,7 +545,7 @@ const QualityControl: FC = () => {
         />
       </QCResultsContext.Provider>
       {!isAggregated && (
-        <ErrorDetailsDialogV2
+        <ErrorDetailsDialog
           open={openErrorDialog}
           onClose={() => setOpenErrorDialog(false)}
           preHeader="Data Submission"

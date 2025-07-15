@@ -3,7 +3,7 @@ import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { render, waitFor } from "../../test-utils";
+import { render, waitFor } from "../../../test-utils";
 
 import Dialog from "./index";
 

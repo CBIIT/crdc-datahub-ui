@@ -1,10 +1,10 @@
 import { Box, Button, DialogProps, List, Stack, Typography, styled } from "@mui/material";
 import React from "react";
 
-import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
-import { ValidationErrorCode } from "../../config/ValidationErrors";
-import BaseDialog from "../StyledDialogComponents/StyledDialog";
-import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
+import CloseIconSvg from "@/assets/icons/close_icon.svg?react";
+import BaseDialog from "@/components/StyledDialogComponents/StyledDialog";
+import StyledCloseDialogButton from "@/components/StyledDialogComponents/StyledDialogCloseButton";
+import { ValidationErrorCode } from "@/config/ValidationErrors";
 
 const StyledDialog = styled(BaseDialog)({
   "& .MuiDialog-paper": {

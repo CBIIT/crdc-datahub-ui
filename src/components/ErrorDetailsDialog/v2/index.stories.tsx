@@ -4,7 +4,7 @@ import { fn } from "@storybook/test";
 import Dialog, { ErrorDetailsDialogV2Props } from "./index";
 
 const meta = {
-  title: "Dialogs / Error Details V2",
+  title: "Dialogs / Error Details / V2",
   component: Dialog,
   parameters: {
     layout: "fullscreen",

@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 
-import { render, waitFor } from "../../test-utils";
+import { render, waitFor } from "../../../test-utils";
 
 import Dialog, { ErrorDetailsDialogV2Props, ErrorDetailsIssue } from "./index";
 

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import Dialog from "./index";
 
 const meta = {
-  title: "Dialogs / Error Details",
+  title: "Dialogs / Error Details / V1",
   component: Dialog,
   parameters: {
     layout: "fullscreen",
