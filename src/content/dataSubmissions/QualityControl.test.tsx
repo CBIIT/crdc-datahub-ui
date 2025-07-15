@@ -29,10 +29,25 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
   SubmissionQCResultsInput,
+  GetPendingPVsResponse,
+  GetPendingPVsInput,
+  GET_PENDING_PVS,
 } from "../../graphql";
 import { fireEvent, render, waitFor, within } from "../../test-utils";
 
 import QualityControl from "./QualityControl";
+
+const emptyPendingPVsMock: MockedResponse<GetPendingPVsResponse, GetPendingPVsInput> = {
+  request: {
+    query: GET_PENDING_PVS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      getPendingPVs: [],
+    },
+  },
+};
 
 const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
   request: {
@@ -210,7 +225,7 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock]}
+          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock, emptyPendingPVsMock]}
           submission={{ _id: "test-network-error" }}
         >
           {children}
@@ -273,7 +288,15 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[aggMocks, submissionQCMock, mocks, nodesMock, batchesMock, issueTypesMock]}
+          mocks={[
+            aggMocks,
+            submissionQCMock,
+            mocks,
+            nodesMock,
+            batchesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-graphql-error" }}
         >
           {children}
@@ -335,7 +358,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-filters-1" }}
         >
           {children}
@@ -422,7 +452,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMockWithData, nodesMockWithData, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMockWithData,
+            nodesMockWithData,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-filters-2" }}
         >
           {children}
@@ -522,7 +559,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "filter-nodes" }}
         >
           {children}
@@ -597,7 +641,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "sorting-nodeType" }}
         >
           {children}
@@ -676,7 +727,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "filter-nodes" }}
         >
           {children}
@@ -783,7 +841,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "format-batches" }}
         >
           {children}
@@ -889,6 +954,7 @@ describe("Table", () => {
             batchesMock,
             nodesMock,
             issueTypesMock,
+            emptyPendingPVsMock,
           ]}
           submission={{ _id: "format-batches" }}
         >
@@ -937,7 +1003,14 @@ describe("Table", () => {
     const { getByText } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-placeholder" }}
         >
           {children}
@@ -973,7 +1046,14 @@ describe("Table", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-pagination-count" }}
         >
           {children}
@@ -1006,7 +1086,14 @@ describe("Table", () => {
     const { getAllByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-enabled-export" }}
         >
           {children}
@@ -1041,7 +1128,14 @@ describe("Table", () => {
     const { getAllByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-disabled-export" }}
         >
           {children}
