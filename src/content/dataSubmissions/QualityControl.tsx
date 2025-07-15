@@ -1,4 +1,4 @@
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, Button, Stack, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
@@ -11,6 +11,7 @@ import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
 import ErrorDetailsDialogV2, { ErrorDetailsIssue } from "../../components/ErrorDetailsDialogV2";
 import GenericTable, { Column } from "../../components/GenericTable";
 import NodeComparison from "../../components/NodeComparison";
+import PVRequestButton from "../../components/PVRequestButton";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import TruncatedText from "../../components/TruncatedText";
 import { ValidationErrorCodes } from "../../config/ValidationErrors";
@@ -21,6 +22,9 @@ import {
   AggregatedSubmissionQCResultsResp,
   SubmissionQCResultsInput,
   SubmissionQCResultsResp,
+  GET_PENDING_PVS,
+  GetPendingPVsInput,
+  GetPendingPVsResponse,
 } from "../../graphql";
 import { FormatDate, Logger, titleCase } from "../../utils";
 
@@ -78,6 +82,10 @@ const StyledIssuesTextWrapper = styled(Box)({
 const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
+
+const StyledPvButtonWrapper = styled(Box)({
+  marginLeft: "89px",
+});
 
 type RowData = QCResult | AggregatedQCResult;
 
@@ -286,9 +294,16 @@ const QualityControl: FC = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  useEffect(() => {
-    tableRef.current?.refresh();
-  }, [metadataValidationStatus, fileValidationStatus]);
+  const { data: pendingPVs, refetch: refetchPendingPVs } = useQuery<
+    GetPendingPVsResponse,
+    GetPendingPVsInput
+  >(GET_PENDING_PVS, {
+    variables: { submissionID: submissionId },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+    skip: !submissionId,
+  });
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -470,13 +485,21 @@ const QualityControl: FC = () => {
         );
       }
       if (issue.code === ValidationErrorCodes.INVALID_PERMISSIBLE) {
-        // TODO: Implement Request PV button
-        issue.action = <p>TODO: Button here</p>;
+        // TODO: Disabled if a request has already been submitted for this permissible value
+        issue.action = (
+          <StyledPvButtonWrapper>
+            <PVRequestButton onSubmit={refetchPendingPVs} />
+          </StyledPvButtonWrapper>
+        );
       }
     });
 
     return allIssues;
-  }, [selectedRow, submissionStatus]);
+  }, [selectedRow, submissionStatus, pendingPVs]);
+
+  useEffect(() => {
+    tableRef.current?.refresh();
+  }, [metadataValidationStatus, fileValidationStatus]);
 
   return (
     <>

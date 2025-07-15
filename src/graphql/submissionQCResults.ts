@@ -1,3 +1,4 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 // The base QCResult model used for all submissionQCResults queries
@@ -27,16 +28,20 @@ const FullQCResultFragment = gql`
       code
       title
       description
+      offendingProperty: title # TODO: Remove this map
+      offendingValue: title # TODO: Remove this map
     }
     warnings {
       code
       title
       description
+      offendingProperty: title # TODO: Remove this map
+      offendingValue: title # TODO: Remove this map
     }
   }
 `;
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query submissionQCResults(
     $id: ID!
     $issueCode: String

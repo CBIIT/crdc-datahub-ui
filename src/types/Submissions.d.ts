@@ -281,6 +281,14 @@ type ErrorMessage = {
    * A detailed description of the error.
    */
   description: string;
+  /**
+   * The property that caused the error, if applicable.
+   */
+  offendingProperty?: string;
+  /**
+   * The value that caused the error, if applicable.
+   */
+  offendingValue?: string;
 };
 
 type DataRecord = {
