@@ -481,7 +481,7 @@ const QualityControl: FC = () => {
               onSubmit={refetchPendingPVs}
               offendingProperty={e.offendingProperty}
               offendingValue={e.offendingValue}
-              nodeName={filtersRef.current.nodeType}
+              nodeName={selectedRow.type}
               disabled={isDisabled}
             />
           </StyledPvButtonWrapper>
