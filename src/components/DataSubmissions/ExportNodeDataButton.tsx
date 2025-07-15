@@ -106,6 +106,7 @@ export const ExportNodeDataButton: React.FC<Props> = ({
       const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
       const filename = `${filteredName}_${nodeType}_${dayjs().format("YYYYMMDDHHmm")}.tsv`;
       const csvArray = d.getSubmissionNodes.nodes.map((node) => ({
+        type: nodeType,
         ...JSON.parse(node.props),
         status: node.status,
       }));

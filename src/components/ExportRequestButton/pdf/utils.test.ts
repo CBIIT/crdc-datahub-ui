@@ -1,5 +1,7 @@
 import jsPDF from "jspdf";
 
+import { fontResourceFactory } from "@/factories/application/FontResource";
+
 import { FontResource } from "./Fonts";
 import * as utils from "./utils";
 
@@ -10,12 +12,12 @@ const MockJsPDF = {
   addFont: (...p) => mockAddFont(...p),
 };
 
-const baseFont: FontResource = {
+const baseFont: FontResource = fontResourceFactory.build({
   src: "",
   family: "mock-family",
   style: "normal",
   fontWeight: 500,
-};
+});
 
 describe("loadFont", () => {
   beforeEach(() => {

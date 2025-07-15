@@ -34,6 +34,7 @@ import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
 import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import Tooltip from "../Tooltip";
 
 import RadioInput, { RadioOption } from "./RadioInput";
@@ -226,6 +227,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
   const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
+  const [intention, studyID] = watch(["intention", "studyID"]);
 
   const shouldFetchAllStudies = useMemo<boolean>(
     () =>
@@ -248,7 +250,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     {
       variables: { first: -1, orderBy: "studyAbbreviation", sortDirection: "asc" },
       context: { clientName: "backend" },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "cache-and-network",
       skip: !shouldFetchAllStudies,
     }
   );
@@ -263,7 +265,15 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     );
   }, [shouldFetchAllStudies, allStudies, user?.studies]);
 
-  const intention = watch("intention");
+  const studyHasPendingConditions = useMemo<boolean>(() => {
+    if (!studyID) {
+      return false;
+    }
+
+    const mappedStudy = studies?.find((s) => s?._id === studyID);
+    return mappedStudy?.pendingModelChange || false;
+  }, [studyID, studies]);
+
   const submissionTypeOptions: RadioOption[] = [
     {
       label: "New/Update",
@@ -310,6 +320,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   };
 
   const onSubmit: SubmitHandler<CreateSubmissionInput> = async (input) => {
+    if (studyHasPendingConditions) {
+      return;
+    }
+
     const { data, errors } = await createDataSubmission({
       variables: { ...input },
     }).catch((e) => {
@@ -568,15 +582,27 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
           </StyledFormStack>
         </StyledDialogContent>
         <StyledDialogActions>
-          <StyledDialogButton
-            type="submit"
-            tabIndex={0}
-            data-testid="create-data-submission-dialog-create-button"
-            form="create-submission-dialog-form"
-            disabled={(isDbGapRequired && !dbGaPID) || isSubmitting}
+          <StyledTooltip
+            title="The CRDC team is reviewing the data requirements of this study for potential data model changes. Data submissions cannot be created until any required model updates are released."
+            placement="top"
+            open={undefined}
+            disableHoverListener={!studyHasPendingConditions}
+            arrow
           >
-            Create
-          </StyledDialogButton>
+            <span>
+              <StyledDialogButton
+                type="submit"
+                tabIndex={0}
+                data-testid="create-data-submission-dialog-create-button"
+                form="create-submission-dialog-form"
+                disabled={
+                  (isDbGapRequired && !dbGaPID) || studyHasPendingConditions || isSubmitting
+                }
+              >
+                Create
+              </StyledDialogButton>
+            </span>
+          </StyledTooltip>
           {error && (
             <StyledDialogError variant="body1">
               Unable to create this data submission. If the problem persists please contact

@@ -188,3 +188,234 @@ describe("authenticationLogin", () => {
     });
   });
 });
+
+describe("fetchAllData", () => {
+  type MockDT = { id: number; value: string };
+  type MockQR = { items: MockDT[]; total: number };
+  type MockQI = { filter?: string; first: number; offset: number };
+
+  it("should fetch all data across multiple pages", async () => {
+    const mockQuery = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: {
+          items: [
+            { id: 1, value: "Item 1" },
+            { id: 2, value: "Item 2" },
+            { id: 3, value: "Item 3" },
+          ],
+          total: 5,
+        },
+        error: undefined,
+      })
+      .mockResolvedValueOnce({
+        data: {
+          items: [
+            { id: 4, value: "Item 4" },
+            { id: 5, value: "Item 5" },
+          ],
+          total: 5,
+        },
+        error: undefined,
+      });
+
+    const getDataPath = (data: MockQR) => data.items;
+    const totalPath = (data: MockQR) => data.total;
+
+    const result = await utils.fetchAllData<MockQR, MockQI, MockDT>(
+      mockQuery,
+      {},
+      getDataPath,
+      totalPath,
+      { pageSize: 3 } // NOTE: Explicitly set page size to 3 so the query is called x2
+    );
+
+    expect(mockQuery).toHaveBeenCalledTimes(2);
+    expect(result).toEqual([
+      { id: 1, value: "Item 1" },
+      { id: 2, value: "Item 2" },
+      { id: 3, value: "Item 3" },
+      { id: 4, value: "Item 4" },
+      { id: 5, value: "Item 5" },
+    ]);
+  });
+
+  it("should fetch all data in a single page", async () => {
+    const mockQuery = vi.fn().mockResolvedValue({
+      data: {
+        items: [
+          { id: 1, value: "Item 1" },
+          { id: 2, value: "Item 2" },
+        ],
+        total: 2,
+      },
+      error: undefined,
+    });
+
+    const getDataPath = (data: MockQR) => data.items;
+    const totalPath = (data: MockQR) => data.total;
+
+    const result = await utils.fetchAllData<MockQR, MockQI, MockDT>(
+      mockQuery,
+      {},
+      getDataPath,
+      totalPath
+    );
+
+    expect(result).toEqual([
+      { id: 1, value: "Item 1" },
+      { id: 2, value: "Item 2" },
+    ]);
+  });
+
+  it("should fallback to the default page size if not provided", async () => {
+    const mockQuery = vi.fn().mockResolvedValue({
+      data: {
+        items: [{ id: 1, value: "Item 1" }],
+        total: 1,
+      },
+      error: undefined,
+    });
+
+    const getDataPath = (data: MockQR) => data.items;
+    const totalPath = (data: MockQR) => data.total;
+
+    await utils.fetchAllData<MockQR, MockQI, MockDT>(mockQuery, {}, getDataPath, totalPath, {
+      pageSize: undefined,
+    });
+
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: expect.objectContaining({ first: 1000 }),
+      })
+    );
+  });
+
+  it("should forward the input parameters to the query", async () => {
+    const mockQuery = vi.fn().mockResolvedValue({
+      data: {
+        items: [{ id: 1, value: "Item 1" }],
+        total: 1,
+      },
+      error: undefined,
+    });
+
+    const getDataPath = (data: MockQR) => data.items;
+    const totalPath = (data: MockQR) => data.total;
+
+    const inputParams = { filter: "test-filter" };
+
+    await utils.fetchAllData<MockQR, MockQI, MockDT>(
+      mockQuery,
+      inputParams,
+      getDataPath,
+      totalPath
+    );
+
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: expect.objectContaining(inputParams),
+      })
+    );
+  });
+
+  it("should call the getDataPath and totalPath functions correctly", async () => {
+    const mockQuery = vi.fn().mockResolvedValueOnce({
+      data: {
+        items: [{ id: 1, value: "Item 1" }],
+        total: 1,
+      },
+      error: undefined,
+    });
+
+    const mockGetDataPath = vi.fn((data: MockQR) => data.items);
+    const mockTotalPath = vi.fn((data: MockQR) => data.total);
+
+    await utils.fetchAllData<MockQR, MockQI, MockDT>(mockQuery, {}, mockGetDataPath, mockTotalPath);
+
+    expect(mockGetDataPath).toHaveBeenCalledWith({
+      items: [{ id: 1, value: "Item 1" }],
+      total: 1,
+    });
+
+    expect(mockTotalPath).toHaveBeenCalledWith({
+      items: [{ id: 1, value: "Item 1" }],
+      total: 1,
+    });
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-array-constructor
+  it.each([undefined, null, new Array(), {}, ""])(
+    "should handle getDataPath returning an unexpected value (%s)",
+    async (returnValue) => {
+      const mockQuery = vi.fn().mockResolvedValue({
+        data: {
+          items: [{ id: 1, value: "Item 1" }],
+          total: 1,
+        },
+        error: undefined,
+      });
+
+      const mockGetDataPath = vi.fn((data: MockQR) => returnValue as unknown as MockDT[]); // Casting to avoid TypeScript error
+      const mockTotalPath = vi.fn((data: MockQR) => data.total);
+
+      const result = await utils.fetchAllData<MockQR, MockQI, MockDT>(
+        mockQuery,
+        {},
+        mockGetDataPath,
+        mockTotalPath
+      );
+
+      expect(result).toEqual([]);
+    }
+  );
+
+  it("should handle totalPath returning a falsy value by not continuing", async () => {
+    const mockQuery = vi
+      .fn()
+      .mockResolvedValue({
+        data: {
+          items: [{ id: 1, value: "Item 1" }],
+          total: 1000,
+        },
+        error: undefined,
+      })
+      .mockResolvedValueOnce({
+        data: {
+          items: [{ id: 1, value: "Item 1" }],
+          total: 1000,
+        },
+        error: undefined,
+      });
+
+    const mockGetDataPath = vi.fn((data: MockQR) => data.items);
+    const mockTotalPath = vi.fn((data: MockQR) => null);
+
+    const result = await utils.fetchAllData<MockQR, MockQI, MockDT>(
+      mockQuery,
+      {},
+      mockGetDataPath,
+      mockTotalPath
+    );
+
+    expect(mockQuery).toHaveBeenCalledTimes(1);
+    expect(result).toEqual([{ id: 1, value: "Item 1" }]);
+  });
+
+  it("should throw an error if any of the queries return an error", async () => {
+    const mockQuery = vi.fn().mockResolvedValue({
+      data: {
+        items: [{ id: 1, value: "Item 1" }],
+        total: 1,
+      },
+      error: new Error("Test error"),
+    });
+
+    const getDataPath = (data: MockQR) => data.items;
+    const totalPath = (data: MockQR) => data.total;
+
+    await expect(
+      utils.fetchAllData<MockQR, MockQI, MockDT>(mockQuery, {}, getDataPath, totalPath)
+    ).rejects.toThrow("Test error");
+  });
+});

@@ -2,6 +2,8 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { FC } from "react";
 
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   GET_SUBMISSION,
   GetSubmissionInput,
@@ -27,46 +29,6 @@ vi.mock("@apollo/client", async () => {
     }),
   };
 });
-
-const baseSubmission: Submission & { __typename: string } = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  deletingData: false,
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  collaborators: [],
-  dataFileSize: null,
-  __typename: "Submission",
-};
 
 const TestChild: FC = () => {
   const { status, error, data } = useSubmissionContext();
@@ -254,10 +216,9 @@ describe("SubmissionProvider", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-valid-id",
-            },
+            getSubmission: submissionFactory
+              .build({ _id: "test-valid-id" })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -309,11 +270,12 @@ describe("SubmissionProvider", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-validating-id",
-              [key]: "Validating",
-            },
+            getSubmission: submissionFactory
+              .build({
+                _id: "test-validating-id",
+                [key]: "Validating",
+              })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -395,11 +357,12 @@ describe("SubmissionProvider", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-validating-id",
-              [key]: "Passed",
-            },
+            getSubmission: submissionFactory
+              .build({
+                _id: "test-validating-id",
+                [key]: "Passed",
+              })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -442,10 +405,9 @@ describe("SubmissionProvider", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-uploading-id",
-            },
+            getSubmission: submissionFactory
+              .build({ _id: "test-uploading-id" })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -523,10 +485,9 @@ describe("SubmissionProvider", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-uploading-id",
-            },
+            getSubmission: submissionFactory
+              .build({ _id: "test-uploading-id" })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -577,11 +538,12 @@ describe("SubmissionProvider", () => {
         },
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-deleting-id",
-              deletingData: true,
-            },
+            getSubmission: submissionFactory
+              .build({
+                _id: "test-deleting-id",
+                deletingData: true,
+              })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -662,11 +624,12 @@ describe("SubmissionProvider", () => {
         },
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-deleting-id",
-              deletingData: false,
-            },
+            getSubmission: submissionFactory
+              .build({
+                _id: "test-deleting-id",
+                deletingData: false,
+              })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -712,10 +675,9 @@ describe("SubmissionProvider", () => {
         },
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-wrapper-id",
-            },
+            getSubmission: submissionFactory
+              .build({ _id: "test-wrapper-id" })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -811,10 +773,9 @@ describe("SubmissionProvider", () => {
         variableMatcher: () => true,
         result: {
           data: {
-            getSubmission: {
-              ...baseSubmission,
-              _id: "test-polling-id",
-            },
+            getSubmission: submissionFactory
+              .build({ _id: "test-polling-id" })
+              .withTypename("Submission"),
             submissionStats: {
               stats: [],
             },
@@ -842,7 +803,9 @@ describe("SubmissionProvider", () => {
               metadataValidationStatus: null,
               deletingData: false,
             },
-            submissionStats: undefined,
+            submissionStats: {
+              stats: [],
+            },
             getSubmissionAttributes: {
               submissionAttributes: {
                 hasOrphanError: false,

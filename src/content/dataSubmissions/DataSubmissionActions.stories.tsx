@@ -2,70 +2,21 @@ import type { Decorator, Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { ComponentPropsWithoutRef } from "react";
 
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,
 } from "../../components/Contexts/AuthContext";
 import {
   SubmissionContext,
-  SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../../components/Contexts/SubmissionContext";
 import { Roles } from "../../config/AuthRoles";
 
 import DataSubmissionActions from "./DataSubmissionActions";
-
-const baseSubmission: Submission = {
-  _id: "submission-1",
-  name: "",
-  submitterID: "example-user",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "In Progress",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: {
-    formatted: "",
-    size: 0,
-  },
-  createdAt: "",
-  updatedAt: "",
-};
-
-const baseSubmissionCtx: SubmissionCtxState = {
-  status: SubmissionCtxStatus.LOADING,
-  data: { getSubmission: baseSubmission, getSubmissionAttributes: null, submissionStats: null },
-  error: null,
-  startPolling: fn(),
-  stopPolling: fn(),
-  refetch: fn(),
-  updateQuery: fn(),
-};
 
 const dataSubmissionPermissions: DataSubmissionPermissions[] = [
   "data_submission:view",
@@ -143,12 +94,18 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
       }
     >
       <SubmissionContext.Provider
-        value={{
-          ...baseSubmissionCtx,
+        value={submissionCtxStateFactory.build({
+          status: SubmissionCtxStatus.LOADING,
+          error: null,
+          startPolling: fn(),
+          stopPolling: fn(),
+          refetch: fn(),
+          updateQuery: fn(),
           data: {
-            ...baseSubmissionCtx.data,
-            getSubmission: {
-              ...baseSubmissionCtx.data.getSubmission,
+            getSubmission: submissionFactory.build({
+              _id: "submission-1",
+              submitterID: "example-user",
+              crossSubmissionStatus: "New",
               status: submissionStatus,
               metadataValidationStatus,
               fileValidationStatus,
@@ -158,15 +115,18 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
                 formatted: "",
                 size: dataFileSize,
               },
-            },
+            }),
             getSubmissionAttributes: {
-              submissionAttributes: {
-                hasOrphanError,
-                isBatchUploading,
-              },
+              submissionAttributes: submissionAttributesFactory
+                .pick(["hasOrphanError", "isBatchUploading"])
+                .build({
+                  hasOrphanError,
+                  isBatchUploading,
+                }),
             },
+            submissionStats: null,
           },
-        }}
+        })}
       >
         <Story />
       </SubmissionContext.Provider>

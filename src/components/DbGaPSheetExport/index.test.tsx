@@ -4,6 +4,9 @@ import { GraphQLError } from "graphql";
 import { useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   DOWNLOAD_DB_GAP_SHEET,
   DownloadDbGaPSheetInput,
@@ -19,47 +22,6 @@ import {
 
 import Button from "./index";
 
-// Omit properties that are explicitly needed for the tests
-const baseSubmission: Omit<GetSubmissionResp["getSubmission"], "_id" | "dataCommons"> = {
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: {
-    formatted: "",
-    size: 0,
-  },
-  createdAt: "",
-  updatedAt: "",
-};
-
 type MockParentProps = {
   /**
    * Partial submission data, with at least _id and dataCommons properties.
@@ -72,18 +34,20 @@ type MockParentProps = {
 
 const MockParent: React.FC<MockParentProps> = ({ submission, mocks, children }) => {
   const ctxState = useMemo<SubmissionCtxState>(
-    () => ({
-      data: {
-        getSubmission: {
-          ...baseSubmission,
-          ...submission,
+    () =>
+      submissionCtxStateFactory.build({
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: undefined,
+            dataCommons: undefined,
+            ...submission,
+          }),
+          getSubmissionAttributes: null,
+          submissionStats: null,
         },
-        getSubmissionAttributes: null,
-        submissionStats: null,
-      },
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-    }),
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+      }),
     [submission]
   );
 

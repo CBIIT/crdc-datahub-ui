@@ -4,6 +4,8 @@ import React, { FC } from "react";
 import { MemoryRouter, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   GET_APPROVED_STUDY,
@@ -17,16 +19,18 @@ import { render, waitFor } from "../../test-utils";
 
 import StudyView from "./StudyView";
 
-const basePartialStudy: GetApprovedStudyResp<true>["getApprovedStudy"] = {
-  _id: "",
-  studyName: "",
-  studyAbbreviation: "",
-  dbGaPID: "",
-  controlledAccess: false,
-  openAccess: false,
-  createdAt: "",
-  __typename: "ApprovedStudy", // NOTE: This is required for Apollo Client to recognize the type when using fragments
-} as GetApprovedStudyResp<true>["getApprovedStudy"];
+const basePartialStudy: GetApprovedStudyResp<true>["getApprovedStudy"] = approvedStudyFactory
+  .pick([
+    "_id",
+    "studyName",
+    "studyAbbreviation",
+    "dbGaPID",
+    "controlledAccess",
+    "openAccess",
+    "createdAt",
+  ])
+  .build()
+  .withTypename("ApprovedStudy");
 
 vi.mock("../../components/GenericTable", () => ({
   __esModule: true,

@@ -12,6 +12,7 @@ export const mutation = gql`
     $PI: String
     $primaryContactID: String
     $useProgramPC: Boolean!
+    $pendingModelChange: Boolean
   ) {
     updateApprovedStudy(
       studyID: $studyID
@@ -24,6 +25,7 @@ export const mutation = gql`
       PI: $PI
       primaryContactID: $primaryContactID
       useProgramPC: $useProgramPC
+      pendingModelChange: $pendingModelChange
     ) {
       _id
     }
@@ -41,6 +43,7 @@ export type Input = {
   PI: string;
   primaryContactID: string;
   useProgramPC: boolean;
+  pendingModelChange: boolean;
 };
 
 export type Response = {

@@ -11,10 +11,7 @@ const meta: Meta<CustomStoryProps> = {
   title: "Data Explorer / DataExplorerFilters",
   component: Filters,
   args: {
-    columns: [],
-    columnVisibilityModel: {},
     onChange: fn(),
-    onColumnVisibilityModelChange: fn(),
   },
   parameters: { layout: "fullscreen" },
   decorators: [

@@ -2,6 +2,8 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import { query as GET_MY_USER } from "../../graphql/getMyUser";
 import { render, waitFor } from "../../test-utils";
 
@@ -59,11 +61,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should restore the user from localStorage cache", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "aaa-bbb-0101",
       firstName: "Test",
       lastName: "User",
-    };
+    });
 
     const mocks = [
       {
@@ -94,11 +96,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should successfully verify the cached user with the BE service", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "123-random-id-456",
       firstName: "Random",
       lastName: "Lastname with spaces",
-    };
+    });
 
     const mocks = [
       {
@@ -126,11 +128,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should update the localStorage cache when the user is verified", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "123-random-id-456",
       firstName: "Random",
       lastName: "Lastname with spaces",
-    };
+    });
 
     const mocks = [
       {
@@ -167,11 +169,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should logout the user if the BE API call fails", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "GGGG-1393-AAA-9101",
       firstName: "Random",
       lastName: "Lastname",
-    };
+    });
 
     const mocks = [
       {

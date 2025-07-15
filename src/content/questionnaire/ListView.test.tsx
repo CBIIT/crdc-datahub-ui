@@ -4,6 +4,9 @@ import React, { FC, useMemo } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   Status as AuthStatus,
   Context as AuthContext,
@@ -33,22 +36,6 @@ vi.mock("react-router-dom", async () => ({
   ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
-
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "user-id",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
 
 const defaultMocks: MockedResponse[] = [
   {
@@ -88,12 +75,13 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      isLoggedIn: role !== null,
-      user: { ...baseUser, role, permissions },
-    }),
-    [role]
+    () =>
+      authCtxStateFactory.build({
+        status: AuthStatus.LOADED,
+        isLoggedIn: role !== null,
+        user: userFactory.build({ _id: "current-user", role, permissions }),
+      }),
+    [role, permissions]
   );
 
   return (
@@ -116,7 +104,7 @@ describe("Accessibility", () => {
     );
 
     await waitFor(() => {
-      expect(getByText("Submission Request List")).toBeInTheDocument();
+      expect(getByText("Submission Requests")).toBeInTheDocument();
     });
 
     await act(async () => {
@@ -137,7 +125,7 @@ describe("ListView Component", () => {
         <ListView />
       </TestParent>
     );
-    expect(getByText("Submission Request List")).toBeInTheDocument();
+    expect(getByText("Submission Requests")).toBeInTheDocument();
   });
 
   it("sets the page title correctly", () => {
@@ -146,7 +134,7 @@ describe("ListView Component", () => {
         <ListView />
       </TestParent>
     );
-    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Request List");
+    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Requests");
   });
 
   it("shows the 'Start a Submission Request' button for users with the required permissions", () => {
@@ -451,7 +439,7 @@ describe("ListView Component", () => {
             applications: [
               {
                 _id: "application-id",
-                applicant: { applicantName: "John Doe", applicantID: "user-id" },
+                applicant: { applicantName: "John Doe", applicantID: "current-user" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 programAbbreviation: "P1",

@@ -2,6 +2,11 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import React, { FC, useMemo } from "react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
@@ -63,43 +68,13 @@ const listOrgMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
       data: {
         listPrograms: {
           total: 1,
-          programs: [
-            {
-              _id: "option-1",
-              name: "Option 1",
-              abbreviation: "O1",
-              conciergeName: "primary-contact-1",
-              createdAt: "",
-              description: "",
-              status: "Active",
-              studies: [],
-              readOnly: false,
-              updateAt: "",
-            },
-          ],
+          programs: organizationFactory.build(1),
         },
       },
     },
     maxUsageCount: Infinity,
   },
 ];
-
-// NOTE: Omitting fields depended on by the component
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
 
 type ParentProps = {
   role: UserRole;
@@ -119,11 +94,12 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: ctxStatus,
-      isLoggedIn: role !== null,
-      user: { ...baseUser, role, permissions },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        status: ctxStatus,
+        isLoggedIn: role !== null,
+        user: userFactory.build({ _id: "current-user", role, permissions }),
+      }),
     [role, ctxStatus]
   );
 
@@ -162,23 +138,7 @@ describe("StudiesController", () => {
         data: {
           listApprovedStudies: {
             total: 1,
-            studies: [
-              {
-                _id: "study-id-1",
-                studyName: "Study Name 1",
-                studyAbbreviation: "SN1",
-                dbGaPID: "db123456",
-                controlledAccess: true,
-                openAccess: false,
-                PI: "Dr. Smith",
-                ORCID: "0000-0001-2345-6789",
-                createdAt: "2022-01-01T00:00:00Z",
-                originalOrg: "",
-                primaryContact: null,
-                programs: [],
-                useProgramPC: false,
-              },
-            ],
+            studies: approvedStudyFactory.build(1),
           },
         },
       },
@@ -231,20 +191,11 @@ describe("StudiesController", () => {
       variableMatcher: () => true,
       result: {
         data: {
-          getApprovedStudy: {
+          getApprovedStudy: approvedStudyFactory.build({
             _id: studyId,
             studyName: "Study Name 1",
             studyAbbreviation: "SN1",
-            dbGaPID: "db123456",
-            controlledAccess: true,
-            openAccess: false,
-            PI: "Dr. Smith",
-            ORCID: "0000-0001-2345-6789",
-            createdAt: "2022-01-01T00:00:00Z",
-            primaryContact: null,
-            programs: [],
-            useProgramPC: false,
-          },
+          }),
         },
       },
     };
