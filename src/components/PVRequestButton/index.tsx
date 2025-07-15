@@ -5,13 +5,13 @@ import { useSnackbar } from "notistack";
 import { memo, useCallback, useId, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
-import { Logger } from "../../utils";
-import DeleteDialog from "../DeleteDialog";
-import Asterisk from "../StyledFormComponents/StyledAsterisk";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
-import BaseOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import StyledLabel from "@/components//StyledFormComponents/StyledLabel";
+import DeleteDialog from "@/components/DeleteDialog";
+import Asterisk from "@/components/StyledFormComponents/StyledAsterisk";
+import BaseOutlinedInput from "@/components/StyledFormComponents/StyledOutlinedInput";
+import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
+import { REQUEST_PV, RequestPVInput, RequestPVResponse } from "@/graphql";
+import { Logger } from "@/utils";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   margin: "0 !important",
@@ -44,6 +44,7 @@ const StyledOutlinedInput = styled(BaseOutlinedInput)({
 });
 
 type FormFields = {
+  value: string;
   comment: string;
 };
 
@@ -68,10 +69,15 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
     register,
     watch,
     formState: { isValid },
-  } = useForm<FormFields>({ mode: "onBlur" });
+  } = useForm<FormFields>({
+    mode: "onBlur",
+    defaultValues: {
+      value: "", // TODO: Need from API
+      comment: "",
+    },
+  });
 
-  // TODO: Call requestPV not cancelApp
-  const [cancelApp] = useMutation<CancelAppResp, CancelAppInput>(CANCEL_APP, {
+  const [requestPV] = useMutation<RequestPVResponse, RequestPVInput>(REQUEST_PV, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });
@@ -79,7 +85,6 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
-  const comment = watch("comment");
   const confirmButtonProps = useMemo<ButtonProps>(
     () => ({
       disabled: !isValid || loading,
@@ -98,23 +103,33 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
   const onConfirmDialog = useCallback(async () => {
     setLoading(true);
     try {
-      // const { data: d, errors } = await cancelApp({
-      //   variables: { _id: data?._id, comment },
-      // });
+      const value = watch("value")?.trim();
+      const comment = watch("comment")?.trim();
 
-      // if (errors || !d?.cancelApplication?._id) {
-      //   throw new Error(errors?.[0]?.message || "Unknown API error");
-      // }
+      const { data: d, errors } = await requestPV({
+        variables: {
+          submissionID: null, // TODO: Need from QC Results dropdown or submission context
+          nodeName: null, // TODO: Need from QC Results dropdown
+          property: null, // TODO: Need from API
+          value,
+          comment,
+        },
+      });
+
+      if (errors || !d?.requestPV?.success) {
+        throw new Error(errors?.[0]?.message || d?.requestPV?.message || "Unknown API error");
+      }
 
       setConfirmOpen(false);
+      // TODO: show success message
       onSubmit?.();
     } catch (err) {
       Logger.error("PVRequestButton: API error received", err);
-      enqueueSnackbar(`Oops! Unable to submit the PV request.`, { variant: "error" });
+      enqueueSnackbar("Oops! Unable to submit the PV request.", { variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [comment, cancelApp, enqueueSnackbar, onSubmit]);
+  }, [requestPV, enqueueSnackbar, onSubmit]);
 
   return (
     <>
@@ -160,12 +175,13 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
                 <Asterisk />
               </StyledLabel>
               <StyledOutlinedInput
+                // TODO: Is this locked or editable?
                 id={valueFieldId}
                 data-testid="request-pv-value"
                 placeholder="500 characters allowed"
                 required
                 inputProps={{ maxLength: 500 }}
-                {...register("comment", {
+                {...register("value", {
                   required: true,
                   maxLength: 500,
                   minLength: 1,

@@ -169,6 +169,9 @@ export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./download
 export { GET_PENDING_PVS } from "./getPendingPVs";
 export type { GetPendingPVsInput, GetPendingPVsResponse } from "./getPendingPVs";
 
+export { REQUEST_PV } from "./requestPV";
+export type { RequestPVInput, RequestPVResponse } from "./requestPV";
+
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
 export type { Response as GetMyUserResp } from "./getMyUser";
