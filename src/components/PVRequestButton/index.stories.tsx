@@ -1,20 +1,48 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { userEvent, within, fn } from "@storybook/test";
 
-import Button from "./index";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
-const meta: Meta<typeof Button> = {
+import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
+
+import Button, { PVRequestButtonProps } from "./index";
+
+const meta: Meta<PVRequestButtonProps> = {
   title: "Data Submissions / PV Request Button",
   component: Button,
   tags: ["autodocs"],
   args: {
     onSubmit: fn(),
+    nodeName: "mock-node",
+    offendingProperty: "mock-property",
+    offendingValue: "mock-value",
   },
   parameters: {
     apolloClient: {
       mocks: [],
     },
   },
+  decorators: [
+    (Story) => (
+      <SubmissionContext.Provider
+        value={submissionCtxStateFactory.build({
+          data: {
+            getSubmission: submissionFactory.build({
+              _id: "mock-submission-id",
+            }),
+            submissionStats: null,
+            getSubmissionAttributes: null,
+          },
+          updateQuery: fn(),
+          status: SubmissionCtxStatus.LOADED,
+          error: null,
+        })}
+      >
+        <Story />
+      </SubmissionContext.Provider>
+    ),
+  ],
 } satisfies Meta<typeof Button>;
 
 export default meta;

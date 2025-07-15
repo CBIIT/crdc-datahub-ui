@@ -13,6 +13,8 @@ import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import { REQUEST_PV, RequestPVInput, RequestPVResponse } from "@/graphql";
 import { Logger } from "@/utils";
 
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+
 const StyledTooltip = styled(StyledFormTooltip)({
   margin: "0 !important",
   "& .MuiTooltip-tooltip": {
@@ -20,6 +22,7 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
+// TODO: Fix disabled styling
 const StyledButton = styled(Button)({
   background: "#E9F1F4 !important",
   borderRadius: "8px",
@@ -44,11 +47,22 @@ const StyledOutlinedInput = styled(BaseOutlinedInput)({
 });
 
 type FormFields = {
-  value: string;
   comment: string;
 };
 
-type Props = {
+export type PVRequestButtonProps = {
+  /**
+   * The name of the node to request a new permissible value against.
+   */
+  nodeName: string;
+  /**
+   * The property for which the permissible value is being requested.
+   */
+  offendingProperty: string;
+  /**
+   * The value that is being requested.
+   */
+  offendingValue: string;
   /**
    * An optional closure function to be called when the submit action is completed.
    */
@@ -60,22 +74,25 @@ type Props = {
  *
  * @returns The PVRequestButton component.
  */
-const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
+const PVRequestButton = ({
+  nodeName,
+  offendingProperty,
+  offendingValue,
+  disabled,
+  onSubmit,
+  ...rest
+}: PVRequestButtonProps) => {
+  const propertyFieldId = useId();
   const valueFieldId = useId();
   const descriptionFieldId = useId();
 
+  const { data } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     watch,
     formState: { isValid },
-  } = useForm<FormFields>({
-    mode: "onBlur",
-    defaultValues: {
-      value: "", // TODO: Need from API
-      comment: "",
-    },
-  });
+  } = useForm<FormFields>({ mode: "onBlur" });
 
   const [requestPV] = useMutation<RequestPVResponse, RequestPVInput>(REQUEST_PV, {
     context: { clientName: "backend" },
@@ -103,15 +120,14 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
   const onConfirmDialog = useCallback(async () => {
     setLoading(true);
     try {
-      const value = watch("value")?.trim();
       const comment = watch("comment")?.trim();
 
       const { data: d, errors } = await requestPV({
         variables: {
-          submissionID: null, // TODO: Need from QC Results dropdown or submission context
-          nodeName: null, // TODO: Need from QC Results dropdown
-          property: null, // TODO: Need from API
-          value,
+          submissionID: data?.getSubmission?._id,
+          nodeName,
+          property: offendingProperty,
+          value: offendingValue,
           comment,
         },
       });
@@ -121,7 +137,9 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
       }
 
       setConfirmOpen(false);
-      // TODO: show success message
+      enqueueSnackbar("Your request for a new permissible value has been submitted successfully.", {
+        variant: "success",
+      });
       onSubmit?.();
     } catch (err) {
       Logger.error("PVRequestButton: API error received", err);
@@ -129,7 +147,7 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
     } finally {
       setLoading(false);
     }
-  }, [requestPV, enqueueSnackbar, onSubmit]);
+  }, [data?.getSubmission?._id, watch, requestPV, enqueueSnackbar, onSubmit]);
 
   return (
     <>
@@ -166,31 +184,42 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
         }}
         description={
           <div>
-            Please fill out the form below to start your new PV request.
+            Review the information and provide a brief justification. Your request will be sent to
+            the CRDC team for review and, if approved, will initiate the process to add it as a new
+            Permissible Value.
             <br />
             <br />
             <StyledFormBox>
-              <StyledLabel htmlFor={valueFieldId}>
-                Confirm the value you are requesting to add
+              <StyledLabel htmlFor={propertyFieldId}>
+                Property
                 <Asterisk />
               </StyledLabel>
               <StyledOutlinedInput
-                // TODO: Is this locked or editable?
+                id={propertyFieldId}
+                data-testid="request-pv-property"
+                value={offendingProperty}
+                required
+                disabled
+                readOnly
+              />
+            </StyledFormBox>
+            <StyledFormBox>
+              <StyledLabel htmlFor={valueFieldId}>
+                Term
+                <Asterisk />
+              </StyledLabel>
+              <StyledOutlinedInput
                 id={valueFieldId}
                 data-testid="request-pv-value"
-                placeholder="500 characters allowed"
+                value={offendingValue}
                 required
-                inputProps={{ maxLength: 500 }}
-                {...register("value", {
-                  required: true,
-                  maxLength: 500,
-                  minLength: 1,
-                })}
+                disabled
+                readOnly
               />
             </StyledFormBox>
             <StyledFormBox>
               <StyledLabel htmlFor={descriptionFieldId}>
-                Please provide a brief explanation or justification for the request
+                Justification
                 <Asterisk />
               </StyledLabel>
               <StyledOutlinedInput
@@ -213,7 +242,7 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
         closeText="Cancel"
         onClose={onCloseDialog}
         // TODO: button shouldn't be red
-        confirmText="Confirm and Submit"
+        confirmText="Submit"
         onConfirm={onConfirmDialog}
         confirmButtonProps={confirmButtonProps}
         scroll="body"
@@ -222,4 +251,4 @@ const PVRequestButton = ({ disabled, onSubmit, ...rest }: Props) => {
   );
 };
 
-export default memo<Props>(PVRequestButton, isEqual);
+export default memo<PVRequestButtonProps>(PVRequestButton, isEqual);

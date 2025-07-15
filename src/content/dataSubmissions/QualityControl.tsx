@@ -467,15 +467,33 @@ const QualityControl: FC = () => {
     }
 
     const allIssues: ErrorDetailsIssue[] = [];
-    selectedRow.errors?.forEach((e) =>
-      allIssues.push({ code: e.code, severity: "error", message: e.description })
-    );
-    selectedRow.warnings?.forEach((w) =>
-      allIssues.push({ code: w.code, severity: "warning", message: w.description })
-    );
+    selectedRow.errors?.forEach((e) => {
+      const issue: ErrorDetailsIssue = { severity: "error", message: e.description };
 
-    allIssues.forEach((issue) => {
-      if (issue.code === ValidationErrorCodes.UPDATING_DATA && submissionStatus !== "Completed") {
+      if (e.code === ValidationErrorCodes.INVALID_PERMISSIBLE) {
+        const isDisabled = pendingPVs?.getPendingPVs?.some(
+          (pv) => pv.offendingProperty === e.offendingProperty && pv.value === e.offendingValue
+        );
+
+        issue.action = (
+          <StyledPvButtonWrapper>
+            <PVRequestButton
+              onSubmit={refetchPendingPVs}
+              offendingProperty={e.offendingProperty}
+              offendingValue={e.offendingValue}
+              nodeName={filtersRef.current.nodeType}
+              disabled={isDisabled}
+            />
+          </StyledPvButtonWrapper>
+        );
+      }
+
+      allIssues.push(issue);
+    });
+    selectedRow.warnings?.forEach((w) => {
+      const issue: ErrorDetailsIssue = { severity: "warning", message: w.description };
+
+      if (w.code === ValidationErrorCodes.UPDATING_DATA && submissionStatus !== "Completed") {
         issue.action = (
           <NodeComparison
             nodeType={selectedRow.type}
@@ -484,14 +502,8 @@ const QualityControl: FC = () => {
           />
         );
       }
-      if (issue.code === ValidationErrorCodes.INVALID_PERMISSIBLE) {
-        // TODO: Disabled if a request has already been submitted for this permissible value
-        issue.action = (
-          <StyledPvButtonWrapper>
-            <PVRequestButton onSubmit={refetchPendingPVs} />
-          </StyledPvButtonWrapper>
-        );
-      }
+
+      allIssues.push(issue);
     });
 
     return allIssues;

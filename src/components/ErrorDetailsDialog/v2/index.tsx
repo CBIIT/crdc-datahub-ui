@@ -4,7 +4,6 @@ import React from "react";
 import CloseIconSvg from "@/assets/icons/close_icon.svg?react";
 import BaseDialog from "@/components/StyledDialogComponents/StyledDialog";
 import StyledCloseDialogButton from "@/components/StyledDialogComponents/StyledDialogCloseButton";
-import { ValidationErrorCode } from "@/config/ValidationErrors";
 
 const StyledDialog = styled(BaseDialog)({
   "& .MuiDialog-paper": {
@@ -110,10 +109,6 @@ const StyledIssueAction = styled(Box)({
 });
 
 export type ErrorDetailsIssue = {
-  /**
-   * The error code corresponding to the issue.
-   */
-  code: ValidationErrorCode;
   /**
    * The severity of the issue. Can be either "error" or "warning".
    */

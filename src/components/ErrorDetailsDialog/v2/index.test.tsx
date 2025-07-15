@@ -116,13 +116,11 @@ describe("Basic Functionality", () => {
   it("should render the associated action for each issue when provided", () => {
     const mockIssues: ErrorDetailsIssue[] = [
       {
-        code: "F008",
         severity: "error",
         message: "Error description 1",
         action: "SOME-MOCK-ACTION",
       },
       {
-        code: "F008",
         severity: "warning",
         message: "Warning description 2",
         action: <button type="button">MOCK-ACTION-BUTTON</button>,
