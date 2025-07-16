@@ -23,7 +23,6 @@ const mockSuccessResponse: MockedResponse<
     data: {
       listReleasedDataRecords: {
         total: 1,
-        properties: ["parent.id", "data_file_type", "file_size", "file_name"],
         nodes: [
           {
             "parent.id": "mock-parent-id",
@@ -60,7 +59,28 @@ const meta: Meta<CustomStoryProps> = {
     studyDisplayName: "Mock Study",
     nodeType: "participant",
     dataCommonsDisplayName: "MOCK-DC",
-    columns: [],
+    columns: [
+      {
+        label: "Parent ID",
+        field: "parent.id",
+        renderValue: () => null,
+      },
+      {
+        label: "File Name",
+        field: "file_name",
+        renderValue: () => null,
+      },
+      {
+        label: "File Size",
+        field: "file_size",
+        renderValue: () => null,
+      },
+      {
+        label: "File Type",
+        field: "data_file_type",
+        renderValue: () => null,
+      },
+    ],
   },
   tags: ["autodocs"],
 } satisfies Meta<CustomStoryProps>;
