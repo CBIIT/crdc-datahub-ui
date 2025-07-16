@@ -135,7 +135,7 @@ const PVRequestButton = ({
       });
 
       if (errors || !d?.requestPV?.success) {
-        throw new Error(errors?.[0]?.message || d?.requestPV?.message || "Unknown API error");
+        throw new Error(errors?.[0]?.message || d?.requestPV?.message);
       }
 
       setConfirmOpen(false);

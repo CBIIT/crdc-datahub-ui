@@ -1,12 +1,29 @@
+import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { userEvent, within, fn, waitFor, expect, screen, fireEvent } from "@storybook/test";
 
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { REQUEST_PV, RequestPVInput, RequestPVResponse } from "@/graphql";
 
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
 
 import Button, { PVRequestButtonProps } from "./index";
+
+const mockRequestSuccess: MockedResponse<RequestPVResponse, RequestPVInput> = {
+  request: {
+    query: REQUEST_PV,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      requestPV: {
+        success: true,
+        message: "",
+      },
+    },
+  },
+};
 
 const meta: Meta<PVRequestButtonProps> = {
   title: "Data Submissions / PV Request Button",
@@ -20,7 +37,7 @@ const meta: Meta<PVRequestButtonProps> = {
   },
   parameters: {
     apolloClient: {
-      mocks: [],
+      mocks: [mockRequestSuccess],
     },
   },
   decorators: [
