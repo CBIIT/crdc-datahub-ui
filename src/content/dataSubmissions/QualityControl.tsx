@@ -2,7 +2,15 @@ import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, Button, Stack, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import React, { FC, MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
@@ -294,10 +302,11 @@ const QualityControl: FC = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: pendingPVs, refetch: refetchPendingPVs } = useQuery<
-    GetPendingPVsResponse,
-    GetPendingPVsInput
-  >(GET_PENDING_PVS, {
+  const {
+    data: pendingPVs,
+    refetch: refetchPendingPVs,
+    updateQuery: updatePendingPVs,
+  } = useQuery<GetPendingPVsResponse, GetPendingPVsInput>(GET_PENDING_PVS, {
     variables: { submissionID: submissionId },
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
@@ -461,6 +470,21 @@ const QualityControl: FC = () => {
     [handleOpenErrorDialog, handleExpandClick]
   );
 
+  const handleNewPVRequest = useCallback(
+    (offendingProperty: string, offendingValue: string) => {
+      updatePendingPVs((prev) => ({
+        getPendingPVs: [
+          ...(prev?.getPendingPVs || []),
+          { id: `${Date.now()}`, offendingProperty, value: offendingValue },
+        ],
+      }));
+
+      // NOTE: We refetch after small delay to allow cache to propagate
+      setTimeout(refetchPendingPVs, 2000);
+    },
+    [updatePendingPVs, refetchPendingPVs]
+  );
+
   const issueList = useMemo<ErrorDetailsIssue[]>(() => {
     if (!selectedRow || !("errors" in selectedRow) || !("warnings" in selectedRow)) {
       return [];
@@ -478,7 +502,7 @@ const QualityControl: FC = () => {
         issue.action = (
           <StyledPvButtonWrapper>
             <PVRequestButton
-              onSubmit={refetchPendingPVs}
+              onSubmit={() => handleNewPVRequest(e.offendingProperty, e.offendingValue)}
               offendingProperty={e.offendingProperty}
               offendingValue={e.offendingValue}
               nodeName={selectedRow.type}
@@ -507,7 +531,7 @@ const QualityControl: FC = () => {
     });
 
     return allIssues;
-  }, [selectedRow, submissionStatus, pendingPVs]);
+  }, [selectedRow, submissionStatus, pendingPVs, handleNewPVRequest]);
 
   useEffect(() => {
     tableRef.current?.refresh();
