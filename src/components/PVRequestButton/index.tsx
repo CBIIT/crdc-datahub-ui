@@ -22,17 +22,17 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
-// TODO: Fix disabled styling
-const StyledButton = styled(Button)({
-  background: "#E9F1F4 !important",
+const StyledButton = styled(Button)(({ disabled, theme }) => ({
+  background: disabled ? theme.palette.grey[300] : "#E9F1F4 !important",
   borderRadius: "8px",
-  border: "2px solid #136071 !important",
-  color: "#156071 !important",
+  border: "2px solid !important",
+  borderColor: disabled ? theme.palette.grey[500] : "#156071 !important",
+  color: disabled ? theme.palette.grey[500] : "#156071 !important",
   textTransform: "none",
   fontWeight: 700,
   fontSize: "16px",
   lineHeight: "19px",
-});
+}));
 
 const StyledFormBox = styled(Box)({
   marginTop: "18.5px",
@@ -179,7 +179,6 @@ const PVRequestButton = ({
         open={confirmOpen}
         header="Request New PV"
         PaperProps={{
-          "aria-labelledby": "",
           "aria-label": "Request New PV",
         }}
         description={
