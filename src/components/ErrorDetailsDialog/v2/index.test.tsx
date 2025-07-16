@@ -21,7 +21,6 @@ describe("Accessibility", () => {
 
   it("should have no violations (with issues)", async () => {
     const mockIssues: ErrorDetailsIssue[] = new Array(3).fill(null).map((_, index) => ({
-      code: "M018",
       severity: "error",
       message: `Error description ${index + 1}`,
     }));
