@@ -498,7 +498,7 @@ const ColumnVisibilityPopper = <C extends ExtendedColumn>({
                 ))
               ) : (
                 <StyledColumnList>
-                  {columns.map((column) => {
+                  {sortedColumns.map((column) => {
                     const colKey = getColumnKey(column);
                     return (
                       <ColumnToggle
