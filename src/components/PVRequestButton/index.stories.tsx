@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within, fn } from "@storybook/test";
+import { userEvent, within, fn, waitFor, expect, screen, fireEvent } from "@storybook/test";
 
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
@@ -66,6 +66,17 @@ export const DisabledButton: Story = {
     disabled: true,
   },
   parameters: meta.parameters,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const btnWrapper = canvas.getByRole("button", { name: /Request New PV/i }).parentElement;
+
+    await userEvent.hover(btnWrapper);
+
+    await waitFor(() => {
+      expect(screen.getByRole("tooltip")).toBeInTheDocument();
+    });
+  },
 };
 
 /**
@@ -80,18 +91,19 @@ export const ButtonConfirmDialog: Story = {
     const button = canvas.getByRole("button", { name: /Request New PV/i });
     await userEvent.click(button);
 
-    // await waitFor(() => {
-    //   expect(screen.getByRole("dialog")).toBeInTheDocument();
-    // });
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
 
-    // const reasonInput = within(screen.getByRole("dialog")).queryByTestId(
-    //   "cancel-application-reason"
-    // );
+    const commentInput = within(screen.getByRole("dialog")).queryByTestId("request-pv-description");
 
-    // await userEvent.type(reasonInput, "lorem ipsum dol excel ".repeat(10));
+    await userEvent.type(commentInput, "lorem ipsum dol excel ".repeat(10));
+    await fireEvent.blur(commentInput); // trigger validation
 
-    // await waitFor(() => {
-    //   expect(screen.getByRole("button", { name: /confirm/i })).toBeEnabled();
-    // });
+    await waitFor(() => {
+      expect(
+        within(screen.getByRole("dialog")).getByRole("button", { name: /submit/i })
+      ).toBeEnabled();
+    });
   },
 };

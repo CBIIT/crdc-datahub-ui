@@ -39,19 +39,17 @@ const StyledCloseButton = styled(Button)({
   "&.MuiButton-root": {
     minWidth: "101px",
     padding: "10px",
-    color: "#000000",
     fontSize: "16px",
     fontStyle: "normal",
-    fontWeight: 500,
     lineHeight: "24px",
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-    border: "1.5px solid #AEAEAE",
   },
 });
 
-const StyledConfirmButton = styled(Button)({
+const StyledConfirmButton = styled(Button)(({ color }) => ({
+  background: color === "info" ? "#FFFFFF" : undefined,
   "&.MuiButton-root": {
     minWidth: "137px",
     padding: "10px",
@@ -63,7 +61,7 @@ const StyledConfirmButton = styled(Button)({
     textTransform: "none",
     alignSelf: "center",
   },
-});
+}));
 
 const StyledHeader = styled(Typography)({
   color: "#4B5368",

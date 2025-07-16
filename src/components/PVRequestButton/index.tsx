@@ -66,8 +66,8 @@ export type PVRequestButtonProps = {
   /**
    * An optional closure function to be called when the submit action is completed.
    */
-  onSubmit?: () => void;
-} & Omit<ButtonProps, "onClick">;
+  onSubmit?: (property: string, value: string) => void;
+} & Omit<ButtonProps, "onClick" | "onSubmit">;
 
 /**
  * Provides a button to request a new permissible value (PV) for a data submission.
@@ -105,6 +105,8 @@ const PVRequestButton = ({
   const confirmButtonProps = useMemo<ButtonProps>(
     () => ({
       disabled: !isValid || loading,
+      "aria-label": "Submit",
+      color: "info",
     }),
     [isValid, loading]
   );
@@ -140,7 +142,7 @@ const PVRequestButton = ({
       enqueueSnackbar("Your request for a new permissible value has been submitted successfully.", {
         variant: "success",
       });
-      onSubmit?.();
+      onSubmit?.(offendingProperty, offendingValue);
     } catch (err) {
       Logger.error("PVRequestButton: API error received", err);
       enqueueSnackbar("Oops! Unable to submit the PV request.", { variant: "error" });
@@ -240,7 +242,6 @@ const PVRequestButton = ({
         }
         closeText="Cancel"
         onClose={onCloseDialog}
-        // TODO: button shouldn't be red
         confirmText="Submit"
         onConfirm={onConfirmDialog}
         confirmButtonProps={confirmButtonProps}

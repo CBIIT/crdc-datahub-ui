@@ -502,7 +502,7 @@ const QualityControl: FC = () => {
         issue.action = (
           <StyledPvButtonWrapper>
             <PVRequestButton
-              onSubmit={() => handleNewPVRequest(e.offendingProperty, e.offendingValue)}
+              onSubmit={handleNewPVRequest}
               offendingProperty={e.offendingProperty}
               offendingValue={e.offendingValue}
               nodeName={selectedRow.type}
