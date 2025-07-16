@@ -48,7 +48,9 @@ const StyledCloseButton = styled(Button)({
   },
 });
 
-const StyledConfirmButton = styled(Button)(({ color }) => ({
+const StyledConfirmButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "color",
+})(({ color }) => ({
   background: color === "info" ? "#FFFFFF" : undefined,
   "&.MuiButton-root": {
     minWidth: "137px",
