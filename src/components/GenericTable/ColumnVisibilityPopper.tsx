@@ -12,7 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import { isEqual } from "lodash";
-import React, { ChangeEvent, InputHTMLAttributes, useCallback, useMemo } from "react";
+import React, { ChangeEvent, InputHTMLAttributes, useMemo } from "react";
 
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?url";
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
@@ -168,6 +168,60 @@ const StyledFooter = styled(Stack)({
   marginLeft: "12px",
   marginRight: "12px",
 });
+
+type ColumnToggleProps = {
+  /**
+   * Whether to disable the checkbox.
+   */
+  disabled: boolean;
+  /**
+   * The unique key or identifier for the column.
+   */
+  colKey: string;
+  /**
+   * The display label for the column.
+   */
+  colLabel: string;
+  /**
+   * Whether the checkbox is checked or unchecked
+   */
+  checked: boolean;
+  /**
+   * The onChange curried handler
+   */
+  onChange: (
+    key: string,
+    isHideable: boolean
+  ) => (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
+};
+
+/**
+ * Renders a checkbox for toggling the visibility of a single column.
+ * Disables the checkbox and label for non-hideable columns.
+ */
+const ColumnToggle = React.memo<ColumnToggleProps>(
+  ({ colKey, colLabel, checked, disabled, onChange }: ColumnToggleProps): JSX.Element => (
+    <StyledFormControlLabel
+      control={
+        <StyledCheckbox
+          checked={checked}
+          onChange={onChange(colKey, !disabled)}
+          icon={<UncheckedIcon />}
+          checkedIcon={<CheckedIcon />}
+          disabled={disabled}
+          inputProps={
+            {
+              "data-testid": `checkbox-${colKey}`,
+            } as InputHTMLAttributes<HTMLInputElement>
+          }
+        />
+      }
+      label={colLabel}
+      disabled={disabled}
+    />
+  ),
+  isEqual
+);
 
 export type ExtendedColumn = {
   /**
@@ -347,38 +401,6 @@ const ColumnVisibilityPopper = <C extends ExtendedColumn>({
     onColumnVisibilityModelChange({ ...defaultVisibilityModel });
   };
 
-  /**
-   * Renders a checkbox for toggling the visibility of a single column.
-   * Disables the checkbox and label for non-hideable columns.
-   */
-  const ColumnToggle = useCallback<React.FC<{ column: C }>>(
-    ({ column }) => {
-      const key = getColumnKey(column);
-      const isHideable = column.hideable !== false;
-      return (
-        <StyledFormControlLabel
-          control={
-            <StyledCheckbox
-              checked={columnVisibilityModel[key]}
-              onChange={handleCheckboxChange(key, isHideable)}
-              icon={<UncheckedIcon />}
-              checkedIcon={<CheckedIcon />}
-              disabled={!isHideable}
-              inputProps={
-                {
-                  "data-testid": `checkbox-${key}`,
-                } as InputHTMLAttributes<HTMLInputElement>
-              }
-            />
-          }
-          label={getColumnLabel(column)}
-          disabled={!isHideable}
-        />
-      );
-    },
-    [columnVisibilityModel, getColumnKey, getColumnLabel, handleCheckboxChange]
-  );
-
   const sortedColumns = useMemo<C[]>(() => {
     if (!sortAlphabetically) {
       return columns;
@@ -457,18 +479,38 @@ const ColumnVisibilityPopper = <C extends ExtendedColumn>({
                       )}
                     </StyledGroupTitleContainer>
                     <StyledColumnList>
-                      {columns.map((column) => (
-                        <ColumnToggle key={getColumnKey(column)} column={column} />
-                      ))}
+                      {columns.map((column) => {
+                        const colKey = getColumnKey(column);
+                        return (
+                          <ColumnToggle
+                            key={colKey}
+                            colKey={colKey}
+                            colLabel={getColumnLabel(column)}
+                            disabled={column.hideable === false}
+                            checked={columnVisibilityModel[colKey]}
+                            onChange={handleCheckboxChange}
+                          />
+                        );
+                      })}
                       {columns.length === 0 && <StyledNoColumnsText>N/A</StyledNoColumnsText>}
                     </StyledColumnList>
                   </StyledGroupContainer>
                 ))
               ) : (
                 <StyledColumnList>
-                  {sortedColumns?.map((column) => (
-                    <ColumnToggle key={getColumnKey(column)} column={column} />
-                  ))}
+                  {columns.map((column) => {
+                    const colKey = getColumnKey(column);
+                    return (
+                      <ColumnToggle
+                        key={colKey}
+                        colKey={colKey}
+                        colLabel={getColumnLabel(column)}
+                        disabled={column.hideable === false}
+                        checked={columnVisibilityModel[colKey]}
+                        onChange={handleCheckboxChange}
+                      />
+                    );
+                  })}
                 </StyledColumnList>
               )}
             </StyledScrollRegion>
