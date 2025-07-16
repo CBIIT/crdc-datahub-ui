@@ -192,7 +192,10 @@ const ErrorDetailsDialogV2 = ({
     </StyledIssueCount>
     <StyledList>
       {issues.map((issue, idx) => (
-        <StyledIssueContainer key={issue.message} data-testid={`error-details-issue-${idx}`}>
+        <StyledIssueContainer
+          key={`${issue.severity}_${issue.message}`}
+          data-testid={`error-details-issue-${idx}`}
+        >
           <StyledIssue>
             <StyledIssueNumber data-testid="issue-count">{idx + 1}</StyledIssueNumber>
             <StyledIssueSeverity severity={issue.severity} data-testid="issue-severity">
