@@ -136,7 +136,7 @@ const columns: Column<ApprovedStudy>[] = [
           <TruncatedText text={a.studyAbbreviation} />
           {pendingConditions?.length > 0 ? (
             <StyledTooltip title={<TooltipList data={pendingConditions} />} placement="top" arrow>
-              <StyledAsterisk />
+              <StyledAsterisk data-testid={`asterisk-${a.studyAbbreviation}`} />
             </StyledTooltip>
           ) : null}
         </>
