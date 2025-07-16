@@ -512,8 +512,12 @@ describe("Implementation Requirements", () => {
       expect(getByRole("dialog")).toBeInTheDocument();
     });
 
-    expect(within(getByRole("dialog")).getByRole("textbox", { name: /Property/ })).toBeDisabled();
-    expect(within(getByRole("dialog")).getByRole("textbox", { name: /Term/ })).toBeDisabled();
+    expect(within(getByRole("dialog")).getByRole("textbox", { name: /Property/ })).toHaveAttribute(
+      "readonly"
+    );
+    expect(within(getByRole("dialog")).getByRole("textbox", { name: /Term/ })).toHaveAttribute(
+      "readonly"
+    );
   });
 
   it("should close the dialog when Cancel is pressed", async () => {

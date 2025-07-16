@@ -200,7 +200,6 @@ const PVRequestButton = ({
                 data-testid="request-pv-property"
                 value={offendingProperty}
                 required
-                disabled
                 readOnly
               />
             </StyledFormBox>
@@ -214,7 +213,6 @@ const PVRequestButton = ({
                 data-testid="request-pv-value"
                 value={offendingValue}
                 required
-                disabled
                 readOnly
               />
             </StyledFormBox>
