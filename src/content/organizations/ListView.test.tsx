@@ -235,6 +235,7 @@ describe("ListView Component", () => {
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();
+        expect(getByText("Biomedical Sciences Program")).toBeInTheDocument();
         expect(queryByText("Medical Research Initiative")).not.toBeInTheDocument();
       });
     });
