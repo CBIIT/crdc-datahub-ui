@@ -28,15 +28,15 @@ const FullQCResultFragment = gql`
       code
       title
       description
-      offendingProperty: title # TODO: Remove this map
-      offendingValue: title # TODO: Remove this map
+      offendingProperty
+      offendingValue
     }
     warnings {
       code
       title
       description
-      offendingProperty: title # TODO: Remove this map
-      offendingValue: title # TODO: Remove this map
+      offendingProperty
+      offendingValue
     }
   }
 `;
