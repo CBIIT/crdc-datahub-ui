@@ -35,7 +35,6 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  background: "#FFFFFF",
   "&.MuiButton-root": {
     minWidth: "101px",
     padding: "10px",
@@ -48,10 +47,7 @@ const StyledCloseButton = styled(Button)({
   },
 });
 
-const StyledConfirmButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== "color",
-})(({ color }) => ({
-  background: color === "info" ? "#FFFFFF" : undefined,
+const StyledConfirmButton = styled(Button)({
   "&.MuiButton-root": {
     minWidth: "137px",
     padding: "10px",
@@ -63,7 +59,7 @@ const StyledConfirmButton = styled(Button, {
     textTransform: "none",
     alignSelf: "center",
   },
-}));
+});
 
 const StyledHeader = styled(Typography)({
   color: "#4B5368",
