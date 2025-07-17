@@ -520,7 +520,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 <StyledAsterisk />
               </StyledLabel>
               <Tooltip
-                title="dbGapID is required for controlled-access studies."
+                title="dbGaPID is required for controlled-access studies."
                 open={undefined}
                 disableHoverListener={false}
                 placement="top"

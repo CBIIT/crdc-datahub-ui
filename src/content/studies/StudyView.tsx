@@ -251,7 +251,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       pendingModelChange: false,
     },
   });
-  const isControlled = watch("controlledAccess");
+  const [isControlled, dbGaPIDFilter] = watch(["controlledAccess", "dbGaPID"]);
 
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState(null);
@@ -744,6 +744,23 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           label="Pending on Data Model review"
                         />
                       )}
+                    />
+
+                    {/* Added for visual purposes only. It does not contribute to the form */}
+                    <StyledFormControlLabel
+                      control={
+                        <StyledCheckbox
+                          checked={isControlled && !dbGaPIDFilter?.trim()?.length}
+                          checkedIcon={<CheckedIcon readOnly />}
+                          icon={<UncheckedIcon readOnly />}
+                          readOnly
+                          disabled
+                          inputProps={
+                            { "data-testid": "pendingConditions-dbGaPID-checkbox" } as unknown
+                          }
+                        />
+                      }
+                      label="Pending on dbGaPID"
                     />
                   </StyledCheckboxFormGroup>
                 </Stack>
