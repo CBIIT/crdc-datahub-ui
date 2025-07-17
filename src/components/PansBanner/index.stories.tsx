@@ -1,7 +1,7 @@
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { RETRIEVE_OMB_DETAILS } from "../../graphql";
+import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "../../graphql";
 
 import PansBanner from "./index";
 
@@ -14,7 +14,7 @@ const mockOMBDetails = {
   ],
 };
 
-const successMock = {
+const successMock: MockedResponse<RetrieveOMBDetailsResp> = {
   request: {
     query: RETRIEVE_OMB_DETAILS,
   },
@@ -25,7 +25,7 @@ const successMock = {
   },
 };
 
-const delayedMock = {
+const delayedMock: MockedResponse<RetrieveOMBDetailsResp> = {
   request: {
     query: RETRIEVE_OMB_DETAILS,
   },
@@ -37,7 +37,7 @@ const delayedMock = {
   delay: 2000, // 2 second delay to show loading state
 };
 
-const errorMock = {
+const errorMock: MockedResponse<RetrieveOMBDetailsResp> = {
   request: {
     query: RETRIEVE_OMB_DETAILS,
   },

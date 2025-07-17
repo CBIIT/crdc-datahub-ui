@@ -292,5 +292,5 @@ export type {
   RetrievePropsForNodeTypeResp,
 } from "./retrievePropsForNodeType";
 
-export { query as RETRIEVE_OMB_DETAILS } from "./retrieveOMBDetails";
-export type { Response as RetrieveOMBDetailsResp } from "./retrieveOMBDetails";
+export { RETRIEVE_OMB_DETAILS } from "./retrieveOMBDetails";
+export type { RetrieveOMBDetailsResp } from "./retrieveOMBDetails";
