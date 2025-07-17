@@ -8,7 +8,6 @@ import { OrganizationProvider } from "@/components/Contexts/OrganizationListCont
 import { SearchParamsProvider } from "@/components/Contexts/SearchParamsContext";
 import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
 import { organizationFactory } from "@/factories/auth/OrganizationFactory";
-
 import {
   LIST_APPROVED_STUDIES,
   ListApprovedStudiesResp,
@@ -16,8 +15,8 @@ import {
   ListOrgsInput,
   ListOrgsResp,
   LIST_ORGS,
-} from "../../graphql";
-import { act, render, waitFor } from "../../test-utils";
+} from "@/graphql";
+import { act, render, waitFor } from "@/test-utils";
 
 import ListView from "./ListView";
 
