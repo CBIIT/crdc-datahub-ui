@@ -33,45 +33,38 @@ vi.mock("react-router-dom", async () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = organizationFactory.build(
-  3,
-  (index) => {
-    const programConfigs = [
-      {
-        _id: "program-1",
-        name: "Biology Research Program",
-        abbreviation: "BIO",
-        studies: [
-          approvedStudyFactory.build({
-            _id: "study-1",
-            studyName: "Cancer Biology Study",
-            studyAbbreviation: "CBS",
-          }),
-        ],
-      },
-      {
-        _id: "program-2",
-        name: "Medical Research Initiative",
-        abbreviation: "MRI",
-        studies: [
-          approvedStudyFactory.build({
-            _id: "study-2",
-            studyName: "Heart Disease Study",
-            studyAbbreviation: "HDS",
-          }),
-        ],
-      },
-      {
-        _id: "program-3",
-        name: "Biomedical Sciences Program",
-        abbreviation: "BSP",
-        studies: [],
-      },
-    ];
-
-    return programConfigs[index];
-  }
-);
+const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = [
+  organizationFactory.build({
+    _id: "program-1",
+    name: "Biology Research Program",
+    abbreviation: "BIO",
+    studies: [
+      approvedStudyFactory.build({
+        _id: "study-1",
+        studyName: "Cancer Biology Study",
+        studyAbbreviation: "CBS",
+      }),
+    ],
+  }),
+  organizationFactory.build({
+    _id: "program-2",
+    name: "Medical Research Initiative",
+    abbreviation: "MRI",
+    studies: [
+      approvedStudyFactory.build({
+        _id: "study-2",
+        studyName: "Heart Disease Study",
+        studyAbbreviation: "HDS",
+      }),
+    ],
+  }),
+  organizationFactory.build({
+    _id: "program-3",
+    name: "Biomedical Sciences Program",
+    abbreviation: "BSP",
+    studies: [],
+  }),
+];
 
 const defaultMocks: MockedResponse[] = [
   {
@@ -203,7 +196,7 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "biology");
+    userEvent.type(programFilter, "biology");
 
     await waitFor(() => {
       expect(getByText("Biology Research Program")).toBeInTheDocument();
@@ -224,7 +217,7 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "bio");
+    userEvent.type(programFilter, "bio");
 
     await waitFor(() => {
       expect(getByText("Biology Research Program")).toBeInTheDocument();
@@ -246,7 +239,7 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "research");
+    userEvent.type(programFilter, "research");
 
     await waitFor(() => {
       expect(getByText("Biology Research Program")).toBeInTheDocument();
@@ -267,7 +260,7 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "mri");
+    userEvent.type(programFilter, "mri");
 
     await waitFor(() => {
       expect(getByText("Medical Research Initiative")).toBeInTheDocument();
@@ -287,7 +280,7 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "nonexistent");
+    userEvent.type(programFilter, "nonexistent");
 
     await waitFor(() => {
       expect(() => getByText("Biology Research Program")).toThrow();
@@ -307,13 +300,13 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "bio");
+    userEvent.type(programFilter, "bio");
 
     await waitFor(() => {
       expect(getByText("Biology Research Program")).toBeInTheDocument();
     });
 
-    await userEvent.clear(programFilter);
+    userEvent.clear(programFilter);
 
     await waitFor(() => {
       expect(getByText("Biology Research Program")).toBeInTheDocument();
@@ -333,7 +326,7 @@ describe("Implementation Requirements", () => {
     });
 
     const programFilter = getByPlaceholderText("Enter a Program");
-    await userEvent.type(programFilter, "   ");
+    userEvent.type(programFilter, "   ");
 
     await waitFor(() => {
       expect(getByText("Biology Research Program")).toBeInTheDocument();
