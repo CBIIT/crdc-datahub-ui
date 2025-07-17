@@ -4,6 +4,7 @@ import React, { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
 import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
@@ -32,59 +33,50 @@ vi.mock("react-router-dom", async () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = [
-  organizationFactory.build({
-    _id: "program-1",
-    name: "Biology Research Program",
-    abbreviation: "BIO",
-    description: "Biology research program",
-    status: "Active",
-    conciergeName: "Jane Doe",
-    studies: [
+const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = organizationFactory.build(
+  3,
+  (index) => {
+    const programConfigs = [
       {
-        _id: "study-1",
-        studyName: "Cancer Biology Study",
-        studyAbbreviation: "CBS",
+        _id: "program-1",
+        name: "Biology Research Program",
+        abbreviation: "BIO",
+        studies: [
+          approvedStudyFactory.build({
+            _id: "study-1",
+            studyName: "Cancer Biology Study",
+            studyAbbreviation: "CBS",
+          }),
+        ],
       },
-    ],
-    createdAt: "2023-01-01T00:00:00Z",
-    updateAt: "2023-01-01T00:00:00Z",
-  }),
-  organizationFactory.build({
-    _id: "program-2",
-    name: "Medical Research Initiative",
-    abbreviation: "MRI",
-    description: "Medical research initiative",
-    status: "Active",
-    conciergeName: "John Smith",
-    studies: [
       {
-        _id: "study-2",
-        studyName: "Heart Disease Study",
-        studyAbbreviation: "HDS",
+        _id: "program-2",
+        name: "Medical Research Initiative",
+        abbreviation: "MRI",
+        studies: [
+          approvedStudyFactory.build({
+            _id: "study-2",
+            studyName: "Heart Disease Study",
+            studyAbbreviation: "HDS",
+          }),
+        ],
       },
-    ],
-    createdAt: "2023-01-01T00:00:00Z",
-    updateAt: "2023-01-01T00:00:00Z",
-  }),
-  organizationFactory.build({
-    _id: "program-3",
-    name: "Biomedical Sciences Program",
-    abbreviation: "BSP",
-    description: "Biomedical sciences program",
-    status: "Active",
-    conciergeName: "Alice Johnson",
-    studies: [],
-    createdAt: "2023-01-01T00:00:00Z",
-    updateAt: "2023-01-01T00:00:00Z",
-  }),
-];
+      {
+        _id: "program-3",
+        name: "Biomedical Sciences Program",
+        abbreviation: "BSP",
+        studies: [],
+      },
+    ];
+
+    return programConfigs[index];
+  }
+);
 
 const defaultMocks: MockedResponse[] = [
   {
     request: {
       query: LIST_ORGS,
-      context: { clientName: "backend" },
     },
     variableMatcher: () => true,
     result: {
@@ -154,7 +146,7 @@ describe("Accessibility", () => {
   });
 });
 
-describe("ListView Component", () => {
+describe("Basic Functionality", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -190,6 +182,12 @@ describe("ListView Component", () => {
     await waitFor(() => {
       expect(getByText("Add Program")).toBeInTheDocument();
     });
+  });
+});
+
+describe("Implementation Requirements", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   describe("Program Filter", () => {
