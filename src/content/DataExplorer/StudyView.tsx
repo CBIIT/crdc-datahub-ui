@@ -1,8 +1,8 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, styled } from "@mui/material";
-import { cloneDeep, isEqual, sortBy } from "lodash";
+import { cloneDeep } from "lodash";
 import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
@@ -10,6 +10,7 @@ import DataExplorerExportButton from "../../components/DataExplorerExportButton"
 import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
 import GenericTable, { Column } from "../../components/GenericTable";
 import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
+import { ColumnVisibilityPopperGroup } from "../../components/GenericTable/ColumnVisibilityPopper";
 import NavigationBreadcrumbs, { BreadcrumbEntry } from "../../components/NavigationBreadcrumbs";
 import PageContainer from "../../components/PageContainer";
 import SuspenseLoader from "../../components/SuspenseLoader";
@@ -24,6 +25,9 @@ import {
   LIST_RELEASED_DATA_RECORDS,
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
+  RETRIEVE_PROPS_FOR_NODE_TYPE,
+  RetrievePropsForNodeTypeInput,
+  RetrievePropsForNodeTypeResp,
 } from "../../graphql";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -52,11 +56,11 @@ type StudyViewProps = {
 const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
   usePageTitle(`Data Explorer - ${studyId}`);
 
+  const navigate = useNavigate();
   const { searchParams, lastSearchParams } = useSearchParamsContext();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T[]>([]);
-  const [columnNames, setColumnNames] = useState<string[]>([]);
   const [totalData, setTotalData] = useState<number>(0);
 
   const tableRef = useRef<TableMethods>(null);
@@ -89,6 +93,25 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     context: { clientName: "backend" },
     onError: (error) => {
       Logger.error("Error fetching node list:", error);
+    },
+  });
+
+  const { data: nodeProps, loading: nodePropsLoading } = useQuery<
+    RetrievePropsForNodeTypeResp,
+    RetrievePropsForNodeTypeInput
+  >(RETRIEVE_PROPS_FOR_NODE_TYPE, {
+    variables: { studyId, dataCommonsDisplayName, nodeType: filtersRef.current?.nodeType },
+    skip: !studyId || !dataCommonsDisplayName || !filtersRef.current?.nodeType,
+    fetchPolicy: "cache-first",
+    context: { clientName: "backend" },
+    onError: (error) => {
+      Logger.error("Error fetching node properties:", error);
+      navigate("/data-explorer", {
+        state: {
+          alert: true,
+          error: "Oops! Unable to display metadata for the selected study or data commons.",
+        },
+      });
     },
   });
 
@@ -162,11 +185,11 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
 
   const columns = useMemo<Column<T>[]>(
     () =>
-      columnNames?.map((prop) => ({
-        label: prop,
+      nodeProps?.retrievePropsForNodeType?.map((prop) => ({
+        label: prop.name,
         renderValue: (d: T) => (
           <TruncatedText
-            text={coerceToString(d[prop])}
+            text={coerceToString(d[prop.name])}
             maxCharacters={20}
             disableInteractiveTooltip={false}
             arrow
@@ -174,18 +197,19 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             underline
           />
         ),
-        field: prop,
-        default: prop === selectedNodeType?.IDPropName ? true : undefined,
-        hideable: prop !== selectedNodeType?.IDPropName,
+        field: prop.name,
+        default: prop.name === selectedNodeType?.IDPropName ? true : undefined,
+        hideable: prop.name !== selectedNodeType?.IDPropName,
+        defaultHidden: prop.required !== true,
       })) || [],
-    [columnNames, selectedNodeType?.IDPropName]
+    [selectedNodeType?.IDPropName, nodeProps?.retrievePropsForNodeType]
   );
 
   const { visibleColumns, columnVisibilityModel, setColumnVisibilityModel } = useColumnVisibility<
     Column<T>
   >({
     columns,
-    getColumnKey: (c) => c.fieldKey ?? c.field,
+    getColumnKey: (c) => c.field,
     localStorageKey: columnVisibilityKey,
   });
 
@@ -228,21 +252,12 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
       setData(data?.listReleasedDataRecords?.nodes || []);
       setTotalData(data?.listReleasedDataRecords?.total || 0);
       prevFiltersRef.current = cloneDeep(filtersRef.current);
-
-      // NOTE: This is a temporary solution to stabilize the column orders
-      // The API is currently not returning the same array order in each request
-      const sortedNewCols = sortBy(data?.listReleasedDataRecords?.properties || []);
-      if (!isEqual(sortBy(columnNames), sortedNewCols)) {
-        setColumnNames(sortedNewCols);
-      }
-
       setLoading(false);
     },
     [
       studyId,
       nodesData?.getReleaseNodeTypes?.nodes,
       dataCommonsDisplayName,
-      columnNames,
       filtersRef.current,
       prevFiltersRef.current,
       listReleasedDataRecords,
@@ -262,13 +277,53 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [columns, selectedNodeType?.IDPropName]
   );
 
+  const handleGetColumnGroup = useCallback(
+    (column: Column<T>) => {
+      const prop = nodeProps?.retrievePropsForNodeType.find((p) => p.name === column.field);
+      switch (prop?.group) {
+        case "not_defined":
+          return "Others";
+        case "internal":
+          return "Internal";
+        case "model_defined":
+        default:
+          return "Data Model Defined";
+      }
+    },
+    [nodeProps?.retrievePropsForNodeType]
+  );
+
+  const handleGetColumnKey = useCallback((column: Column<T>) => column.field, []);
+
+  const handleGetColumnLabel = useCallback((column: Column<T>) => column.label?.toString(), []);
+
+  const columnGroups = useMemo<ColumnVisibilityPopperGroup[]>(
+    () => [
+      {
+        name: "Data Model Defined",
+        description: "Fields defined in the data model and submitted by users.",
+      },
+      {
+        name: "Others",
+        description: "Additional fields not included in the data model and submitted by users.",
+      },
+      {
+        name: "Internal",
+        description: "Fields automatically created by the system.",
+      },
+    ],
+    []
+  );
+
   const filterActions = useMemo<React.ReactNode[]>(
     () => [
       <ColumnVisibilityButton
         key="column-visibility-action"
         columns={columns}
-        getColumnKey={(column) => column.fieldKey ?? column.field}
-        getColumnLabel={(column) => column.label?.toString()}
+        groups={columnGroups}
+        getColumnKey={handleGetColumnKey}
+        getColumnLabel={handleGetColumnLabel}
+        getColumnGroup={handleGetColumnGroup}
         columnVisibilityModel={columnVisibilityModel}
         onColumnVisibilityModelChange={setColumnVisibilityModel}
         data-testid="column-visibility-button"
@@ -285,10 +340,14 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
     [
       studyId,
       columns,
+      columnGroups,
       columnVisibilityModel,
       filtersRef?.current?.nodeType,
       dataCommonsDisplayName,
       setColumnVisibilityModel,
+      handleGetColumnGroup,
+      handleGetColumnKey,
+      handleGetColumnLabel,
     ]
   );
 
@@ -334,8 +393,9 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             ref={tableRef}
             columns={visibleColumns}
             data={data}
-            total={totalData || 0}
-            loading={loading}
+            total={totalData}
+            loading={loading || nodePropsLoading}
+            delayedLoadingTimeMs={0}
             defaultRowsPerPage={20}
             defaultOrder="asc"
             disableUrlParams
@@ -344,6 +404,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
             setItemKey={handleSetItemKey}
             containerProps={{
               sx: {
+                minHeight: "175px",
                 marginBottom: "8px",
                 border: 0,
                 borderTopLeftRadius: 0,

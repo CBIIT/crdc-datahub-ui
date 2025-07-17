@@ -1,11 +1,13 @@
 import userEvent from "@testing-library/user-event";
-import React from "react";
 import { Mock } from "vitest";
 import { axe } from "vitest-axe";
 
-import { render } from "../../test-utils";
+import { render, within } from "../../test-utils";
 
-import ColumnVisibilityPopper from "./ColumnVisibilityPopper";
+import ColumnVisibilityPopper, {
+  ColumnVisibilityPopperGroup,
+  ColumnVisibilityPopperProps,
+} from "./ColumnVisibilityPopper";
 
 type Column = {
   field: string;
@@ -40,6 +42,7 @@ describe("Accessibility", () => {
     });
     onClose.mockClear();
   });
+
   it("should not have accessibility violations when open", async () => {
     const { container } = render(
       <ColumnVisibilityPopper
@@ -75,7 +78,7 @@ describe("ColumnVisibilityPopper", () => {
     onClose.mockClear();
   });
 
-  const renderComponent = (props = {}) =>
+  const renderComponent = (props: Partial<ColumnVisibilityPopperProps<Column>> = {}) =>
     render(
       <ColumnVisibilityPopper
         anchorEl={document.body}
@@ -105,6 +108,129 @@ describe("ColumnVisibilityPopper", () => {
 
     expect(emailCheckbox).toBeChecked();
     expect(emailCheckbox).not.toBeDisabled();
+  });
+
+  it("should group columns when grouping props are provided", () => {
+    const groups: ColumnVisibilityPopperGroup[] = [
+      { name: "GROUP-1" },
+      { name: "GROUP-2" },
+      { name: "GROUP-3" },
+    ];
+
+    const getColumnGroup = (column: Column) => {
+      switch (column.field) {
+        case "name":
+          return "GROUP-1";
+        case "age":
+          return "GROUP-2";
+        case "email":
+          return "GROUP-3";
+        default:
+          return "";
+      }
+    };
+
+    const { getByTestId } = renderComponent({ groups, getColumnGroup });
+
+    expect(
+      within(getByTestId("column-group-GROUP-1")).getByTestId("checkbox-name")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("column-group-GROUP-2")).getByTestId("checkbox-age")
+    ).toBeInTheDocument();
+    expect(
+      within(getByTestId("column-group-GROUP-3")).getByTestId("checkbox-email")
+    ).toBeInTheDocument();
+  });
+
+  it("should render the description tooltip when group has description", () => {
+    const getColumnGroup = (column: Column) => {
+      switch (column.field) {
+        case "name":
+          return "GROUP-1";
+        case "age":
+          return "GROUP-2";
+        case "email":
+          return "GROUP-3";
+        default:
+          return "";
+      }
+    };
+
+    const { getByTestId, getByText } = renderComponent({
+      getColumnGroup,
+      groups: [
+        { name: "GROUP-1", description: "Group 1 Description" },
+        { name: "GROUP-2", description: "Group 2 Description" },
+        { name: "GROUP-3", description: "Group 3 Description" },
+      ],
+    });
+
+    expect(
+      within(getByTestId("column-group-GROUP-1")).getByTestId("column-group-tooltip")
+    ).toBeInTheDocument();
+    userEvent.click(
+      within(getByTestId("column-group-GROUP-1")).getByTestId("column-group-tooltip")
+    );
+    expect(getByText("Group 1 Description")).toBeInTheDocument();
+    userEvent.click(document.body);
+
+    expect(
+      within(getByTestId("column-group-GROUP-2")).getByTestId("column-group-tooltip")
+    ).toBeInTheDocument();
+    userEvent.click(
+      within(getByTestId("column-group-GROUP-2")).getByTestId("column-group-tooltip")
+    );
+    expect(getByText("Group 2 Description")).toBeInTheDocument();
+    userEvent.click(document.body);
+
+    expect(
+      within(getByTestId("column-group-GROUP-3")).getByTestId("column-group-tooltip")
+    ).toBeInTheDocument();
+    userEvent.click(
+      within(getByTestId("column-group-GROUP-3")).getByTestId("column-group-tooltip")
+    );
+    expect(getByText("Group 3 Description")).toBeInTheDocument();
+  });
+
+  it("should render a placeholder when a group has no columns", () => {
+    const { getByTestId } = renderComponent({
+      groups: [{ name: "GROUP-1" }, { name: "GROUP-4" }],
+      getColumnGroup: (column) => {
+        switch (column.field) {
+          default:
+            return "GROUP-1"; // Always force to GROUP-1
+        }
+      },
+    });
+
+    expect(within(getByTestId("column-group-GROUP-4")).getByText("N/A")).toBeInTheDocument();
+  });
+
+  // NOTE: This isn't necessarily desired behavior, but writing a test to lock it as-is for now.
+  it("should not render a column when the group is not provided in the `groups` prop", () => {
+    const getColumnGroup = (column: Column) => {
+      switch (column.field) {
+        case "name":
+        case "age":
+          return "GROUP-1";
+        case "email": // Rendering into a non-existent group
+        default:
+          return "GROUP-DOES-NOT-EXIST";
+      }
+    };
+
+    const { getByTestId, queryByTestId } = renderComponent({
+      getColumnGroup,
+      groups: [{ name: "GROUP-1", description: "Group 1 Description" }],
+    });
+
+    // GROUP-1
+    expect(getByTestId("checkbox-name")).toBeInTheDocument();
+    expect(getByTestId("checkbox-age")).toBeInTheDocument();
+
+    // GROUP-DOES-NOT-EXIST was not provided in groups
+    expect(queryByTestId("checkbox-email")).not.toBeInTheDocument();
   });
 
   it("does not call onColumnVisibilityModelChange when non-hideable column's checkbox is changed", () => {
@@ -192,7 +318,7 @@ describe("ColumnVisibilityPopper", () => {
     });
   });
 
-  it("close button works", () => {
+  it("should close the popper when the close button is clicked", () => {
     const { getByTestId } = renderComponent();
 
     const closeButton = getByTestId("column-visibility-popper-close-button");

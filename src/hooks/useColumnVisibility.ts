@@ -1,22 +1,19 @@
 import { useMemo } from "react";
 
+import { ExtendedColumn } from "../components/GenericTable/ColumnVisibilityPopper";
+
 import { useLocalStorage } from "./useLocalStorage";
 
-type Column<C> = C & {
-  hideable?: boolean;
-  defaultHidden?: boolean;
-};
-
-type UseColumnVisibilityParams<C> = {
-  columns: Column<C>[];
-  getColumnKey: (column: Column<C>) => string;
+type UseColumnVisibilityParams<C extends ExtendedColumn> = {
+  columns: C[];
+  getColumnKey: (column: C) => string;
   localStorageKey: string;
 };
 
 type UseColumnVisibilityResult<C> = {
   columnVisibilityModel: ColumnVisibilityModel;
   setColumnVisibilityModel: (model: ColumnVisibilityModel) => void;
-  visibleColumns: Column<C>[];
+  visibleColumns: C[];
 };
 
 /**
@@ -25,7 +22,7 @@ type UseColumnVisibilityResult<C> = {
  * @param params - The parameters for the hook.
  * @returns The adjusted visibility model, the setter function, and the visible columns.
  */
-export const useColumnVisibility = <C>({
+export const useColumnVisibility = <C extends ExtendedColumn>({
   columns,
   getColumnKey,
   localStorageKey,
