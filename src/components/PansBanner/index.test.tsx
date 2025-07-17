@@ -10,11 +10,11 @@ import { render, waitFor } from "../../test-utils";
 import PansBanner from "./index";
 
 const mockOMBDetails = {
-  ombNumber: "0925-7775",
+  ombNumber: "1234-5678",
   expirationDate: "06/30/2025",
   content: [
-    "Collection of this information is authorized by The Public Health Service Act, Section 411 (42 USC 285a). Rights of participants are protected by The Privacy Act of 1974. Participation is voluntary, and there are no penalties for not participating or withdrawing at any time. Refusal to participate will not affect your benefits in any way. The information collected will be kept private to the extent provided by law. Names and other identifiers will not appear in any report. Information provided will be combined for all participants and reported as summaries. You are being contacted online to complete this form so that NCI can consider your study for submission into the Cancer Research Data Commons.",
-    "Public reporting burden for this collection of information is estimated to average 60 minutes per response, including the time for reviewing instructions, searching existing data sources, gathering and maintaining the data needed, and completing and reviewing the collection of information. An agency may not conduct or sponsor, and a person is not required to respond to, a collection of information unless it displays a currently valid OMB control number. Send comments regarding this burden estimate or any other aspect of this collection of information, including suggestions for reducing this burden to: NIH, Project Clearance Branch, 6705 Rockledge Drive, MSC 7974, Bethesda, MD 20892-7974, ATTN: PRA (0925-7775). Do not return the completed form to this address.",
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.",
   ],
 };
 
@@ -96,7 +96,7 @@ describe("Dynamic Content", () => {
     const { getByTestId } = render(<PansBannerWithProvider />);
 
     await waitFor(() => {
-      expect(getByTestId("pans-approval-number")).toHaveTextContent("OMB No.: 0925-7775");
+      expect(getByTestId("pans-approval-number")).toHaveTextContent("OMB No.: 1234-5678");
       expect(getByTestId("pans-expiration")).toHaveTextContent("Expiration Date: 06/30/2025");
     });
 
@@ -158,7 +158,7 @@ describe("Implementation Requirements", () => {
 
     await waitFor(() => {
       expect(container.textContent).toContain("OMB No.:");
-      expect(getByTestId("pans-approval-number")).toHaveTextContent(/0925-7775/);
+      expect(getByTestId("pans-approval-number")).toHaveTextContent(/1234-5678/);
     });
   });
 
