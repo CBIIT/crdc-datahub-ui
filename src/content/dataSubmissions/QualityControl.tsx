@@ -1,5 +1,5 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { Box, Button, Stack, styled } from "@mui/material";
+import { Box, Button, Stack, styled, TableCell } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import React, {
@@ -11,6 +11,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+
+import { TOOLTIP_TEXT } from "@/config/DashboardTooltips";
 
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
@@ -61,6 +63,7 @@ const StyledErrorDetailsButton = styled(Button)({
   padding: 0,
   textDecorationLine: "underline",
   textTransform: "none",
+  marginLeft: "auto",
   "&:hover": {
     background: "transparent",
     textDecorationLine: "underline",
@@ -95,6 +98,38 @@ const StyledPvButtonWrapper = styled(Box)({
   marginLeft: "89px",
 });
 
+const StyledOthersText = styled("span")({
+  display: "inline",
+  textDecoration: "underline",
+  textDecorationStyle: "dashed",
+  textUnderlineOffset: "4px",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  color: "#0B6CB1",
+  fontSize: "14px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+});
+
+const StyledHeaderCell = styled(TableCell)({
+  fontWeight: 700,
+  fontSize: "14px",
+  lineHeight: "16px",
+  color: "#fff !important",
+  padding: "22px 4px",
+  verticalAlign: "top",
+  "&.MuiTableCell-root:first-of-type": {
+    paddingTop: "22px",
+    paddingRight: "4px",
+    paddingBottom: "22px",
+    color: "#fff !important",
+  },
+  "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
+    color: "#fff !important",
+  },
+});
+
 type RowData = QCResult | AggregatedQCResult;
 
 const aggregatedColumns: Column<AggregatedQCResult>[] = [
@@ -113,7 +148,7 @@ const aggregatedColumns: Column<AggregatedQCResult>[] = [
     field: "severity",
   },
   {
-    label: "Count",
+    label: "Record Count",
     renderValue: (data) =>
       Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data.count || 0),
     field: "count",
@@ -152,7 +187,7 @@ const expandedColumns: Column<QCResult>[] = [
     field: "displayID",
     default: true,
     sx: {
-      width: "122px",
+      width: "110px",
     },
   },
   {
@@ -184,7 +219,7 @@ const expandedColumns: Column<QCResult>[] = [
     ),
     field: "severity",
     sx: {
-      width: "148px",
+      width: "87px",
     },
   },
   {
@@ -202,34 +237,57 @@ const expandedColumns: Column<QCResult>[] = [
       ),
     field: "validatedDate",
     sx: {
-      width: "193px",
+      width: "132px",
     },
   },
   {
-    label: "Issues",
+    label: "Issue Count",
+    renderValue: (data) =>
+      Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data.issueCount || 0),
+    field: "issueCount",
+    sx: {
+      width: "110px",
+    },
+  },
+  {
+    label: "Issue(s)",
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
           {({ handleOpenErrorDialog }) => (
-            <Stack direction="row">
+            <Stack direction="row" justifyContent="space-between">
               <StyledIssuesTextWrapper>
                 <TruncatedText
-                  text={`${data.errors?.[0]?.title || data.warnings?.[0]?.title}.`}
-                  maxCharacters={15}
+                  text={data.errors?.[0]?.title || data.warnings?.[0]?.title}
+                  maxCharacters={20}
                   wrapperSx={{ display: "inline" }}
                   labelSx={{ display: "inline" }}
                   disableInteractiveTooltip={false}
-                />{" "}
-                <StyledErrorDetailsButton
-                  onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
-                  variant="text"
-                  disableRipple
-                  disableTouchRipple
-                  disableFocusRipple
-                >
-                  See details.
-                </StyledErrorDetailsButton>
+                />
+                {data.issueCount > 1 ? (
+                  <>
+                    {", "}
+                    <StyledTooltip
+                      title={TOOLTIP_TEXT.QUALITY_CONTROL.TABLE.CLICK_SEE_DETAILS}
+                      placement="top"
+                      disableInteractive
+                      arrow
+                    >
+                      <StyledOthersText>Others</StyledOthersText>
+                    </StyledTooltip>
+                  </>
+                ) : null}
               </StyledIssuesTextWrapper>
+
+              <StyledErrorDetailsButton
+                onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+                variant="text"
+                disableRipple
+                disableTouchRipple
+                disableFocusRipple
+              >
+                See details.
+              </StyledErrorDetailsButton>
             </Stack>
           )}
         </QCResultsContext.Consumer>
@@ -555,6 +613,7 @@ const QualityControl: FC = () => {
           defaultRowsPerPage={20}
           defaultOrder="desc"
           position="both"
+          CustomTableHeaderCell={StyledHeaderCell}
           noContentText="No validation issues found. Either no validation has been conducted yet, or all issues have been resolved."
           setItemKey={(item, idx) => `${idx}_${"title" in item ? item?.title : item?.batchID}`}
           onFetchData={handleFetchData}
