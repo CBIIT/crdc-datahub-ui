@@ -5,8 +5,11 @@ import { FC, useMemo } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { aggregatedQCResultFactory } from "@/factories/submission/AggregatedQCResultFactory";
 import { batchFactory } from "@/factories/submission/BatchFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
 import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
@@ -92,13 +95,14 @@ const issueTypesMock: MockedResponse<
       aggregatedSubmissionQCResults: {
         total: 1,
         results: [
-          {
-            code: "ISSUE1",
-            title: "Issue Title 1",
-            count: 100,
-            severity: "Error",
-            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as AggregatedQCResult,
+          aggregatedQCResultFactory
+            .build({
+              code: "ISSUE1",
+              title: "Issue Title 1",
+              count: 100,
+              severity: "Error",
+            })
+            .withTypename("AggregatedQCResult"),
         ],
       },
     },
@@ -119,20 +123,22 @@ const aggSubmissionMock: MockedResponse<
       aggregatedSubmissionQCResults: {
         total: 2,
         results: [
-          {
-            code: "ISSUE1",
-            title: "Issue Title 1",
-            count: 100,
-            severity: "Error",
-            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as AggregatedQCResult,
-          {
-            code: "ISSUE2",
-            title: "Issue Title 2",
-            count: 200,
-            severity: "Warning",
-            __typename: "AggregatedQCResult",
-          } as AggregatedQCResult,
+          aggregatedQCResultFactory
+            .build({
+              code: "ISSUE1",
+              title: "Issue Title 1",
+              count: 100,
+              severity: "Error",
+            })
+            .withTypename("AggregatedQCResult"),
+          aggregatedQCResultFactory
+            .build({
+              code: "ISSUE2",
+              title: "Issue Title 2",
+              count: 200,
+              severity: "Warning",
+            })
+            .withTypename("AggregatedQCResult"),
         ],
       },
     },
@@ -170,10 +176,12 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
             ...submission,
           }),
           getSubmissionAttributes: {
-            submissionAttributes: {
-              hasOrphanError: false,
-              isBatchUploading: false,
-            },
+            submissionAttributes: submissionAttributesFactory
+              .pick(["hasOrphanError", "isBatchUploading"])
+              .build({
+                hasOrphanError: false,
+                isBatchUploading: false,
+              }),
           },
           submissionStats: { stats: [] },
         },
@@ -919,8 +927,8 @@ describe("Table", () => {
                 warnings: [
                   {
                     code: null,
-                    title: "mock-warning-title-1",
-                    description: "mock-warning-description-1",
+                    title: "mock-long-warning-title-1",
+                    description: "mock-long-warning-description-1",
                   },
                 ],
               }),
@@ -977,7 +985,7 @@ describe("Table", () => {
       expect(getByText("1-fake-long-nod...")).toBeInTheDocument();
     });
 
-    expect(getByText("mock-warning-ti...")).toBeInTheDocument();
+    expect(getByText("mock-long-warning-ti...")).toBeInTheDocument();
     expect(getByText(/mock-error-1/)).toBeInTheDocument();
     expect(getByText("2-fake-long-nod...")).toBeInTheDocument();
     expect(getByText("5/22/2023")).toBeInTheDocument();
@@ -1149,5 +1157,306 @@ describe("Table", () => {
       expect(buttons[0]).toBeDisabled();
       expect(buttons[1]).toBeDisabled();
     });
+  });
+});
+
+describe("Implementation Requirements", () => {
+  it("should display 'Record Count' column in Aggregated view with correct values", async () => {
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "agg-view-record-count" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+      "checked",
+      false
+    );
+
+    expect(await findByText("Record Count")).toBeInTheDocument();
+
+    expect(await findByText("100")).toBeInTheDocument();
+    expect(await findByText("200")).toBeInTheDocument();
+  });
+
+  it("should display 'Issue Count' column in Expanded view with correct values", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 2,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: [
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-1",
+                    description: "desc-1",
+                  }),
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-2",
+                    description: "desc-2",
+                  }),
+                ],
+                warnings: [
+                  errorMessageFactory.build({ code: null, title: "warn-1", description: "desc-3" }),
+                ],
+                issueCount: 3,
+              }),
+              qcResultFactory.build({
+                displayID: 2,
+                type: "node-02",
+                submittedID: "id-002",
+                severity: "Warning",
+                validatedDate: "2024-07-31T11:27:00Z",
+                errors: [],
+                warnings: [
+                  errorMessageFactory.build({ code: null, title: "warn-2", description: "desc-4" }),
+                ],
+                issueCount: 10003,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-issue-count" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    expect(await findByText("Issue Count")).toBeInTheDocument();
+
+    expect(await findByText("3")).toBeInTheDocument();
+    expect(await findByText("10,003")).toBeInTheDocument();
+  });
+
+  it("should contain 'Issue(s)' column in Expanded view", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: [
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-1",
+                    description: "desc-1",
+                  }),
+                ],
+                warnings: [],
+                issueCount: 1,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-issues-col" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    expect(await findByText("Issue(s)")).toBeInTheDocument();
+  });
+
+  it("should display only the first issue message, truncated, and append ', Others' if multiple issues exist in Expanded view", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: [
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "A very long error message that should be truncated for display",
+                    description: "desc-1",
+                  }),
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-2",
+                    description: "desc-2",
+                  }),
+                ],
+                warnings: [
+                  errorMessageFactory.build({ code: null, title: "warn-1", description: "desc-3" }),
+                ],
+                issueCount: 3,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText, getByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-issue-trunc" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    expect(await findByText(/A very long error me.../)).toBeInTheDocument();
+
+    expect(getByText(/Others/)).toBeInTheDocument();
+  });
+
+  it("should show tooltip on 'Others' with correct message in Expanded view", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: [
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-1",
+                    description: "desc-1",
+                  }),
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-2",
+                    description: "desc-2",
+                  }),
+                ],
+                warnings: [],
+                issueCount: 2,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-others-tooltip" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    const others = await findByText("Others");
+    userEvent.hover(others);
+
+    expect(
+      await findByText("Click on See Details to view all issues for this record.")
+    ).toBeInTheDocument();
   });
 });
