@@ -1,3 +1,4 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 // The base aggregatedQCResult model used for all aggregatedSubmissionQCResults queries
@@ -16,7 +17,7 @@ const FullAggregatedQCResultFragment = gql`
   }
 `;
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query aggregatedSubmissionQCResults(
     $submissionID: ID!
     $severity: String
@@ -48,12 +49,8 @@ export const query = gql`
 export type Input = {
   submissionID: string;
   severity?: string;
-  first?: number;
-  offset?: number;
-  orderBy?: string;
-  sortDirection?: string;
   partial?: boolean;
-};
+} & BasePaginationParams;
 
 export type Response = {
   aggregatedSubmissionQCResults: ValidationResult<AggregatedQCResult>;
