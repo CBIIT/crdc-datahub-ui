@@ -290,3 +290,9 @@ export type {
 
 export { GET_RELEASED_NODE_TYPES } from "./getReleasedNodeTypes";
 export type { GetReleasedNodeTypesInput, GetReleasedNodeTypesResp } from "./getReleasedNodeTypes";
+
+export { RETRIEVE_PROPS_FOR_NODE_TYPE } from "./retrievePropsForNodeType";
+export type {
+  RetrievePropsForNodeTypeInput,
+  RetrievePropsForNodeTypeResp,
+} from "./retrievePropsForNodeType";
