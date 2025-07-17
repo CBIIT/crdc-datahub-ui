@@ -72,8 +72,16 @@ describe("Basic Functionality", () => {
     expect(() => render(<PansBannerWithProvider />)).not.toThrow();
   });
 
-  it("should show skeleton components while loading", () => {
-    const { getByTestId } = render(<PansBannerWithProvider />);
+  it("should show skeleton components while loading", async () => {
+    // Mock with no result to keep it in loading state
+    const loadingMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      // Don't provide result or error, so it stays in loading
+    };
+
+    const { getByTestId } = render(<PansBannerWithProvider mocks={[loadingMock]} />);
 
     expect(getByTestId("pans-approval-number-skeleton")).toBeInTheDocument();
     expect(getByTestId("pans-expiration-skeleton")).toBeInTheDocument();
@@ -136,6 +144,94 @@ describe("Basic Functionality", () => {
 
   it("should return null when GraphQL query fails", async () => {
     const { container } = render(<PansBannerWithProvider mocks={[errorMock]} />);
+
+    await waitFor(() => {
+      expect(container.firstChild).toBeNull();
+    });
+  });
+
+  it("should return null when ombNumber is missing", async () => {
+    const missingOmbMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          retrieveOMBDetails: {
+            ombNumber: "",
+            expirationDate: "06/30/2025",
+            content: ["Lorem ipsum content"],
+          },
+        },
+      },
+    };
+
+    const { container } = render(<PansBannerWithProvider mocks={[missingOmbMock]} />);
+
+    await waitFor(() => {
+      expect(container.firstChild).toBeNull();
+    });
+  });
+
+  it("should return null when expirationDate is missing", async () => {
+    const missingExpirationMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          retrieveOMBDetails: {
+            ombNumber: "1234-5678",
+            expirationDate: "",
+            content: ["Lorem ipsum content"],
+          },
+        },
+      },
+    };
+
+    const { container } = render(<PansBannerWithProvider mocks={[missingExpirationMock]} />);
+
+    await waitFor(() => {
+      expect(container.firstChild).toBeNull();
+    });
+  });
+
+  it("should return null when content is missing", async () => {
+    const missingContentMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          retrieveOMBDetails: {
+            ombNumber: "1234-5678",
+            expirationDate: "06/30/2025",
+            content: [],
+          },
+        },
+      },
+    };
+
+    const { container } = render(<PansBannerWithProvider mocks={[missingContentMock]} />);
+
+    await waitFor(() => {
+      expect(container.firstChild).toBeNull();
+    });
+  });
+
+  it("should return null when entire data object is missing", async () => {
+    const missingDataMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          retrieveOMBDetails: null,
+        },
+      },
+    };
+
+    const { container } = render(<PansBannerWithProvider mocks={[missingDataMock]} />);
 
     await waitFor(() => {
       expect(container.firstChild).toBeNull();

@@ -16,5 +16,5 @@ export type RetrieveOMBDetailsResp = {
     ombNumber: string;
     expirationDate: string;
     content: string[];
-  };
+  } | null;
 };

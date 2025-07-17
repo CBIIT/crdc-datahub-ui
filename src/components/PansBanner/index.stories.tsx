@@ -1,4 +1,4 @@
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "../../graphql";
@@ -34,7 +34,7 @@ const delayedMock: MockedResponse<RetrieveOMBDetailsResp> = {
       retrieveOMBDetails: mockOMBDetails,
     },
   },
-  delay: 2000, // 2 second delay to show loading state
+  delay: Infinity, // Persistent loading state
 };
 
 const errorMock: MockedResponse<RetrieveOMBDetailsResp> = {
@@ -65,33 +65,27 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {},
-  decorators: [
-    (Story) => (
-      <MockedProvider mocks={[successMock]} addTypename={false}>
-        <Story />
-      </MockedProvider>
-    ),
-  ],
+  parameters: {
+    apolloClient: {
+      mocks: [successMock],
+    },
+  },
 };
 
 export const Loading: Story = {
   args: {},
-  decorators: [
-    (Story) => (
-      <MockedProvider mocks={[delayedMock]} addTypename={false}>
-        <Story />
-      </MockedProvider>
-    ),
-  ],
+  parameters: {
+    apolloClient: {
+      mocks: [delayedMock],
+    },
+  },
 };
 
 export const ErrorState: Story = {
   args: {},
-  decorators: [
-    (Story) => (
-      <MockedProvider mocks={[errorMock]} addTypename={false}>
-        <Story />
-      </MockedProvider>
-    ),
-  ],
+  parameters: {
+    apolloClient: {
+      mocks: [errorMock],
+    },
+  },
 };

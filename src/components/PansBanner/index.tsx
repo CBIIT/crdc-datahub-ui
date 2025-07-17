@@ -3,6 +3,7 @@ import { Box, Skeleton, Stack, styled, Typography } from "@mui/material";
 import React, { memo } from "react";
 
 import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "../../graphql";
+import Repeater from "../Repeater";
 
 const StyledBox = styled(Box)({
   padding: "20px",
@@ -50,18 +51,14 @@ const PansBannerLoading: React.FC = () => (
       <Skeleton variant="text" width={180} height={20} data-testid="pans-expiration-skeleton" />
     </StyledHeaderStack>
     <div data-testid="pans-content-skeleton">
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
+      <Repeater count={5}>
+        <Skeleton variant="text" width="100%" height={18} />
+      </Repeater>
       <Skeleton variant="text" width="90%" height={18} />
       <Skeleton variant="text" width={0} height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
-      <Skeleton variant="text" width="100%" height={18} />
+      <Repeater count={5}>
+        <Skeleton variant="text" width="100%" height={18} />
+      </Repeater>
       <Skeleton variant="text" width="80%" height={18} />
     </div>
   </StyledBox>
@@ -75,17 +72,22 @@ const PansBannerLoading: React.FC = () => (
 const PansBanner: React.FC = (): React.ReactNode => {
   const { data, loading, error } = useQuery<RetrieveOMBDetailsResp>(RETRIEVE_OMB_DETAILS, {
     fetchPolicy: "cache-first",
-    context: { clientName: "mockService" },
+    context: { clientName: "backend" },
   });
-
-  // If there's an error, return null
-  if (error) {
-    return null;
-  }
 
   // Show loading state
   if (loading) {
     return <PansBannerLoading />;
+  }
+
+  // If there's an error or missing data, return null
+  if (
+    error ||
+    !data?.retrieveOMBDetails?.ombNumber ||
+    !data?.retrieveOMBDetails?.expirationDate ||
+    !data?.retrieveOMBDetails?.content?.length
+  ) {
+    return null;
   }
 
   return (
