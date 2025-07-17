@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
 
 import {
@@ -12,8 +13,8 @@ import {
   Context as AuthContext,
   ContextState as AuthContextState,
 } from "../../components/Contexts/AuthContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import { OrganizationProvider } from "../../components/Contexts/OrganizationListContext";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import { LIST_ORGS, ListOrgsResp } from "../../graphql";
 import { act, render, waitFor } from "../../test-utils";
 
@@ -32,7 +33,7 @@ vi.mock("react-router-dom", async () => ({
 }));
 
 const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = [
-  {
+  organizationFactory.build({
     _id: "program-1",
     name: "Biology Research Program",
     abbreviation: "BIO",
@@ -46,11 +47,10 @@ const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = [
         studyAbbreviation: "CBS",
       },
     ],
-    readOnly: false,
     createdAt: "2023-01-01T00:00:00Z",
     updateAt: "2023-01-01T00:00:00Z",
-  },
-  {
+  }),
+  organizationFactory.build({
     _id: "program-2",
     name: "Medical Research Initiative",
     abbreviation: "MRI",
@@ -64,22 +64,20 @@ const mockPrograms: ListOrgsResp["listPrograms"]["programs"] = [
         studyAbbreviation: "HDS",
       },
     ],
-    readOnly: false,
     createdAt: "2023-01-01T00:00:00Z",
     updateAt: "2023-01-01T00:00:00Z",
-  },
-  {
+  }),
+  organizationFactory.build({
     _id: "program-3",
     name: "Biomedical Sciences Program",
     abbreviation: "BSP",
     description: "Biomedical sciences program",
-    status: "Inactive",
+    status: "Active",
     conciergeName: "Alice Johnson",
     studies: [],
-    readOnly: false,
     createdAt: "2023-01-01T00:00:00Z",
     updateAt: "2023-01-01T00:00:00Z",
-  },
+  }),
 ];
 
 const defaultMocks: MockedResponse[] = [
@@ -130,7 +128,7 @@ const TestParent: FC<ParentProps> = ({
       <MemoryRouter initialEntries={initialEntries}>
         <AuthContext.Provider value={baseAuthCtx}>
           <SearchParamsProvider>
-            <OrganizationProvider>{children}</OrganizationProvider>
+            <OrganizationProvider preload>{children}</OrganizationProvider>
           </SearchParamsProvider>
         </AuthContext.Provider>
       </MemoryRouter>
@@ -196,8 +194,7 @@ describe("ListView Component", () => {
 
   describe("Program Filter", () => {
     it("filters programs by name (case-insensitive)", async () => {
-      const user = userEvent.setup();
-      const { getByPlaceholderText, getByText, queryByText } = render(
+      const { getByPlaceholderText, getByText } = render(
         <TestParent>
           <ListView />
         </TestParent>
@@ -209,17 +206,16 @@ describe("ListView Component", () => {
       });
 
       const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "biology");
+      await userEvent.type(programFilter, "biology");
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(queryByText("Medical Research Initiative")).not.toBeInTheDocument();
+        expect(() => getByText("Medical Research Initiative")).toThrow();
       });
     });
 
     it("filters programs by abbreviation (case-insensitive)", async () => {
-      const user = userEvent.setup();
-      const { getByPlaceholderText, getByText, queryByText } = render(
+      const { getByPlaceholderText, getByText } = render(
         <TestParent>
           <ListView />
         </TestParent>
@@ -231,18 +227,17 @@ describe("ListView Component", () => {
       });
 
       const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "bio");
+      await userEvent.type(programFilter, "bio");
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();
         expect(getByText("Biomedical Sciences Program")).toBeInTheDocument();
-        expect(queryByText("Medical Research Initiative")).not.toBeInTheDocument();
+        expect(() => getByText("Medical Research Initiative")).toThrow();
       });
     });
 
     it("filters programs by partial name match", async () => {
-      const user = userEvent.setup();
-      const { getByPlaceholderText, getByText, queryByText } = render(
+      const { getByPlaceholderText, getByText } = render(
         <TestParent>
           <ListView />
         </TestParent>
@@ -254,7 +249,7 @@ describe("ListView Component", () => {
       });
 
       const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "research");
+      await userEvent.type(programFilter, "research");
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();
@@ -263,8 +258,7 @@ describe("ListView Component", () => {
     });
 
     it("filters programs by partial abbreviation match", async () => {
-      const user = userEvent.setup();
-      const { getByPlaceholderText, getByText, queryByText } = render(
+      const { getByPlaceholderText, getByText } = render(
         <TestParent>
           <ListView />
         </TestParent>
@@ -276,37 +270,15 @@ describe("ListView Component", () => {
       });
 
       const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "mri");
+      await userEvent.type(programFilter, "mri");
 
       await waitFor(() => {
         expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-        expect(queryByText("Biology Research Program")).not.toBeInTheDocument();
+        expect(() => getByText("Biology Research Program")).toThrow();
       });
     });
 
     it("shows no results when filter doesn't match any program", async () => {
-      const user = userEvent.setup();
-      const { getByPlaceholderText, queryByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
-
-      await waitFor(() => {
-        expect(queryByText("Biology Research Program")).toBeInTheDocument();
-      });
-
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "nonexistent");
-
-      await waitFor(() => {
-        expect(queryByText("Biology Research Program")).not.toBeInTheDocument();
-        expect(queryByText("Medical Research Initiative")).not.toBeInTheDocument();
-      });
-    });
-
-    it("shows all programs when filter is cleared", async () => {
-      const user = userEvent.setup();
       const { getByPlaceholderText, getByText } = render(
         <TestParent>
           <ListView />
@@ -318,13 +290,33 @@ describe("ListView Component", () => {
       });
 
       const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "bio");
+      await userEvent.type(programFilter, "nonexistent");
+
+      await waitFor(() => {
+        expect(() => getByText("Biology Research Program")).toThrow();
+        expect(() => getByText("Medical Research Initiative")).toThrow();
+      });
+    });
+
+    it("shows all programs when filter is cleared", async () => {
+      const { getByPlaceholderText, getByText } = render(
+        <TestParent>
+          <ListView />
+        </TestParent>
+      );
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();
       });
 
-      await user.clear(programFilter);
+      const programFilter = getByPlaceholderText("Enter a Program");
+      await userEvent.type(programFilter, "bio");
+
+      await waitFor(() => {
+        expect(getByText("Biology Research Program")).toBeInTheDocument();
+      });
+
+      await userEvent.clear(programFilter);
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();
@@ -333,7 +325,6 @@ describe("ListView Component", () => {
     });
 
     it("handles empty/whitespace-only filter input", async () => {
-      const user = userEvent.setup();
       const { getByPlaceholderText, getByText } = render(
         <TestParent>
           <ListView />
@@ -345,7 +336,7 @@ describe("ListView Component", () => {
       });
 
       const programFilter = getByPlaceholderText("Enter a Program");
-      await user.type(programFilter, "   ");
+      await userEvent.type(programFilter, "   ");
 
       await waitFor(() => {
         expect(getByText("Biology Research Program")).toBeInTheDocument();

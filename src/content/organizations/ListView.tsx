@@ -240,7 +240,9 @@ const ListView: FC = () => {
         }
 
         const nameMatch = u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1;
-        const abbrMatch = u.abbreviation ? u.abbreviation.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1 : false;
+        const abbrMatch = u.abbreviation
+          ? u.abbreviation.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
+          : false;
 
         return nameMatch || abbrMatch;
       },
