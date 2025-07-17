@@ -106,7 +106,8 @@ const PVRequestButton = ({
     () => ({
       disabled: !isValid || loading,
       "aria-label": "Submit",
-      color: "info",
+      color: "success",
+      variant: "contained",
     }),
     [isValid, loading]
   );
