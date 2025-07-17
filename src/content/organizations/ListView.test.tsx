@@ -190,156 +190,154 @@ describe("Implementation Requirements", () => {
     vi.clearAllMocks();
   });
 
-  describe("Program Filter", () => {
-    it("filters programs by name (case-insensitive)", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+  it("filters programs by name (case-insensitive)", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-      });
-
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "biology");
-
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(() => getByText("Medical Research Initiative")).toThrow();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
     });
 
-    it("filters programs by abbreviation (case-insensitive)", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "biology");
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(() => getByText("Medical Research Initiative")).toThrow();
+    });
+  });
 
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "bio");
+  it("filters programs by abbreviation (case-insensitive)", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Biomedical Sciences Program")).toBeInTheDocument();
-        expect(() => getByText("Medical Research Initiative")).toThrow();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
     });
 
-    it("filters programs by partial name match", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "bio");
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Biomedical Sciences Program")).toBeInTheDocument();
+      expect(() => getByText("Medical Research Initiative")).toThrow();
+    });
+  });
 
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "research");
+  it("filters programs by partial name match", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
     });
 
-    it("filters programs by partial abbreviation match", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "research");
 
-      await waitFor(() => {
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
+    });
+  });
 
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "mri");
+  it("filters programs by partial abbreviation match", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-        expect(() => getByText("Biology Research Program")).toThrow();
-      });
+    await waitFor(() => {
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
     });
 
-    it("shows no results when filter doesn't match any program", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "mri");
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
+      expect(() => getByText("Biology Research Program")).toThrow();
+    });
+  });
 
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "nonexistent");
+  it("shows no results when filter doesn't match any program", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(() => getByText("Biology Research Program")).toThrow();
-        expect(() => getByText("Medical Research Initiative")).toThrow();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
     });
 
-    it("shows all programs when filter is cleared", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "nonexistent");
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(() => getByText("Biology Research Program")).toThrow();
+      expect(() => getByText("Medical Research Initiative")).toThrow();
+    });
+  });
 
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "bio");
+  it("shows all programs when filter is cleared", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-      });
-
-      await userEvent.clear(programFilter);
-
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
     });
 
-    it("handles empty/whitespace-only filter input", async () => {
-      const { getByPlaceholderText, getByText } = render(
-        <TestParent>
-          <ListView />
-        </TestParent>
-      );
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "bio");
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+    });
 
-      const programFilter = getByPlaceholderText("Enter a Program");
-      await userEvent.type(programFilter, "   ");
+    await userEvent.clear(programFilter);
 
-      await waitFor(() => {
-        expect(getByText("Biology Research Program")).toBeInTheDocument();
-        expect(getByText("Medical Research Initiative")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
+    });
+  });
+
+  it("handles empty/whitespace-only filter input", async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+    });
+
+    const programFilter = getByPlaceholderText("Enter a Program");
+    await userEvent.type(programFilter, "   ");
+
+    await waitFor(() => {
+      expect(getByText("Biology Research Program")).toBeInTheDocument();
+      expect(getByText("Medical Research Initiative")).toBeInTheDocument();
     });
   });
 });
