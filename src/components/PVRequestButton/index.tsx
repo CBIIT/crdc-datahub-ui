@@ -90,7 +90,7 @@ const PVRequestButton = ({
   const { enqueueSnackbar } = useSnackbar();
   const {
     register,
-    watch,
+    handleSubmit,
     formState: { isValid },
   } = useForm<FormFields>({ mode: "onBlur" });
 
@@ -106,7 +106,8 @@ const PVRequestButton = ({
     () => ({
       disabled: !isValid || loading,
       "aria-label": "Submit",
-      color: "info",
+      color: "success",
+      variant: "contained",
     }),
     [isValid, loading]
   );
@@ -119,37 +120,41 @@ const PVRequestButton = ({
     setConfirmOpen(false);
   };
 
-  const onConfirmDialog = useCallback(async () => {
-    setLoading(true);
-    try {
-      const comment = watch("comment")?.trim();
+  const onConfirmDialog = useCallback(
+    async ({ comment }: FormFields) => {
+      setLoading(true);
+      try {
+        const { data: d, errors } = await requestPV({
+          variables: {
+            submissionID: data?.getSubmission?._id,
+            nodeName,
+            property: offendingProperty,
+            value: offendingValue,
+            comment,
+          },
+        });
 
-      const { data: d, errors } = await requestPV({
-        variables: {
-          submissionID: data?.getSubmission?._id,
-          nodeName,
-          property: offendingProperty,
-          value: offendingValue,
-          comment,
-        },
-      });
+        if (errors || !d?.requestPV?.success) {
+          throw new Error(errors?.[0]?.message || d?.requestPV?.message);
+        }
 
-      if (errors || !d?.requestPV?.success) {
-        throw new Error(errors?.[0]?.message || d?.requestPV?.message);
+        setConfirmOpen(false);
+        enqueueSnackbar(
+          "Your request for a new permissible value has been submitted successfully.",
+          {
+            variant: "success",
+          }
+        );
+        onSubmit?.(offendingProperty, offendingValue);
+      } catch (err) {
+        Logger.error("PVRequestButton: API error received", err);
+        enqueueSnackbar("Oops! Unable to submit the PV request.", { variant: "error" });
+      } finally {
+        setLoading(false);
       }
-
-      setConfirmOpen(false);
-      enqueueSnackbar("Your request for a new permissible value has been submitted successfully.", {
-        variant: "success",
-      });
-      onSubmit?.(offendingProperty, offendingValue);
-    } catch (err) {
-      Logger.error("PVRequestButton: API error received", err);
-      enqueueSnackbar("Oops! Unable to submit the PV request.", { variant: "error" });
-    } finally {
-      setLoading(false);
-    }
-  }, [data?.getSubmission?._id, watch, requestPV, enqueueSnackbar, onSubmit]);
+    },
+    [data?.getSubmission?._id, requestPV, enqueueSnackbar, onSubmit]
+  );
 
   return (
     <>
@@ -241,7 +246,7 @@ const PVRequestButton = ({
         closeText="Cancel"
         onClose={onCloseDialog}
         confirmText="Submit"
-        onConfirm={onConfirmDialog}
+        onConfirm={handleSubmit(onConfirmDialog)}
         confirmButtonProps={confirmButtonProps}
         scroll="body"
       />

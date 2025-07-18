@@ -7,8 +7,7 @@ export const REQUEST_PV: TypedDocumentNode<RequestPVResponse, RequestPVInput> = 
     $value: String!
     $nodeName: String!
     $property: String!
-    $comment: String
-    $CDEId: String
+    $comment: String!
   ) {
     requestPV(
       submissionID: $submissionID
@@ -16,7 +15,6 @@ export const REQUEST_PV: TypedDocumentNode<RequestPVResponse, RequestPVInput> = 
       nodeName: $nodeName
       property: $property
       comment: $comment
-      CDEId: $CDEId
     ) {
       success
       message
@@ -44,13 +42,7 @@ export type RequestPVInput = {
   /**
    * An optional comment explaining the request.
    */
-  comment?: string;
-  /**
-   * An optional CDE ID associated with the request.
-   *
-   * @note Unknown what this is for.
-   */
-  CDEId?: string;
+  comment: string;
 };
 
 export type RequestPVResponse = {

@@ -6,7 +6,7 @@ import { axe } from "vitest-axe";
 
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 import { RequestPVResponse, RequestPVInput, REQUEST_PV } from "@/graphql";
-import { fireEvent, render, waitFor, within } from "@/test-utils";
+import { act, fireEvent, render, waitFor, within } from "@/test-utils";
 
 import {
   SubmissionContext,
@@ -324,7 +324,10 @@ describe("Basic Functionality", () => {
       expect(within(getByRole("dialog")).getByRole("button", { name: /submit/i })).toBeEnabled();
     });
 
-    userEvent.click(within(getByRole("dialog")).getByRole("button", { name: /submit/i }));
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      userEvent.click(within(getByRole("dialog")).getByRole("button", { name: /submit/i }));
+    });
 
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
