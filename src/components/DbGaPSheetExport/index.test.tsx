@@ -137,10 +137,7 @@ describe("Basic Functionality", () => {
     userEvent.click(getByTestId("dbgap-sheet-export-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! Unable to download the dbGaP Loading Sheets.",
-        { variant: "error" }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("mock error", { variant: "error" });
     });
   });
 
@@ -164,10 +161,7 @@ describe("Basic Functionality", () => {
     userEvent.click(getByTestId("dbgap-sheet-export-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! Unable to download the dbGaP Loading Sheets.",
-        { variant: "error" }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Network error", { variant: "error" });
     });
   });
 
@@ -187,6 +181,68 @@ describe("Basic Functionality", () => {
     const { getByTestId } = render(<Button />, {
       wrapper: ({ children }) => (
         <MockParent submission={{ _id: "mock-api-error", dataCommons: "CDS" }} mocks={[mock]}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    userEvent.click(getByTestId("dbgap-sheet-export-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! The API did not return a download link.",
+        {
+          variant: "error",
+        }
+      );
+    });
+  });
+
+  it("should display API error message when GraphQL error has meaningful message", async () => {
+    const mock: MockedResponse<DownloadDbGaPSheetResp, DownloadDbGaPSheetInput> = {
+      request: {
+        query: DOWNLOAD_DB_GAP_SHEET,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("Custom API error message")],
+      },
+    };
+
+    const { getByTestId } = render(<Button />, {
+      wrapper: ({ children }) => (
+        <MockParent submission={{ _id: "mock-custom-error", dataCommons: "CDS" }} mocks={[mock]}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    userEvent.click(getByTestId("dbgap-sheet-export-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Custom API error message", {
+        variant: "error",
+      });
+    });
+  });
+
+  it("should display fallback message when GraphQL error has no meaningful message", async () => {
+    const mock: MockedResponse<DownloadDbGaPSheetResp, DownloadDbGaPSheetInput> = {
+      request: {
+        query: DOWNLOAD_DB_GAP_SHEET,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("   ")], // Whitespace-only message
+      },
+    };
+
+    const { getByTestId } = render(<Button />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          submission={{ _id: "mock-whitespace-error", dataCommons: "CDS" }}
+          mocks={[mock]}
+        >
           {children}
         </MockParent>
       ),
