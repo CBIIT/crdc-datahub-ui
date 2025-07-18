@@ -81,15 +81,13 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
     });
 
     try {
-      const columnNames = columns.map(({ field }) => field);
-
       const data = await fetchAllData<
         ListReleasedDataRecordsResponse,
         ListReleasedDataRecordsInput,
         Record<string, unknown>
       >(
         listReleasedDataRecords,
-        { dataCommonsDisplayName, studyId, nodeType, properties: columnNames },
+        { dataCommonsDisplayName, studyId, nodeType },
         (data) => data.listReleasedDataRecords.nodes,
         (data) => data.listReleasedDataRecords.total,
         { pageSize: 5000, total: Infinity }
@@ -100,8 +98,15 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
       }
 
       const filename = `${studyDisplayName}_${nodeType}_${dayjs().format("YYYYMMDDHHmmss")}.tsv`;
+      const finalData = data.map((item) => {
+        const newItem: Record<string, unknown> = {};
+        columns.forEach((col) => {
+          newItem[col.field] = item[col?.field] || "";
+        });
+        return newItem;
+      });
 
-      downloadBlob(unparse(data, { delimiter: "\t" }), filename, "text/tab-separated-values");
+      downloadBlob(unparse(finalData, { delimiter: "\t" }), filename, "text/tab-separated-values");
     } catch (err) {
       Logger.error("Error during TSV generation", err);
       enqueueSnackbar("Failed to generate the TSV for the selected node.", {

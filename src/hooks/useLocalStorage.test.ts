@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "../test-utils";
+import { act, renderHook, waitFor } from "../test-utils";
 
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -105,5 +105,86 @@ describe("useLocalStorage Hook", () => {
 
     // Restore the original getItem method
     window.localStorage.getItem = originalGetItem;
+  });
+
+  it("should safely handle localStorage write errors", () => {
+    const originalSetItem = window.localStorage.setItem;
+
+    // Mock setItem to throw an error
+    window.localStorage.setItem = () => {
+      throw new Error("localStorage write error");
+    };
+
+    const initialValue = "error test";
+    const { result } = renderHook(() => useLocalStorage<string>("errorKey", initialValue));
+
+    const [, setValue] = result.current;
+
+    act(() => {
+      expect(() => setValue("new value")).not.toThrow();
+    });
+
+    window.localStorage.setItem = originalSetItem; // Restore the original setItem method
+  });
+
+  it("should propagate value changes from a different window", () => {
+    window.localStorage.setItem("crossWindowKey", JSON.stringify("cross-window"));
+
+    const { result, rerender } = renderHook(() =>
+      useLocalStorage<string>("crossWindowKey", "default")
+    );
+
+    const [value] = result.current;
+    expect(value).toBe("cross-window");
+
+    // Simulate a change in localStorage from another window
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: "crossWindowKey",
+          newValue: JSON.stringify("updated value"),
+        })
+      );
+    });
+
+    rerender();
+
+    const [updatedValue] = result.current;
+    expect(updatedValue).toBe("updated value");
+  });
+
+  it("should refetch the value from localStorage when the key changes (no value)", () => {
+    const initialValue = "initial";
+    const { result, rerender } = renderHook(
+      ({ key }) => useLocalStorage<string>(key, initialValue),
+      { initialProps: { key: "dynamicKey" } }
+    );
+
+    const [value] = result.current;
+    expect(value).toBe(initialValue);
+
+    // Change the key and rerender
+    const newKey = "newDynamicKey";
+    rerender({ key: newKey });
+
+    // The value should still be the initial value since localStorage is empty for the new key
+    const [newValue] = result.current;
+    expect(newValue).toBe(initialValue);
+  });
+
+  it("should refetch the value from localStorage when the key changes (value change)", () => {
+    window.localStorage.setItem("firstKey", JSON.stringify({ value: "first" }));
+    window.localStorage.setItem("newKey", JSON.stringify({ value: "second" }));
+
+    const { result, rerender } = renderHook(
+      ({ key }) => useLocalStorage<{ value: string }>(key, { value: "default" }),
+      { initialProps: { key: "firstKey" } }
+    );
+
+    expect(result.current[0]).toEqual({ value: "first" });
+
+    rerender({ key: "newKey" });
+
+    expect(result.current[0]).toEqual({ value: "second" });
   });
 });

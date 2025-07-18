@@ -16,6 +16,7 @@ import React, { ChangeEvent, InputHTMLAttributes, useMemo } from "react";
 
 import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?url";
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import Tooltip from "../Tooltip";
 
 const StyledPopper = styled(Popper)({
   zIndex: 100,
@@ -24,7 +25,6 @@ const StyledPopper = styled(Popper)({
 const StyledResetButton = styled(Button)(({ theme }) => ({
   color: "#083A50",
   fontSize: "16px",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 700,
   lineHeight: "19.6px",
@@ -36,8 +36,8 @@ const StyledResetButton = styled(Button)(({ theme }) => ({
 
 const StyledCloseDialogButton = styled(IconButton)(() => ({
   position: "absolute !important" as "absolute",
-  right: "21px",
-  top: "11px",
+  right: "15px",
+  top: "18px",
   padding: "10px",
   "& svg": {
     color: "#44627C",
@@ -70,7 +70,6 @@ const CheckedIcon = styled("div")({
 const StyledTitle = styled(Typography)({
   fontSize: "16px",
   color: "#083A50 !important",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontStyle: "normal",
   fontWeight: 700,
   lineHeight: "19.6px",
@@ -81,22 +80,65 @@ const StyledCheckbox = styled(Checkbox)({
   marginRight: "5px",
 });
 
-const StyledPaper = styled(Paper)({
+const StyledPaper = styled(Paper, { shouldForwardProp: (p) => p !== "isGrouped" })<{
+  isGrouped: boolean;
+}>(({ isGrouped }) => ({
   width: "295px",
   border: "2px solid #5AB8FF",
   borderRadius: "8px",
-  backgroundColor: "#F2F6FA",
-});
+  backgroundColor: isGrouped ? "#D2DBE4" : "#F2F6FA",
+}));
 
-const StyledColumnList = styled(Box)({
-  overflowY: "auto",
+const StyledColumnContainer = styled(Box)({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "flex-start",
   gap: "10px",
-  marginBottom: "12px",
-  padding: "22px 16px 18px 25px",
+  padding: "22px 20px 18px 20px",
+  maxWidth: "100%",
+});
+
+const StyledColumnList = styled(Stack)({
+  maxWidth: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "flex-start",
+  gap: "10px",
+});
+
+const StyledGroupContainer = styled(Box)({
+  background: "#FFFFFF",
+  padding: "15px",
+  width: "100%",
+  "&:not(:last-of-type)": {
+    marginBottom: "-10px",
+    borderBottom: "0.5px solid #375F9A",
+  },
+});
+
+const StyledGroupTitleContainer = styled(Stack)({
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: "8px",
+});
+
+const StyledGroupTitle = styled(Typography)({
+  textTransform: "uppercase",
+  fontSize: "13px",
+  color: "#083A50",
+});
+
+const StyledScrollRegion = styled("div")({
+  maxHeight: "450px",
+  overflowY: "auto",
+  width: "100%",
+});
+
+const StyledNoColumnsText = styled(Typography)({
+  fontSize: "12px",
+  color: "#083A50",
 });
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
@@ -104,10 +146,10 @@ const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   marginRight: 0,
   marginLeft: 0,
   "& .MuiFormControlLabel-label": {
+    overflowWrap: "anywhere",
     width: "100%",
     fontSize: "16px",
     color: "#083A50 !important",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontStyle: "normal",
     fontWeight: 700,
     lineHeight: "19.6px",
@@ -127,16 +169,145 @@ const StyledFooter = styled(Stack)({
   marginRight: "12px",
 });
 
-type Props<C extends { hideable?: boolean }> = {
+type ColumnToggleProps = {
+  /**
+   * Whether to disable the checkbox.
+   */
+  disabled: boolean;
+  /**
+   * The unique key or identifier for the column.
+   */
+  colKey: string;
+  /**
+   * The display label for the column.
+   */
+  colLabel: string;
+  /**
+   * Whether the checkbox is checked or unchecked
+   */
+  checked: boolean;
+  /**
+   * The onChange curried handler
+   */
+  onChange: (
+    key: string,
+    isHideable: boolean
+  ) => (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
+};
+
+/**
+ * Renders a checkbox for toggling the visibility of a single column.
+ * Disables the checkbox and label for non-hideable columns.
+ */
+const ColumnToggle = React.memo<ColumnToggleProps>(
+  ({ colKey, colLabel, checked, disabled, onChange }: ColumnToggleProps): JSX.Element => (
+    <StyledFormControlLabel
+      control={
+        <StyledCheckbox
+          checked={checked}
+          onChange={onChange(colKey, !disabled)}
+          icon={<UncheckedIcon />}
+          checkedIcon={<CheckedIcon />}
+          disabled={disabled}
+          inputProps={
+            {
+              "data-testid": `checkbox-${colKey}`,
+            } as InputHTMLAttributes<HTMLInputElement>
+          }
+        />
+      }
+      label={colLabel}
+      disabled={disabled}
+    />
+  ),
+  isEqual
+);
+
+export type ExtendedColumn = {
+  /**
+   * Indicates if the column can be hidden by the user.
+   * If false, the column will always be visible and its checkbox will be disabled.
+   */
+  hideable?: boolean;
+  /**
+   * Indicates if the column is hidden by default.
+   * If true, the column will be hidden when the default visibility model is applied.
+   */
+  defaultHidden?: boolean;
+};
+
+export type ColumnVisibilityPopperGroup = {
+  /**
+   * The name of the group.
+   * This should match the `groupName` property of the columns to be grouped.
+   */
+  name: string;
+  /**
+   * (Optional) A description for the group.
+   * This can be used to provide additional context or information about the group.
+   */
+  description?: string;
+};
+
+export type ColumnVisibilityPopperProps<C extends ExtendedColumn> = {
+  /**
+   * The element to which the popper is anchored.
+   */
   anchorEl: HTMLElement | null;
+  /**
+   * If true, the popper is visible.
+   */
   open: boolean;
+  /**
+   * An array of column objects representing the columns in the table.
+   */
   columns: C[];
+  /**
+   * (Optional) An array of group objects to categorize columns.
+   *
+   * @note Must include every `groupName` used in the `columns` prop if grouping is desired.
+   */
+  groups?: ColumnVisibilityPopperGroup[];
+  /**
+   * The current visibility model for the columns.
+   */
   columnVisibilityModel: ColumnVisibilityModel;
+  /**
+   * If true, columns will be sorted alphabetically by their labels.
+   * Default is true.
+   */
   sortAlphabetically?: boolean;
+  /**
+   * Callback fired when the column visibility model changes.
+   *
+   * @param model The updated column visibility model.
+   */
   onColumnVisibilityModelChange: (model: ColumnVisibilityModel) => void;
+  /**
+   * Callback fired when the popper is requested to be closed.
+   */
   onClose: () => void;
+  /**
+   * Gets the unique key or identifier for a column.
+   *
+   * @param column The column object.
+   * @returns The unique key for the column.
+   */
   getColumnKey: (column: C) => string;
+  /**
+   * Gets the display label for a column.
+   *
+   * @param column The column object.
+   * @returns The display label for the column.
+   */
   getColumnLabel: (column: C) => string;
+  /**
+   * Gets the group name for a column.
+   * Should return a string that matches one of the `name` values in the `groups` prop.
+   *
+   * @note You must also provide `groups` prop to the {@link ColumnVisibilityPopper} component for grouping to work. See {@link ColumnVisibilityPopperGroup}.
+   */
+  getColumnGroup?: (column: C) => string;
 };
 
 /**
@@ -144,24 +315,26 @@ type Props<C extends { hideable?: boolean }> = {
  * Supports non-hideable columns by disabling their checkboxes and labels.
  *
  * @template C - The type of the column objects
- * @param {Props} props
+ * @param {ColumnVisibilityPopperProps} props
  * @returns {JSX.Element}
  */
-const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: boolean }>({
+const ColumnVisibilityPopper = <C extends ExtendedColumn>({
   anchorEl,
   open,
   columns,
+  groups,
   columnVisibilityModel,
   sortAlphabetically = true,
   onColumnVisibilityModelChange,
   onClose,
   getColumnKey,
   getColumnLabel,
-}: Props<C>): JSX.Element => {
+  getColumnGroup,
+}: ColumnVisibilityPopperProps<C>): JSX.Element => {
   /**
    * The defined default column visibility.
    */
-  const defaultVisibilityModel = useMemo(
+  const defaultVisibilityModel = useMemo<ColumnVisibilityModel>(
     () =>
       columns.reduce<ColumnVisibilityModel>((model, column) => {
         const key = getColumnKey(column);
@@ -174,7 +347,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
   /**
    * Indicates whether the current columns match the default model.
    */
-  const isShowingDefaultVisibleColumns = useMemo(
+  const isShowingDefaultVisibleColumns = useMemo<boolean>(
     () => isEqual(columnVisibilityModel, defaultVisibilityModel),
     [columnVisibilityModel, defaultVisibilityModel]
   );
@@ -228,7 +401,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
     onColumnVisibilityModelChange({ ...defaultVisibilityModel });
   };
 
-  const sortedColumns = useMemo(() => {
+  const sortedColumns = useMemo<C[]>(() => {
     if (!sortAlphabetically) {
       return columns;
     }
@@ -240,12 +413,32 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
     });
   }, [columns, getColumnLabel, sortAlphabetically]);
 
-  const hideableColumns = columns.filter((column) => column.hideable !== false);
+  const groupedColumns = useMemo<Array<ColumnVisibilityPopperGroup & { columns: C[] }>>(() => {
+    if (!Array.isArray(groups) || groups.length === 0 || typeof getColumnGroup !== "function") {
+      return [];
+    }
 
-  const allHideableChecked = hideableColumns.every((column) => {
-    const key = getColumnKey(column);
-    return columnVisibilityModel[key];
-  });
+    const grouped = [...groups].map((group) => ({
+      ...group,
+      columns: sortedColumns.filter((column) => getColumnGroup(column) === group.name),
+    }));
+
+    return grouped;
+  }, [groups, sortedColumns, getColumnGroup]);
+
+  const hideableColumns = useMemo<C[]>(
+    () => columns.filter((column) => column.hideable !== false),
+    [columns]
+  );
+
+  const allHideableChecked = useMemo<boolean>(
+    () =>
+      hideableColumns.every((column) => {
+        const key = getColumnKey(column);
+        return columnVisibilityModel[key];
+      }),
+    [hideableColumns, columnVisibilityModel, getColumnKey]
+  );
 
   return (
     <StyledPopper
@@ -264,7 +457,7 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
       data-testid="column-visibility-popper"
     >
       <ClickAwayListener onClickAway={onClose}>
-        <StyledPaper elevation={8} role="presentation">
+        <StyledPaper elevation={8} role="presentation" isGrouped={groups?.length > 0}>
           <StyledCloseDialogButton
             aria-label="close"
             data-testid="column-visibility-popper-close-button"
@@ -273,35 +466,55 @@ const ColumnVisibilityPopper = <C extends { hideable?: boolean; defaultHidden?: 
             <CloseIconSvg />
           </StyledCloseDialogButton>
 
-          <StyledColumnList data-testid="column-list">
-            <StyledTitle>Displayed Columns</StyledTitle>
-
-            {sortedColumns?.map((column) => {
-              const key = getColumnKey(column);
-              const isHideable = column.hideable !== false;
-              return (
-                <StyledFormControlLabel
-                  key={key}
-                  control={
-                    <StyledCheckbox
-                      checked={columnVisibilityModel[key]}
-                      onChange={handleCheckboxChange(key, isHideable)}
-                      icon={<UncheckedIcon />}
-                      checkedIcon={<CheckedIcon />}
-                      disabled={!isHideable}
-                      inputProps={
-                        {
-                          "data-testid": `checkbox-${key}`,
-                        } as InputHTMLAttributes<HTMLInputElement>
-                      }
-                    />
-                  }
-                  label={getColumnLabel(column)}
-                  disabled={!isHideable}
-                />
-              );
-            })}
-          </StyledColumnList>
+          <StyledColumnContainer data-testid="column-list">
+            <StyledTitle>Visible Columns</StyledTitle>
+            <StyledScrollRegion>
+              {groupedColumns.length > 0 ? (
+                groupedColumns.map(({ name, description, columns }) => (
+                  <StyledGroupContainer key={name} data-testid={`column-group-${name}`}>
+                    <StyledGroupTitleContainer>
+                      <StyledGroupTitle>{name}</StyledGroupTitle>
+                      {description && (
+                        <Tooltip title={description} data-testid="column-group-tooltip" arrow />
+                      )}
+                    </StyledGroupTitleContainer>
+                    <StyledColumnList>
+                      {columns.map((column) => {
+                        const colKey = getColumnKey(column);
+                        return (
+                          <ColumnToggle
+                            key={colKey}
+                            colKey={colKey}
+                            colLabel={getColumnLabel(column)}
+                            disabled={column.hideable === false}
+                            checked={columnVisibilityModel[colKey]}
+                            onChange={handleCheckboxChange}
+                          />
+                        );
+                      })}
+                      {columns.length === 0 && <StyledNoColumnsText>N/A</StyledNoColumnsText>}
+                    </StyledColumnList>
+                  </StyledGroupContainer>
+                ))
+              ) : (
+                <StyledColumnList>
+                  {sortedColumns.map((column) => {
+                    const colKey = getColumnKey(column);
+                    return (
+                      <ColumnToggle
+                        key={colKey}
+                        colKey={colKey}
+                        colLabel={getColumnLabel(column)}
+                        disabled={column.hideable === false}
+                        checked={columnVisibilityModel[colKey]}
+                        onChange={handleCheckboxChange}
+                      />
+                    );
+                  })}
+                </StyledColumnList>
+              )}
+            </StyledScrollRegion>
+          </StyledColumnContainer>
 
           <StyledFooter>
             <StyledFormControlLabel
