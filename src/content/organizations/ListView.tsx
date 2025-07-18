@@ -234,10 +234,18 @@ const ListView: FC = () => {
     }
 
     const filters: FilterFunction<T>[] = [
-      (u: T) =>
-        orgFilter && orgFilter.length > 0
-          ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
-          : true,
+      (u: T) => {
+        if (!orgFilter || orgFilter.trim().length < 1) {
+          return true;
+        }
+
+        const nameMatch = u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1;
+        const abbrMatch = u.abbreviation
+          ? u.abbreviation.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
+          : false;
+
+        return nameMatch || abbrMatch;
+      },
       (u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true),
       (u: T) => {
         if (!studyFilter || studyFilter.trim().length < 1) {

@@ -40,7 +40,9 @@ export const decorators: Decorator[] = [
       <MemoryRouter initialEntries={initialEntries}>
         <Story />
       </MemoryRouter>
-    ) : <Story />;
+    ) : (
+      <Story />
+    );
   },
   (Story) => (
     <SnackbarProvider
