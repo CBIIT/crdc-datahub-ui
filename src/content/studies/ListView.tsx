@@ -3,6 +3,8 @@ import { Alert, Box, Button, Container, Stack, styled, TableCell, TableHead } fr
 import { ElementType, useRef, useState } from "react";
 import { Link, LinkProps, useLocation } from "react-router-dom";
 
+import TooltipList from "@/components/SummaryList/TooltipList";
+
 import ApprovedStudyFilters, {
   FilterForm,
 } from "../../components/AdminPortal/Studies/ApprovedStudyFilters";
@@ -115,20 +117,31 @@ const columns: Column<ApprovedStudy>[] = [
   },
   {
     label: "Acronym",
-    renderValue: (a) => (
-      <>
-        <TruncatedText text={a.studyAbbreviation} />
-        {a.pendingModelChange ? (
-          <StyledTooltip
-            title="Data submission is Pending on Data Model Review."
-            placement="top"
-            arrow
-          >
-            <StyledAsterisk />
-          </StyledTooltip>
-        ) : null}
-      </>
-    ),
+    renderValue: (a) => {
+      const pendingConditions = [
+        {
+          check: a.controlledAccess && !a.dbGaPID?.trim()?.length,
+          tooltip: "Data submission is Pending on dbGaPID Registration.",
+        },
+        {
+          check: a.pendingModelChange,
+          tooltip: "Data submission is Pending on Data Model Review.",
+        },
+      ]
+        .filter((pc) => pc.check)
+        .map((pc) => pc.tooltip);
+
+      return (
+        <>
+          <TruncatedText text={a.studyAbbreviation} />
+          {pendingConditions?.length > 0 ? (
+            <StyledTooltip title={<TooltipList data={pendingConditions} />} placement="top" arrow>
+              <StyledAsterisk data-testid={`asterisk-${a.studyAbbreviation}`} />
+            </StyledTooltip>
+          ) : null}
+        </>
+      );
+    },
     field: "studyAbbreviation",
     sx: {
       width: "144px",

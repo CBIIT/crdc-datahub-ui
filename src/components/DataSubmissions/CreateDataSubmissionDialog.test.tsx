@@ -1042,7 +1042,7 @@ describe("Implementation Requirements", () => {
     });
 
     expect(getByRole("tooltip")).toHaveTextContent(
-      "dbGapID is required for controlled-access studies.",
+      "dbGaPID is required for controlled-access studies.",
       { normalizeWhitespace: true }
     );
   });
