@@ -56,7 +56,7 @@ export const TOOLTIP_TEXT = {
   },
   QUALITY_CONTROL: {
     TABLE: {
-      CLICK_SEE_DETAILS: "Click on See Details to view all issues for this record.",
+      CLICK_TO_VIEW_ALL_ISSUES: "Click to view all issues for this record.",
     },
   },
 } as const;
