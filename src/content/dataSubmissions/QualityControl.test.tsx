@@ -927,8 +927,8 @@ describe("Table", () => {
                 warnings: [
                   {
                     code: null,
-                    title: "mock-long-warning-title-1",
-                    description: "mock-long-warning-description-1",
+                    title: "mock-very-very-long-warning-title-1",
+                    description: "mock-very-very-long-warning-description-1",
                   },
                 ],
               }),
@@ -982,12 +982,12 @@ describe("Table", () => {
 
     await waitFor(() => {
       expect(getByText("1-submitted-id-...")).toBeInTheDocument();
-      expect(getByText("1-fake-long-nod...")).toBeInTheDocument();
+      expect(getByText("1-fake-long-...")).toBeInTheDocument();
     });
 
-    expect(getByText("mock-long-warning-ti...")).toBeInTheDocument();
+    expect(getByText("mock-very-very-long-warning-ti...")).toBeInTheDocument();
     expect(getByText(/mock-error-1/)).toBeInTheDocument();
-    expect(getByText("2-fake-long-nod...")).toBeInTheDocument();
+    expect(getByText("2-fake-long-...")).toBeInTheDocument();
     expect(getByText("5/22/2023")).toBeInTheDocument();
     expect(getByText("7/31/2024")).toBeInTheDocument();
   });
@@ -1208,21 +1208,11 @@ describe("Implementation Requirements", () => {
                 submittedID: "id-001",
                 severity: "Error",
                 validatedDate: "2023-05-22T12:52:00Z",
-                errors: [
-                  errorMessageFactory.build({
-                    code: null,
-                    title: "error-1",
-                    description: "desc-1",
-                  }),
-                  errorMessageFactory.build({
-                    code: null,
-                    title: "error-2",
-                    description: "desc-2",
-                  }),
-                ],
-                warnings: [
-                  errorMessageFactory.build({ code: null, title: "warn-1", description: "desc-3" }),
-                ],
+                errors: errorMessageFactory.build(2, (index) => ({
+                  title: `error-${index}`,
+                  description: `desc-${index}`,
+                })),
+                warnings: [errorMessageFactory.build({ title: "warn-1", description: "desc-3" })],
                 issueCount: 3,
               }),
               qcResultFactory.build({
@@ -1327,7 +1317,7 @@ describe("Implementation Requirements", () => {
     expect(await findByText("Issue(s)")).toBeInTheDocument();
   });
 
-  it("should display only the first issue message, truncated, and append ', Others' if multiple issues exist in Expanded view", async () => {
+  it("should display only the first issue message, truncated, and append 'and other #' if multiple issues exist in Expanded view", async () => {
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
       request: {
         query: SUBMISSION_QC_RESULTS,
@@ -1346,12 +1336,10 @@ describe("Implementation Requirements", () => {
                 validatedDate: "2023-05-22T12:52:00Z",
                 errors: [
                   errorMessageFactory.build({
-                    code: null,
                     title: "A very long error message that should be truncated for display",
                     description: "desc-1",
                   }),
                   errorMessageFactory.build({
-                    code: null,
                     title: "error-2",
                     description: "desc-2",
                   }),
@@ -1367,7 +1355,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId, findByText, getByText } = render(<QualityControl />, {
+    const { getByTestId, findByText, findByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
           mocks={[
@@ -1388,12 +1376,12 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
 
-    expect(await findByText(/A very long error me.../)).toBeInTheDocument();
+    expect(await findByText(/A very long error message that.../)).toBeInTheDocument();
 
-    expect(getByText(/Others/)).toBeInTheDocument();
+    expect(await findByTestId("others-text")).toHaveTextContent("other 2");
   });
 
-  it("should show tooltip on 'Others' with correct message in Expanded view", async () => {
+  it("should show tooltip on 'other #' with correct message in Expanded view", async () => {
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
       request: {
         query: SUBMISSION_QC_RESULTS,
@@ -1410,18 +1398,10 @@ describe("Implementation Requirements", () => {
                 submittedID: "id-001",
                 severity: "Error",
                 validatedDate: "2023-05-22T12:52:00Z",
-                errors: [
-                  errorMessageFactory.build({
-                    code: null,
-                    title: "error-1",
-                    description: "desc-1",
-                  }),
-                  errorMessageFactory.build({
-                    code: null,
-                    title: "error-2",
-                    description: "desc-2",
-                  }),
-                ],
+                errors: errorMessageFactory.build(2, (index) => ({
+                  title: `error-${index}`,
+                  description: `desc-${index}`,
+                })),
                 warnings: [],
                 issueCount: 2,
               }),
@@ -1431,7 +1411,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId, findByText } = render(<QualityControl />, {
+    const { getByTestId, findByText, findByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
           mocks={[
@@ -1452,11 +1432,67 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
 
-    const others = await findByText("Others");
+    const others = await findByTestId("others-text");
     userEvent.hover(others);
 
-    expect(
-      await findByText("Click on See Details to view all issues for this record.")
-    ).toBeInTheDocument();
+    expect(await findByText("Click to view all issues for this record.")).toBeInTheDocument();
+  });
+
+  it("should open the error details dialog when clicking on 'other #'", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: errorMessageFactory.build(3, (index) => ({
+                  title: `error-${index}`,
+                  description: `desc-${index}`,
+                })),
+                warnings: [],
+                issueCount: 3,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-others-dialog" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    const others = await findByTestId("others-text");
+    userEvent.click(others);
+
+    expect(await findByText("Validation Issues")).toBeInTheDocument();
+    expect(await findByText(/For Node-01 Node ID id-001/i)).toBeInTheDocument();
   });
 });

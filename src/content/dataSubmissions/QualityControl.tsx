@@ -285,7 +285,10 @@ const expandedColumns: Column<QCResult>[] = [
                       disableInteractive
                       arrow
                     >
-                      <StyledOthersText onClick={() => handleOpenErrorDialog?.(data)}>
+                      <StyledOthersText
+                        onClick={() => handleOpenErrorDialog?.(data)}
+                        data-testid="others-text"
+                      >
                         other {data.issueCount - 1}
                       </StyledOthersText>
                     </StyledTooltip>
