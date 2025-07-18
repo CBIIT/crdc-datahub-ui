@@ -20,7 +20,7 @@ exports[`Snapshots > should match the nominal state snapshot 1`] = `
     >
       Notes:
       <ul
-        class="css-19aiaf3"
+        class="css-yzb7y1"
       >
         <li>
           Columns with Empty values will leave existing data unchanged.

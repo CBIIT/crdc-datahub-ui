@@ -1,16 +1,25 @@
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, Button, Stack, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import React, { FC, MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
 import QualityControlFilters from "../../components/DataSubmissions/QualityControlFilters";
 import DoubleLabelSwitch from "../../components/DoubleLabelSwitch";
-import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import ErrorDetailsDialog, { ErrorDetailsIssue } from "../../components/ErrorDetailsDialog/v2";
 import GenericTable, { Column } from "../../components/GenericTable";
-import { NodeComparisonProps } from "../../components/NodeComparison";
+import NodeComparison from "../../components/NodeComparison";
+import PVRequestButton from "../../components/PVRequestButton";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import TruncatedText from "../../components/TruncatedText";
 import { ValidationErrorCodes } from "../../config/ValidationErrors";
@@ -21,6 +30,9 @@ import {
   AggregatedSubmissionQCResultsResp,
   SubmissionQCResultsInput,
   SubmissionQCResultsResp,
+  GET_PENDING_PVS,
+  GetPendingPVsInput,
+  GetPendingPVsResponse,
 } from "../../graphql";
 import { FormatDate, Logger, titleCase } from "../../utils";
 
@@ -78,6 +90,10 @@ const StyledIssuesTextWrapper = styled(Box)({
 const StyledDateTooltip = styled(StyledTooltip)(() => ({
   cursor: "pointer",
 }));
+
+const StyledPvButtonWrapper = styled(Box)({
+  marginLeft: "89px",
+});
 
 type RowData = QCResult | AggregatedQCResult;
 
@@ -270,28 +286,6 @@ const QualityControl: FC = () => {
   });
   const tableRef = useRef<TableMethods>(null);
 
-  const errorDescriptions = useMemo(() => {
-    if (selectedRow && "errors" in selectedRow) {
-      return selectedRow.errors?.map((error) => `(Error) ${error.description}`) ?? [];
-    }
-    return [];
-  }, [selectedRow]);
-
-  const warningDescriptions = useMemo(() => {
-    if (selectedRow && "warnings" in selectedRow) {
-      return (
-        (selectedRow as QCResult).warnings?.map((warning) => `(Warning) ${warning.description}`) ??
-        []
-      );
-    }
-    return [];
-  }, [selectedRow]);
-
-  const allDescriptions = useMemo(
-    () => [...errorDescriptions, ...warningDescriptions],
-    [errorDescriptions, warningDescriptions]
-  );
-
   const [submissionQCResults] = useLazyQuery<SubmissionQCResultsResp, SubmissionQCResultsInput>(
     SUBMISSION_QC_RESULTS,
     {
@@ -308,9 +302,17 @@ const QualityControl: FC = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  useEffect(() => {
-    tableRef.current?.refresh();
-  }, [metadataValidationStatus, fileValidationStatus]);
+  const {
+    data: pendingPVs,
+    refetch: refetchPendingPVs,
+    updateQuery: updatePendingPVs,
+  } = useQuery<GetPendingPVsResponse, GetPendingPVsInput>(GET_PENDING_PVS, {
+    variables: { submissionID: submissionId },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+    skip: !submissionId,
+  });
 
   const handleFetchQCResults = async (fetchListing: FetchListing<QCResult>, force: boolean) => {
     const { first, offset, sortDirection, orderBy } = fetchListing || {};
@@ -468,26 +470,72 @@ const QualityControl: FC = () => {
     [handleOpenErrorDialog, handleExpandClick]
   );
 
-  const comparisonData = useMemo<NodeComparisonProps | undefined>(() => {
-    if (submissionStatus === "Completed") {
-      return undefined;
-    }
-    if (!selectedRow || !("submittedID" in selectedRow && "type" in selectedRow)) {
-      return undefined;
-    }
-    if (
-      !selectedRow?.errors?.some((error) => error.code === ValidationErrorCodes.UPDATING_DATA) &&
-      !selectedRow?.warnings?.some((warning) => warning.code === ValidationErrorCodes.UPDATING_DATA)
-    ) {
-      return undefined;
+  const handleNewPVRequest = useCallback(
+    (offendingProperty: string, offendingValue: string) => {
+      updatePendingPVs((prev) => ({
+        getPendingPVs: [
+          ...(prev?.getPendingPVs || []),
+          { id: `${Date.now()}`, offendingProperty, value: offendingValue },
+        ],
+      }));
+
+      // NOTE: We refetch after small delay to allow cache to propagate
+      setTimeout(refetchPendingPVs, 2000);
+    },
+    [updatePendingPVs, refetchPendingPVs]
+  );
+
+  const issueList = useMemo<ErrorDetailsIssue[]>(() => {
+    if (!selectedRow || !("errors" in selectedRow) || !("warnings" in selectedRow)) {
+      return [];
     }
 
-    return {
-      submissionID: submissionId,
-      nodeType: selectedRow.type,
-      submittedID: selectedRow.submittedID,
-    };
-  }, [submissionStatus, submissionId, selectedRow]);
+    const allIssues: ErrorDetailsIssue[] = [];
+    selectedRow.errors?.forEach((e) => {
+      const issue: ErrorDetailsIssue = { severity: "error", message: e.description };
+
+      if (e.code === ValidationErrorCodes.INVALID_PERMISSIBLE) {
+        const isDisabled = pendingPVs?.getPendingPVs?.some(
+          (pv) => pv.offendingProperty === e.offendingProperty && pv.value === e.offendingValue
+        );
+
+        issue.action = (
+          <StyledPvButtonWrapper>
+            <PVRequestButton
+              onSubmit={handleNewPVRequest}
+              offendingProperty={e.offendingProperty}
+              offendingValue={e.offendingValue}
+              nodeName={selectedRow.type}
+              disabled={isDisabled}
+            />
+          </StyledPvButtonWrapper>
+        );
+      }
+
+      allIssues.push(issue);
+    });
+    selectedRow.warnings?.forEach((w) => {
+      const issue: ErrorDetailsIssue = { severity: "warning", message: w.description };
+
+      if (w.code === ValidationErrorCodes.UPDATING_DATA && submissionStatus !== "Completed") {
+        issue.action = (
+          <NodeComparison
+            nodeType={selectedRow.type}
+            submissionID={submissionId}
+            submittedID={selectedRow.submittedID}
+          />
+        );
+      }
+
+      allIssues.push(issue);
+    });
+
+    return allIssues;
+  }, [selectedRow, submissionStatus, pendingPVs, handleNewPVRequest]);
+
+  useEffect(() => {
+    tableRef.current?.refresh();
+  }, [metadataValidationStatus, fileValidationStatus]);
 
   return (
     <>
@@ -536,16 +584,12 @@ const QualityControl: FC = () => {
         <ErrorDetailsDialog
           open={openErrorDialog}
           onClose={() => setOpenErrorDialog(false)}
-          header={null}
-          title="Validation Issues"
-          nodeInfo={`For ${titleCase((selectedRow as QCResult)?.type)}${
+          preHeader="Data Submission"
+          header="Validation Issues"
+          postHeader={`For ${titleCase((selectedRow as QCResult)?.type)}${
             (selectedRow as QCResult)?.type?.toLocaleLowerCase() !== "data file" ? " Node" : ""
           } ID ${(selectedRow as QCResult)?.submittedID}`}
-          errors={allDescriptions}
-          errorCount={`${allDescriptions?.length || 0} ${
-            allDescriptions?.length === 1 ? "ISSUE" : "ISSUES"
-          }`}
-          comparisonData={comparisonData}
+          issues={issueList}
         />
       )}
     </>
