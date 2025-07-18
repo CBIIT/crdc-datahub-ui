@@ -1060,4 +1060,15 @@ describe("shouldDisableRelease", () => {
   it("should not throw an exception when Submission is null", () => {
     expect(() => utils.shouldDisableRelease(null as Submission)).not.toThrow();
   });
+
+  it("should not allow release when cross validation status is 'Error' and there are no Submitted/Released submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: "Error",
+      otherSubmissions: null,
+    });
+
+    expect(result.disable).toBe(true);
+    expect(result.requireAlert).toBe(false);
+  });
 });

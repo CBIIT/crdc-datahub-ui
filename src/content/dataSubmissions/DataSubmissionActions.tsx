@@ -168,10 +168,13 @@ const DataSubmissionActions = ({ onAction }: Props) => {
     return shouldEnableSubmit(data, user);
   }, [data, user]);
 
-  const releaseActionButton: ReleaseInfo = useMemo(
-    () => shouldDisableRelease(data?.getSubmission),
-    [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
-  );
+  const releaseActionButton: ReleaseInfo = useMemo(() => {
+    if (!submission?._id) {
+      return { disable: true, requireAlert: false };
+    }
+
+    return shouldDisableRelease(submission);
+  }, [submission?._id, submission?.crossSubmissionStatus, submission?.otherSubmissions]);
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
