@@ -64,6 +64,7 @@ const StyledErrorDetailsButton = styled(Button)({
   textDecorationLine: "underline",
   textTransform: "none",
   marginLeft: "auto",
+  paddingLeft: "8px",
   "&:hover": {
     background: "transparent",
     textDecorationLine: "underline",
@@ -101,11 +102,9 @@ const StyledPvButtonWrapper = styled(Box)({
 const StyledOthersText = styled("span")({
   display: "inline",
   textDecoration: "underline",
-  textDecorationStyle: "dashed",
-  textUnderlineOffset: "4px",
   cursor: "pointer",
-  whiteSpace: "nowrap",
   color: "#0B6CB1",
+  whiteSpace: "nowrap",
   fontSize: "14px",
   fontStyle: "normal",
   fontWeight: 600,
@@ -127,6 +126,19 @@ const StyledHeaderCell = styled(TableCell)({
   },
   "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
     color: "#fff !important",
+  },
+});
+
+const StyledTableCell = styled(TableCell)({
+  fontSize: "14px",
+  color: "#083A50 !important",
+  "&.MuiTableCell-root": {
+    padding: "14px 4px 12px",
+    overflowWrap: "anywhere",
+    whiteSpace: "nowrap",
+  },
+  "&:last-of-type": {
+    paddingRight: "4px",
   },
 });
 
@@ -194,7 +206,7 @@ const expandedColumns: Column<QCResult>[] = [
     label: "Node Type",
     renderValue: (data) => (
       <StyledNodeType>
-        <TruncatedText text={data?.type} maxCharacters={15} disableInteractiveTooltip={false} />
+        <TruncatedText text={data?.type} maxCharacters={12} disableInteractiveTooltip={false} />
       </StyledNodeType>
     ),
     field: "type",
@@ -259,28 +271,30 @@ const expandedColumns: Column<QCResult>[] = [
               <StyledIssuesTextWrapper>
                 <TruncatedText
                   text={data.errors?.[0]?.title || data.warnings?.[0]?.title}
-                  maxCharacters={20}
+                  maxCharacters={30}
                   wrapperSx={{ display: "inline" }}
                   labelSx={{ display: "inline" }}
                   disableInteractiveTooltip={false}
                 />
                 {data.issueCount > 1 ? (
                   <>
-                    {", "}
+                    {" and "}
                     <StyledTooltip
-                      title={TOOLTIP_TEXT.QUALITY_CONTROL.TABLE.CLICK_SEE_DETAILS}
+                      title={TOOLTIP_TEXT.QUALITY_CONTROL.TABLE.CLICK_TO_VIEW_ALL_ISSUES}
                       placement="top"
                       disableInteractive
                       arrow
                     >
-                      <StyledOthersText>Others</StyledOthersText>
+                      <StyledOthersText onClick={() => handleOpenErrorDialog?.(data)}>
+                        other {data.issueCount - 1}
+                      </StyledOthersText>
                     </StyledTooltip>
                   </>
                 ) : null}
               </StyledIssuesTextWrapper>
 
               <StyledErrorDetailsButton
-                onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
+                onClick={() => handleOpenErrorDialog?.(data)}
                 variant="text"
                 disableRipple
                 disableTouchRipple
@@ -614,6 +628,7 @@ const QualityControl: FC = () => {
           defaultOrder="desc"
           position="both"
           CustomTableHeaderCell={StyledHeaderCell}
+          CustomTableBodyCell={StyledTableCell}
           noContentText="No validation issues found. Either no validation has been conducted yet, or all issues have been resolved."
           setItemKey={(item, idx) => `${idx}_${"title" in item ? item?.title : item?.batchID}`}
           onFetchData={handleFetchData}
