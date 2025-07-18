@@ -61,15 +61,18 @@ const DbGaPSheetExport: FC<DbGaPSheetExportProps> = ({ disabled, ...rest }) => {
         throw error;
       }
       if (!data?.downloadDBGaPLoadSheet) {
-        throw new Error("No download URL returned");
+        throw new Error("Oops! The API did not return a download link.");
       }
 
       window.open(data.downloadDBGaPLoadSheet, "_blank", "noopener");
     } catch (error) {
       Logger.error("Error downloading dbGaP sheets.", error);
-      enqueueSnackbar(`Oops! Unable to download the dbGaP Loading Sheets.`, {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        error?.message?.trim() || "Oops! Unable to download the dbGaP Loading Sheets.",
+        {
+          variant: "error",
+        }
+      );
     } finally {
       setDownloading(false);
     }
