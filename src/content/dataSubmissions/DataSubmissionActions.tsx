@@ -169,7 +169,7 @@ const DataSubmissionActions = ({ onAction }: Props) => {
   }, [data, user]);
 
   const releaseActionButton: ReleaseInfo = useMemo(() => {
-    if (!data?.getSubmission?._id) {
+    if (!submission?._id) {
       return { disable: true, requireAlert: false };
     }
 
