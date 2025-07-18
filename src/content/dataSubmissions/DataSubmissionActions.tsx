@@ -117,8 +117,7 @@ const actionConfig: Record<ActionKey, ActionConfig> = {
   },
   Release: {
     hasPermission: (user, submission) =>
-      hasPermission(user, "data_submission", "review", submission) ||
-      hasPermission(user, "data_submission", "admin_submit", submission),
+      hasPermission(user, "data_submission", "review", submission),
     statuses: ["Submitted"],
   },
   Withdraw: {
@@ -170,13 +169,12 @@ const DataSubmissionActions = ({ onAction }: Props) => {
   }, [data, user]);
 
   const releaseActionButton: ReleaseInfo = useMemo(() => {
-    // If user has admin submit permissions, then always allow release action
-    if (hasPermission(user, "data_submission", "admin_submit", submission, true)) {
-      return { disable: false, requireAlert: false };
+    if (!data?.getSubmission?._id) {
+      return { disable: true, requireAlert: false };
     }
 
     return shouldDisableRelease(submission);
-  }, [user?.permissions, submission?.crossSubmissionStatus, submission?.otherSubmissions]);
+  }, [submission?._id, submission?.crossSubmissionStatus, submission?.otherSubmissions]);
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
