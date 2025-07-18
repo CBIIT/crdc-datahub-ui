@@ -250,6 +250,7 @@ type QCResult = {
   severity: "Error" | "Warning";
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;
+  issueCount: number;
   errors: ErrorMessage[];
   warnings: ErrorMessage[];
 };

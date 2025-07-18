@@ -38,6 +38,7 @@ const FullQCResultFragment = gql`
       offendingProperty
       offendingValue
     }
+    issueCount
   }
 `;
 
@@ -82,12 +83,8 @@ export type Input = {
   nodeTypes?: string[];
   batchIDs?: number[];
   severities?: string;
-  first?: number;
-  offset?: number;
-  orderBy?: string;
-  sortDirection?: string;
   partial?: boolean;
-};
+} & BasePaginationParams;
 
 export type Response<IsPartial = false> = {
   submissionQCResults: ValidationResult<
