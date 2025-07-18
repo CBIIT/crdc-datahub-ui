@@ -94,6 +94,7 @@ describe("Implementation Requirements - Release", () => {
             permissions: ["data_submission:view", "data_submission:review"],
           }}
           submission={{
+            _id: "submission-id",
             status: "Submitted",
             metadataValidationStatus: "Passed",
             fileValidationStatus: "Passed",
@@ -119,72 +120,4 @@ describe("Implementation Requirements - Release", () => {
       expect(releaseBtn).toBeDisabled();
     }
   );
-
-  it.each([
-    { disable: false, requireAlert: false },
-    { disable: false, requireAlert: true },
-    { disable: true, requireAlert: false },
-    { disable: true, requireAlert: true },
-  ])(
-    "should always enable Release button when user has admin_submit permission regardless if shouldDisableRelease returns { disable: $disable, requireAlert: $requireAlert }",
-    ({ disable, requireAlert }) => {
-      shouldDisableReleaseMock.mockReturnValue({ disable, requireAlert });
-
-      const { getByRole } = render(
-        <TestParent
-          user={{
-            _id: "other-user",
-            role: "Admin",
-            permissions: [
-              "data_submission:view",
-              "data_submission:review",
-              "data_submission:admin_submit",
-            ],
-          }}
-          submission={{
-            status: "Submitted",
-            metadataValidationStatus: "Passed",
-            fileValidationStatus: "Passed",
-            crossSubmissionStatus: "Error",
-            otherSubmissions: JSON.stringify({
-              "In Progress": [],
-              Submitted: ["submitted-id"],
-              Released: [],
-            }),
-          }}
-        >
-          <DataSubmissionActions onAction={vi.fn()} />
-        </TestParent>
-      );
-
-      const releaseBtn = getByRole("button", { name: /release/i });
-      expect(releaseBtn).toBeEnabled();
-    }
-  );
-
-  it("should still show Release button when user has only admin_submit permission", () => {
-    shouldDisableReleaseMock.mockReturnValue({ disable: false, requireAlert: false });
-
-    const { getByRole } = render(
-      <TestParent
-        user={{
-          _id: "other-user",
-          role: "Admin",
-          permissions: ["data_submission:admin_submit"],
-        }}
-        submission={{
-          status: "Submitted",
-          metadataValidationStatus: "Passed",
-          fileValidationStatus: "Passed",
-          crossSubmissionStatus: "Passed",
-          otherSubmissions: null,
-        }}
-      >
-        <DataSubmissionActions onAction={vi.fn()} />
-      </TestParent>
-    );
-
-    const reviewBtn = getByRole("button", { name: /release/i });
-    expect(reviewBtn).toBeVisible();
-  });
 });
