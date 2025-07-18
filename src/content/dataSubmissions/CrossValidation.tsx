@@ -10,7 +10,7 @@ import CrossValidationFilters, {
   FilterForm,
 } from "../../components/DataSubmissions/CrossValidationFilters";
 import { ExportCrossValidationButton } from "../../components/DataSubmissions/ExportCrossValidationButton";
-import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog/v1";
 import GenericTable, { Column } from "../../components/GenericTable";
 import StyledFormTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import {

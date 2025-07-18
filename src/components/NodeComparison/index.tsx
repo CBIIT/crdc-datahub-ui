@@ -29,6 +29,7 @@ const StyledFooterTypography = styled(Typography)<{ component: React.ElementType
 
 const StyledListItem = styled("ul")({
   marginTop: 0,
+  paddingLeft: "15px",
   "& li": {
     fontWeight: 300,
     fontStyle: "italic",

@@ -13,7 +13,7 @@ import React, {
 } from "react";
 
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
-import ErrorDetailsDialog from "../../components/ErrorDetailsDialog";
+import ErrorDetailsDialog from "../../components/ErrorDetailsDialog/v1";
 import FileListDialog from "../../components/FileListDialog";
 import GenericTable, { Column } from "../../components/GenericTable";
 import StyledTooltip from "../../components/StyledFormComponents/StyledTooltip";
