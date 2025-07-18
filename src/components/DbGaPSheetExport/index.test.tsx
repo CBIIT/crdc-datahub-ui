@@ -189,9 +189,12 @@ describe("Basic Functionality", () => {
     userEvent.click(getByTestId("dbgap-sheet-export-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith("No download URL returned", {
-        variant: "error",
-      });
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! The API did not return a download link.",
+        {
+          variant: "error",
+        }
+      );
     });
   });
 

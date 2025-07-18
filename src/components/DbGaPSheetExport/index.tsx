@@ -61,7 +61,7 @@ const DbGaPSheetExport: FC<DbGaPSheetExportProps> = ({ disabled, ...rest }) => {
         throw error;
       }
       if (!data?.downloadDBGaPLoadSheet) {
-        throw new Error("No download URL returned");
+        throw new Error("Oops! The API did not return a download link.");
       }
 
       window.open(data.downloadDBGaPLoadSheet, "_blank", "noopener");
