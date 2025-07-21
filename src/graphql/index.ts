@@ -266,3 +266,7 @@ export type {
   Input as GetDashboardURLInput,
   Response as GetDashboardURLResp,
 } from "./getDashboardURL";
+
+// OMB Banner
+export { query as GET_OMB_BANNER } from "./getOmbBanner";
+export type { Response as GetOmbBannerResp } from "./getOmbBanner";
