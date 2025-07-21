@@ -46,18 +46,18 @@ const PansBannerLoading: React.FC = () => (
       <Skeleton
         variant="text"
         width={160}
-        height={25}
+        height={19}
         data-testid="pans-approval-number-skeleton"
       />
-      <Skeleton variant="text" width={180} height={20} data-testid="pans-expiration-skeleton" />
+      <Skeleton variant="text" width={180} height={19} data-testid="pans-expiration-skeleton" />
     </StyledHeaderStack>
     <div data-testid="pans-content-skeleton">
-      <Repeater count={5}>
+      <Repeater count={3}>
         <Skeleton variant="text" width="100%" height={18} />
       </Repeater>
       <Skeleton variant="text" width="90%" height={18} />
       <Skeleton variant="text" width={0} height={18} />
-      <Repeater count={5}>
+      <Repeater count={4}>
         <Skeleton variant="text" width="100%" height={18} />
       </Repeater>
       <Skeleton variant="text" width="80%" height={18} />
