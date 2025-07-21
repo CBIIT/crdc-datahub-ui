@@ -31,6 +31,11 @@ const StyledTableContainer = styled(TableContainer)(() => ({
   marginBottom: "15px",
 }));
 
+const FixedTable = styled(Table)({
+  tableLayout: "fixed",
+  width: "100%",
+});
+
 const StyledTableHeaderRow = styled(TableRow)(() => ({
   "&.MuiTableRow-root": {
     height: "38px",
@@ -197,7 +202,13 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
   return (
     <>
       <StyledTableContainer data-testid="collaborators-table-container">
-        <Table>
+        <FixedTable>
+          <colgroup>
+            <col style={{ width: isEdit ? "47%" : "50%" }} />
+            <col style={{ width: isEdit ? "40%" : "50%" }} />
+            {isEdit && <col style={{ width: "13%" }} />}
+          </colgroup>
+
           <TableHead>
             <StyledTableHeaderRow data-testid="table-header-row">
               <StyledTableHeaderCell id="header-collaborator" data-testid="header-collaborator">
@@ -229,7 +240,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                 key={`collaborator_${idx}_${collaborator.collaboratorID}`}
                 data-testid={`collaborator-row-${idx}`}
               >
-                <StyledNameCell width="45%">
+                <StyledNameCell>
                   <StyledSelect
                     value={collaborator.collaboratorID || ""}
                     onChange={(e) =>
@@ -269,7 +280,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                   </StyledSelect>
                 </StyledNameCell>
 
-                <StyledTableCell width="40%" data-testid={`collaborator-access-${idx}`}>
+                <StyledTableCell data-testid={`collaborator-access-${idx}`}>
                   <Stack direction="row" justifyContent="center" alignItems="center">
                     <StyledRadioGroup
                       value={collaborator?.permission || ""}
@@ -311,7 +322,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                 </StyledTableCell>
 
                 {isEdit && (
-                  <StyledTableCell width="15%">
+                  <StyledTableCell>
                     <Stack direction="row" justifyContent="center" alignItems="center">
                       <StyledRemoveButton
                         onClick={() => handleRemoveCollaborator(idx)}
@@ -327,7 +338,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
               </StyledTableRow>
             ))}
           </TableBody>
-        </Table>
+        </FixedTable>
       </StyledTableContainer>
 
       <AddRemoveButton
