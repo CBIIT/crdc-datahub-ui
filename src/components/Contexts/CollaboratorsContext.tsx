@@ -77,7 +77,7 @@ type ProviderProps = {
 /**
  * CollaboratorsProvider component to provide collaborators context
  *
- * @see {@link useSubmissionContext} The context hook
+ * @see {@link useCollaboratorsContext} The context hook
  * @returns {JSX.Element}
  */
 export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
