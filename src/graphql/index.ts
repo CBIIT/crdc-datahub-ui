@@ -166,6 +166,12 @@ export type {
 export { DOWNLOAD_DB_GAP_SHEET } from "./downloadDBGaPLoadSheet";
 export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./downloadDBGaPLoadSheet";
 
+export { GET_PENDING_PVS } from "./getPendingPVs";
+export type { GetPendingPVsInput, GetPendingPVsResponse } from "./getPendingPVs";
+
+export { REQUEST_PV } from "./requestPV";
+export type { RequestPVInput, RequestPVResponse } from "./requestPV";
+
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
 export type { Response as GetMyUserResp } from "./getMyUser";
@@ -193,6 +199,9 @@ export type {
   Input as UserIsPrimaryContactInput,
   Response as UserIsPrimaryContactResp,
 } from "./userIsPrimaryContact";
+
+export { mutation as GRANT_TOKEN } from "./grantToken";
+export type { Response as GrantTokenResp } from "./grantToken";
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
@@ -258,10 +267,6 @@ export type {
   Input as UpdateInstitutionInput,
   Response as UpdateInstitutionResp,
 } from "./updateInstitution";
-
-// Misc.
-export { mutation as GRANT_TOKEN } from "./grantToken";
-export type { Response as GrantTokenResp } from "./grantToken";
 
 // Operation Dashboard
 export { query as GET_DASHBOARD_URL } from "./getDashboardURL";

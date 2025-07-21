@@ -1111,3 +1111,69 @@ describe("StudyView Component", () => {
     });
   });
 });
+
+describe("Implementation Requirements", () => {
+  it("should check 'Pending on dbGaPID' when controlledAccess is true and dbGaPID is empty", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
+    userEvent.click(controlledAccessCheckbox);
+
+    const dbGaPIDInput = getByTestId("dbGaPID-input") as HTMLInputElement;
+    expect(dbGaPIDInput.value).toBe("");
+
+    const pendingDbGaPIDCheckbox = getByTestId(
+      "pendingConditions-dbGaPID-checkbox"
+    ) as HTMLInputElement;
+    expect(pendingDbGaPIDCheckbox.checked).toBe(true);
+    expect(pendingDbGaPIDCheckbox).toBeDisabled();
+  });
+
+  it("should uncheck 'Pending on dbGaPID' when controlledAccess is false", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
+    userEvent.click(controlledAccessCheckbox);
+    expect(controlledAccessCheckbox.checked).toBe(true);
+
+    const pendingDbGaPIDCheckbox = getByTestId(
+      "pendingConditions-dbGaPID-checkbox"
+    ) as HTMLInputElement;
+    expect(pendingDbGaPIDCheckbox.checked).toBe(true);
+    expect(pendingDbGaPIDCheckbox).toBeDisabled();
+
+    userEvent.click(controlledAccessCheckbox);
+    expect(controlledAccessCheckbox.checked).toBe(false);
+
+    expect(pendingDbGaPIDCheckbox.checked).toBe(false);
+    expect(pendingDbGaPIDCheckbox).toBeDisabled();
+  });
+
+  it("should uncheck 'Pending on dbGaPID' when dbGaPID is filled and controlledAccess is true", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
+    userEvent.click(controlledAccessCheckbox);
+
+    const pendingDbGaPIDCheckbox = getByTestId(
+      "pendingConditions-dbGaPID-checkbox"
+    ) as HTMLInputElement;
+    expect(pendingDbGaPIDCheckbox.checked).toBe(true);
+    expect(pendingDbGaPIDCheckbox).toBeDisabled();
+
+    const dbGaPIDInput = getByTestId("dbGaPID-input") as HTMLInputElement;
+    userEvent.type(dbGaPIDInput, "phs123456");
+
+    expect(pendingDbGaPIDCheckbox.checked).toBe(false);
+    expect(pendingDbGaPIDCheckbox).toBeDisabled();
+  });
+});
