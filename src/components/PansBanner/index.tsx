@@ -2,8 +2,9 @@ import { useQuery } from "@apollo/client";
 import { Box, Skeleton, Stack, styled, Typography } from "@mui/material";
 import React, { memo } from "react";
 
-import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "../../graphql";
-import Repeater from "../Repeater";
+import Repeater from "@/components/Repeater";
+import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "@/graphql";
+import { Logger } from "@/utils";
 
 const StyledBox = styled(Box)({
   padding: "20px",
@@ -40,7 +41,7 @@ const StyledContent = styled(Typography)({
  * Loading placeholder component for the PANS banner
  */
 const PansBannerLoading: React.FC = () => (
-  <StyledBox>
+  <StyledBox data-testid="pans-banner-skeleton">
     <StyledHeaderStack>
       <Skeleton
         variant="text"
@@ -67,20 +68,21 @@ const PansBannerLoading: React.FC = () => (
 /**
  * Handles the rendering of the Privacy Act Notification Statement (PANS) banner.
  *
- * @returns {React.FC}
+ * @returns The PANS banner component containing the OMB approval number, expiration date, and content.
  */
 const PansBanner: React.FC = (): React.ReactNode => {
   const { data, loading, error } = useQuery<RetrieveOMBDetailsResp>(RETRIEVE_OMB_DETAILS, {
     fetchPolicy: "cache-first",
     context: { clientName: "backend" },
+    onError: (e) => {
+      Logger.error("Error fetching OMB details for PANS banner", e);
+    },
   });
 
-  // Show loading state
   if (loading) {
     return <PansBannerLoading />;
   }
 
-  // If there's an error or missing data, return null
   if (
     error ||
     !data?.retrieveOMBDetails?.ombNumber ||
@@ -91,7 +93,7 @@ const PansBanner: React.FC = (): React.ReactNode => {
   }
 
   return (
-    <StyledBox>
+    <StyledBox data-testid="pans-banner">
       <StyledHeaderStack>
         <StyledApprovalNumber variant="h1" data-testid="pans-approval-number">
           OMB No.: {data?.retrieveOMBDetails.ombNumber}

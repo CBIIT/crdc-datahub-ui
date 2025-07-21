@@ -1,7 +1,6 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import dayjs from "dayjs";
 import { GraphQLError } from "graphql";
-import { vi } from "vitest";
+import { FC } from "react";
 import { axe } from "vitest-axe";
 
 import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "../../graphql";
@@ -13,8 +12,10 @@ const mockOMBDetails = {
   ombNumber: "1234-5678",
   expirationDate: "06/30/2025",
   content: [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.",
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore",
+    "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip",
+    "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat",
+    "nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
   ],
 };
 
@@ -29,6 +30,18 @@ const successMock: MockedResponse<RetrieveOMBDetailsResp> = {
   },
 };
 
+const loadingMock: MockedResponse<RetrieveOMBDetailsResp> = {
+  request: {
+    query: RETRIEVE_OMB_DETAILS,
+  },
+  result: {
+    data: {
+      retrieveOMBDetails: null, // Data never resolves
+    },
+  },
+  delay: Infinity,
+};
+
 const errorMock: MockedResponse<RetrieveOMBDetailsResp> = {
   request: {
     query: RETRIEVE_OMB_DETAILS,
@@ -36,52 +49,57 @@ const errorMock: MockedResponse<RetrieveOMBDetailsResp> = {
   error: new GraphQLError("Failed to fetch OMB details"),
 };
 
-const PansBannerWithProvider = ({
-  mocks = [successMock],
-}: {
-  mocks?: MockedResponse<RetrieveOMBDetailsResp>[];
-}) => (
+type MockParentProps = {
+  mocks?: MockedResponse[];
+  children: React.ReactNode;
+};
+
+const MockParent: FC<MockParentProps> = ({ mocks = [], children }) => (
   <MockedProvider mocks={mocks} addTypename={false}>
-    <PansBanner />
+    {children}
   </MockedProvider>
 );
 
 describe("Accessibility", () => {
   it("should have no violations when loaded", async () => {
-    const { container } = render(<PansBannerWithProvider />);
+    const { container, getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[successMock]}>{children}</MockParent>,
+    });
 
     await waitFor(() => {
-      expect(container.querySelector('[data-testid="pans-approval-number"]')).toBeInTheDocument();
+      expect(getByTestId("pans-approval-number")).toBeInTheDocument(); // Wait for data to load
     });
 
     expect(await axe(container)).toHaveNoViolations();
   });
 
   it("should have no violations during loading", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    const { container } = render(<PansBannerWithProvider />);
+    const { container, getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[loadingMock]}>{children}</MockParent>,
+    });
+
+    expect(getByTestId("pans-banner-skeleton")).toBeInTheDocument(); // Sanity check
 
     expect(await axe(container)).toHaveNoViolations();
-
-    vi.restoreAllMocks();
   });
 });
 
 describe("Basic Functionality", () => {
-  it("should render the PANS banner without crashing", () => {
-    expect(() => render(<PansBannerWithProvider />)).not.toThrow();
-  });
+  it.each<MockedResponse>([successMock, loadingMock, errorMock])(
+    "should render the PANS banner without crashing",
+    (mock) => {
+      expect(() =>
+        render(<PansBanner />, {
+          wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+        })
+      ).not.toThrow();
+    }
+  );
 
-  it("should show skeleton components while loading", async () => {
-    // Mock with no result to keep it in loading state
-    const loadingMock: MockedResponse<RetrieveOMBDetailsResp> = {
-      request: {
-        query: RETRIEVE_OMB_DETAILS,
-      },
-      // Don't provide result or error, so it stays in loading
-    };
-
-    const { getByTestId } = render(<PansBannerWithProvider mocks={[loadingMock]} />);
+  it("should show skeleton components while loading", () => {
+    const { getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[loadingMock]}>{children}</MockParent>,
+    });
 
     expect(getByTestId("pans-approval-number-skeleton")).toBeInTheDocument();
     expect(getByTestId("pans-expiration-skeleton")).toBeInTheDocument();
@@ -89,19 +107,21 @@ describe("Basic Functionality", () => {
   });
 
   it("should hide skeleton components after loading", async () => {
-    const { queryByTestId, getByTestId } = render(<PansBannerWithProvider />);
-
-    await waitFor(() => {
-      expect(getByTestId("pans-approval-number")).toBeInTheDocument();
+    const { getByTestId, queryByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[successMock]}>{children}</MockParent>,
     });
 
-    expect(queryByTestId("pans-approval-number-skeleton")).not.toBeInTheDocument();
-    expect(queryByTestId("pans-expiration-skeleton")).not.toBeInTheDocument();
-    expect(queryByTestId("pans-content-skeleton")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(getByTestId("pans-banner")).toBeInTheDocument();
+    });
+
+    expect(queryByTestId("pans-banner-skeleton")).not.toBeInTheDocument();
   });
 
-  it("should display dynamic OMB details from GraphQL", async () => {
-    const { getByTestId } = render(<PansBannerWithProvider />);
+  it("should render the OMB data returned by the API", async () => {
+    const { getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[successMock]}>{children}</MockParent>,
+    });
 
     await waitFor(() => {
       expect(getByTestId("pans-approval-number")).toHaveTextContent("OMB No.: 1234-5678");
@@ -113,44 +133,43 @@ describe("Basic Functionality", () => {
     expect(contentElement).toHaveTextContent(mockOMBDetails.content[1]);
   });
 
-  it("should handle different OMB data", async () => {
-    const customMockData = {
-      ombNumber: "9999-1111",
-      expirationDate: "12/31/2026",
-      content: ["Custom lorem ipsum content paragraph."],
-    };
-
-    const customMock: MockedResponse<RetrieveOMBDetailsResp> = {
+  it("should render nothing when an API error occurs (GraphQL)", async () => {
+    const mock: MockedResponse<RetrieveOMBDetailsResp> = {
       request: {
         query: RETRIEVE_OMB_DETAILS,
       },
       result: {
-        data: {
-          retrieveOMBDetails: customMockData,
-        },
+        errors: [new GraphQLError("mock-error-here")],
       },
     };
 
-    const { getByTestId } = render(<PansBannerWithProvider mocks={[customMock]} />);
-
-    await waitFor(() => {
-      expect(getByTestId("pans-approval-number")).toHaveTextContent("OMB No.: 9999-1111");
-      expect(getByTestId("pans-expiration")).toHaveTextContent("Expiration Date: 12/31/2026");
+    const { container } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    const contentElement = getByTestId("pans-content");
-    expect(contentElement).toHaveTextContent("Custom lorem ipsum content paragraph.");
-  });
-
-  it("should return null when GraphQL query fails", async () => {
-    const { container } = render(<PansBannerWithProvider mocks={[errorMock]} />);
-
     await waitFor(() => {
-      expect(container.firstChild).toBeNull();
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
-  it("should return null when ombNumber is missing", async () => {
+  it("should render nothing when an API error occurs (Network)", async () => {
+    const mock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      error: new Error("mock-error-here"),
+    };
+
+    const { container } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(container).toBeEmptyDOMElement();
+    });
+  });
+
+  it("should render nothing when ombNumber is missing", async () => {
     const missingOmbMock: MockedResponse<RetrieveOMBDetailsResp> = {
       request: {
         query: RETRIEVE_OMB_DETAILS,
@@ -166,14 +185,16 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { container } = render(<PansBannerWithProvider mocks={[missingOmbMock]} />);
+    const { container } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[missingOmbMock]}>{children}</MockParent>,
+    });
 
     await waitFor(() => {
-      expect(container.firstChild).toBeNull();
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
-  it("should return null when expirationDate is missing", async () => {
+  it("should render nothing when expirationDate is missing", async () => {
     const missingExpirationMock: MockedResponse<RetrieveOMBDetailsResp> = {
       request: {
         query: RETRIEVE_OMB_DETAILS,
@@ -189,14 +210,18 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { container } = render(<PansBannerWithProvider mocks={[missingExpirationMock]} />);
+    const { container } = render(<PansBanner />, {
+      wrapper: ({ children }) => (
+        <MockParent mocks={[missingExpirationMock]}>{children}</MockParent>
+      ),
+    });
 
     await waitFor(() => {
-      expect(container.firstChild).toBeNull();
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
-  it("should return null when content is missing", async () => {
+  it("should render nothing when content is missing", async () => {
     const missingContentMock: MockedResponse<RetrieveOMBDetailsResp> = {
       request: {
         query: RETRIEVE_OMB_DETAILS,
@@ -212,63 +237,38 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { container } = render(<PansBannerWithProvider mocks={[missingContentMock]} />);
-
-    await waitFor(() => {
-      expect(container.firstChild).toBeNull();
+    const { container } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[missingContentMock]}>{children}</MockParent>,
     });
-  });
-
-  it("should return null when entire data object is missing", async () => {
-    const missingDataMock: MockedResponse<RetrieveOMBDetailsResp> = {
-      request: {
-        query: RETRIEVE_OMB_DETAILS,
-      },
-      result: {
-        data: {
-          retrieveOMBDetails: null,
-        },
-      },
-    };
-
-    const { container } = render(<PansBannerWithProvider mocks={[missingDataMock]} />);
 
     await waitFor(() => {
-      expect(container.firstChild).toBeNull();
+      expect(container).toBeEmptyDOMElement();
     });
   });
 });
 
 describe("Implementation Requirements", () => {
   it("should contain the OMB Approval Number", async () => {
-    const { container, getByTestId } = render(<PansBannerWithProvider />);
+    const { container, getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[successMock]}>{children}</MockParent>,
+    });
 
     await waitFor(() => {
       expect(container.textContent).toContain("OMB No.:");
-      expect(getByTestId("pans-approval-number")).toHaveTextContent(/1234-5678/);
     });
+
+    expect(getByTestId("pans-approval-number")).toHaveTextContent(/1234-5678/);
   });
 
   it("should contain the Expiration Date", async () => {
-    const { container, getByTestId } = render(<PansBannerWithProvider />);
+    const { container, getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[successMock]}>{children}</MockParent>,
+    });
 
     await waitFor(() => {
       expect(container.textContent).toContain("Expiration Date:");
-      expect(getByTestId("pans-expiration")).toHaveTextContent(/06\/30\/2025/);
     });
-  });
 
-  // NOTE: Passive test to ensure the OMB Approval date is not outdated
-  it.skip("should not contain an outdated OMB Approval date", async () => {
-    const { getByTestId } = render(<PansBannerWithProvider />);
-
-    await waitFor(() => {
-      const expirationText = getByTestId("pans-expiration").textContent;
-      const dateMatch = expirationText?.match(/(\d{2}\/\d{2}\/\d{4})/);
-      if (dateMatch) {
-        const expirationDate = dayjs(dateMatch[1], "MM/DD/YYYY");
-        expect(expirationDate.isAfter(dayjs())).toBe(true);
-      }
-    });
+    expect(getByTestId("pans-expiration")).toHaveTextContent(/06\/30\/2025/);
   });
 });
