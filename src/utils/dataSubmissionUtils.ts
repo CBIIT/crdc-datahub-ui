@@ -223,6 +223,11 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
     return { disable: true, requireAlert: false };
   }
 
+  // Scenario 3: Cross-validation has issues and no other Submitted/Released submission exists, disable release entirely
+  if (crossSubmissionStatus === "Error") {
+    return { disable: true, requireAlert: false };
+  }
+
   // Scenario 0: No restrictions, allow release
   return { disable: false, requireAlert: false };
 };
