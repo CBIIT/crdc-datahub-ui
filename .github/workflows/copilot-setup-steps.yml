@@ -17,12 +17,6 @@ jobs:
       contents: read
 
     steps:
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.x"
-          cache: "npm"
-
       # Model Context Protocol (MCP) setup
       - name: Checkout jira-mcp-server
         uses: actions/checkout@v4
@@ -31,6 +25,12 @@ jobs:
           path: jira-mcp-server
           ref: master
       
+      - name: Setup Node (MCP)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
       - name: Setup MCP Server
         run: |
           cd jira-mcp-server
@@ -41,6 +41,12 @@ jobs:
       # Copilot setup
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup Node (Project)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm install
