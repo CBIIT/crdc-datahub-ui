@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Box, Skeleton, Stack, styled, Typography } from "@mui/material";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 
 import Repeater from "@/components/Repeater";
 import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "@/graphql";
@@ -79,6 +79,24 @@ const PansBanner: React.FC = (): React.ReactNode => {
     },
   });
 
+  const paragraphs = useMemo<React.ReactNode | null>(() => {
+    if (!data?.retrieveOMBDetails?.content?.length) {
+      return null;
+    }
+
+    const { content } = data.retrieveOMBDetails;
+    return content.map((paragraph, index) => (
+      <React.Fragment key={paragraph}>
+        {paragraph}
+        {index < content.length - 1 && (
+          <Repeater count={2}>
+            <br />
+          </Repeater>
+        )}
+      </React.Fragment>
+    ));
+  }, [data?.retrieveOMBDetails?.content]);
+
   if (loading) {
     return <PansBannerLoading />;
   }
@@ -102,19 +120,7 @@ const PansBanner: React.FC = (): React.ReactNode => {
           Expiration Date: {data?.retrieveOMBDetails.expirationDate}
         </StyledExpirationDate>
       </StyledHeaderStack>
-      <StyledContent data-testid="pans-content">
-        {data?.retrieveOMBDetails.content.map((paragraph, index) => (
-          <React.Fragment key={paragraph.substring(0, 50).replace(/\s/g, "")}>
-            {paragraph}
-            {index < data.retrieveOMBDetails.content.length - 1 && (
-              <>
-                <br />
-                <br />
-              </>
-            )}
-          </React.Fragment>
-        ))}
-      </StyledContent>
+      <StyledContent data-testid="pans-content">{paragraphs}</StyledContent>
     </StyledBox>
   );
 };
