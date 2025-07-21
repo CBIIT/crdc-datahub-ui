@@ -17,14 +17,29 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: "npm"
+
+      # Model Context Protocol (MCP) setup
+      - name: Checkout jira-mcp-server
+        uses: actions/checkout@v4
+        with:
+          repository: amattu2/jira-mcp-server
+          path: jira-mcp-server
+          ref: master
+
+      - name: Setup MCP Server
+        run: |
+          cd jira-mcp-server
+          npm install
+          npm run build
+          echo "MCP server is set up successfully."
+
+      # Copilot setup
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Cache node modules
         uses: actions/cache@v4
