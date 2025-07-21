@@ -248,8 +248,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     }}
                     renderValue={() => (
                       <TruncatedText
-                        text="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                        // text={collaborator.collaboratorName ?? " "}
+                        text={collaborator.collaboratorName ?? " "}
                         maxCharacters={20}
                         underline={false}
                         ellipsis
