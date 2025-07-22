@@ -198,3 +198,38 @@ export const getUserPermissionExtensions = (
 
   return rawExtensions.slice(startAt)?.map((p) => p.split("+"));
 };
+
+/**
+ * Determines whether a user matches a given search query.
+ *
+ * @param {Partial<User>} user - The user object to filter.
+ * @param {string} filter - The search query string.
+ * @returns {boolean} True if the user matches the filter, false otherwise.
+ */
+export const isUserMatch = (user: Partial<User>, filter: string): boolean => {
+  if (!user) {
+    return false;
+  }
+
+  const query = filter?.trim()?.toLowerCase() || "";
+  if (!query) {
+    return true;
+  }
+
+  const first = user.firstName?.trim()?.toLowerCase() || "";
+  const last = user.lastName?.trim()?.toLowerCase() || "";
+  const email = user.email?.trim()?.toLowerCase() || "";
+
+  const fullComma = `${last}, ${first}`.trim();
+  const fullSpace = `${first} ${last}`.trim();
+  const fullSpaceReverse = `${last} ${first}`.trim();
+
+  return (
+    email.includes(query) ||
+    first.includes(query) ||
+    last.includes(query) ||
+    fullComma.includes(query) ||
+    fullSpace.includes(query) ||
+    fullSpaceReverse.includes(query)
+  );
+};
