@@ -254,7 +254,7 @@ const ListingView: FC = () => {
     ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
-    const user = searchParams.get("user");
+    const user = searchParams.get("user") || "";
     const role = searchParams.get("role");
     const status = searchParams.get("status");
 
@@ -313,6 +313,12 @@ const ListingView: FC = () => {
   const handleFilterChange = (field: keyof FilterForm) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
+
+  useEffect(() => {
+    if (userFilter?.length === 0) {
+      setTablePage(0);
+    }
+  }, [userFilter]);
 
   return (
     <>
