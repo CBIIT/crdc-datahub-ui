@@ -237,18 +237,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
   ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
 
-    const institutions: string[] = [
-      state?.data?.questionnaireData?.pi?.institution,
-      state?.data?.questionnaireData?.primaryContact?.institution,
-      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c?.institution) || []),
-    ].filter((i) => !!i && typeof i === "string");
-
     const { data: res, errors } = await approveApp({
       variables: {
         id: state?.data?._id,
         comment: data?.reviewComment,
         wholeProgram,
-        institutions,
         pendingModelChange: data?.pendingModelChange,
       },
     }).catch((e) => ({ data: null, errors: [e] }));

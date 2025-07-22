@@ -2,7 +2,7 @@ import { parseForm } from "@jalik/form-parser";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
-import React, { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import AddRemoveButton from "../../../components/AddRemoveButton";
