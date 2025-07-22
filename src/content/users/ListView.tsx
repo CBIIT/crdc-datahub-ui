@@ -15,6 +15,8 @@ import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useLocation } from "react-router-dom";
 
+import StyledOutlinedInput from "@/components/StyledFormComponents/StyledOutlinedInput";
+
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import GenericTable, { Column } from "../../components/GenericTable";
@@ -23,11 +25,12 @@ import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
-import { compareStrings, formatIDP, sortData } from "../../utils";
+import { compareStrings, isUserMatch, formatIDP, sortData } from "../../utils";
 
 type T = ListUsersResp["listUsers"][number];
 
 type FilterForm = {
+  user: string;
   role: User["role"] | "All";
   status: User["userStatus"] | "All";
 };
@@ -103,6 +106,7 @@ const StyledActionButton = styled(Button)(
 type TouchedState = { [K in keyof FilterForm]: boolean };
 
 const initialTouchedFields: TouchedState = {
+  user: false,
   role: false,
   status: false,
 };
@@ -193,13 +197,13 @@ const ListingView: FC = () => {
 
   const { watch, setValue, control } = useForm<FilterForm>({
     defaultValues: {
+      user: "",
       role: user?.role === "Federal Lead" ? "Federal Lead" : "All",
       status: "All",
     },
   });
 
-  const roleFilter = watch("role");
-  const statusFilter = watch("status");
+  const [userFilter, roleFilter, statusFilter] = watch(["user", "role", "status"]);
   const tableRef = useRef<TableMethods>(null);
 
   const filteredRoles: UserRole[] = useMemo(() => {
@@ -217,7 +221,6 @@ const ListingView: FC = () => {
 
   const handleFetchData = async (fetchListing: FetchListing<T>, force: boolean) => {
     const { first, offset, sortDirection, orderBy, comparator } = fetchListing || {};
-
     const users = data?.listUsers;
     if (!users?.length) {
       setDataset([]);
@@ -226,6 +229,7 @@ const ListingView: FC = () => {
     }
 
     const filters: FilterFunction<T>[] = [
+      (u: T) => isUserMatch(u, userFilter),
       (u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true),
       (u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true),
     ];
@@ -244,9 +248,13 @@ const ListingView: FC = () => {
     ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
+    const user = searchParams.get("user");
     const role = searchParams.get("role");
     const status = searchParams.get("status");
 
+    if (user && user !== userFilter) {
+      setValue("user", user);
+    }
     if (isRoleFilterOption(role) && role !== roleFilter) {
       setValue("role", role);
     }
@@ -255,15 +263,20 @@ const ListingView: FC = () => {
     }
 
     setTablePage(0);
-  }, [searchParams.get("role"), searchParams.get("status")]);
+  }, [searchParams.get("user"), searchParams.get("role"), searchParams.get("status")]);
 
   useEffect(() => {
-    if (!touchedFilters.role && !touchedFilters.status) {
+    if (Object.values(touchedFilters).every((filter) => !filter)) {
       return;
     }
 
     const newSearchParams = new URLSearchParams(searchParams);
 
+    if (userFilter) {
+      newSearchParams.set("user", userFilter);
+    } else {
+      newSearchParams.delete("user");
+    }
     if (
       roleFilter &&
       ((user?.role === "Federal Lead" && roleFilter !== "Federal Lead") ||
@@ -285,7 +298,7 @@ const ListingView: FC = () => {
     if (newSearchParams?.toString() !== searchParams?.toString()) {
       setSearchParams(newSearchParams);
     }
-  }, [roleFilter, statusFilter, touchedFilters]);
+  }, [userFilter, roleFilter, statusFilter, touchedFilters]);
 
   const setTablePage = (page: number) => {
     tableRef.current?.setPage(page, true);
@@ -307,6 +320,26 @@ const ListingView: FC = () => {
         )}
 
         <StyledFilterContainer>
+          <StyledInlineLabel htmlFor="user-filter">User</StyledInlineLabel>
+          <StyledFormControl>
+            <Controller
+              name="user"
+              control={control}
+              render={({ field }) => (
+                <StyledOutlinedInput
+                  {...field}
+                  value={field.value}
+                  inputProps={{ id: "user-filter" }}
+                  placeholder="Enter User Name or Email"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFilterChange("user");
+                  }}
+                />
+              )}
+            />
+          </StyledFormControl>
+
           <StyledInlineLabel htmlFor="role-filter">Role</StyledInlineLabel>
           <StyledFormControl>
             <Controller
@@ -334,6 +367,7 @@ const ListingView: FC = () => {
               )}
             />
           </StyledFormControl>
+
           <StyledInlineLabel htmlFor="status-filter">Status</StyledInlineLabel>
           <StyledFormControl>
             <Controller
