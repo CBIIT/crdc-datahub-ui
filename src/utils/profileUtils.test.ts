@@ -1,4 +1,5 @@
 import { pbacDefaultFactory } from "@/factories/auth/PBACDefaultFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
 
 import * as utils from "./profileUtils";
 
@@ -429,5 +430,59 @@ describe("getUserPermissionExtensions", () => {
     const permission = "entity:action:one:two:three:four:five" as AuthPermissions;
 
     expect(utils.getUserPermissionExtensions(permission, -2)).toEqual([["four"], ["five"]]);
+  });
+});
+
+describe("isUserMatch cases", () => {
+  const baseUser = userFactory.build({
+    firstName: "Jane",
+    lastName: "Smith",
+    email: "jane.smith@example.com",
+  });
+
+  it("should return false when user is null or undefined", () => {
+    expect(utils.isUserMatch(null, "john")).toBe(false);
+    expect(utils.isUserMatch(undefined, "john")).toBe(false);
+  });
+
+  it("should return true when filter is null, undefined, empty or whitespace", () => {
+    expect(utils.isUserMatch(baseUser, null)).toBe(true);
+    expect(utils.isUserMatch(baseUser, undefined)).toBe(true);
+    expect(utils.isUserMatch(baseUser, "")).toBe(true);
+    expect(utils.isUserMatch(baseUser, "   ")).toBe(true);
+  });
+
+  it("should match by first name (partial, case-insensitive)", () => {
+    expect(utils.isUserMatch(baseUser, "jan")).toBe(true);
+  });
+
+  it("should match by last name (partial, case-insensitive)", () => {
+    expect(utils.isUserMatch(baseUser, "smi")).toBe(true);
+  });
+
+  it("should match by email  (partial, case-insensitive)", () => {
+    expect(utils.isUserMatch(baseUser, "smith@exa")).toBe(true);
+  });
+
+  it("should match by 'last, first' format (partial, case-insensitive)", () => {
+    expect(utils.isUserMatch(baseUser, "smith, j")).toBe(true);
+    expect(utils.isUserMatch(baseUser, "smith, jane")).toBe(true);
+  });
+
+  it("should match by 'first last' format (partial, case-insensitive)", () => {
+    expect(utils.isUserMatch(baseUser, "jane s")).toBe(true);
+    expect(utils.isUserMatch(baseUser, "jane smith")).toBe(true);
+  });
+
+  it("should match by 'last first' format (partial, case-insensitive)", () => {
+    expect(utils.isUserMatch(baseUser, "smith j")).toBe(true);
+    expect(utils.isUserMatch(baseUser, "smith jane")).toBe(true);
+  });
+
+  it("should return false when query does not match any user field", () => {
+    expect(utils.isUserMatch(baseUser, "nonexistent")).toBe(false);
+    expect(utils.isUserMatch(baseUser, "john smith")).toBe(false);
+    expect(utils.isUserMatch(baseUser, "smith john")).toBe(false);
+    expect(utils.isUserMatch(baseUser, "smith, john")).toBe(false);
   });
 });
