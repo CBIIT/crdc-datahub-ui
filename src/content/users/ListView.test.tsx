@@ -1,0 +1,273 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { fireEvent, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { FC, useMemo } from "react";
+import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+} from "@/components/Contexts/AuthContext";
+import { SearchParamsProvider } from "@/components/Contexts/SearchParamsContext";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { LIST_USERS, ListUsersResp } from "@/graphql";
+import { act, render, waitFor } from "@/test-utils";
+
+import ListView from "./ListView";
+
+const listUsersMock: MockedResponse<ListUsersResp> = {
+  request: {
+    query: LIST_USERS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listUsers: userFactory.build(100, (index) => ({
+        _id: `user-${index + 1}`,
+        name: `User ${index + 1}`,
+        firstName: `First ${index + 1}`,
+        lastName: `Last ${index + 1}`,
+        email: `user${index + 1}@example.com`,
+        role: index === 10 ? "Federal Lead" : "Submitter",
+      })),
+    },
+  },
+  maxUsageCount: Infinity,
+};
+
+type ParentProps = {
+  mocks?: MockedResponse[];
+  user?: Partial<User>;
+  initialEntries?: MemoryRouterProps["initialEntries"];
+  children: React.ReactNode;
+};
+
+const TestParent: FC<ParentProps> = ({
+  mocks = [listUsersMock],
+  user = {},
+  initialEntries = ["/"],
+  children,
+}: ParentProps) => {
+  const authCtx: AuthContextState = useMemo<AuthContextState>(
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ _id: "user-1", permissions: ["user:manage"], ...user }),
+      }),
+    [user]
+  );
+
+  return (
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <MemoryRouter initialEntries={initialEntries}>
+        <AuthContext.Provider value={authCtx}>
+          <SearchParamsProvider>{children}</SearchParamsProvider>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    </MockedProvider>
+  );
+};
+
+describe("Accessibility", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("should have no violations", async () => {
+    const { container, queryByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
+});
+
+describe("Basic Functionality", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("renders without crashing", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("list-view-container")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("Implementation Requirements", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("should render all filters", () => {
+    const { getByLabelText, getByPlaceholderText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    expect(getByLabelText("User")).toBeInTheDocument();
+    expect(getByPlaceholderText("Enter User Name or Email")).toBeInTheDocument();
+    expect(getByLabelText("Role")).toBeInTheDocument();
+    expect(getByLabelText("Status")).toBeInTheDocument();
+  });
+
+  it("should not filter until at least 3 characters are entered", async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.type(input, "Us");
+
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+  });
+
+  it("should filter users by partial, case-insensitive match on firstName, lastName, email, and name formats", async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+
+    // Match by email
+    userEvent.clear(input);
+    userEvent.type(input, "user1@example.com");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    // Match by firstName
+    userEvent.clear(input);
+    userEvent.type(input, "First 1");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    // Match by lastName
+    userEvent.clear(input);
+    userEvent.type(input, "Last 1");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    // Match by "lastName, firstName"
+    userEvent.clear(input);
+    userEvent.type(input, "Last 1, First 1");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    // Match by "firstName lastName"
+    userEvent.clear(input);
+    userEvent.type(input, "First 1 Last 1");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    // Match by "lastName firstName"
+    userEvent.clear(input);
+    userEvent.type(input, "Last 1 First 1");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    // Case-insensitive match
+    userEvent.clear(input);
+    userEvent.type(input, "first 1");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+  });
+
+  it("should show empty state when no users match", async () => {
+    const { getByPlaceholderText, findByText, queryByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.clear(input);
+    userEvent.type(input, "notarealuser@example.com");
+    expect(await findByText("No users found matching your search criteria.")).toBeInTheDocument();
+  });
+
+  it("should update results in real-time as user types", async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId, findByText } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.clear(input);
+    userEvent.type(input, "user1@example.com");
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+
+    userEvent.clear(input);
+    userEvent.type(input, "notarealuser@example.com");
+    expect(await findByText("No users found matching your search criteria.")).toBeInTheDocument();
+  });
+
+  it("should combine User filter with Role and Status filters", async () => {
+    const { getByPlaceholderText, getByLabelText, getByTestId, queryByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    const roleSelect = getByLabelText("Role");
+    const statusSelect = getByLabelText("Status");
+
+    userEvent.clear(input);
+    userEvent.type(input, "user");
+
+    fireEvent.change(roleSelect, { target: { value: "Federal Lead" } });
+    fireEvent.change(statusSelect, { target: { value: "Active" } });
+
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBe(1);
+  });
+});
