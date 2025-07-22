@@ -9,14 +9,16 @@ import { render, waitFor } from "../../test-utils";
 import PansBanner from "./index";
 
 const mockOMBDetails = {
-  ombNumber: "1234-5678",
+  _id: "mock-id-123",
+  OMBNumber: "1234-5678",
   expirationDate: "06/30/2025",
-  content: [
+  OMBInfo: [
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore",
     "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip",
     "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat",
     "nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
   ],
+  type: "mock-type",
 };
 
 const successMock: MockedResponse<RetrieveOMBDetailsResp> = {
@@ -25,7 +27,7 @@ const successMock: MockedResponse<RetrieveOMBDetailsResp> = {
   },
   result: {
     data: {
-      retrieveOMBDetails: mockOMBDetails,
+      getOMB: mockOMBDetails,
     },
   },
 };
@@ -36,7 +38,7 @@ const loadingMock: MockedResponse<RetrieveOMBDetailsResp> = {
   },
   result: {
     data: {
-      retrieveOMBDetails: null, // Data never resolves
+      getOMB: null, // Data never resolves
     },
   },
   delay: Infinity,
@@ -129,8 +131,8 @@ describe("Basic Functionality", () => {
     });
 
     const contentElement = getByTestId("pans-content");
-    expect(contentElement).toHaveTextContent(mockOMBDetails.content[0]);
-    expect(contentElement).toHaveTextContent(mockOMBDetails.content[1]);
+    expect(contentElement).toHaveTextContent(mockOMBDetails.OMBInfo[0]);
+    expect(contentElement).toHaveTextContent(mockOMBDetails.OMBInfo[1]);
   });
 
   it("should render nothing when an API error occurs (GraphQL)", async () => {
@@ -176,10 +178,12 @@ describe("Basic Functionality", () => {
       },
       result: {
         data: {
-          retrieveOMBDetails: {
-            ombNumber: "",
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "",
             expirationDate: "06/30/2025",
-            content: ["Lorem ipsum content"],
+            OMBInfo: ["Lorem ipsum content"],
+            type: "mock-type",
           },
         },
       },
@@ -201,10 +205,12 @@ describe("Basic Functionality", () => {
       },
       result: {
         data: {
-          retrieveOMBDetails: {
-            ombNumber: "1234-5678",
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "1234-5678",
             expirationDate: "",
-            content: ["Lorem ipsum content"],
+            OMBInfo: ["Lorem ipsum content"],
+            type: "mock-type",
           },
         },
       },
@@ -228,10 +234,12 @@ describe("Basic Functionality", () => {
       },
       result: {
         data: {
-          retrieveOMBDetails: {
-            ombNumber: "1234-5678",
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "1234-5678",
             expirationDate: "06/30/2025",
-            content: [],
+            OMBInfo: [],
+            type: "mock-type",
           },
         },
       },

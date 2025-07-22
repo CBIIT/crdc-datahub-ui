@@ -2,19 +2,23 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const RETRIEVE_OMB_DETAILS: TypedDocumentNode<RetrieveOMBDetailsResp> = gql`
-  query retrieveOMBDetails {
-    retrieveOMBDetails {
-      ombNumber
+  query getOMB {
+    getOMB {
+      _id
+      OMBNumber
       expirationDate
-      content
+      OMBInfo
+      type
     }
   }
 `;
 
 export type RetrieveOMBDetailsResp = {
-  retrieveOMBDetails: {
-    ombNumber: string;
+  getOMB: {
+    _id: string;
+    OMBNumber: string;
     expirationDate: string;
-    content: string[];
+    OMBInfo: string[];
+    type: string;
   } | null;
 };

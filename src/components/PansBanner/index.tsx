@@ -80,22 +80,22 @@ const PansBanner: React.FC = (): React.ReactNode => {
   });
 
   const paragraphs = useMemo<React.ReactNode | null>(() => {
-    if (!data?.retrieveOMBDetails?.content?.length) {
+    if (!data?.getOMB?.OMBInfo?.length) {
       return null;
     }
 
-    const { content } = data.retrieveOMBDetails;
-    return content.map((paragraph, index) => (
+    const { OMBInfo } = data.getOMB;
+    return OMBInfo.map((paragraph, index) => (
       <React.Fragment key={paragraph}>
         {paragraph}
-        {index < content.length - 1 && (
+        {index < OMBInfo.length - 1 && (
           <Repeater count={2}>
             <br />
           </Repeater>
         )}
       </React.Fragment>
     ));
-  }, [data?.retrieveOMBDetails?.content]);
+  }, [data?.getOMB?.OMBInfo]);
 
   if (loading) {
     return <PansBannerLoading />;
@@ -103,9 +103,9 @@ const PansBanner: React.FC = (): React.ReactNode => {
 
   if (
     error ||
-    !data?.retrieveOMBDetails?.ombNumber ||
-    !data?.retrieveOMBDetails?.expirationDate ||
-    !data?.retrieveOMBDetails?.content?.length
+    !data?.getOMB?.OMBNumber ||
+    !data?.getOMB?.expirationDate ||
+    !data?.getOMB?.OMBInfo?.length
   ) {
     return null;
   }
@@ -114,10 +114,10 @@ const PansBanner: React.FC = (): React.ReactNode => {
     <StyledBox data-testid="pans-banner">
       <StyledHeaderStack>
         <StyledApprovalNumber variant="h1" data-testid="pans-approval-number">
-          OMB No.: {data?.retrieveOMBDetails.ombNumber}
+          OMB No.: {data?.getOMB.OMBNumber}
         </StyledApprovalNumber>
         <StyledExpirationDate variant="h2" data-testid="pans-expiration">
-          Expiration Date: {data?.retrieveOMBDetails.expirationDate}
+          Expiration Date: {data?.getOMB.expirationDate}
         </StyledExpirationDate>
       </StyledHeaderStack>
       <StyledContent data-testid="pans-content">{paragraphs}</StyledContent>
