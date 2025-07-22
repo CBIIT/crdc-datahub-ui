@@ -318,7 +318,7 @@ const ListingView: FC = () => {
     <>
       <PageBanner title="Manage Users" subTitle="" padding="38px 0 0 25px" />
 
-      <StyledContainer maxWidth="xl">
+      <StyledContainer maxWidth="xl" data-testid="list-view-container">
         {(state?.error || error) && (
           <Alert sx={{ mb: 3, p: 2 }} severity="error">
             {state?.error || "An error occurred while loading the data."}
