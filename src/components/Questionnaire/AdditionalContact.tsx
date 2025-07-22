@@ -2,7 +2,7 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Grid, styled } from "@mui/material";
 import React, { FC } from "react";
 
-import { filterForNumbers, validateEmail, validateUTF8 } from "../../utils";
+import { filterForNumbers, validateEmail, validateUTF8, getInstitutionNameById } from "../../utils";
 import AddRemoveButton from "../AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 import { useInstitutionList } from "../Contexts/InstitutionListContext";
@@ -37,9 +37,16 @@ const AdditionalContact: FC<Props> = ({
   readOnly,
   onDelete,
 }: Props) => {
-  const { status } = useFormContext();
+  const { status, data } = useFormContext();
   const { data: institutionList } = useInstitutionList();
   const { firstName, lastName, email, phone, position, institution } = contact;
+
+  // Convert institution ID to name for display, or keep as-is if it's already a name
+  const displayInstitutionValue = getInstitutionNameById(
+    institution || "",
+    institutionList || [],
+    data?.newInstitutions || []
+  );
 
   return (
     <GridContainer container>
@@ -90,7 +97,7 @@ const AdditionalContact: FC<Props> = ({
           id={idPrefix.concat(`additionalContacts-${index}-institution`)}
           label="Institution"
           name={`additionalContacts[${index}][institution]`}
-          value={institution || ""}
+          value={displayInstitutionValue}
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}

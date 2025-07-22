@@ -23,8 +23,10 @@ import {
   ApproveAppInput,
   SaveAppInput,
 } from "../../graphql";
-import { Logger } from "../../utils";
+import { Logger, migrateQuestionnaireInstitutions } from "../../utils";
 import { FormInput as ApproveFormInput } from "../Questionnaire/ApproveFormDialog";
+
+import { useInstitutionList } from "./InstitutionListContext";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -96,6 +98,16 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  // Use try-catch to handle cases where InstitutionProvider is not available
+  let institutions: Institution[] = [];
+  try {
+    const institutionContext = useInstitutionList();
+    institutions = institutionContext.data || [];
+  } catch (error) {
+    // InstitutionProvider not available, continue with empty institutions array
+    // This allows FormContext to work in tests or contexts without InstitutionProvider
+  }
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -142,32 +154,41 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
   });
 
   const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
+    // Apply migration logic to ensure institution names are converted to IDs
+    const { questionnaireData: migratedData, newInstitutions } = migrateQuestionnaireInstitutions(
+      data,
+      institutions
+    );
+
     const newState = {
       ...state,
       data: {
         ...state.data,
-        questionnaireData: data,
+        questionnaireData: migratedData,
+        newInstitutions: [...(state.data?.newInstitutions || []), ...newInstitutions],
       },
     };
 
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
-    const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
+    const fullPIName = `${migratedData?.pi?.firstName || ""} ${
+      migratedData?.pi?.lastName || ""
+    }`.trim();
 
     const { data: d, errors } = await saveApp({
       variables: {
         application: {
           _id: newState?.data?._id === "new" ? undefined : newState?.data?._id,
-          studyName: data?.study?.name,
-          studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
-          questionnaireData: JSON.stringify(data),
-          controlledAccess: data?.accessTypes?.includes("Controlled Access") || false,
-          openAccess: data?.accessTypes?.includes("Open Access") || false,
-          ORCID: data?.pi?.ORCID,
+          studyName: migratedData?.study?.name,
+          studyAbbreviation: migratedData?.study?.abbreviation || migratedData?.study?.name,
+          questionnaireData: JSON.stringify(migratedData),
+          controlledAccess: migratedData?.accessTypes?.includes("Controlled Access") || false,
+          openAccess: migratedData?.accessTypes?.includes("Open Access") || false,
+          ORCID: migratedData?.pi?.ORCID,
           PI: fullPIName,
-          programName: data?.program?.name,
-          programAbbreviation: data?.program?.abbreviation,
-          programDescription: data?.program?.description,
-          newInstitutions: [], // TODO: Collect new institutions and save them here
+          programName: migratedData?.program?.name,
+          programAbbreviation: migratedData?.program?.abbreviation,
+          programDescription: migratedData?.program?.description,
+          newInstitutions: newState.data?.newInstitutions || [],
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -390,17 +411,28 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         };
       }
 
+      // Apply migration logic to convert institution names to IDs for backwards compatibility
+      const { questionnaireData: migratedData, newInstitutions } = migrateQuestionnaireInstitutions(
+        questionnaireData,
+        institutions
+      );
+
+      // Merge any new institutions with existing ones from the application
+      const existingNewInstitutions = getApplication?.newInstitutions || [];
+      const allNewInstitutions = [...existingNewInstitutions, ...newInstitutions];
+
       setState({
         status: Status.LOADED,
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
+            ...merge(cloneDeep(InitialQuestionnaire), migratedData),
           },
+          newInstitutions: allNewInstitutions,
         },
       });
     })();
-  }, [id]);
+  }, [id, institutions]);
 
   const value = useMemo(
     () => ({
