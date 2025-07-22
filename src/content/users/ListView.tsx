@@ -25,7 +25,13 @@ import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import { Roles } from "../../config/AuthRoles";
 import { LIST_USERS, ListUsersResp } from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
-import { compareStrings, isUserMatch, formatIDP, sortData } from "../../utils";
+import {
+  compareStrings,
+  isUserMatch,
+  formatIDP,
+  sortData,
+  isStringLengthBetween,
+} from "../../utils";
 
 type T = ListUsersResp["listUsers"][number];
 
@@ -272,7 +278,7 @@ const ListingView: FC = () => {
 
     const newSearchParams = new URLSearchParams(searchParams);
 
-    if (userFilter) {
+    if (userFilter?.trim()?.length >= 3) {
       newSearchParams.set("user", userFilter);
     } else {
       newSearchParams.delete("user");
@@ -335,6 +341,9 @@ const ListingView: FC = () => {
                     field.onChange(e);
                     handleFilterChange("user");
                   }}
+                  onBlur={(e) =>
+                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("user", "")
+                  }
                 />
               )}
             />
@@ -402,6 +411,7 @@ const ListingView: FC = () => {
           defaultRowsPerPage={20}
           defaultOrder="asc"
           setItemKey={(item, idx) => `${idx}_${item._id}`}
+          noContentText="No users found matching your search criteria."
           onFetchData={handleFetchData}
           containerProps={{ sx: { marginBottom: "8px", borderColor: "#083A50" } }}
           CustomTableHead={StyledTableHead}
