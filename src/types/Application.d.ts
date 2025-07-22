@@ -106,16 +106,6 @@ type ClinicalData = {
   futureDataTypes: boolean;
 };
 
-type PI = {
-  firstName: string;
-  lastName: string;
-  position: string;
-  email: string;
-  ORCID: string;
-  institution: string;
-  address: string;
-};
-
 type Contact = {
   position: string;
   firstName: string;
@@ -124,6 +114,11 @@ type Contact = {
   phone: string;
   institution?: string;
 };
+
+type PI = {
+  ORCID: string;
+  address: string;
+} & Omit<Contact, "phone">;
 
 type ProgramInput = Partial<Pick<Organization, "_id" | "name" | "abbreviation" | "description">>;
 
