@@ -37,6 +37,10 @@ type Application = {
    */
   programDescription: string;
   /**
+   * The new institutions present in the form
+   */
+  newInstitutions: Array<{ id: string; name: string }>;
+  /**
    * The current form version
    */
   version: string;

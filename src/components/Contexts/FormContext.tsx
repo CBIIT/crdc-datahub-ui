@@ -167,6 +167,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           programName: data?.program?.name,
           programAbbreviation: data?.program?.abbreviation,
           programDescription: data?.program?.description,
+          newInstitutions: [], // TODO: Collect new institutions and save them here
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
