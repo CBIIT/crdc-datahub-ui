@@ -8,7 +8,6 @@ export const RETRIEVE_OMB_DETAILS: TypedDocumentNode<RetrieveOMBDetailsResp> = g
       OMBNumber
       expirationDate
       OMBInfo
-      type
     }
   }
 `;
@@ -19,6 +18,5 @@ export type RetrieveOMBDetailsResp = {
     OMBNumber: string;
     expirationDate: string;
     OMBInfo: string[];
-    type: string;
   } | null;
 };

@@ -4,7 +4,7 @@ import React, { memo, useMemo } from "react";
 
 import Repeater from "@/components/Repeater";
 import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "@/graphql";
-import { Logger } from "@/utils";
+import { FormatDate, Logger } from "@/utils";
 
 const StyledBox = styled(Box)({
   padding: "20px",
@@ -79,6 +79,14 @@ const PansBanner: React.FC = (): React.ReactNode => {
     },
   });
 
+  const formattedDate = useMemo<string>(() => {
+    if (!data?.getOMB?.expirationDate) {
+      return "N/A";
+    }
+
+    return FormatDate(data.getOMB.expirationDate, "MM/DD/YYYY", "N/A");
+  }, [data?.getOMB?.expirationDate]);
+
   const paragraphs = useMemo<React.ReactNode | null>(() => {
     if (!data?.getOMB?.OMBInfo?.length) {
       return null;
@@ -117,7 +125,7 @@ const PansBanner: React.FC = (): React.ReactNode => {
           OMB No.: {data?.getOMB.OMBNumber}
         </StyledApprovalNumber>
         <StyledExpirationDate variant="h2" data-testid="pans-expiration">
-          Expiration Date: {data?.getOMB.expirationDate}
+          Expiration Date: {formattedDate}
         </StyledExpirationDate>
       </StyledHeaderStack>
       <StyledContent data-testid="pans-content">{paragraphs}</StyledContent>

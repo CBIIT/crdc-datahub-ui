@@ -18,7 +18,6 @@ const mockOMBDetails = {
     "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat",
     "nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
   ],
-  type: "mock-type",
 };
 
 const successMock: MockedResponse<RetrieveOMBDetailsResp> = {
@@ -183,7 +182,6 @@ describe("Basic Functionality", () => {
             OMBNumber: "",
             expirationDate: "06/30/2025",
             OMBInfo: ["Lorem ipsum content"],
-            type: "mock-type",
           },
         },
       },
@@ -210,7 +208,6 @@ describe("Basic Functionality", () => {
             OMBNumber: "1234-5678",
             expirationDate: "",
             OMBInfo: ["Lorem ipsum content"],
-            type: "mock-type",
           },
         },
       },
@@ -239,7 +236,6 @@ describe("Basic Functionality", () => {
             OMBNumber: "1234-5678",
             expirationDate: "06/30/2025",
             OMBInfo: [],
-            type: "mock-type",
           },
         },
       },
@@ -251,6 +247,84 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(container).toBeEmptyDOMElement();
+    });
+  });
+
+  it("should format valid ISO date string correctly", async () => {
+    const isoDateMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "1234-5678",
+            expirationDate: "2025-06-30T00:00:00Z",
+            OMBInfo: ["Lorem ipsum content"],
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[isoDateMock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("pans-expiration")).toHaveTextContent("Expiration Date: 06/30/2025");
+    });
+  });
+
+  it("should format MM/DD/YYYY date string correctly", async () => {
+    const usDateMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "1234-5678",
+            expirationDate: "12/25/2025",
+            OMBInfo: ["Lorem ipsum content"],
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[usDateMock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("pans-expiration")).toHaveTextContent("Expiration Date: 12/25/2025");
+    });
+  });
+
+  it("should show N/A for invalid date string", async () => {
+    const invalidDateMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "1234-5678",
+            expirationDate: "invalid-date-string",
+            OMBInfo: ["Lorem ipsum content"],
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[invalidDateMock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("pans-expiration")).toHaveTextContent("Expiration Date: N/A");
     });
   });
 });
