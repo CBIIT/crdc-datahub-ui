@@ -159,7 +159,7 @@ const StyledPaper = styled(BasePaper)({
 });
 
 const StyledPopper = styled(Popper)({
-  width: "463px !important",
+  width: "363px !important",
 });
 
 const StyledButtonStack = styled(Stack)({
@@ -484,6 +484,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     return <SuspenseLoader />;
   }
 
+  const { institutions = [] } = listInstitutions?.listInstitutions || {};
+
   return (
     <>
       <StyledBanner />
@@ -601,21 +603,30 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                       control={control}
                       rules={{ required: false }}
                       render={({ field }) => (
-                        <StyledSelect
+                        <StyledAutocomplete
                           {...field}
-                          size="small"
-                          value={field.value || ""}
+                          options={institutions}
+                          getOptionLabel={(option: Institution) => option.name}
+                          isOptionEqualToValue={(option: Institution, value: Institution) =>
+                            option._id === value._id
+                          }
+                          onChange={(_, data: Institution | null) =>
+                            field.onChange(data?._id || "")
+                          }
+                          value={institutions.find((i) => i._id === field.value) || null}
+                          renderInput={({ inputProps, ...params }) => (
+                            <TextField
+                              {...params}
+                              inputProps={{
+                                "aria-labelledby": "userInstitution",
+                                maxLength: 100,
+                                ...inputProps,
+                              }}
+                              placeholder="100 characters allowed"
+                            />
+                          )}
                           disabled={fieldset.institution === "DISABLED"}
-                          MenuProps={{ disablePortal: true }}
-                          inputProps={{ "aria-labelledby": "userInstitution" }}
-                          required
-                        >
-                          {listInstitutions?.listInstitutions.institutions.map((i) => (
-                            <MenuItem key={i._id} value={i._id}>
-                              {i.name}
-                            </MenuItem>
-                          ))}
-                        </StyledSelect>
+                        />
                       )}
                     />
                   ) : (
