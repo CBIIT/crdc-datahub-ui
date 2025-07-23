@@ -269,7 +269,7 @@ const ListingView: FC = () => {
     }
 
     setTablePage(0);
-  }, [searchParams?.toString()]);
+  }, [searchParams?.get("user"), searchParams?.get("role"), searchParams?.get("status")]);
 
   useEffect(() => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
