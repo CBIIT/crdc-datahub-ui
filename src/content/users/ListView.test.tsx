@@ -149,7 +149,7 @@ describe("Implementation Requirements", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("should filter users by partial, case-insensitive match on firstName, lastName, email, and name formats", async () => {
+  it("should filter users by email (case-insensitive, partial)", async () => {
     const { getByPlaceholderText, queryByTestId, getByTestId } = render(
       <TestParent>
         <ListView />
@@ -160,52 +160,104 @@ describe("Implementation Requirements", () => {
     });
 
     const input = getByPlaceholderText("Enter User Name or Email");
-
-    // Match by email
     userEvent.clear(input);
     userEvent.type(input, "user1@example.com");
+
     expect(
       within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
     ).toBeGreaterThan(0);
+  });
 
-    // Match by firstName
-    userEvent.clear(input);
-    userEvent.type(input, "First 1");
-    expect(
-      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
-    ).toBeGreaterThan(0);
+  it("should filter users by firstName (case-insensitive, partial)", async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
 
-    // Match by lastName
-    userEvent.clear(input);
-    userEvent.type(input, "Last 1");
-    expect(
-      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
-    ).toBeGreaterThan(0);
-
-    // Match by "lastName, firstName"
-    userEvent.clear(input);
-    userEvent.type(input, "Last 1, First 1");
-    expect(
-      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
-    ).toBeGreaterThan(0);
-
-    // Match by "firstName lastName"
-    userEvent.clear(input);
-    userEvent.type(input, "First 1 Last 1");
-    expect(
-      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
-    ).toBeGreaterThan(0);
-
-    // Match by "lastName firstName"
-    userEvent.clear(input);
-    userEvent.type(input, "Last 1 First 1");
-    expect(
-      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
-    ).toBeGreaterThan(0);
-
-    // Case-insensitive match
+    const input = getByPlaceholderText("Enter User Name or Email");
     userEvent.clear(input);
     userEvent.type(input, "first 1");
+
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+  });
+
+  it("should filter users by lastName (case-insensitive, partial)", async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.clear(input);
+    userEvent.type(input, "Last 1");
+
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+  });
+
+  it('should filter users by "lastName, firstName" format', async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.clear(input);
+    userEvent.type(input, "Last 1, First 1");
+
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+  });
+
+  it('should filter users by "firstName lastName" format', async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.clear(input);
+    userEvent.type(input, "First 1 Last 1");
+
+    expect(
+      within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
+    ).toBeGreaterThan(0);
+  });
+
+  it('should filter users by "lastName firstName" format', async () => {
+    const { getByPlaceholderText, queryByTestId, getByTestId } = render(
+      <TestParent>
+        <ListView />
+      </TestParent>
+    );
+    await waitFor(() => {
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    userEvent.clear(input);
+    userEvent.type(input, "Last 1 First 1");
+
     expect(
       within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
     ).toBeGreaterThan(0);
@@ -224,6 +276,7 @@ describe("Implementation Requirements", () => {
     const input = getByPlaceholderText("Enter User Name or Email");
     userEvent.clear(input);
     userEvent.type(input, "notarealuser@example.com");
+
     expect(await findByText("No users found matching your search criteria.")).toBeInTheDocument();
   });
 
@@ -240,12 +293,14 @@ describe("Implementation Requirements", () => {
     const input = getByPlaceholderText("Enter User Name or Email");
     userEvent.clear(input);
     userEvent.type(input, "user1@example.com");
+
     expect(
       within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
     ).toBeGreaterThan(0);
 
     userEvent.clear(input);
     userEvent.type(input, "notarealuser@example.com");
+
     expect(await findByText("No users found matching your search criteria.")).toBeInTheDocument();
   });
 
