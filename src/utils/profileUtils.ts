@@ -220,9 +220,9 @@ export const isUserMatch = (user: Partial<User>, filter: string): boolean => {
   const last = user.lastName?.trim()?.toLowerCase() || "";
   const email = user.email?.trim()?.toLowerCase() || "";
 
-  const fullComma = `${last}, ${first}`.trim();
-  const fullSpace = `${first} ${last}`.trim();
-  const fullSpaceReverse = `${last} ${first}`.trim();
+  const fullComma = [last, first].filter(Boolean).join(", ").trim();
+  const fullSpace = [first, last].filter(Boolean).join(" ").trim();
+  const fullSpaceReverse = [last, first].filter(Boolean).join(" ").trim();
 
   return (
     email.includes(query) ||

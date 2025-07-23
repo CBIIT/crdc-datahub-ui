@@ -469,6 +469,19 @@ describe("isUserMatch cases", () => {
     expect(utils.isUserMatch(baseUser, "smith, jane")).toBe(true);
   });
 
+  it("should not match by ',' when first name and last name are missing or empty space", () => {
+    expect(utils.isUserMatch(userFactory.build({ firstName: "", lastName: "" }), ",")).toBe(false);
+    expect(utils.isUserMatch(userFactory.build({ firstName: "   ", lastName: "   " }), ",")).toBe(
+      false
+    );
+    expect(utils.isUserMatch(userFactory.build({ firstName: null, lastName: null }), ",")).toBe(
+      false
+    );
+    expect(
+      utils.isUserMatch(userFactory.build({ firstName: undefined, lastName: undefined }), ",")
+    ).toBe(false);
+  });
+
   it("should match by 'first last' format (partial, case-insensitive)", () => {
     expect(utils.isUserMatch(baseUser, "jane s")).toBe(true);
     expect(utils.isUserMatch(baseUser, "jane smith")).toBe(true);
