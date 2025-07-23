@@ -9,7 +9,10 @@ import {
   Context as AuthContext,
   ContextState as AuthContextState,
 } from "@/components/Contexts/AuthContext";
-import { SearchParamsProvider } from "@/components/Contexts/SearchParamsContext";
+import {
+  SearchParamsProvider,
+  useSearchParamsContext,
+} from "@/components/Contexts/SearchParamsContext";
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
 import { LIST_USERS, ListUsersResp } from "@/graphql";
@@ -269,5 +272,73 @@ describe("Implementation Requirements", () => {
     expect(
       within(getByTestId("generic-table-body")).getAllByTestId("generic-table-row").length
     ).toBe(1);
+  });
+
+  it("updates search params in the URL correctly when filters are changed", async () => {
+    const ShowSearchParams = () => {
+      const { searchParams } = useSearchParamsContext();
+      return <div data-testid="search-params">{searchParams?.toString()}</div>;
+    };
+
+    const { getByPlaceholderText, getByLabelText, getByTestId, queryByTestId } = render(
+      <TestParent initialEntries={["/users"]}>
+        <ListView />
+        <ShowSearchParams />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("list-view-container")).toBeInTheDocument();
+      expect(queryByTestId("generic-table-suspense-loader")).not.toBeInTheDocument();
+    });
+
+    const input = getByPlaceholderText("Enter User Name or Email");
+    const roleSelect = getByLabelText("Role");
+    const statusSelect = getByLabelText("Status");
+    const searchParamsDiv = getByTestId("search-params");
+
+    // Should not set user param until 3+ chars
+    userEvent.clear(input);
+    userEvent.type(input, "Us");
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).not.toContain("user=");
+    });
+
+    // Should set user param when 3+ chars
+    userEvent.type(input, "e");
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).toContain("user=Use");
+    });
+
+    // Should set role param
+    fireEvent.change(roleSelect, { target: { value: "Federal Lead" } });
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).toContain("role=Federal+Lead");
+    });
+
+    // Should set status param
+    fireEvent.change(statusSelect, { target: { value: "Active" } });
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).toContain("status=Active");
+    });
+
+    // Should remove user param when cleared
+    userEvent.clear(input);
+    userEvent.tab(); // blur
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).not.toContain("user=");
+    });
+
+    // Should remove role param when set to All
+    fireEvent.change(roleSelect, { target: { value: "All" } });
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).not.toContain("role=");
+    });
+
+    // Should remove status param when set to All
+    fireEvent.change(statusSelect, { target: { value: "All" } });
+    await waitFor(() => {
+      expect(searchParamsDiv.textContent).not.toContain("status=");
+    });
   });
 });

@@ -254,12 +254,12 @@ const ListingView: FC = () => {
     ["All", "Inactive", "Active"].includes(status);
 
   useEffect(() => {
-    const user = searchParams.get("user") || "";
+    const userParam = searchParams.get("user") || "";
     const role = searchParams.get("role");
     const status = searchParams.get("status");
 
-    if (user && user !== userFilter) {
-      setValue("user", user);
+    if (userParam && userParam !== userFilter) {
+      setValue("user", userParam);
     }
     if (isRoleFilterOption(role) && role !== roleFilter) {
       setValue("role", role);
@@ -269,7 +269,7 @@ const ListingView: FC = () => {
     }
 
     setTablePage(0);
-  }, [searchParams.get("user"), searchParams.get("role"), searchParams.get("status")]);
+  }, [searchParams?.toString()]);
 
   useEffect(() => {
     if (Object.values(touchedFilters).every((filter) => !filter)) {
@@ -314,12 +314,6 @@ const ListingView: FC = () => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
 
-  useEffect(() => {
-    if (userFilter?.length === 0) {
-      setTablePage(0);
-    }
-  }, [userFilter]);
-
   return (
     <>
       <PageBanner title="Manage Users" subTitle="" padding="38px 0 0 25px" />
@@ -347,9 +341,11 @@ const ListingView: FC = () => {
                     field.onChange(e);
                     handleFilterChange("user");
                   }}
-                  onBlur={(e) =>
-                    isStringLengthBetween(e?.target?.value, 0, 3) && setValue("user", "")
-                  }
+                  onBlur={(e) => {
+                    if (isStringLengthBetween(e?.target?.value, 0, 3)) {
+                      setValue("user", "");
+                    }
+                  }}
                 />
               )}
             />
