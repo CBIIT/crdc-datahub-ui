@@ -29,6 +29,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     email: "",
     ORCID: "",
     institution: "",
+    institutionID: "",
     address: "",
   },
   piAsPrimaryContact: false,
@@ -39,6 +40,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     phone: "",
     position: "",
     institution: "",
+    institutionID: "",
   },
   additionalContacts: [],
   program: {

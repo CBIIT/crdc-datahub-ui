@@ -123,7 +123,7 @@ type Contact = {
    *
    * @since 3.4.0
    */
-  institutionID?: string;
+  institutionID: string;
 };
 
 type PI = {

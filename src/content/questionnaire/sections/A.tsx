@@ -106,6 +106,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         email: "",
         phone: "",
         institution: "",
+        institutionID: "",
       },
     ]);
   };

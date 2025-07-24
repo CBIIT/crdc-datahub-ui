@@ -1,11 +1,13 @@
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Grid, styled } from "@mui/material";
-import React, { FC } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
+import { validate as validateUUID } from "uuid";
 
-import { filterForNumbers, validateEmail, validateUTF8 } from "../../utils";
+import useAggregatedInstitutions from "@/hooks/useAggregatedInstitutions";
+
+import { filterForNumbers, Logger, validateEmail, validateUTF8 } from "../../utils";
 import AddRemoveButton from "../AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import { useInstitutionList } from "../Contexts/InstitutionListContext";
 
 import AutocompleteInput from "./AutocompleteInput";
 import TextInput from "./TextInput";
@@ -14,6 +16,10 @@ const GridContainer = styled(Grid)({
   border: "0.5px solid #DCDCDC !important",
   borderRadius: "10px",
   padding: "18px 15px",
+});
+
+const HiddenField = styled("input")({
+  display: "none",
 });
 
 type Props = {
@@ -25,10 +31,9 @@ type Props = {
 };
 
 /**
- * Additional Contact Form Group
+ * Provides a form group for an Additional Contact field.
  *
- * @param {Props} props
- * @returns {JSX.Element}
+ * @returns The Additional Contact
  */
 const AdditionalContact: FC<Props> = ({
   idPrefix = "",
@@ -38,8 +43,44 @@ const AdditionalContact: FC<Props> = ({
   onDelete,
 }: Props) => {
   const { status } = useFormContext();
-  const { data: institutionList } = useInstitutionList();
-  const { firstName, lastName, email, phone, position, institution } = contact;
+  const { data: institutionList } = useAggregatedInstitutions();
+  const { firstName, lastName, email, phone, position, institution, institutionID } = contact;
+
+  const [institutionName, setInstitutionName] = useState<string>(institution || "");
+  const [institutionId, setInstitutionId] = useState<string>(institutionID || "");
+
+  // TODO: Fix intermittent saves cause the Id to disappear from the dataset
+
+  const handleInputChange = useCallback(
+    (value: string) => {
+      const apiData = institutionList.find((i) => i.name === value);
+
+      // NOTE: Try to utilize API data first, fallback to user-provided details
+      setInstitutionId(apiData?._id || "");
+      setInstitutionName(apiData?.name || value);
+    },
+    [institutionList]
+  );
+
+  // NOTE: This handles data migrations and should only run on mount
+  useEffect(() => {
+    if (readOnly || institutionList?.length <= 0) {
+      return;
+    }
+
+    const apiDataByUUID = institutionList.find((i) => i._id === institutionID);
+    const apiDataByName = institutionList.find((i) => i.name === institution);
+
+    // Institution ID is valid, update the cached name
+    if (validateUUID(institutionID) && apiDataByUUID?.name !== institutionName) {
+      setInstitutionName(apiDataByUUID?.name || "");
+      Logger.info("AdditionalContact updated an institution name", contact, apiDataByUUID);
+      // Institution name is set but no ID was, add the ID
+    } else if (validateUUID(apiDataByName?._id) && apiDataByName?._id !== institutionID) {
+      Logger.info("AdditionalContact migrated to institution ID", contact, apiDataByName);
+      setInstitutionId(apiDataByName?._id);
+    }
+  }, [institution, institutionID, institutionList]);
 
   return (
     <GridContainer container>
@@ -90,14 +131,25 @@ const AdditionalContact: FC<Props> = ({
           id={idPrefix.concat(`additionalContacts-${index}-institution`)}
           label="Institution"
           name={`additionalContacts[${index}][institution]`}
-          value={institution || ""}
+          value={institutionName}
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+          onChange={(_, val) => handleInputChange(val)}
+          onInputChange={(_, val) => handleInputChange(val)}
           required
           disableClearable
           freeSolo
           readOnly={readOnly}
+        />
+        <HiddenField
+          type="text"
+          name={`additionalContacts[${index}][institutionID]`}
+          value={institutionId}
+          onChange={() => {}}
+          data-type="string"
+          aria-label="Institution ID field"
+          hidden
         />
         <TextInput
           id={idPrefix.concat(`additionalContacts-${index}-phone-number`)}
