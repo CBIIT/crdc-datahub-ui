@@ -112,7 +112,18 @@ type Contact = {
   lastName: string;
   email: string;
   phone: string;
-  institution?: string;
+  /**
+   * The institution name for the contact.
+   *
+   * @deprecated This is a legacy field and should only be used when the institutionID is not available.
+   */
+  institution: string;
+  /**
+   * The UUID of the institution for the contact.
+   *
+   * @since 3.4.0
+   */
+  institutionID?: string;
 };
 
 type PI = {
