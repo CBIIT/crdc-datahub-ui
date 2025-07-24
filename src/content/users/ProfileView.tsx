@@ -619,6 +619,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                               {...params}
                               inputProps={{
                                 "aria-labelledby": "userInstitution",
+                                "data-testid": "institution-input",
                                 maxLength: 100,
                                 ...inputProps,
                               }}
