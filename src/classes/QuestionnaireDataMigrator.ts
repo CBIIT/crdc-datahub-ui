@@ -2,14 +2,16 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import { validate as validateUUID } from "uuid";
 
-import { ListInstitutionsInput, ListInstitutionsResp } from "@/graphql";
+import { LastAppResp, ListInstitutionsResp } from "@/graphql";
+import { safeParse } from "@/utils";
 import { Logger } from "@/utils/logger";
 
 /**
  * The required dependencies to run data migrations
  */
 type MigratorDependencies = {
-  getInstitutions: LazyQueryExecFunction<ListInstitutionsResp, ListInstitutionsInput>;
+  getInstitutions: LazyQueryExecFunction<ListInstitutionsResp, unknown>;
+  getLastApplication: LazyQueryExecFunction<LastAppResp, unknown>;
 };
 
 /**
@@ -44,6 +46,7 @@ export class QuestionnaireDataMigrator {
    * @returns The fully migrated questionnaireData object.
    */
   public async run(): Promise<QuestionnaireData> {
+    await this._migrateLastApp();
     await this._migrateInstitutionsToID();
     await this._migrateInstitutionNames();
 
@@ -68,6 +71,29 @@ export class QuestionnaireDataMigrator {
    */
   public getDependencies(): MigratorDependencies {
     return this.dependencies;
+  }
+
+  /**
+   * Migrates information from the last Submission Request on create
+   *
+   * @private Do not call this method directly; use the `run` method.
+   */
+  async _migrateLastApp(): Promise<void> {
+    const { sections } = this.data;
+    const { getLastApplication } = this.dependencies;
+
+    const sectionA: Section = sections?.find((s: Section) => s?.name === "A");
+    if (!sectionA || sectionA?.status === "Not Started") {
+      const { data: lastAppData } = await getLastApplication();
+      const { getMyLastApplication: lastApp } = lastAppData || {};
+      const parsedLastAppData = safeParse<QuestionnaireData>(lastApp?.questionnaireData);
+
+      Logger.info("_migrateLastApp: Migrating last app", { ...this.data }, parsedLastAppData);
+      this.data.pi = {
+        ...this.data.pi,
+        ...parsedLastAppData.pi,
+      };
+    }
   }
 
   /**

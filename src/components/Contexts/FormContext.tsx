@@ -395,21 +395,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         getApplication?.questionnaireData || null
       );
 
-      // TODO: move this to migrator
-      // Check if we need to autofill the PI details
-      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
-      if (!sectionA || sectionA?.status === "Not Started") {
-        const { data: lastAppData } = await lastApp();
-        const { getMyLastApplication } = lastAppData || {};
-        const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
-
-        questionnaireData.pi = {
-          ...questionnaireData.pi,
-          ...parsedLastAppData.pi,
-        };
-      }
-
-      const migrator = new QuestionnaireDataMigrator(questionnaireData, { getInstitutions });
+      const migrator = new QuestionnaireDataMigrator(questionnaireData, {
+        getInstitutions,
+        getLastApplication: lastApp,
+      });
       const migratedData = await migrator.run();
 
       setState({
