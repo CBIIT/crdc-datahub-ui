@@ -4,10 +4,13 @@ import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
 import { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { validate as validateUUID } from "uuid";
+
+import useAggregatedInstitutions from "@/hooks/useAggregatedInstitutions";
+import useFormMode from "@/hooks/useFormMode";
 
 import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
-import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
 import PansBanner from "../../../components/PansBanner";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
@@ -17,11 +20,11 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
-import useFormMode from "../../../hooks/useFormMode";
 import {
   filterForNumbers,
   formatORCIDInput,
   isValidORCID,
+  Logger,
   mapObjectWithKey,
   validateEmail,
   validateUTF8,
@@ -43,6 +46,10 @@ const StyledFormControlLabel = styled(FormControlLabel)({
   },
 });
 
+const HiddenField = styled("input")({
+  display: "none",
+});
+
 /**
  * Form Section A View
  *
@@ -54,12 +61,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     status,
     data: { questionnaireData: data },
   } = useFormContext();
-  const { data: institutionList } = useInstitutionList();
+  const { data: institutionList } = useAggregatedInstitutions();
   const location = useLocation();
-  const { pi } = data;
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
 
+  const [pi, setPi] = useState<PI>(data?.pi);
   const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(
     data?.piAsPrimaryContact || false
@@ -115,6 +122,28 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
 
+  // TODO: Fix race condition where a onChange is triggered before the institution list is loaded
+  // which clears the institutionID field
+  const handlePIInstitutionChange = (value: string) => {
+    const apiData = institutionList.find((i) => i.name === value);
+    setPi((prev) => ({
+      ...prev,
+      institution: apiData?.name || value,
+      institutionID: apiData?._id || "",
+    }));
+  };
+
+  // TODO: Fix race condition where a onChange is triggered before the institution list is loaded
+  // which clears the institutionID field
+  const handlePCInstitutionChange = (value: string) => {
+    const apiData = institutionList.find((i) => i.name === value);
+    setPrimaryContact((prev) => ({
+      ...prev,
+      institution: apiData?.name || value,
+      institutionID: apiData?._id || "",
+    }));
+  };
+
   useEffect(() => {
     getFormObjectRef.current = getFormObject;
   }, [refs]);
@@ -126,6 +155,64 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
+
+  // NOTE: This handles Institution data migrations and should only run on mount
+  useEffect(() => {
+    if (readOnlyInputs || institutionList?.length <= 0 || !pi) {
+      return;
+    }
+
+    const apiDataByUUID = institutionList.find((i) => i._id === pi.institutionID);
+    const apiDataByName = institutionList.find((i) => i.name === pi.institution);
+
+    // ID is valid, update the cached name
+    if (validateUUID(pi.institutionID) && apiDataByUUID?.name !== pi.institution) {
+      setPi((prev) => ({
+        ...prev,
+        institutionName: apiDataByUUID?.name || "",
+      }));
+      Logger.info("Updated Principal Investigator institution name", pi, apiDataByUUID);
+      // Name is set but no ID was, add the ID
+    } else if (validateUUID(apiDataByName?._id) && apiDataByName?._id !== pi.institutionID) {
+      Logger.info("Updated Principal Investigator institution ID", pi, apiDataByName);
+      setPi((prev) => ({
+        ...prev,
+        institutionID: apiDataByName?._id || "",
+      }));
+    }
+  }, [pi?.institution, pi?.institutionID, institutionList]);
+
+  // NOTE: This handles Institution data migrations and should only run on mount
+  useEffect(() => {
+    if (readOnlyInputs || institutionList?.length <= 0 || !primaryContact) {
+      return;
+    }
+
+    const apiDataByUUID = institutionList.find((i) => i._id === primaryContact.institutionID);
+    const apiDataByName = institutionList.find((i) => i.name === primaryContact.institution);
+
+    // ID is valid, update the cached name
+    if (
+      validateUUID(primaryContact.institutionID) &&
+      apiDataByUUID?.name !== primaryContact.institution
+    ) {
+      setPrimaryContact((prev) => ({
+        ...prev,
+        institutionName: apiDataByUUID?.name || "",
+      }));
+      Logger.info("Updated Primary Contact institution name", primaryContact, apiDataByUUID);
+      // Name is set but no ID was, add the ID
+    } else if (
+      validateUUID(apiDataByName?._id) &&
+      apiDataByName?._id !== primaryContact.institutionID
+    ) {
+      Logger.info("Updated Primary Contact institution ID", primaryContact, apiDataByName);
+      setPrimaryContact((prev) => ({
+        ...prev,
+        institutionID: apiDataByName?._id || "",
+      }));
+    }
+  }, [primaryContact?.institution, primaryContact?.institutionID, institutionList]);
 
   return (
     <FormContainer
@@ -200,10 +287,26 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+          onChange={(_, val) => handlePIInstitutionChange(val)}
+          onInputChange={(_, val, reason) => {
+            // NOTE: If reason is not 'input', then the user did not trigger this event
+            if (reason === "input") {
+              handlePIInstitutionChange(val);
+            }
+          }}
           required
           disableClearable
           freeSolo
           readOnly={readOnlyInputs}
+        />
+        <HiddenField
+          type="text"
+          name="pi[institutionID]"
+          value={pi?.institutionID || ""}
+          onChange={() => {}}
+          data-type="string"
+          aria-label="Institution ID field"
+          hidden
         />
         <TextInput
           id="section-a-pi-institution-address"
@@ -302,9 +405,25 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
               validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+              onChange={(_, val) => handlePCInstitutionChange(val)}
+              onInputChange={(_, val, reason) => {
+                // NOTE: If reason is not 'input', then the user did not trigger this event
+                if (reason === "input") {
+                  handlePCInstitutionChange(val);
+                }
+              }}
               disableClearable
               required
               freeSolo
+            />
+            <HiddenField
+              type="text"
+              name="primaryContact[institutionID]"
+              value={primaryContact?.institutionID || ""}
+              onChange={() => {}}
+              data-type="string"
+              aria-label="Institution ID field"
+              hidden
             />
             <TextInput
               id="section-a-primary-contact-phone-number"

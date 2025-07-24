@@ -49,8 +49,6 @@ const AdditionalContact: FC<Props> = ({
   const [institutionName, setInstitutionName] = useState<string>(institution || "");
   const [institutionId, setInstitutionId] = useState<string>(institutionID || "");
 
-  // TODO: Fix intermittent saves cause the Id to disappear from the dataset
-
   const handleInputChange = useCallback(
     (value: string) => {
       const apiData = institutionList.find((i) => i.name === value);
@@ -136,7 +134,12 @@ const AdditionalContact: FC<Props> = ({
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
           onChange={(_, val) => handleInputChange(val)}
-          onInputChange={(_, val) => handleInputChange(val)}
+          onInputChange={(_, val, reason) => {
+            // NOTE: If reason is not 'input', then the user did not trigger this event
+            if (reason === "input") {
+              handleInputChange(val);
+            }
+          }}
           required
           disableClearable
           freeSolo
