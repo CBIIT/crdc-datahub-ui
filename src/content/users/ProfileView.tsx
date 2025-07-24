@@ -620,10 +620,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                               inputProps={{
                                 "aria-labelledby": "userInstitution",
                                 "data-testid": "institution-input",
-                                maxLength: 100,
                                 ...inputProps,
                               }}
-                              placeholder="100 characters allowed"
+                              placeholder="Select an Institution"
                             />
                           )}
                           disabled={fieldset.institution === "DISABLED"}
