@@ -4,7 +4,6 @@ import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
 import { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { validate as validateUUID } from "uuid";
 
 import useAggregatedInstitutions from "@/hooks/useAggregatedInstitutions";
 import useFormMode from "@/hooks/useFormMode";
@@ -24,7 +23,6 @@ import {
   filterForNumbers,
   formatORCIDInput,
   isValidORCID,
-  Logger,
   mapObjectWithKey,
   validateEmail,
   validateUTF8,
@@ -155,64 +153,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
-
-  // NOTE: This handles Institution data migrations and should only run on mount
-  useEffect(() => {
-    if (readOnlyInputs || institutionList?.length <= 0 || !pi) {
-      return;
-    }
-
-    const apiDataByUUID = institutionList.find((i) => i._id === pi.institutionID);
-    const apiDataByName = institutionList.find((i) => i.name === pi.institution);
-
-    // ID is valid, update the cached name
-    if (validateUUID(pi.institutionID) && apiDataByUUID?.name !== pi.institution) {
-      setPi((prev) => ({
-        ...prev,
-        institutionName: apiDataByUUID?.name || "",
-      }));
-      Logger.info("Updated Principal Investigator institution name", pi, apiDataByUUID);
-      // Name is set but no ID was, add the ID
-    } else if (validateUUID(apiDataByName?._id) && apiDataByName?._id !== pi.institutionID) {
-      Logger.info("Updated Principal Investigator institution ID", pi, apiDataByName);
-      setPi((prev) => ({
-        ...prev,
-        institutionID: apiDataByName?._id || "",
-      }));
-    }
-  }, [pi?.institution, pi?.institutionID, institutionList]);
-
-  // NOTE: This handles Institution data migrations and should only run on mount
-  useEffect(() => {
-    if (readOnlyInputs || institutionList?.length <= 0 || !primaryContact) {
-      return;
-    }
-
-    const apiDataByUUID = institutionList.find((i) => i._id === primaryContact.institutionID);
-    const apiDataByName = institutionList.find((i) => i.name === primaryContact.institution);
-
-    // ID is valid, update the cached name
-    if (
-      validateUUID(primaryContact.institutionID) &&
-      apiDataByUUID?.name !== primaryContact.institution
-    ) {
-      setPrimaryContact((prev) => ({
-        ...prev,
-        institutionName: apiDataByUUID?.name || "",
-      }));
-      Logger.info("Updated Primary Contact institution name", primaryContact, apiDataByUUID);
-      // Name is set but no ID was, add the ID
-    } else if (
-      validateUUID(apiDataByName?._id) &&
-      apiDataByName?._id !== primaryContact.institutionID
-    ) {
-      Logger.info("Updated Primary Contact institution ID", primaryContact, apiDataByName);
-      setPrimaryContact((prev) => ({
-        ...prev,
-        institutionID: apiDataByName?._id || "",
-      }));
-    }
-  }, [primaryContact?.institution, primaryContact?.institutionID, institutionList]);
 
   return (
     <FormContainer

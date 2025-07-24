@@ -1,11 +1,10 @@
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Grid, styled } from "@mui/material";
-import { FC, useCallback, useEffect, useState } from "react";
-import { validate as validateUUID } from "uuid";
+import { FC, useCallback, useState } from "react";
 
 import useAggregatedInstitutions from "@/hooks/useAggregatedInstitutions";
 
-import { filterForNumbers, Logger, validateEmail, validateUTF8 } from "../../utils";
+import { filterForNumbers, validateEmail, validateUTF8 } from "../../utils";
 import AddRemoveButton from "../AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
 
@@ -59,26 +58,6 @@ const AdditionalContact: FC<Props> = ({
     },
     [institutionList]
   );
-
-  // NOTE: This handles data migrations and should only run on mount
-  useEffect(() => {
-    if (readOnly || institutionList?.length <= 0) {
-      return;
-    }
-
-    const apiDataByUUID = institutionList.find((i) => i._id === institutionID);
-    const apiDataByName = institutionList.find((i) => i.name === institution);
-
-    // Institution ID is valid, update the cached name
-    if (validateUUID(institutionID) && apiDataByUUID?.name !== institutionName) {
-      setInstitutionName(apiDataByUUID?.name || "");
-      Logger.info("AdditionalContact updated an institution name", contact, apiDataByUUID);
-      // Institution name is set but no ID was, add the ID
-    } else if (validateUUID(apiDataByName?._id) && apiDataByName?._id !== institutionID) {
-      Logger.info("AdditionalContact migrated to institution ID", contact, apiDataByName);
-      setInstitutionId(apiDataByName?._id);
-    }
-  }, [institution, institutionID, institutionList]);
 
   return (
     <GridContainer container>

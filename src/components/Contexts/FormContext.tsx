@@ -2,6 +2,8 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 
+import { QuestionnaireDataMigrator } from "@/classes/QuestionnaireDataMigrator";
+
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import {
   APPROVE_APP,
@@ -22,6 +24,9 @@ import {
   SubmitAppResp,
   ApproveAppInput,
   SaveAppInput,
+  LIST_INSTITUTIONS,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
 import { FormInput as ApproveFormInput } from "../Questionnaire/ApproveFormDialog";
@@ -96,6 +101,16 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: { first: -1, orderBy: "name", sortDirection: "asc" },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("FormContext listInstitutions API error:", e),
+    }
+  );
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -167,7 +182,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           programName: data?.program?.name,
           programAbbreviation: data?.program?.abbreviation,
           programDescription: data?.program?.description,
-          newInstitutions: [], // TODO: Collect new institutions and save them here
+          // TODO: Collect new institutions and save them here
+          // 1. If the existing "new" institutions don't appear in the form, delete them
+          // 2. Generate an ID for the new institutions and update the form directly
+          newInstitutions: [],
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -377,6 +395,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         getApplication?.questionnaireData || null
       );
 
+      // TODO: move this to migrator
       // Check if we need to autofill the PI details
       const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
       if (!sectionA || sectionA?.status === "Not Started") {
@@ -390,12 +409,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         };
       }
 
+      const migrator = new QuestionnaireDataMigrator(questionnaireData, { getInstitutions });
+      const migratedData = await migrator.run();
+
       setState({
         status: Status.LOADED,
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
+            ...merge(cloneDeep(InitialQuestionnaire), migratedData),
           },
         },
       });
