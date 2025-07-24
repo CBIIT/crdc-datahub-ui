@@ -51,9 +51,31 @@ export class QuestionnaireDataMigrator {
   }
 
   /**
-   * Migrates institution names to IDs in the questionnaireData.
+   * Gets the mutated QuestionnaireData object.
+   * This method is primarily for testing purposes to verify the migration results.
+   *
+   * @returns The mutated QuestionnaireData object.
    */
-  private async _migrateInstitutionsToID(): Promise<void> {
+  public getData(): QuestionnaireData {
+    return this.data;
+  }
+
+  /**
+   * Gets the dependencies used by the migrator.
+   * This method is useful for testing or further operations that may require the same dependencies.
+   *
+   * @returns The dependencies used by the migrator, useful for testing or further operations.
+   */
+  public getDependencies(): MigratorDependencies {
+    return this.dependencies;
+  }
+
+  /**
+   * Migrates institution names to IDs in the questionnaireData.
+   *
+   * @private Do not call this method directly; use the `run` method instead.
+   */
+  async _migrateInstitutionsToID(): Promise<void> {
     const { pi, primaryContact, additionalContacts } = this.data;
     const { getInstitutions } = this.dependencies;
 
@@ -77,8 +99,8 @@ export class QuestionnaireDataMigrator {
       // Find the institution by name
       const apiData = institutionList.find((i) => i.name === institution);
       if (validateUUID(apiData?._id)) {
+        Logger.info("_migrateInstitutionsToID: Migrating institution", { ...contact }, apiData);
         contact.institutionID = apiData._id;
-        Logger.info("_migrateInstitutionsToID: Migrated institution", { ...contact }, apiData);
         return;
       }
 
@@ -89,7 +111,7 @@ export class QuestionnaireDataMigrator {
   /**
    * Updates any outdated institution names in the questionnaireData.
    */
-  private async _migrateInstitutionNames(): Promise<void> {
+  async _migrateInstitutionNames(): Promise<void> {
     const { pi, primaryContact, additionalContacts } = this.data;
     const { getInstitutions } = this.dependencies;
 
@@ -113,8 +135,10 @@ export class QuestionnaireDataMigrator {
       // Find the institution by ID
       const apiData = institutionList.find((i) => i._id === institutionID);
       if (!!apiData?.name && apiData.name !== contact.institution) {
+        Logger.info("_migrateInstitutionNames: Updating institution name", { ...contact }, apiData);
         contact.institution = apiData.name;
-        Logger.info("_migrateInstitutionNames: Updated institution name", { ...contact }, apiData);
+      } else if (!apiData) {
+        Logger.error("_migrateInstitutionNames: Unable to find a matching institution", contact);
       }
     });
   }

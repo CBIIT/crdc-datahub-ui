@@ -1,0 +1,613 @@
+import { v4 } from "uuid";
+import { vi } from "vitest";
+
+import { contactFactory } from "@/factories/application/ContactFactory";
+import { piFactory } from "@/factories/application/PIFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+import { Logger } from "@/utils/logger";
+
+import { QuestionnaireDataMigrator } from "./QuestionnaireDataMigrator";
+
+vi.mock("@/utils/logger", () => ({
+  Logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+describe("QuestionnaireDataMigrator", () => {
+  let mockGetInstitutions;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetInstitutions = vi.fn();
+  });
+
+  describe("run", () => {
+    it("should return the fully migrated questionnaireData object", async () => {
+      const data = questionnaireDataFactory.build({
+        // This needs the institutionID from API data
+        pi: piFactory.build({ institution: "Missing ID" }),
+        // This needs no changes
+        primaryContact: contactFactory.build(),
+        additionalContacts: [
+          // Missing institutionID
+          contactFactory.build({ institutionID: undefined, institution: "Some Mock Value" }),
+          // Needs updated institution name
+          contactFactory.build({ institutionID: v4(), institution: "An Outdated Name" }),
+        ],
+      });
+
+      const mockInstitutions: Institution[] = [
+        // PI institution
+        institutionFactory.build({ _id: v4(), name: "Missing ID" }),
+        // Additional contact institution 1
+        institutionFactory.build({ _id: v4(), name: "Some Mock Value" }),
+        // Additional contact institution 2
+        institutionFactory.build({
+          _id: data.additionalContacts[1].institutionID,
+          name: "Some new name",
+        }),
+      ];
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: mockInstitutions,
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      const result = await migrator.run();
+
+      expect(result).not.toEqual(data);
+      expect(result.pi.institutionID).toBe(mockInstitutions[0]._id); // ID was added
+      expect(result.primaryContact.institutionID).toBe(data.primaryContact.institutionID); // Nothing changed
+      expect(result.additionalContacts[0].institutionID).toBe(mockInstitutions[1]._id); // ID was added
+      expect(result.additionalContacts[1].institutionID).toBe(mockInstitutions[2]._id); // ID was unchanged
+      expect(result.additionalContacts[1].institution).toBe("Some new name"); // Name was updated
+    });
+  });
+
+  describe("getData", () => {
+    it("should return the current QuestionnaireData object", () => {
+      const data = questionnaireDataFactory.build();
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      // NOTE: We're not running the migration here, so the data should be identical
+      expect(migrator.getData()).toEqual(data);
+    });
+  });
+
+  describe("getDependencies", () => {
+    it("should return the dependencies used for migration", () => {
+      const data = questionnaireDataFactory.build();
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      expect(migrator.getDependencies()).toEqual({
+        getInstitutions: mockGetInstitutions,
+      });
+    });
+  });
+
+  describe("_migrateInstitutionsToID", () => {
+    it("should modify nothing if all institutionIDs are valid", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institution: "mock-1", institutionID: v4() }),
+        primaryContact: contactFactory.build({ institution: "mock-2", institutionID: v4() }),
+        additionalContacts: [contactFactory.build({ institution: "mock-3", institutionID: v4() })],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionsToID();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it("should modify nothing if no contacts are present (1/2)", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: null,
+        primaryContact: null,
+        additionalContacts: [],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionsToID();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it("should modify nothing if no contacts are present (2/2)", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: undefined,
+        primaryContact: undefined,
+        additionalContacts: null,
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionsToID();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it("should modify nothing if no contacts have institutions", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institution: null }), // Institution is null
+        primaryContact: contactFactory.build({ institution: "" }), // Institution is empty string
+        additionalContacts: [contactFactory.build({ institution: undefined })], // Institution is undefined
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionsToID();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it.each<unknown>([[], null, undefined])(
+      "should log an error when no institutions are returned by the API",
+      async (result) => {
+        const data = questionnaireDataFactory.build({
+          pi: piFactory.build({ institution: "mock-1" }),
+          primaryContact: contactFactory.build({ institution: "mock-2" }),
+          additionalContacts: [contactFactory.build({ institution: "mock-3" })],
+        });
+
+        mockGetInstitutions.mockResolvedValue({
+          data: {
+            listInstitutions: {
+              institutions: result,
+            },
+          },
+        });
+
+        const migrator = new QuestionnaireDataMigrator(data, {
+          getInstitutions: mockGetInstitutions,
+        });
+
+        await migrator._migrateInstitutionsToID();
+
+        expect(Logger.error).toHaveBeenCalledWith(
+          expect.stringContaining("No institutions found for migration")
+        );
+      }
+    );
+
+    it("should log an error if no matching institution was found", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institution: "mock-1" }),
+        primaryContact: contactFactory.build({ institution: "mock-2" }),
+        additionalContacts: [contactFactory.build({ institution: "mock-3" })],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [
+              institutionFactory.build({ _id: v4(), name: "mock-1" }),
+              // mock-2 is missing to simulate no match
+              institutionFactory.build({ _id: v4(), name: "mock-3" }),
+            ],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionsToID();
+
+      expect(Logger.error).toHaveBeenCalledWith(
+        "_migrateInstitutionsToID: Unable to find a matching institution",
+        expect.objectContaining({
+          ...contactFactory.build({ institution: "mock-2" }),
+        })
+      );
+    });
+
+    it("should migrate each outdated contact", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institution: "Some Mock Value" }),
+        primaryContact: contactFactory.build({ institution: "AREA-51 Institution XYZ" }),
+        additionalContacts: [
+          ...contactFactory.build(5, (idx) => ({ institution: `mock-${idx + 1}` })),
+          contactFactory.build({ institution: "Some Mock Value" }), // Duplicate of the PI
+        ],
+      });
+
+      const mockInstitutions: Institution[] = [
+        // PI and Primary Contact institutions
+        institutionFactory.build({ _id: v4(), name: "Some Mock Value" }),
+        institutionFactory.build({ _id: v4(), name: "AREA-51 Institution XYZ" }),
+        // First 5 Additional Contacts institutions
+        ...institutionFactory.build(5, (idx) => ({ _id: v4(), name: `mock-${idx + 1}` })),
+      ];
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: mockInstitutions,
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionsToID();
+      const result = migrator.getData();
+
+      // Just a sanity check to ensure data was modified
+      expect(result).not.toEqual(data);
+
+      // Check that IDs were assigned correctly
+      expect(result.pi.institutionID).toBe(mockInstitutions[0]._id);
+      expect(result.primaryContact.institutionID).toBe(mockInstitutions[1]._id);
+      expect(result.additionalContacts[0].institutionID).toBe(mockInstitutions[2]._id);
+      expect(result.additionalContacts[1].institutionID).toBe(mockInstitutions[3]._id);
+      expect(result.additionalContacts[2].institutionID).toBe(mockInstitutions[4]._id);
+      expect(result.additionalContacts[3].institutionID).toBe(mockInstitutions[5]._id);
+      expect(result.additionalContacts[4].institutionID).toBe(mockInstitutions[6]._id);
+      expect(result.additionalContacts[5].institutionID).toBe(mockInstitutions[0]._id); // Duplicate of PI
+
+      // Check that Logger.info was called for each migration
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionsToID: Migrating institution",
+        expect.objectContaining({ ...data.pi }),
+        expect.objectContaining({ ...mockInstitutions[0] })
+      );
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionsToID: Migrating institution",
+        expect.objectContaining({ ...data.primaryContact }),
+        expect.objectContaining({ _id: mockInstitutions[1]._id })
+      );
+      data.additionalContacts.slice(0, 4).forEach((contact, idx) => {
+        expect(Logger.info).toHaveBeenCalledWith(
+          "_migrateInstitutionsToID: Migrating institution",
+          expect.objectContaining({ ...contact }),
+          expect.objectContaining({ _id: mockInstitutions[idx + 2]._id })
+        );
+      });
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionsToID: Migrating institution",
+        expect.objectContaining({ ...data.additionalContacts[5] }),
+        expect.objectContaining({ _id: mockInstitutions[0]._id })
+      );
+    });
+  });
+
+  describe("_migrateInstitutionNames", () => {
+    it("should modify nothing if no contacts are present (1/2)", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: null,
+        primaryContact: null,
+        additionalContacts: [],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [
+              institutionFactory.build({ _id: v4(), name: "Institution A" }),
+              institutionFactory.build({ _id: v4(), name: "Institution B" }),
+            ],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionNames();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it("should modify nothing if no contacts are present (2/2)", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: undefined,
+        primaryContact: undefined,
+        additionalContacts: null,
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [
+              institutionFactory.build({ _id: v4(), name: "Institution A" }),
+              institutionFactory.build({ _id: v4(), name: "Institution B" }),
+            ],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionNames();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it("should modify nothing if no contacts have institutions", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institutionID: null }),
+        primaryContact: contactFactory.build({ institutionID: "" }),
+        additionalContacts: [contactFactory.build({ institutionID: undefined })],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [
+              institutionFactory.build({ _id: v4(), name: "Institution A" }),
+              institutionFactory.build({ _id: v4(), name: "Institution B" }),
+            ],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionNames();
+
+      expect(migrator.getData()).toEqual(data);
+    });
+
+    it.each<unknown>([[], null, undefined])(
+      "should log an error when no institutions are returned by the API",
+      async (institutions) => {
+        const data = questionnaireDataFactory.build({
+          pi: piFactory.build({ institutionID: v4(), institution: "Institution A" }),
+          primaryContact: contactFactory.build({
+            institutionID: v4(),
+            institution: "Institution B",
+          }),
+          additionalContacts: [
+            contactFactory.build({ institutionID: v4(), institution: "Institution C" }),
+          ],
+        });
+
+        mockGetInstitutions.mockResolvedValue({
+          data: {
+            listInstitutions: {
+              institutions,
+            },
+          },
+        });
+
+        const migrator = new QuestionnaireDataMigrator(data, {
+          getInstitutions: mockGetInstitutions,
+        });
+
+        await migrator._migrateInstitutionNames();
+
+        expect(migrator.getData()).toEqual(data);
+        expect(Logger.error).toHaveBeenCalledWith(
+          expect.stringContaining("No institutions found for migration")
+        );
+      }
+    );
+
+    it("should modify nothing if the institution was not returned by the API", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institutionID: v4(), institution: "Institution A" }),
+        primaryContact: contactFactory.build({
+          institutionID: v4(),
+          institution: "Institution B",
+        }),
+        additionalContacts: [
+          contactFactory.build({ institutionID: v4(), institution: "Institution C" }),
+        ],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [
+              // NOTE: Using different UUIDs to simulate no match
+              institutionFactory.build({ _id: v4(), name: "Institution D" }),
+            ],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionNames();
+
+      expect(migrator.getData()).toEqual(data);
+      expect(Logger.error).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Unable to find a matching institution",
+        expect.objectContaining({ ...data.pi })
+      );
+      expect(Logger.error).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Unable to find a matching institution",
+        expect.objectContaining({ ...data.primaryContact })
+      );
+      expect(Logger.error).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Unable to find a matching institution",
+        expect.objectContaining({ ...data.additionalContacts[0] })
+      );
+    });
+
+    it("should update each outdated contact name", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institutionID: v4(), institution: "OLD NAME A" }),
+        primaryContact: contactFactory.build({
+          institutionID: v4(),
+          institution: "OLD NAME B",
+        }),
+        additionalContacts: [
+          contactFactory.build({ institutionID: v4(), institution: "OLD NAME C" }),
+          contactFactory.build({ institutionID: v4(), institution: "OLD NAME D" }),
+        ],
+      });
+
+      const mockInstitutions = [
+        // NOTE: we're referencing the same institution IDs as in the data
+        institutionFactory.build({ _id: data.pi.institutionID, name: "Institution A" }),
+        institutionFactory.build({ _id: data.primaryContact.institutionID, name: "Institution B" }),
+        institutionFactory.build({
+          _id: data.additionalContacts[0].institutionID,
+          name: "Institution C",
+        }),
+        institutionFactory.build({
+          _id: data.additionalContacts[1].institutionID,
+          name: "Institution D",
+        }),
+      ];
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: mockInstitutions,
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionNames();
+      const result = migrator.getData();
+
+      // Just a sanity check to ensure data was modified
+      expect(result).not.toEqual(data);
+
+      // Check that names were updated correctly
+      expect(result.pi.institution).toBe(mockInstitutions[0].name);
+      expect(result.primaryContact.institution).toBe(mockInstitutions[1].name);
+      expect(result.additionalContacts[0].institution).toBe(mockInstitutions[2].name);
+      expect(result.additionalContacts[1].institution).toBe(mockInstitutions[3].name);
+
+      // Check that Logger.info was called for each migration
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Updating institution name",
+        expect.objectContaining({ ...data.pi }),
+        expect.objectContaining({ ...mockInstitutions[0] })
+      );
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Updating institution name",
+        expect.objectContaining({ ...data.primaryContact }),
+        expect.objectContaining({ ...mockInstitutions[1] })
+      );
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Updating institution name",
+        expect.objectContaining({ ...data.additionalContacts[0] }),
+        expect.objectContaining({ ...mockInstitutions[2] })
+      );
+      expect(Logger.info).toHaveBeenCalledWith(
+        "_migrateInstitutionNames: Updating institution name",
+        expect.objectContaining({ ...data.additionalContacts[1] }),
+        expect.objectContaining({ ...mockInstitutions[3] })
+      );
+    });
+
+    it("should not update institution name if it matches the API data", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institutionID: v4(), institution: "good-to-go" }),
+        primaryContact: contactFactory.build({
+          institutionID: v4(),
+          institution: "good-name",
+        }),
+        additionalContacts: [
+          contactFactory.build({ institutionID: v4(), institution: "we-are-good" }),
+        ],
+      });
+
+      const mockInstitutions = [
+        // NOTE: we're referencing the same institution IDs as in the data
+        institutionFactory.build({ _id: data.pi.institutionID, name: "good-to-go" }),
+        institutionFactory.build({ _id: data.primaryContact.institutionID, name: "good-name" }),
+        institutionFactory.build({
+          _id: data.additionalContacts[0].institutionID,
+          name: "we-are-good",
+        }),
+      ];
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: mockInstitutions,
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+      });
+
+      await migrator._migrateInstitutionNames();
+      const result = migrator.getData();
+
+      // Ensure data was not modified
+      expect(result).toEqual(data);
+      expect(Logger.info).not.toHaveBeenCalled();
+      expect(Logger.error).not.toHaveBeenCalled();
+    });
+  });
+});
