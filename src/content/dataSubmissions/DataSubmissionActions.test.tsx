@@ -120,4 +120,39 @@ describe("Implementation Requirements - Release", () => {
       expect(releaseBtn).toBeDisabled();
     }
   );
+
+  it("should show data commons within Release button label", () => {
+    shouldDisableReleaseMock.mockReturnValue({ disable: false, requireAlert: false });
+
+    const { getByRole } = render(
+      <TestParent
+        user={{
+          _id: "other-user",
+          role: "Admin",
+          permissions: ["data_submission:view", "data_submission:review"],
+        }}
+        submission={{
+          _id: "submission-id",
+          status: "Submitted",
+          metadataValidationStatus: "Passed",
+          fileValidationStatus: "Passed",
+          crossSubmissionStatus: "Error",
+          dataCommonsDisplayName: "DC-1",
+          otherSubmissions: JSON.stringify({
+            "In Progress": [],
+            Submitted: ["submitted-id"],
+            Released: [],
+          }),
+        }}
+      >
+        <DataSubmissionActions onAction={vi.fn()} />
+      </TestParent>
+    );
+
+    const releaseBtn = getByRole("button", {
+      name: "Release to DC-1",
+    });
+    expect(releaseBtn).toBeInTheDocument();
+    expect(releaseBtn).toHaveTextContent("Release to DC-1");
+  });
 });

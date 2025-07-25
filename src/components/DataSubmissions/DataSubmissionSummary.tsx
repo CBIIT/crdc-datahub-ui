@@ -138,6 +138,19 @@ const StyledEmailWrapper = styled("a")({
   lineHeight: "19.6px",
 });
 
+const buildReleasedStatusWrapper =
+  (dataCommonsDisplayName: string): React.FC<{ children: React.ReactNode }> =>
+  ({ children }) => (
+    <StyledTooltip
+      title={`Released to ${dataCommonsDisplayName}`}
+      placement="top"
+      open={undefined}
+      arrow
+    >
+      <span>{children}</span>
+    </StyledTooltip>
+  );
+
 const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
   let color: string;
   switch (status) {
@@ -184,9 +197,21 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
     <StyledSummaryWrapper>
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing="14px">
         <Stack direction="column" alignItems="center" minWidth="192px">
-          <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
-            {dataSubmission?.status}
-          </StyledSubmissionStatus>
+          {dataSubmission?.status === "Released" ? (
+            <StyledTooltip
+              title={`Released to ${dataSubmission?.dataCommonsDisplayName}`}
+              placement="top"
+              arrow
+            >
+              <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
+                {dataSubmission?.status}
+              </StyledSubmissionStatus>
+            </StyledTooltip>
+          ) : (
+            <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
+              {dataSubmission?.status}
+            </StyledSubmissionStatus>
+          )}
           <StyledButtonWrapper>
             <StyledReviewCommentsButton
               variant="contained"
@@ -306,6 +331,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         history={dataSubmission?.history}
         iconMap={DataSubmissionIconMap}
         getTextColor={getHistoryTextColorFromStatus}
+        getStatusWrapper={(status) =>
+          status === "Released"
+            ? buildReleasedStatusWrapper(dataSubmission?.dataCommonsDisplayName)
+            : ({ children }) => children
+        }
       />
       <ReviewCommentsDialog
         open={openDialog === "review comments"}

@@ -10,6 +10,7 @@ import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
 import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 import { submissionHistoryEventFactory } from "@/factories/submission/SubmissionHistoryEvent";
 
 import { render, waitFor } from "../../test-utils";
@@ -709,5 +710,137 @@ describe("DataSubmissionSummary Collaborators Dialog Tests", () => {
     userEvent.click(getByTestId("collaborators-dialog-close-icon-button"));
 
     await waitFor(() => expect(queryByTestId("collaborators-dialog")).not.toBeInTheDocument());
+  });
+});
+
+describe("Implementation Requirements", () => {
+  it("shows a tooltip with data commons when hovering over 'Released' status in summary", async () => {
+    const dataSubmission = submissionFactory.build({
+      status: "Released",
+      dataCommonsDisplayName: "DC-1",
+    });
+
+    const { getByText, findByText, queryByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+
+    const status = getByText(/Released/i);
+    userEvent.hover(status);
+
+    expect(await findByText(/Released to DC-1/i)).toBeVisible();
+
+    userEvent.unhover(status);
+    await waitFor(() => {
+      expect(queryByText(/Released to DC-1/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it.each<SubmissionStatus>([
+    "New",
+    "In Progress",
+    "Submitted",
+    "Withdrawn",
+    "Canceled",
+    "Deleted",
+    "Rejected",
+    "Completed",
+  ])("does not show a tooltip for non-'Released' status in summary", async (status) => {
+    const dataSubmission = submissionFactory.build({ status });
+
+    const { getByText, queryByText, queryByRole } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+
+    const statusText = getByText(status);
+    userEvent.hover(statusText);
+
+    await waitFor(() => {
+      expect(queryByText(/Released to/i)).not.toBeInTheDocument();
+      expect(queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows tooltip for 'Released' status in full history dialog", async () => {
+    const dataSubmission = submissionFactory.build({
+      status: "Completed",
+      dataCommonsDisplayName: "DC-1",
+      history: [
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-12-02T10:00:00Z",
+          status: "Completed",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-12-01T10:00:00Z",
+          status: "Released",
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-30T10:00:00Z",
+          status: "Submitted",
+        }),
+      ],
+    });
+
+    const { getByText, findByText, queryByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+
+    userEvent.click(getByText("Full History"));
+
+    const releasedStatus = await findByText(/Released/i);
+    userEvent.hover(releasedStatus);
+
+    expect(await findByText(/Released to DC-1/i)).toBeVisible();
+
+    userEvent.unhover(releasedStatus);
+    await waitFor(() => {
+      expect(queryByText(/Released to DC-1/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it.each<SubmissionStatus>([
+    "New",
+    "In Progress",
+    "Submitted",
+    "Withdrawn",
+    "Canceled",
+    "Deleted",
+    "Rejected",
+    "Completed",
+  ])("does not show tooltip for non-'Released' statuses in full history dialog", async (status) => {
+    const dataSubmission = submissionFactory.build({
+      status,
+      dataCommonsDisplayName: "DC-1",
+      history: [
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-12-01T10:00:00Z",
+          status,
+        }),
+        submissionHistoryEventFactory.build({
+          dateTime: "2023-11-30T10:00:00Z",
+          status: "In Progress",
+        }),
+      ],
+    });
+
+    const { getByText, queryByText, queryByRole } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+
+    userEvent.click(getByText("Full History"));
+
+    const statusText = getByText(status);
+    userEvent.hover(statusText);
+    await waitFor(() => {
+      expect(queryByText(/Released to/i)).not.toBeInTheDocument();
+      expect(queryByRole("tooltip")).not.toBeInTheDocument();
+    });
   });
 });

@@ -59,6 +59,7 @@ type ContextArgs = {
   dataFileSize: number;
   hasOrphanError: boolean;
   isBatchUploading: boolean;
+  dataCommonsDisplayName: string;
 };
 
 type ComponentProps = ComponentPropsWithoutRef<typeof DataSubmissionActions>;
@@ -77,6 +78,7 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
     dataFileSize,
     hasOrphanError = false,
     isBatchUploading = false,
+    dataCommonsDisplayName,
   } = context.args;
 
   return (
@@ -109,6 +111,7 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
               status: submissionStatus,
               metadataValidationStatus,
               fileValidationStatus,
+              dataCommonsDisplayName,
               dataType,
               intention,
               dataFileSize: {
@@ -209,6 +212,12 @@ const meta = {
         type: "boolean",
       },
     },
+    dataCommonsDisplayName: {
+      name: "dataCommonsDisplayName",
+      control: {
+        type: "text",
+      },
+    },
   },
   args: {
     role: "Submitter",
@@ -221,6 +230,7 @@ const meta = {
     dataFileSize: 1000,
     hasOrphanError: false,
     isBatchUploading: false,
+    dataCommonsDisplayName: "DC-1",
     onAction: fn(),
   },
   tags: ["autodocs"],
