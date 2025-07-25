@@ -10,6 +10,7 @@ export const baseContact: Contact = {
   email: "",
   phone: "",
   institution: "",
+  institutionID: "",
 };
 
 /**

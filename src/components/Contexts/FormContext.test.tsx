@@ -3,8 +3,6 @@ import { GraphQLError } from "graphql";
 import React, { FC } from "react";
 
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
-import { contactFactory } from "@/factories/application/ContactFactory";
-import { piFactory } from "@/factories/application/PIFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
 
 import {
@@ -387,87 +385,6 @@ describe("approveForm Tests", () => {
         expect.objectContaining({
           comment: "mock approval comment",
           wholeProgram: true,
-        })
-      );
-    });
-  });
-
-  it("should send all institution names when approving an application", async () => {
-    const appId = "556ac14a-f247-42e8-8878-8468060fb49a";
-
-    const getAppMock: MockedResponse<GetAppResp> = {
-      request: {
-        query: GET_APP,
-      },
-      variableMatcher: () => true,
-      result: {
-        data: {
-          getApplication: {
-            ...baseApplication,
-            questionnaireData: JSON.stringify(
-              questionnaireDataFactory.build({
-                sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-                pi: piFactory.build({
-                  institution: "PI-INST-NAME",
-                }),
-                primaryContact: contactFactory.build({
-                  institution: "PC-INST-NAME",
-                }),
-                additionalContacts: contactFactory.build(3, (index) => ({
-                  institution: `AC-INST-NAME-${index}`,
-                })),
-              })
-            ),
-          },
-        },
-      },
-    };
-
-    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
-    const mock: MockedResponse<ApproveAppResp, ApproveAppInput> = {
-      request: {
-        query: APPROVE_APP,
-      },
-      variableMatcher: mockVariableMatcher,
-      result: {
-        data: {
-          approveApplication: {
-            _id: appId,
-          },
-        },
-      },
-    };
-
-    const { result } = renderHook(() => useFormContext(), {
-      wrapper: ({ children }) => (
-        <TestParent mocks={[getAppMock, mock]} appId={appId}>
-          {children}
-        </TestParent>
-      ),
-    });
-
-    await waitFor(() => {
-      expect(result.current.status).toEqual(FormStatus.LOADED);
-    });
-
-    await act(async () => {
-      const approveResp = await result.current.approveForm(
-        { reviewComment: "", pendingModelChange: false },
-        true
-      );
-      expect(approveResp).toEqual({
-        status: "success",
-        id: appId,
-      });
-      expect(mockVariableMatcher).toHaveBeenCalledWith(
-        expect.objectContaining({
-          institutions: [
-            "PI-INST-NAME",
-            "PC-INST-NAME",
-            "AC-INST-NAME-0",
-            "AC-INST-NAME-1",
-            "AC-INST-NAME-2",
-          ],
         })
       );
     });

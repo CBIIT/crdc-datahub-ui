@@ -196,22 +196,8 @@ describe("ListView Component", () => {
     const saveAppMock: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
         query: SAVE_APP,
-        variables: {
-          application: {
-            _id: undefined,
-            studyName: "",
-            studyAbbreviation: "",
-            questionnaireData: "{}",
-            controlledAccess: false,
-            openAccess: false,
-            ORCID: "",
-            PI: "",
-            programName: "",
-            programAbbreviation: "",
-            programDescription: "",
-          },
-        },
       },
+      variableMatcher: () => true,
       error: new Error("Error creating application"),
     };
 

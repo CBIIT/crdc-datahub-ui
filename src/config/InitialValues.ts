@@ -16,6 +16,7 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  newInstitutions: [],
   version: "",
 };
 
@@ -28,6 +29,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     email: "",
     ORCID: "",
     institution: "",
+    institutionID: "",
     address: "",
   },
   piAsPrimaryContact: false,
@@ -38,6 +40,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     phone: "",
     position: "",
     institution: "",
+    institutionID: "",
   },
   additionalContacts: [],
   program: {

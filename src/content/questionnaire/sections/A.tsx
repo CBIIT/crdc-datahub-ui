@@ -2,12 +2,14 @@ import { parseForm } from "@jalik/form-parser";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
-import React, { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+
+import useAggregatedInstitutions from "@/hooks/useAggregatedInstitutions";
+import useFormMode from "@/hooks/useFormMode";
 
 import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
-import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
 import PansBanner from "../../../components/PansBanner";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
 import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
@@ -17,7 +19,6 @@ import TextInput from "../../../components/Questionnaire/TextInput";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
-import useFormMode from "../../../hooks/useFormMode";
 import {
   filterForNumbers,
   formatORCIDInput,
@@ -43,6 +44,10 @@ const StyledFormControlLabel = styled(FormControlLabel)({
   },
 });
 
+const HiddenField = styled("input")({
+  display: "none",
+});
+
 /**
  * Form Section A View
  *
@@ -54,12 +59,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     status,
     data: { questionnaireData: data },
   } = useFormContext();
-  const { data: institutionList } = useInstitutionList();
+  const { data: institutionList } = useAggregatedInstitutions();
   const location = useLocation();
-  const { pi } = data;
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
 
+  const [pi, setPi] = useState<PI>(data?.pi);
   const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(
     data?.piAsPrimaryContact || false
@@ -106,12 +111,31 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         email: "",
         phone: "",
         institution: "",
+        institutionID: "",
       },
     ]);
   };
 
   const removeContact = (key: string) => {
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
+  };
+
+  const handlePIInstitutionChange = (value: string) => {
+    const apiData = institutionList.find((i) => i.name === value);
+    setPi((prev) => ({
+      ...prev,
+      institution: apiData?.name || value,
+      institutionID: apiData?._id || "",
+    }));
+  };
+
+  const handlePCInstitutionChange = (value: string) => {
+    const apiData = institutionList.find((i) => i.name === value);
+    setPrimaryContact((prev) => ({
+      ...prev,
+      institution: apiData?.name || value,
+      institutionID: apiData?._id || "",
+    }));
   };
 
   useEffect(() => {
@@ -199,10 +223,26 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+          onChange={(_, val) => handlePIInstitutionChange(val)}
+          onInputChange={(_, val, reason) => {
+            // NOTE: If reason is not 'input', then the user did not trigger this event
+            if (reason === "input") {
+              handlePIInstitutionChange(val);
+            }
+          }}
           required
           disableClearable
           freeSolo
           readOnly={readOnlyInputs}
+        />
+        <HiddenField
+          type="text"
+          name="pi[institutionID]"
+          value={pi?.institutionID || ""}
+          onChange={() => {}}
+          data-type="string"
+          aria-label="Institution ID field"
+          hidden
         />
         <TextInput
           id="section-a-pi-institution-address"
@@ -301,9 +341,25 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
               validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+              onChange={(_, val) => handlePCInstitutionChange(val)}
+              onInputChange={(_, val, reason) => {
+                // NOTE: If reason is not 'input', then the user did not trigger this event
+                if (reason === "input") {
+                  handlePCInstitutionChange(val);
+                }
+              }}
               disableClearable
               required
               freeSolo
+            />
+            <HiddenField
+              type="text"
+              name="primaryContact[institutionID]"
+              value={primaryContact?.institutionID || ""}
+              onChange={() => {}}
+              data-type="string"
+              aria-label="Institution ID field"
+              hidden
             />
             <TextInput
               id="section-a-primary-contact-phone-number"
