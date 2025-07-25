@@ -1,7 +1,9 @@
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import {
+  FormControlLabel,
   IconButton,
   MenuItem,
+  RadioGroup,
   Stack,
   styled,
   Table,
@@ -18,6 +20,7 @@ import RemoveIconSvg from "../../assets/icons/remove_icon.svg?react";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import AddRemoveButton from "../AddRemoveButton";
 import { useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
+import StyledFormRadioButton from "../Questionnaire/StyledRadioButton";
 import StyledFormSelect from "../StyledFormComponents/StyledSelect";
 import TruncatedText from "../TruncatedText";
 
@@ -27,6 +30,11 @@ const StyledTableContainer = styled(TableContainer)(() => ({
   overflow: "hidden",
   marginBottom: "15px",
 }));
+
+const FixedTable = styled(Table)({
+  tableLayout: "fixed",
+  width: "100%",
+});
 
 const StyledTableHeaderRow = styled(TableRow)(() => ({
   "&.MuiTableRow-root": {
@@ -96,6 +104,47 @@ const StyledNameCell = styled(StyledTableCell)({
   },
 });
 
+const StyledRadioControl = styled(FormControlLabel)({
+  fontFamily: "Nunito",
+  fontSize: "16px",
+  fontWeight: "500",
+  lineHeight: "20px",
+  textAlign: "left",
+  color: "#083A50",
+  "&:last-child": {
+    marginRight: "0px",
+    minWidth: "unset",
+  },
+});
+
+const StyledRadioGroup = styled(RadioGroup)({
+  width: "100%",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "14px",
+  "& .MuiFormControlLabel-root": {
+    margin: 0,
+    "&.Mui-disabled": {
+      cursor: "not-allowed",
+    },
+  },
+  "& .MuiFormControlLabel-asterisk": {
+    display: "none",
+  },
+  "& .MuiSelect-select .notranslate": {
+    display: "inline-block",
+    minHeight: "38px",
+  },
+  "& .MuiRadio-root.Mui-disabled .radio-icon": {
+    background: "#FFF !important",
+    opacity: 0.4,
+  },
+});
+
+const StyledRadioButton = styled(StyledFormRadioButton)({
+  padding: "0 7px 0 0",
+});
+
 const StyledRemoveButton = styled(IconButton)(({ theme }) => ({
   color: "#C05239",
   padding: "5px",
@@ -153,12 +202,26 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
   return (
     <>
       <StyledTableContainer data-testid="collaborators-table-container">
-        <Table>
+        <FixedTable>
+          <colgroup>
+            <col style={{ width: isEdit ? "47%" : "50%" }} />
+            <col style={{ width: isEdit ? "40%" : "50%" }} />
+            {isEdit && <col style={{ width: "13%" }} />}
+          </colgroup>
+
           <TableHead>
             <StyledTableHeaderRow data-testid="table-header-row">
               <StyledTableHeaderCell id="header-collaborator" data-testid="header-collaborator">
                 Collaborator
               </StyledTableHeaderCell>
+              <StyledTableHeaderCell
+                id="header-access"
+                sx={{ textAlign: "center" }}
+                data-testid="header-access"
+              >
+                Access
+              </StyledTableHeaderCell>
+
               {isEdit && (
                 <StyledTableHeaderCell
                   id="header-remove"
@@ -177,7 +240,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                 key={`collaborator_${idx}_${collaborator.collaboratorID}`}
                 data-testid={`collaborator-row-${idx}`}
               >
-                <StyledNameCell width="100%">
+                <StyledNameCell>
                   <StyledSelect
                     value={collaborator.collaboratorID || ""}
                     onChange={(e) =>
@@ -197,7 +260,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     renderValue={() => (
                       <TruncatedText
                         text={collaborator.collaboratorName ?? " "}
-                        maxCharacters={35}
+                        maxCharacters={20}
                         underline={false}
                         ellipsis
                       />
@@ -216,6 +279,48 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                       ))}
                   </StyledSelect>
                 </StyledNameCell>
+
+                <StyledTableCell data-testid={`collaborator-access-${idx}`}>
+                  <Stack direction="row" justifyContent="center" alignItems="center">
+                    <StyledRadioGroup
+                      value={collaborator?.permission || ""}
+                      onChange={(e, val: CollaboratorPermissions) =>
+                        handleUpdateCollaborator(idx, {
+                          collaboratorID: collaborator?.collaboratorID,
+                          permission: val,
+                        })
+                      }
+                      data-testid={`collaborator-permissions-${idx}`}
+                      aria-labelledby="header-access"
+                      row
+                    >
+                      <StyledRadioControl
+                        value="Can Edit"
+                        control={
+                          <StyledRadioButton
+                            readOnly={loading || !isEdit}
+                            disabled={loading || !isEdit}
+                            required
+                          />
+                        }
+                        label="Can Edit"
+                      />
+
+                      <StyledRadioControl
+                        value="No Access"
+                        control={
+                          <StyledRadioButton
+                            readOnly={loading || !isEdit}
+                            disabled={loading || !isEdit}
+                            required
+                          />
+                        }
+                        label="No Access"
+                      />
+                    </StyledRadioGroup>
+                  </Stack>
+                </StyledTableCell>
+
                 {isEdit && (
                   <StyledTableCell>
                     <Stack direction="row" justifyContent="center" alignItems="center">
@@ -233,7 +338,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
               </StyledTableRow>
             ))}
           </TableBody>
-        </Table>
+        </FixedTable>
       </StyledTableContainer>
 
       <AddRemoveButton

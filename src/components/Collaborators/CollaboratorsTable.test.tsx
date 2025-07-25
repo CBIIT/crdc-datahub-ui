@@ -47,11 +47,11 @@ const mockSubmission: Submission = submissionFactory.build({
 });
 
 const mockCollaborators: Collaborator[] = [
-  {
+  collaboratorFactory.build({
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
     permission: "Can Edit",
-  },
+  }),
 ];
 
 const mockRemainingPotentialCollaborators: Collaborator[] = collaboratorFactory.build(
@@ -90,7 +90,7 @@ const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
   );
 };
 
-describe("CollaboratorsTable Accessibility Tests", () => {
+describe("Accessibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -130,7 +130,7 @@ describe("CollaboratorsTable Accessibility Tests", () => {
   });
 });
 
-describe("CollaboratorsTable Component", () => {
+describe("Basic Functionality", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -307,11 +307,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("renders placeholder in collaborator select when no collaboratorID", () => {
     const mockCollaboratorsWithEmptyID = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "",
         collaboratorName: "",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -350,11 +350,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("renders the correct number of collaborator rows", () => {
     const additionalCollaborators = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-5",
         collaboratorName: "Emily Davis",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -382,11 +382,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("returns empty string in renderValue when value is falsy", () => {
     const mockCollaboratorsWithEmptyID = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "",
         collaboratorName: "Jane Smith",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -412,11 +412,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("displays a space when collaboratorName is null", () => {
     const mockCollaboratorsWithNullName = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-2",
         collaboratorName: null,
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -441,11 +441,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("displays a space when collaboratorID is null", () => {
     const mockCollaboratorsWithNullID = [
-      {
+      collaboratorFactory.build({
         collaboratorID: null,
         collaboratorName: "user-name",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -470,11 +470,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("handles undefined collaborator permission by defaulting to no selection (only 'Can Edit' is valid)", () => {
     const mockCollaboratorsWithUndefinedPermission = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-2",
         collaboratorName: "Jane Smith",
         permission: undefined,
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -495,5 +495,104 @@ describe("CollaboratorsTable Component", () => {
 
     const collaboratorSelect = getByTestId("collaborator-select-0-input");
     expect(collaboratorSelect).toHaveValue("user-2");
+  });
+});
+
+describe("Implementation Requirements", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockUseAuthContext.mockReturnValue({
+      user: userFactory.build({
+        _id: "user-1",
+        role: "Submitter",
+        permissions: ["data_submission:create"],
+      }),
+      status: AuthStatus.LOADED,
+    });
+
+    mockUseSubmissionContext.mockReturnValue({
+      data: { getSubmission: mockSubmission },
+    });
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: mockCollaborators,
+      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+  });
+
+  it("renders the 'Access' column with correct label and options", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    expect(getByTestId("header-access")).toHaveTextContent("Access");
+
+    const radioGroup = getByTestId("collaborator-permissions-0");
+    expect(within(radioGroup).getByText("Can Edit")).toBeInTheDocument();
+    expect(within(radioGroup).getByText("No Access")).toBeInTheDocument();
+  });
+
+  it("defaults new collaborators to 'Can Edit' access", () => {
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: [
+        ...mockCollaborators,
+        { collaboratorID: "", collaboratorName: "", permission: "Can Edit" },
+      ],
+      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    const radioGroup = getByTestId("collaborator-permissions-1");
+    const canEditRadio = within(radioGroup).getByRole("radio", { name: "Can Edit" });
+    expect(canEditRadio).toBeChecked();
+  });
+
+  it("allows removing collaborators with 'No Access'", () => {
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: [
+        collaboratorFactory.build({
+          collaboratorID: "user-4",
+          collaboratorName: "Lost Access User",
+          permission: "No Access",
+        }),
+      ],
+      remainingPotentialCollaborators: [],
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    const removeButton = getByTestId("remove-collaborator-button-0");
+    expect(removeButton).toBeInTheDocument();
+    expect(removeButton).not.toBeDisabled();
+
+    fireEvent.click(removeButton);
+    expect(mockHandleRemoveCollaborator).toHaveBeenCalledWith(0);
   });
 });
