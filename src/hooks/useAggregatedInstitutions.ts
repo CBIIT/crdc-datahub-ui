@@ -37,7 +37,7 @@ const useAggregatedInstitutions = (): UseAggregatedInstitutionsResult => {
   const { data: apiData } = useQuery<ListInstitutionsResp, ListInstitutionsInput>(
     LIST_INSTITUTIONS,
     {
-      variables: { first: -1, orderBy: "name", sortDirection: "asc" },
+      variables: { first: -1, orderBy: "name", sortDirection: "asc", status: "Active" },
       context: { clientName: "backend" },
       fetchPolicy: "cache-first",
       onError: (e) => Logger.error("useAggregatedInstitutions received API error:", e),
@@ -47,28 +47,26 @@ const useAggregatedInstitutions = (): UseAggregatedInstitutionsResult => {
   useEffect(() => {
     const newList: AggregatedInstitution[] = [];
     newList.push(
-      ...(appData?.newInstitutions?.map(({ id, name }) => ({
-        _id: id,
-        name,
-      })) || [])
-    );
-
-    // TODO: do we need special handling for the status?
-    // I assume we need to filter out institutions that are not active
-    // but also they are needed to determine if the institution is new or not
-    // since hiding them would cause that some existing institutions are marked as new
-    newList.push(
-      ...(apiData?.listInstitutions?.institutions?.map(({ _id, name, status }) => ({
+      ...(apiData?.listInstitutions?.institutions?.map(({ _id, name }) => ({
         _id,
         name,
       })) || [])
     );
 
+    newList.push(
+      ...(appData?.newInstitutions
+        ?.map(({ id, name }) => ({
+          _id: id,
+          name,
+        }))
+        .filter(({ name }) => newList.findIndex((inst) => inst.name === name) === -1) || [])
+    );
+
+    newList.sort((a, b) => a.name?.toLocaleLowerCase().localeCompare(b.name?.toLocaleLowerCase()));
+
     setList(newList);
   }, [appData?.newInstitutions, apiData?.listInstitutions.institutions]);
 
-  // TODO: sorting of list
-  // TODO: remove duplicates, but prioritize API data first since that's most updated
   return { data: list };
 };
 
