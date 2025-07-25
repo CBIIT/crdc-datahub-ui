@@ -37,6 +37,8 @@ describe("run", () => {
         contactFactory.build({ institutionID: undefined, institution: "Some Mock Value" }),
         // Needs updated institution name
         contactFactory.build({ institutionID: v4(), institution: "An Outdated Name" }),
+        // Needs an updated institution ID
+        contactFactory.build({ institutionID: v4(), institution: "This Is No Longer New" }),
       ],
     });
 
@@ -49,6 +51,11 @@ describe("run", () => {
       institutionFactory.build({
         _id: data.additionalContacts[1].institutionID,
         name: "Some new name",
+      }),
+      // Additional contact institution 3
+      institutionFactory.build({
+        _id: v4(), // New ID, created via Institution Management
+        name: "This Is No Longer New",
       }),
     ];
 
@@ -82,7 +89,9 @@ describe("run", () => {
 
     const migrator = new QuestionnaireDataMigrator(data, {
       getInstitutions: mockGetInstitutions,
-      newInstitutions: [],
+      newInstitutions: [
+        { id: data.additionalContacts[2].institutionID, name: "This Is No Longer New" },
+      ],
       getLastApplication: mockGetLastApplication,
     });
 
@@ -105,6 +114,8 @@ describe("run", () => {
     expect(result.additionalContacts[0].institutionID).toBe(mockInstitutions[1]._id); // ID was added
     expect(result.additionalContacts[1].institutionID).toBe(mockInstitutions[2]._id); // ID was unchanged
     expect(result.additionalContacts[1].institution).toBe("Some new name"); // Name was updated
+    expect(result.additionalContacts[2].institutionID).toBe(mockInstitutions[3]._id); // New ID
+    expect(result.additionalContacts[2].institution).toBe("This Is No Longer New"); // Name was unchanged
   });
 
   it("should migrate the auto-filled data from getMyLastApplication (No ID)", async () => {

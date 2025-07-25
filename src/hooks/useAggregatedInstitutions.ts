@@ -65,7 +65,7 @@ const useAggregatedInstitutions = (): UseAggregatedInstitutionsResult => {
     newList.sort((a, b) => a.name?.toLocaleLowerCase().localeCompare(b.name?.toLocaleLowerCase()));
 
     setList(newList);
-  }, [appData?.newInstitutions, apiData?.listInstitutions.institutions]);
+  }, [appData?.newInstitutions, apiData?.listInstitutions?.institutions]);
 
   return { data: list };
 };

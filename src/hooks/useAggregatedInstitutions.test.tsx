@@ -318,4 +318,39 @@ describe("useAggregatedInstitutions", () => {
 
     expect(result.current.data).toEqual([]);
   });
+
+  it("should handle invalid API response gracefully", async () => {
+    const mock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
+      request: {
+        query: LIST_INSTITUTIONS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listInstitutions: {
+            total: 0,
+            institutions: null,
+          },
+        },
+      },
+    };
+
+    const mockApp = applicationFactory.build({
+      newInstitutions: [],
+    });
+
+    const { result } = renderHook(() => useAggregatedInstitutions(), {
+      wrapper: ({ children }) => (
+        <MockParent application={mockApp} mock={mock}>
+          {children}
+        </MockParent>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(result.current.data.length).toBe(0);
+    });
+
+    expect(result.current.data).toEqual([]);
+  });
 });
