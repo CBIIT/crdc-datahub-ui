@@ -48,6 +48,7 @@ export class QuestionnaireDataMigrator {
    */
   public async run(): Promise<QuestionnaireData> {
     await this._migrateLastApp();
+    await this._migrateExistingInstitutions();
     await this._migrateInstitutionsToID();
     await this._migrateInstitutionNames();
 
@@ -140,7 +141,7 @@ export class QuestionnaireDataMigrator {
    */
   async _migrateInstitutionNames(): Promise<void> {
     const { pi, primaryContact, additionalContacts } = this.data;
-    const { getInstitutions } = this.dependencies;
+    const { getInstitutions, newInstitutions } = this.dependencies;
 
     const contactsWithUUID = [pi, primaryContact, ...(additionalContacts || [])].filter(
       (obj) => obj && validateUUID(obj.institutionID)
@@ -161,12 +162,48 @@ export class QuestionnaireDataMigrator {
 
       // Find the institution by ID
       const apiData = institutionList.find((i) => i._id === institutionID);
-      const newInstitution = this.dependencies.newInstitutions.find((i) => i.id === institutionID);
+      const newInstitution = newInstitutions.find((i) => i.id === institutionID);
       if (!!apiData?.name && apiData.name !== contact.institution) {
         Logger.info("_migrateInstitutionNames: Updating institution name", { ...contact }, apiData);
         contact.institution = apiData.name;
       } else if (!apiData && !newInstitution) {
         Logger.error("_migrateInstitutionNames: Unable to find a matching institution", contact);
+      }
+    });
+  }
+
+  /**
+   * Migrates any duplicate institutions by name to the existing institutions list ID.
+   * This de-duplicates institutions that may have been created with the same name
+   * during the questionnaire creation process.
+   */
+  async _migrateExistingInstitutions(): Promise<void> {
+    const { pi, primaryContact, additionalContacts } = this.data;
+    const { getInstitutions, newInstitutions } = this.dependencies;
+
+    const outdatedContacts = [pi, primaryContact, ...(additionalContacts || [])].filter(
+      (obj) => obj && !!obj.institution && validateUUID(obj.institutionID)
+    );
+    if (outdatedContacts.length === 0) {
+      return;
+    }
+
+    const { data } = await getInstitutions();
+    const institutionList = data?.listInstitutions?.institutions || [];
+    if (institutionList.length === 0) {
+      Logger.error("_migrateExistingInstitutions: No institutions found for migration");
+      return;
+    }
+
+    outdatedContacts.forEach((contact) => {
+      const { institution, institutionID } = contact;
+
+      // Find the institution by name
+      const apiData = institutionList.find((i) => i.name === institution);
+      const newInstitution = newInstitutions.find((i) => i.id === institutionID);
+      if (newInstitution && apiData && apiData._id !== institutionID) {
+        Logger.info("_migrateExistingInstitutions: Migrating to API ID", { ...contact }, apiData);
+        contact.institutionID = apiData._id;
       }
     });
   }
