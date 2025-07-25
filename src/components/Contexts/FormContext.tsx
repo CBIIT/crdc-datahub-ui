@@ -1,6 +1,7 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
 
 import { QuestionnaireDataMigrator } from "@/classes/QuestionnaireDataMigrator";
 
@@ -168,6 +169,27 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
     const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
 
+    const newInstitutions = [...newState.data.newInstitutions];
+    const { pi, primaryContact, additionalContacts } = newState.data.questionnaireData;
+    const contacts = [pi, primaryContact, ...(additionalContacts || [])].filter(
+      (obj) => obj && (obj.institution || obj.institutionID)
+    );
+
+    contacts.forEach((contact) => {
+      if (contact.institutionID) {
+        return;
+      }
+
+      const prevId = newInstitutions.find(({ name }) => name === contact.institution)?.id;
+      if (prevId) {
+        contact.institutionID = prevId;
+      } else {
+        const newId = v4();
+        newInstitutions.push({ id: newId, name: contact.institution });
+        contact.institutionID = newId;
+      }
+    });
+
     const { data: d, errors } = await saveApp({
       variables: {
         application: {
@@ -182,10 +204,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           programName: data?.program?.name,
           programAbbreviation: data?.program?.abbreviation,
           programDescription: data?.program?.description,
-          // TODO: Collect new institutions and save them here
-          // 1. If the existing "new" institutions don't appear in the form, delete them
-          // 2. Generate an ID for the new institutions and update the form directly
-          newInstitutions: [],
+          newInstitutions: newInstitutions
+            .filter((inst) => contacts.findIndex((c) => c.institutionID === inst.id) !== -1)
+            .map(({ id, name }) => ({ id, name })),
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -222,6 +243,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       createdAt: d?.saveApplication?.createdAt,
       submittedDate: d?.saveApplication?.submittedDate,
       history: d?.saveApplication?.history,
+      newInstitutions: d?.saveApplication?.newInstitutions,
     };
 
     setState({ ...newState, status: Status.LOADED, error: null });
@@ -397,6 +419,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
       const migrator = new QuestionnaireDataMigrator(questionnaireData, {
         getInstitutions,
+        newInstitutions: getApplication?.newInstitutions || [],
         getLastApplication: lastApp,
       });
       const migratedData = await migrator.run();

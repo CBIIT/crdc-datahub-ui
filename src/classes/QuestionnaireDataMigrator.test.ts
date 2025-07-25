@@ -83,6 +83,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -142,6 +143,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -192,6 +194,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -212,6 +215,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -226,11 +230,13 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
       expect(migrator.getDependencies()).toEqual({
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
     });
@@ -261,6 +267,7 @@ describe("QuestionnaireDataMigrator", () => {
 
         const migrator = new QuestionnaireDataMigrator(data, {
           getInstitutions: mockGetInstitutions,
+          newInstitutions: [],
           getLastApplication: mockGetLastApplication,
         });
 
@@ -310,6 +317,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -338,6 +346,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -364,6 +373,8 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
+
         getLastApplication: mockGetLastApplication,
       });
 
@@ -389,6 +400,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -414,6 +426,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -439,6 +452,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -466,6 +480,7 @@ describe("QuestionnaireDataMigrator", () => {
 
         const migrator = new QuestionnaireDataMigrator(data, {
           getInstitutions: mockGetInstitutions,
+          newInstitutions: [],
           getLastApplication: mockGetLastApplication,
         });
 
@@ -498,6 +513,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -539,6 +555,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -605,6 +622,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -633,6 +651,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -661,6 +680,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -693,6 +713,7 @@ describe("QuestionnaireDataMigrator", () => {
 
         const migrator = new QuestionnaireDataMigrator(data, {
           getInstitutions: mockGetInstitutions,
+          newInstitutions: [],
           getLastApplication: mockGetLastApplication,
         });
 
@@ -730,6 +751,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -787,6 +809,8 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
+
         getLastApplication: mockGetLastApplication,
       });
 
@@ -857,6 +881,7 @@ describe("QuestionnaireDataMigrator", () => {
 
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions: mockGetInstitutions,
+        newInstitutions: [],
         getLastApplication: mockGetLastApplication,
       });
 
@@ -866,6 +891,38 @@ describe("QuestionnaireDataMigrator", () => {
       // Ensure data was not modified
       expect(result).toEqual(data);
       expect(Logger.info).not.toHaveBeenCalled();
+      expect(Logger.error).not.toHaveBeenCalled();
+    });
+
+    it("should not log an error if the institution was not found but is in newInstitutions", async () => {
+      const data = questionnaireDataFactory.build({
+        pi: piFactory.build({ institutionID: v4(), institution: "This is new" }),
+        primaryContact: contactFactory.build(),
+        additionalContacts: [],
+      });
+
+      mockGetInstitutions.mockResolvedValue({
+        data: {
+          listInstitutions: {
+            institutions: [
+              // NOTE: We're just populating this to avoid a pre-condition error
+              institutionFactory.build({ _id: v4(), name: "Institution D" }),
+            ],
+          },
+        },
+      });
+
+      const migrator = new QuestionnaireDataMigrator(data, {
+        getInstitutions: mockGetInstitutions,
+        newInstitutions: [{ id: data.pi.institutionID, name: "Institution A" }],
+        getLastApplication: mockGetLastApplication,
+      });
+
+      await migrator._migrateInstitutionNames();
+      const result = migrator.getData();
+
+      // Ensure data was not modified
+      expect(result).toEqual(data);
       expect(Logger.error).not.toHaveBeenCalled();
     });
   });

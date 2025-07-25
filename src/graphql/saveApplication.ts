@@ -23,6 +23,10 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
         applicantID
         applicantName
       }
+      newInstitutions {
+        id
+        name
+      }
     }
   }
 `;

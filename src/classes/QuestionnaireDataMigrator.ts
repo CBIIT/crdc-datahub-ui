@@ -11,6 +11,7 @@ import { Logger } from "@/utils/logger";
  */
 type MigratorDependencies = {
   getInstitutions: LazyQueryExecFunction<ListInstitutionsResp, unknown>;
+  newInstitutions: Array<{ id: string; name: string }>;
   getLastApplication: LazyQueryExecFunction<LastAppResp, unknown>;
 };
 
@@ -160,10 +161,11 @@ export class QuestionnaireDataMigrator {
 
       // Find the institution by ID
       const apiData = institutionList.find((i) => i._id === institutionID);
+      const newInstitution = this.dependencies.newInstitutions.find((i) => i.id === institutionID);
       if (!!apiData?.name && apiData.name !== contact.institution) {
         Logger.info("_migrateInstitutionNames: Updating institution name", { ...contact }, apiData);
         contact.institution = apiData.name;
-      } else if (!apiData) {
+      } else if (!apiData && !newInstitution) {
         Logger.error("_migrateInstitutionNames: Unable to find a matching institution", contact);
       }
     });
