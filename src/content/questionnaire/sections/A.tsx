@@ -120,8 +120,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
   };
 
-  // TODO: Fix race condition where a onChange is triggered before the institution list is loaded
-  // which clears the institutionID field
   const handlePIInstitutionChange = (value: string) => {
     const apiData = institutionList.find((i) => i.name === value);
     setPi((prev) => ({
@@ -131,8 +129,6 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }));
   };
 
-  // TODO: Fix race condition where a onChange is triggered before the institution list is loaded
-  // which clears the institutionID field
   const handlePCInstitutionChange = (value: string) => {
     const apiData = institutionList.find((i) => i.name === value);
     setPrimaryContact((prev) => ({
