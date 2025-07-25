@@ -54,6 +54,11 @@ export const TOOLTIP_TEXT = {
         "Unable to add a collaborator at this time. No submitters are available to collaborate with.",
     },
   },
+  QUALITY_CONTROL: {
+    TABLE: {
+      CLICK_TO_VIEW_ALL_ISSUES: "Click to view all issues for this record.",
+    },
+  },
 } as const;
 
 export type TooltipText = typeof TOOLTIP_TEXT;
