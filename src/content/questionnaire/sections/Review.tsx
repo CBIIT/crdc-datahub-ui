@@ -124,7 +124,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="Email Address"
             value={pi.email}
           />
-          {/* TODO: This needs to come from the ID if available */}
           <ReviewDataListingProperty
             idPrefix="review-pi-institution-name"
             label="Institution Name"
@@ -165,7 +164,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
                 label="Email Address"
                 value={pi.email}
               />
-              {/* TODO: This needs to come from the ID if available */}
               <ReviewDataListingProperty
                 idPrefix="review-primary-contact-institution-name"
                 label="Institution Name"
@@ -194,7 +192,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
                 label="Email Address"
                 value={primaryContact?.email}
               />
-              {/* TODO: This needs to come from the ID if available */}
               <ReviewDataListingProperty
                 idPrefix="review-primary-contact-institution-name"
                 label="Institution Name"
@@ -233,7 +230,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
               label="Email Address"
               value={additionalContact.email}
             />
-            {/* TODO: This needs to come from the ID if available */}
             <ReviewDataListingProperty
               idPrefix={`review-additional-contacts-${idx}-institution-name`}
               label="Institution Name"
