@@ -587,24 +587,24 @@ describe("_migrateInstitutionsToID", () => {
 
     // Check that Logger.info was called for each migration
     expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateInstitutionsToID: Migrating institution",
+      "_migrateInstitutionsToID: Adding institution UUID",
       expect.objectContaining({ ...data.pi }),
       expect.objectContaining({ ...mockInstitutions[0] })
     );
     expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateInstitutionsToID: Migrating institution",
+      "_migrateInstitutionsToID: Adding institution UUID",
       expect.objectContaining({ ...data.primaryContact }),
       expect.objectContaining({ _id: mockInstitutions[1]._id })
     );
     data.additionalContacts.slice(0, 4).forEach((contact, idx) => {
       expect(Logger.info).toHaveBeenCalledWith(
-        "_migrateInstitutionsToID: Migrating institution",
+        "_migrateInstitutionsToID: Adding institution UUID",
         expect.objectContaining({ ...contact }),
         expect.objectContaining({ _id: mockInstitutions[idx + 2]._id })
       );
     });
     expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateInstitutionsToID: Migrating institution",
+      "_migrateInstitutionsToID: Adding institution UUID",
       expect.objectContaining({ ...data.additionalContacts[5] }),
       expect.objectContaining({ _id: mockInstitutions[0]._id })
     );

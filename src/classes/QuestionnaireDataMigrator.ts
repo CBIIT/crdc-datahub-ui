@@ -127,7 +127,7 @@ export class QuestionnaireDataMigrator {
       // Find the institution by name
       const apiData = institutionList.find((i) => i.name === institution);
       if (validateUUID(apiData?._id)) {
-        Logger.info("_migrateInstitutionsToID: Migrating institution", { ...contact }, apiData);
+        Logger.info("_migrateInstitutionsToID: Adding institution UUID", { ...contact }, apiData);
         contact.institutionID = apiData._id;
         return;
       }
