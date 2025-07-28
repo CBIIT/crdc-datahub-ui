@@ -8,7 +8,7 @@ import { userFactory } from "./UserFactory";
  */
 export const baseAuthCtxState: AuthCtxState = {
   status: Status.LOADED,
-  isLoggedIn: false,
+  isLoggedIn: true,
   user: userFactory.build(),
 };
 
