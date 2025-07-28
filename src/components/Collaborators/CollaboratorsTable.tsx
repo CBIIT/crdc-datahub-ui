@@ -159,6 +159,9 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
               <StyledTableHeaderCell id="header-collaborator" data-testid="header-collaborator">
                 Collaborator
               </StyledTableHeaderCell>
+              <StyledTableHeaderCell id="header-access" data-testid="header-access">
+                Access
+              </StyledTableHeaderCell>
               {isEdit && (
                 <StyledTableHeaderCell
                   id="header-remove"
@@ -177,7 +180,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                 key={`collaborator_${idx}_${collaborator.collaboratorID}`}
                 data-testid={`collaborator-row-${idx}`}
               >
-                <StyledNameCell width="100%">
+                <StyledNameCell>
                   <StyledSelect
                     value={collaborator.collaboratorID || ""}
                     onChange={(e) =>
@@ -202,7 +205,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                         ellipsis
                       />
                     )}
-                    readOnly={loading || !isEdit}
+                    readOnly={loading || !isEdit || collaborator.permission === "No Access"}
                     required={currentCollaborators?.length > 1}
                     aria-label="Collaborator dropdown"
                   >
@@ -216,6 +219,9 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                       ))}
                   </StyledSelect>
                 </StyledNameCell>
+                <StyledTableCell data-testid={`collaborator-access-${idx}`}>
+                  {collaborator.permission || "Can Edit"}
+                </StyledTableCell>
                 {isEdit && (
                   <StyledTableCell>
                     <Stack direction="row" justifyContent="center" alignItems="center">

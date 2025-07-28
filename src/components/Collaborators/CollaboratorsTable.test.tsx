@@ -166,6 +166,7 @@ describe("CollaboratorsTable Component", () => {
     );
 
     expect(getByTestId("header-collaborator")).toHaveTextContent("Collaborator");
+    expect(getByTestId("header-access")).toHaveTextContent("Access");
     expect(getByTestId("header-remove")).toHaveTextContent("Remove");
   });
 
@@ -182,6 +183,10 @@ describe("CollaboratorsTable Component", () => {
     const collaboratorSelect = getByTestId("collaborator-select-0-input");
     expect(collaboratorSelect).toBeInTheDocument();
     expect(collaboratorSelect).toHaveValue("user-2");
+
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toBeInTheDocument();
+    expect(accessCell).toHaveTextContent("Can Edit");
 
     const removeButton = getByTestId("remove-collaborator-button-0");
     expect(removeButton).toBeInTheDocument();
@@ -468,8 +473,8 @@ describe("CollaboratorsTable Component", () => {
     expect(collaboratorSelect).toHaveValue("");
   });
 
-  it("handles undefined collaborator permission by defaulting to no selection (only 'Can Edit' is valid)", () => {
-    const mockCollaboratorsWithUndefinedPermission = [
+  it("displays 'Can Edit' when permission is undefined", () => {
+    const mockCollaboratorsWithUndefinedPermission: Collaborator[] = [
       {
         collaboratorID: "user-2",
         collaboratorName: "Jane Smith",
@@ -495,5 +500,73 @@ describe("CollaboratorsTable Component", () => {
 
     const collaboratorSelect = getByTestId("collaborator-select-0-input");
     expect(collaboratorSelect).toHaveValue("user-2");
+
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toHaveTextContent("Can Edit");
+  });
+
+  it("displays 'No Access' and disables input for collaborators with No Access permission", () => {
+    const mockCollaboratorsWithNoAccess: Collaborator[] = [
+      {
+        collaboratorID: "user-2",
+        collaboratorName: "Jane Smith",
+        permission: "No Access",
+      },
+    ];
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: mockCollaboratorsWithNoAccess,
+      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toHaveTextContent("No Access");
+
+    const collaboratorSelect = within(getByTestId("collaborator-select-0")).getByRole("button");
+    expect(collaboratorSelect).toHaveClass("Mui-readOnly");
+  });
+
+  it("allows removal of collaborators with No Access permission", () => {
+    const mockCollaboratorsWithNoAccess: Collaborator[] = [
+      {
+        collaboratorID: "user-2",
+        collaboratorName: "Jane Smith",
+        permission: "No Access",
+      },
+    ];
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: mockCollaboratorsWithNoAccess,
+      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    const removeButton = getByTestId("remove-collaborator-button-0");
+    expect(removeButton).toBeInTheDocument();
+    expect(removeButton).not.toBeDisabled();
+
+    fireEvent.click(removeButton);
+    expect(mockHandleRemoveCollaborator).toHaveBeenCalledWith(0);
   });
 });
