@@ -276,6 +276,36 @@ describe("Basic Functionality", () => {
     });
   });
 
+  it("should not offset the time zone for UTC dates", async () => {
+    vi.stubEnv("TZ", "America/New_York"); // Set timezone to EST for testing
+
+    const isoDateMock: MockedResponse<RetrieveOMBDetailsResp> = {
+      request: {
+        query: RETRIEVE_OMB_DETAILS,
+      },
+      result: {
+        data: {
+          getOMB: {
+            _id: "mock-id-123",
+            OMBNumber: "1234-5678",
+            expirationDate: "2025-06-30T00:00:00Z", // Translates to 06/29/2025 in EST
+            OMBInfo: ["Lorem ipsum content"],
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(<PansBanner />, {
+      wrapper: ({ children }) => <MockParent mocks={[isoDateMock]}>{children}</MockParent>,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("pans-expiration")).toHaveTextContent("Expiration Date: 06/30/2025");
+    });
+
+    vi.unstubAllEnvs();
+  });
+
   it("should format MM/DD/YYYY date string correctly", async () => {
     const usDateMock: MockedResponse<RetrieveOMBDetailsResp> = {
       request: {

@@ -84,7 +84,7 @@ const PansBanner: React.FC = (): React.ReactNode => {
       return "N/A";
     }
 
-    return FormatDate(data.getOMB.expirationDate, "MM/DD/YYYY", "N/A");
+    return FormatDate(data.getOMB.expirationDate, "MM/DD/YYYY", "N/A", false);
   }, [data?.getOMB?.expirationDate]);
 
   const paragraphs = useMemo<React.ReactNode | null>(() => {
