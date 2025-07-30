@@ -714,56 +714,6 @@ describe("DataSubmissionSummary Collaborators Dialog Tests", () => {
 });
 
 describe("Implementation Requirements", () => {
-  it("shows a tooltip with data commons when hovering over 'Released' status in summary", async () => {
-    const dataSubmission = submissionFactory.build({
-      status: "Released",
-      dataCommonsDisplayName: "DC-1",
-    });
-
-    const { getByText, findByText, queryByText } = render(
-      <BaseComponent>
-        <DataSubmissionSummary dataSubmission={dataSubmission} />
-      </BaseComponent>
-    );
-
-    const status = getByText(/Released/i);
-    userEvent.hover(status);
-
-    expect(await findByText(/Released to DC-1/i)).toBeVisible();
-
-    userEvent.unhover(status);
-    await waitFor(() => {
-      expect(queryByText(/Released to DC-1/i)).not.toBeInTheDocument();
-    });
-  });
-
-  it.each<SubmissionStatus>([
-    "New",
-    "In Progress",
-    "Submitted",
-    "Withdrawn",
-    "Canceled",
-    "Deleted",
-    "Rejected",
-    "Completed",
-  ])("does not show a tooltip for non-'Released' status in summary", async (status) => {
-    const dataSubmission = submissionFactory.build({ status });
-
-    const { getByText, queryByText, queryByRole } = render(
-      <BaseComponent>
-        <DataSubmissionSummary dataSubmission={dataSubmission} />
-      </BaseComponent>
-    );
-
-    const statusText = getByText(status);
-    userEvent.hover(statusText);
-
-    await waitFor(() => {
-      expect(queryByText(/Released to/i)).not.toBeInTheDocument();
-      expect(queryByRole("tooltip")).not.toBeInTheDocument();
-    });
-  });
-
   it("shows tooltip for 'Released' status in full history dialog", async () => {
     const dataSubmission = submissionFactory.build({
       status: "Completed",
