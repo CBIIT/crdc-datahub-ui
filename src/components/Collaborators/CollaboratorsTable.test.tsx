@@ -526,7 +526,7 @@ describe("Implementation Requirements", () => {
     });
   });
 
-  it("renders the 'Access' column with correct label and options", () => {
+  it("renders the 'Can Edit' Access column with correct label and value", () => {
     const { getByTestId } = render(
       <TestParent>
         <CollaboratorsTable isEdit />
@@ -535,34 +535,36 @@ describe("Implementation Requirements", () => {
 
     expect(getByTestId("header-access")).toHaveTextContent("Access");
 
-    const radioGroup = getByTestId("collaborator-permissions-0");
-    expect(within(radioGroup).getByText("Can Edit")).toBeInTheDocument();
-    expect(within(radioGroup).getByText("No Access")).toBeInTheDocument();
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toHaveTextContent("Can Edit");
   });
 
-  it("defaults new collaborators to 'Can Edit' access", () => {
+  it("renders the 'No Access' Access column with correct label and value", () => {
     mockUseCollaboratorsContext.mockReturnValue({
       currentCollaborators: [
-        ...mockCollaborators,
-        { collaboratorID: "", collaboratorName: "", permission: "Can Edit" },
+        collaboratorFactory.build({
+          collaboratorID: "user-4",
+          collaboratorName: "Lost Access User",
+          permission: "No Access",
+        }),
       ],
-      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      remainingPotentialCollaborators: [],
       maxCollaborators: 5,
       handleAddCollaborator: mockHandleAddCollaborator,
       handleRemoveCollaborator: mockHandleRemoveCollaborator,
       handleUpdateCollaborator: mockHandleUpdateCollaborator,
       loading: false,
     });
-
     const { getByTestId } = render(
       <TestParent>
         <CollaboratorsTable isEdit />
       </TestParent>
     );
 
-    const radioGroup = getByTestId("collaborator-permissions-1");
-    const canEditRadio = within(radioGroup).getByRole("radio", { name: "Can Edit" });
-    expect(canEditRadio).toBeChecked();
+    expect(getByTestId("header-access")).toHaveTextContent("Access");
+
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toHaveTextContent("No Access");
   });
 
   it("allows removing collaborators with 'No Access'", () => {
