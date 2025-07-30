@@ -163,7 +163,14 @@ const columns: Column<T>[] = [
 
   {
     label: "Status",
-    renderValue: (a) => a.status,
+    renderValue: (a) =>
+      a.history?.some((event) => event?.status === "Released") && a.dataCommonsDisplayName ? (
+        <StyledTooltip title={`Released to ${a.dataCommonsDisplayName}`} placement="top" arrow>
+          <span>{a.status}</span>
+        </StyledTooltip>
+      ) : (
+        a.status
+      ),
     field: "status",
     hideable: false,
     sx: {
