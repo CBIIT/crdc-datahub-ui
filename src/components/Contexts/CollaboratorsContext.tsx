@@ -229,10 +229,7 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
     collaboratorIdx: number,
     newCollaborator: CollaboratorInput
   ): void => {
-    if (
-      isNaN(collaboratorIdx) ||
-      (!newCollaborator?.collaboratorID && !newCollaborator?.permission)
-    ) {
+    if (isNaN(collaboratorIdx) || !newCollaborator?.collaboratorID) {
       return;
     }
 
@@ -270,8 +267,8 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
    */
   const saveCollaborators = useCallback(async (): Promise<Collaborator[]> => {
     const collaboratorsToSave: CollaboratorInput[] = currentCollaborators
-      .filter((c) => !!c.collaboratorID && !!c.permission)
-      .map((c) => ({ collaboratorID: c.collaboratorID, permission: c.permission }));
+      .filter((c) => !!c.collaboratorID)
+      .map((c) => ({ collaboratorID: c.collaboratorID, permission: "Can Edit" }));
 
     try {
       const { data, errors } = await editSubmissionCollaborators({
