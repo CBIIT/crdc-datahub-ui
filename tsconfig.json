@@ -28,6 +28,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/factories/*": ["./src/test-utils/factories/*"],
+      "@/components/*": ["./src/components/*"],
       "@/*": ["./src/*"],
     }
   },

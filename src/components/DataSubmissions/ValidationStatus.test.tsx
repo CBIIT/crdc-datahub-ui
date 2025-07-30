@@ -118,6 +118,28 @@ describe("Basic Functionality", () => {
     expect(() => getByTestId("validation-status-chip")).toThrow();
   });
 
+  it.each([[], null, undefined, NaN])(
+    "should not appear for a submission with validationType %s",
+    async (validationType) => {
+      const { container, getByTestId } = render(
+        <TestParent
+          submission={{
+            validationStarted: null,
+            validationEnded: null,
+            validationScope: null,
+            // @ts-expect-error Testing invalid values
+            validationType,
+          }}
+        >
+          <ValidationStatus />
+        </TestParent>
+      );
+
+      expect(container.firstChild).toBeNull();
+      expect(() => getByTestId("validation-status-chip")).toThrow();
+    }
+  );
+
   it("should rerender when the validation state changes", async () => {
     const { getByText, rerender } = render(
       <TestParent
