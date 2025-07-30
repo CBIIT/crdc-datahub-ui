@@ -614,6 +614,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                             field.onChange(data?._id || "")
                           }
                           value={institutions.find((i) => i._id === field.value) || null}
+                          PaperComponent={StyledPaper}
+                          PopperComponent={StyledPopper}
                           renderInput={({ inputProps, ...params }) => (
                             <TextField
                               {...params}
