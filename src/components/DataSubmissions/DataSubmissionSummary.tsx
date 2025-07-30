@@ -197,21 +197,9 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
     <StyledSummaryWrapper>
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing="14px">
         <Stack direction="column" alignItems="center" minWidth="192px">
-          {dataSubmission?.status === "Released" ? (
-            <StyledTooltip
-              title={`Released to ${dataSubmission?.dataCommonsDisplayName}`}
-              placement="top"
-              arrow
-            >
-              <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
-                {dataSubmission?.status}
-              </StyledSubmissionStatus>
-            </StyledTooltip>
-          ) : (
-            <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
-              {dataSubmission?.status}
-            </StyledSubmissionStatus>
-          )}
+          <StyledSubmissionStatus variant="h5" aria-label="Data Submission status">
+            {dataSubmission?.status}
+          </StyledSubmissionStatus>
           <StyledButtonWrapper>
             <StyledReviewCommentsButton
               variant="contained"
