@@ -145,20 +145,17 @@ export const deleteInvalidCDEs = (dictionary: MDFDictionary): void => {
     return;
   }
 
-  for (const node in dictionary) {
-    if (Object.hasOwn(dictionary, node) && dictionary[node].properties) {
-      for (const property in dictionary[node].properties) {
-        if (Object.hasOwn(dictionary[node].properties, property)) {
-          const terms = dictionary[node].properties[property].Term;
-          if (Array.isArray(terms)) {
-            dictionary[node].properties[property].Term = terms.filter(
-              (term) => term?.Origin?.toLowerCase()?.indexOf("cadsr") !== -1
-            );
-          }
-        }
+  Object.values(dictionary)
+    .flatMap((node) => Object.values(node?.properties ?? {}))
+    .forEach((property) => {
+      if (!Array.isArray(property?.Term)) {
+        return;
       }
-    }
-  }
+
+      property.Term = property.Term.filter(
+        (term) => term?.Origin?.toLowerCase()?.indexOf("cadsr") !== -1
+      );
+    });
 };
 
 /**

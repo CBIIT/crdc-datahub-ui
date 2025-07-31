@@ -534,17 +534,40 @@ describe("deleteInvalidCDEs tests", () => {
     expect(() => utils.deleteInvalidCDEs(input as MDFDictionary)).not.toThrow();
   });
 
-  it("should handle nodes with no properties", () => {
-    const dictionary = modelDefinitionFactory.build({
-      node1: modelDefinitionNodeFactory.build({
-        properties: {},
-      }),
-    });
+  it.each<unknown>([null, undefined, {}])(
+    "should handle nodes with invalid property definitions '%s'",
+    (input) => {
+      const dictionary = modelDefinitionFactory.build({
+        node1: modelDefinitionNodeFactory.build({
+          properties: input as MDFDictionary[number]["properties"],
+        }),
+      });
 
-    expect(() => utils.deleteInvalidCDEs(dictionary)).not.toThrow();
+      expect(() => utils.deleteInvalidCDEs(dictionary)).not.toThrow();
 
-    expect(dictionary.node1.properties).toEqual({});
-  });
+      expect(dictionary.node1.properties).toEqual(input);
+    }
+  );
+
+  it.each<unknown>([[], {}, null, undefined])(
+    "should handle properties with invalid terms '%s'",
+    (terms) => {
+      const dictionary = modelDefinitionFactory.build({
+        node1: modelDefinitionNodeFactory.build({
+          properties: {
+            property_invalid_cde: modelDefinitionNodePropertyFactory.build({
+              Term: terms as unknown as MDFDictionary[number]["properties"][number]["Term"],
+            }),
+          },
+        }),
+      });
+
+      expect(() => utils.deleteInvalidCDEs(dictionary)).not.toThrow();
+
+      // NOTE: Technically it should be an empty array, but we're NOT mutating invalid input
+      expect(dictionary.node1.properties.property_invalid_cde.Term).toEqual(terms);
+    }
+  );
 
   it("should clear all invalid CDEs origins", () => {
     const dictionary = modelDefinitionFactory.build({
