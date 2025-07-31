@@ -296,3 +296,6 @@ export type {
   RetrievePropsForNodeTypeInput,
   RetrievePropsForNodeTypeResp,
 } from "./retrievePropsForNodeType";
+
+export { RETRIEVE_OMB_DETAILS } from "./retrieveOMBDetails";
+export type { RetrieveOMBDetailsResp } from "./retrieveOMBDetails";
