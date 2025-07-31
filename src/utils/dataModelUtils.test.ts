@@ -618,6 +618,50 @@ describe("populateCDEData tests", () => {
     expect(() => utils.populateCDEData(input as MDFDictionary, mockData)).not.toThrow();
   });
 
+  it.each<Array<RetrieveCDEsResp["retrieveCDEs"]>>([[], null])(
+    "should handle invalid API data '%s' gracefully",
+    (apiData) => {
+      const dictionary = modelDefinitionFactory.build({
+        node1: modelDefinitionNodeFactory.build({
+          properties: {
+            property1: modelDefinitionNodePropertyFactory.build({
+              Term: modelDefinitionTermFactory.build(1, {
+                Code: "CDECode1",
+                Version: "1.0",
+              }),
+            }),
+          },
+        }),
+      });
+
+      expect(() => utils.populateCDEData(dictionary, apiData)).not.toThrow();
+    }
+  );
+
+  it("should handle nodes with no properties", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: null,
+      }),
+    });
+
+    expect(() => utils.populateCDEData(dictionary, mockData)).not.toThrow();
+  });
+
+  it.each([undefined, null])("should handle properties with invalid terms '%s'", (terms) => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: terms,
+          }),
+        },
+      }),
+    });
+
+    expect(() => utils.populateCDEData(dictionary, mockData)).not.toThrow();
+  });
+
   it("should update the CDE Value (CDE Full Name) with API data", () => {
     const dictionary = modelDefinitionFactory.build({
       node1: modelDefinitionNodeFactory.build({

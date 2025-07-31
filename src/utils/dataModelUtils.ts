@@ -179,45 +179,44 @@ export const populateCDEData = (
     return;
   }
 
-  for (const node in dictionary) {
-    if (Object.hasOwn(dictionary, node) && dictionary[node].properties) {
-      for (const property in dictionary[node].properties) {
-        if (Object.hasOwn(dictionary[node].properties, property)) {
-          const prop = dictionary[node].properties[property];
-          prop.Term?.forEach((term) => {
-            const apiData = data.find(
-              (c) => c.CDECode === term.Code && c.CDEVersion === term.Version
-            );
-            if (apiData) {
-              // Update CDE Name
-              term.Value = apiData.CDEFullName;
+  const mappedCDEs = new Map<string, RetrieveCDEsResp["retrieveCDEs"][number]>();
+  data?.forEach((cde) => {
+    mappedCDEs.set(`${cde.CDECode}:${cde.CDEVersion}`, cde);
+  });
 
-              // Populate Permissible Values if available from API
-              if (
-                Array.isArray(apiData.PermissibleValues) &&
-                apiData.PermissibleValues.length > 0
-              ) {
-                dictionary[node].properties[property].enum = apiData.PermissibleValues;
-                // Permissible Values from API are empty, convert property to "string" type
-              } else if (
-                Array.isArray(apiData.PermissibleValues) &&
-                apiData.PermissibleValues.length === 0 &&
-                dictionary[node].properties[property].enum
-              ) {
-                delete dictionary[node].properties[property].enum;
-                dictionary[node].properties[property].type = "string";
-              }
-            } else if (!apiData && prop.enum) {
-              Logger.error("dataModelUtils: Unable to match CDE for property", property, term);
-              prop.enum = [
-                "Permissible values are currently not available. Please contact the CRDC Submission Portal HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-              ];
-            }
-          });
-        }
+  Object.values(dictionary)
+    .flatMap((node) => Object.values(node?.properties ?? {}))
+    .forEach((prop) => {
+      if (!Array.isArray(prop?.Term)) {
+        return;
       }
-    }
-  }
+      prop.Term?.forEach((term) => {
+        const apiData = mappedCDEs.get(`${term.Code}:${term.Version}`);
+
+        if (apiData) {
+          // Update CDE Name
+          term.Value = apiData.CDEFullName;
+
+          // Populate Permissible Values if available from API
+          if (Array.isArray(apiData.PermissibleValues) && apiData.PermissibleValues.length > 0) {
+            prop.enum = apiData.PermissibleValues;
+            // Permissible Values from API are empty, convert property to "string" type
+          } else if (
+            Array.isArray(apiData.PermissibleValues) &&
+            apiData.PermissibleValues.length === 0 &&
+            prop.enum
+          ) {
+            delete prop.enum;
+            prop.type = "string";
+          }
+        } else if (!apiData && prop.enum) {
+          Logger.error("dataModelUtils: Unable to match CDE for property", prop, term);
+          prop.enum = [
+            "Permissible values are currently not available. Please contact the CRDC Submission Portal HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
+          ];
+        }
+      });
+    });
 };
 
 /**
