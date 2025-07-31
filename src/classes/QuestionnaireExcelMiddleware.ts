@@ -145,20 +145,7 @@ export class QuestionnaireExcelMiddleware {
    * Adds the form section A to the Excel workbook.
    */
   private async serializeSectionA(): Promise<void> {
-    const { sections } = sectionMetadata.A;
-
     const sheet = this.workbook.addWorksheet("PI and Contact");
-    // sheet.getRow(1).getCell("A").value = sections.PRINCIPAL_INVESTIGATOR.title;
-    // sheet.getRow(1).getCell("A").note = sections.PRINCIPAL_INVESTIGATOR.description;
-    // sheet.mergeCells("A1:G1");
-    // sheet.getCell("A1:G1").style = {
-    //   font: { bold: true, size: 14 },
-    //   fill: {
-    //     type: "pattern",
-    //     pattern: "darkTrellis",
-    //     bgColor: { argb: "F08080" },
-    //   },
-    // };
 
     sheet.getColumn("A").width = 20;
     sheet.getColumn("B").width = 20;
@@ -229,9 +216,32 @@ export class QuestionnaireExcelMiddleware {
       allowBlank: false,
       formulae: [100],
     };
-    // TODO: D2 email validation
-    // TODO: E2 ORCID validation
-    // TODO: F2 institution name against institution list?
+    D2.dataValidation = {
+      type: "custom",
+      showErrorMessage: true,
+      error: "Please enter a valid email address.",
+      allowBlank: false,
+      formulae: [
+        '=AND(ISNUMBER(SEARCH("@",D2)), ISNUMBER(SEARCH(".",D2)), LEN(D2) - LEN(SUBSTITUTE(D2,".","")) >= 1, LEN(D2) - LEN(SUBSTITUTE(D2,"@","")) = 1)',
+      ],
+    };
+    E2.dataValidation = {
+      type: "custom",
+      showErrorMessage: true,
+      error: "Please enter a valid ORCID (format: 0000-0000-0000-0000 or 0000-0000-0000-000X)",
+      allowBlank: true,
+      formulae: [
+        '=AND(LEN(E2)=19, MID(E2,5,1)="-", MID(E2,10,1)="-", MID(E2,15,1)="-", ISNUMBER(VALUE(LEFT(E2,4))), ISNUMBER(VALUE(MID(E2,6,4))), ISNUMBER(VALUE(MID(E2,11,4))), ISNUMBER(VALUE(MID(E2,16,3))), OR(ISNUMBER(VALUE(RIGHT(E2,1))), RIGHT(E2,1)="X"))',
+      ],
+    };
+
+    const institutionSheet = await this.createInstitutionSheet();
+    F2.dataValidation = {
+      type: "list",
+      allowBlank: true,
+      showErrorMessage: false,
+      formulae: [`=${institutionSheet.name}!$A$1:$A$${institutionSheet.rowCount}`],
+    };
     G2.dataValidation = {
       type: "textLength",
       operator: "lessThan",
@@ -253,5 +263,29 @@ export class QuestionnaireExcelMiddleware {
 
     // TODO: Mutate the data object with Section A data
     // Example: this.data.pi = { ... };
+  }
+
+  /**
+   * Adds a hidden sheet 'InstitutionList', which contains the full list of API
+   * provided institutions at function call.
+   *
+   * @returns The internal reference to the sheet.
+   */
+  private async createInstitutionSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    const SHEET_NAME = "InstitutionList";
+
+    let sheet = this.workbook.getWorksheet(SHEET_NAME);
+    if (!sheet) {
+      const { data } = (await this.dependencies.getInstitutions?.()) || {};
+      const { institutions } = data?.listInstitutions || {};
+
+      sheet = this.workbook.addWorksheet(SHEET_NAME);
+      institutions?.forEach((institution, index) => {
+        sheet.getCell(`A${index + 1}`).value = institution.name;
+      });
+      sheet.state = "veryHidden";
+    }
+
+    return sheet;
   }
 }

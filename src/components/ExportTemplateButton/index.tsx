@@ -1,3 +1,4 @@
+import { useLazyQuery } from "@apollo/client";
 import { Button, ButtonProps, styled } from "@mui/material";
 import dayjs from "dayjs";
 import { isEqual } from "lodash";
@@ -5,7 +6,8 @@ import { memo, useState } from "react";
 
 import { QuestionnaireExcelMiddleware } from "@/classes/QuestionnaireExcelMiddleware";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
-import { downloadBlob } from "@/utils";
+import { ListInstitutionsResp, ListInstitutionsInput, LIST_INSTITUTIONS } from "@/graphql";
+import { downloadBlob, Logger } from "@/utils";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -24,12 +26,22 @@ type Props = Omit<ButtonProps, "onClick">;
 const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
   const [downloading, setDownloading] = useState<boolean>(false);
 
+  const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: { first: -1, orderBy: "name", sortDirection: "asc" },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("ExportTemplateButton: listInstitutions API error:", e),
+    }
+  );
+
   const formVersion = "1.0"; // TODO: Fetch from API
 
   const onButtonClick = async () => {
     setDownloading(true);
 
-    const middleware = new QuestionnaireExcelMiddleware(null, {});
+    const middleware = new QuestionnaireExcelMiddleware(null, { getInstitutions });
     const file = await middleware.serialize();
 
     downloadBlob(
