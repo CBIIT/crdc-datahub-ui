@@ -4,6 +4,8 @@ import { isEqual } from "lodash";
 import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import ExportTemplateButton from "@/components/ExportTemplateButton";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
@@ -402,6 +404,8 @@ const ListingView: FC = () => {
         body={
           <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
             <CreateApplicationButton onCreate={handleCreate} />
+            {/* TODO: This just a placeholder to use the functionality */}
+            <ExportTemplateButton />
           </StyledBannerBody>
         }
         bannerSrc={bannerSvg}

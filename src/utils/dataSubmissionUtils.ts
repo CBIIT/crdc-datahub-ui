@@ -160,7 +160,7 @@ export const unpackValidationSeverities = <T extends QCResult | CrossValidationR
  * @returns void
  */
 export const downloadBlob = (
-  content: string | Blob,
+  content: string | Blob | ArrayBuffer,
   filename: string,
   contentType: string
 ): void => {
