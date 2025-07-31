@@ -33,7 +33,7 @@ const LoggingWrapper = (level: LogLevel, message: string, ...optionalParams: unk
       break;
     case "info":
       // eslint-disable-next-line no-console
-      console.info(`[INFO] [${timestamp}] ${message}`, ...optionalParams);
+      console.info(`%c[INFO] [${timestamp}] ${message}`, "color: #90D5FF;", ...optionalParams);
       break;
   }
 };

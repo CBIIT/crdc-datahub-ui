@@ -50,8 +50,9 @@ describe("Logger", () => {
 
     expect(consoleInfoSpy).toHaveBeenCalledWith(
       expect.stringMatching(
-        /\[INFO\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test INFO message/
-      )
+        /%c\[INFO\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test INFO message/
+      ),
+      "color: #90D5FF;"
     );
   });
 
