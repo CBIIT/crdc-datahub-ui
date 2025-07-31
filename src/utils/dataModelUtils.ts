@@ -151,7 +151,7 @@ export const deleteInvalidCDEs = (dictionary: MDFDictionary): void => {
         if (Object.hasOwn(dictionary[node].properties, property)) {
           const terms = dictionary[node].properties[property].Term;
           terms?.forEach((term, index) => {
-            if (term?.Origin?.toLocaleLowerCase().indexOf("cadsr") === -1) {
+            if (term?.Origin?.toLowerCase().indexOf("cadsr") === -1) {
               terms.splice(index, 1);
             }
           });
