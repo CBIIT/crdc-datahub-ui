@@ -1,6 +1,9 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
 import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
+
+import { QuestionnaireDataMigrator } from "@/classes/QuestionnaireDataMigrator";
 
 import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import {
@@ -22,6 +25,9 @@ import {
   SubmitAppResp,
   ApproveAppInput,
   SaveAppInput,
+  LIST_INSTITUTIONS,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
 } from "../../graphql";
 import { Logger } from "../../utils";
 import { FormInput as ApproveFormInput } from "../Questionnaire/ApproveFormDialog";
@@ -96,6 +102,16 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: { first: -1, orderBy: "name", sortDirection: "asc" },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("FormContext listInstitutions API error:", e),
+    }
+  );
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -153,6 +169,27 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
     const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
 
+    const newInstitutions = [...newState.data.newInstitutions];
+    const { pi, primaryContact, additionalContacts } = newState.data.questionnaireData;
+    const contacts = [pi, primaryContact, ...(additionalContacts || [])].filter(
+      (obj) => obj && (obj.institution || obj.institutionID)
+    );
+
+    contacts.forEach((contact) => {
+      if (contact.institutionID) {
+        return;
+      }
+
+      const prevId = newInstitutions.find(({ name }) => name === contact.institution)?.id;
+      if (prevId) {
+        contact.institutionID = prevId;
+      } else {
+        const newId = v4();
+        newInstitutions.push({ id: newId, name: contact.institution });
+        contact.institutionID = newId;
+      }
+    });
+
     const { data: d, errors } = await saveApp({
       variables: {
         application: {
@@ -167,6 +204,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           programName: data?.program?.name,
           programAbbreviation: data?.program?.abbreviation,
           programDescription: data?.program?.description,
+          newInstitutions: newInstitutions
+            .filter((inst) => contacts.findIndex((c) => c.institutionID === inst.id) !== -1)
+            .map(({ id, name }) => ({ id, name })),
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -203,6 +243,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       createdAt: d?.saveApplication?.createdAt,
       submittedDate: d?.saveApplication?.submittedDate,
       history: d?.saveApplication?.history,
+      newInstitutions: d?.saveApplication?.newInstitutions,
     };
 
     setState({ ...newState, status: Status.LOADED, error: null });
@@ -237,18 +278,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
   ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
 
-    const institutions: string[] = [
-      state?.data?.questionnaireData?.pi?.institution,
-      state?.data?.questionnaireData?.primaryContact?.institution,
-      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c?.institution) || []),
-    ].filter((i) => !!i && typeof i === "string");
-
     const { data: res, errors } = await approveApp({
       variables: {
         id: state?.data?._id,
         comment: data?.reviewComment,
         wholeProgram,
-        institutions,
         pendingModelChange: data?.pendingModelChange,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
@@ -383,25 +417,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         getApplication?.questionnaireData || null
       );
 
-      // Check if we need to autofill the PI details
-      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
-      if (!sectionA || sectionA?.status === "Not Started") {
-        const { data: lastAppData } = await lastApp();
-        const { getMyLastApplication } = lastAppData || {};
-        const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
-
-        questionnaireData.pi = {
-          ...questionnaireData.pi,
-          ...parsedLastAppData.pi,
-        };
-      }
+      const migrator = new QuestionnaireDataMigrator(questionnaireData, {
+        getInstitutions,
+        newInstitutions: getApplication?.newInstitutions || [],
+        getLastApplication: lastApp,
+      });
+      const migratedData = await migrator.run();
 
       setState({
         status: Status.LOADED,
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
+            ...merge(cloneDeep(InitialQuestionnaire), migratedData),
           },
         },
       });
