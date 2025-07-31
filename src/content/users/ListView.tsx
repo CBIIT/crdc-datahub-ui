@@ -315,10 +315,10 @@ const ListingView: FC = () => {
   };
 
   useEffect(() => {
-    if (tableRef.current && userFilter?.length === 0) {
+    if (tableRef.current && userFilter?.trim()?.length) {
       tableRef.current.refresh();
     }
-  }, [userFilter?.length]);
+  }, [userFilter]);
 
   return (
     <>
