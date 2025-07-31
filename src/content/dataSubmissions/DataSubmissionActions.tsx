@@ -252,7 +252,7 @@ const DataSubmissionActions = ({ onAction }: Props) => {
               loading={action === "Release"}
               disabled={(action && action !== "Release") || releaseActionButton?.disable}
             >
-              Release
+              Release to {submission?.dataCommonsDisplayName}
             </StyledLoadingButton>
           </span>
         </Tooltip>
