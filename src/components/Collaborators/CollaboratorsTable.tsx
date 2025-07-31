@@ -160,7 +160,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
       <StyledTableContainer data-testid="collaborators-table-container">
         <FixedTable>
           <colgroup>
-            <col style={{ width: isEdit ? "72%" : "83%" }} />
+            <col style={{ width: isEdit ? "68%" : "82%" }} />
             <col style={{ width: "18%" }} />
             {isEdit && <col style={{ width: "14%" }} />}
           </colgroup>
@@ -212,7 +212,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     renderValue={() => (
                       <TruncatedText
                         text={collaborator.collaboratorName ?? " "}
-                        maxCharacters={isEdit ? 33 : 40}
+                        maxCharacters={isEdit ? 31 : 39}
                         underline={false}
                         ellipsis
                       />
