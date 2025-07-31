@@ -77,10 +77,8 @@ export class QuestionnaireDataMigrator {
 
   /**
    * Migrates information from the last Submission Request on create
-   *
-   * @private Do not call this method directly; use the `run` method.
    */
-  async _migrateLastApp(): Promise<void> {
+  private async _migrateLastApp(): Promise<void> {
     const { sections } = this.data;
     const { getLastApplication } = this.dependencies;
 
@@ -100,10 +98,8 @@ export class QuestionnaireDataMigrator {
 
   /**
    * Migrates institution names to IDs in the questionnaireData.
-   *
-   * @private Do not call this method directly; use the `run` method instead.
    */
-  async _migrateInstitutionsToID(): Promise<void> {
+  private async _migrateInstitutionsToID(): Promise<void> {
     const { pi, primaryContact, additionalContacts } = this.data;
     const { getInstitutions } = this.dependencies;
 
@@ -139,7 +135,7 @@ export class QuestionnaireDataMigrator {
   /**
    * Updates any outdated institution names in the questionnaireData.
    */
-  async _migrateInstitutionNames(): Promise<void> {
+  private async _migrateInstitutionNames(): Promise<void> {
     const { pi, primaryContact, additionalContacts } = this.data;
     const { getInstitutions, newInstitutions } = this.dependencies;
 
@@ -177,7 +173,7 @@ export class QuestionnaireDataMigrator {
    * This de-duplicates institutions that may have been created with the same name
    * during the questionnaire creation process.
    */
-  async _migrateExistingInstitutions(): Promise<void> {
+  private async _migrateExistingInstitutions(): Promise<void> {
     const { pi, primaryContact, additionalContacts } = this.data;
     const { getInstitutions, newInstitutions } = this.dependencies;
 

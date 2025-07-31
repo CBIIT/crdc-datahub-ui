@@ -281,6 +281,7 @@ describe("_migrateLastApp", () => {
         getLastApplication: mockGetLastApplication,
       });
 
+      // @ts-expect-error Calling private helper function
       await migrator._migrateLastApp();
       const result = migrator.getData();
 
@@ -331,6 +332,7 @@ describe("_migrateLastApp", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateLastApp();
     const result = migrator.getData();
 
@@ -360,6 +362,7 @@ describe("_migrateLastApp", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await expect(migrator._migrateLastApp()).resolves.not.toThrow();
     expect(migrator.getData()).toEqual(data);
   });
@@ -388,6 +391,7 @@ describe("_migrateInstitutionsToID", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionsToID();
 
     expect(migrator.getData()).toEqual(data);
@@ -414,6 +418,7 @@ describe("_migrateInstitutionsToID", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionsToID();
 
     expect(migrator.getData()).toEqual(data);
@@ -440,6 +445,7 @@ describe("_migrateInstitutionsToID", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionsToID();
 
     expect(migrator.getData()).toEqual(data);
@@ -466,6 +472,7 @@ describe("_migrateInstitutionsToID", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionsToID();
 
     expect(migrator.getData()).toEqual(data);
@@ -494,6 +501,7 @@ describe("_migrateInstitutionsToID", () => {
         getLastApplication: mockGetLastApplication,
       });
 
+      // @ts-expect-error Calling private helper function
       await migrator._migrateInstitutionsToID();
 
       expect(Logger.error).toHaveBeenCalledWith(
@@ -527,6 +535,7 @@ describe("_migrateInstitutionsToID", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionsToID();
 
     expect(Logger.error).toHaveBeenCalledWith(
@@ -569,6 +578,7 @@ describe("_migrateInstitutionsToID", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionsToID();
     const result = migrator.getData();
 
@@ -636,6 +646,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
 
     expect(migrator.getData()).toEqual(data);
@@ -665,6 +676,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
 
     expect(migrator.getData()).toEqual(data);
@@ -694,6 +706,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
 
     expect(migrator.getData()).toEqual(data);
@@ -727,6 +740,7 @@ describe("_migrateInstitutionNames", () => {
         getLastApplication: mockGetLastApplication,
       });
 
+      // @ts-expect-error Calling private helper function
       await migrator._migrateInstitutionNames();
 
       expect(migrator.getData()).toEqual(data);
@@ -765,6 +779,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
 
     expect(migrator.getData()).toEqual(data);
@@ -824,6 +839,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
     const result = migrator.getData();
 
@@ -895,6 +911,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
     const result = migrator.getData();
 
@@ -928,6 +945,7 @@ describe("_migrateInstitutionNames", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateInstitutionNames();
     const result = migrator.getData();
 
@@ -979,6 +997,7 @@ describe("_migrateExistingInstitutions", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateExistingInstitutions();
     const result = migrator.getData();
 
@@ -1047,6 +1066,7 @@ describe("_migrateExistingInstitutions", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateExistingInstitutions();
     const result = migrator.getData();
 
@@ -1089,6 +1109,7 @@ describe("_migrateExistingInstitutions", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateExistingInstitutions();
     const result = migrator.getData();
 
@@ -1121,6 +1142,7 @@ describe("_migrateExistingInstitutions", () => {
       getLastApplication: mockGetLastApplication,
     });
 
+    // @ts-expect-error Calling private helper function
     await migrator._migrateExistingInstitutions();
     const result = migrator.getData();
 
@@ -1153,6 +1175,7 @@ describe("_migrateExistingInstitutions", () => {
         getLastApplication: mockGetLastApplication,
       });
 
+      // @ts-expect-error Calling private helper function
       await migrator._migrateExistingInstitutions();
       const result = migrator.getData();
 
