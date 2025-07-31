@@ -42,7 +42,8 @@ export const ValidationStatus: React.FC = () => {
     data?.getSubmission || {};
 
   const hadValidation: boolean = useMemo<boolean>(
-    () => !!validationStarted || !!validationEnded || !!validationScope || !!validationType,
+    () =>
+      !!validationStarted || !!validationEnded || !!validationScope || validationType?.length > 0,
     [validationStarted, validationEnded, validationScope, validationType]
   );
 

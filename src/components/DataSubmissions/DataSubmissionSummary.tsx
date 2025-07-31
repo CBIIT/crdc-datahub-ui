@@ -138,6 +138,19 @@ const StyledEmailWrapper = styled("a")({
   lineHeight: "19.6px",
 });
 
+const buildReleasedStatusWrapper =
+  (dataCommonsDisplayName: string): React.FC<{ children: React.ReactNode }> =>
+  ({ children }) => (
+    <StyledTooltip
+      title={`Released to ${dataCommonsDisplayName}`}
+      placement="top"
+      open={undefined}
+      arrow
+    >
+      <span>{children}</span>
+    </StyledTooltip>
+  );
+
 const getHistoryTextColorFromStatus = (status: SubmissionStatus) => {
   let color: string;
   switch (status) {
@@ -306,6 +319,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         history={dataSubmission?.history}
         iconMap={DataSubmissionIconMap}
         getTextColor={getHistoryTextColorFromStatus}
+        getStatusWrapper={(status) =>
+          status === "Released"
+            ? buildReleasedStatusWrapper(dataSubmission?.dataCommonsDisplayName)
+            : ({ children }) => children
+        }
       />
       <ReviewCommentsDialog
         open={openDialog === "review comments"}

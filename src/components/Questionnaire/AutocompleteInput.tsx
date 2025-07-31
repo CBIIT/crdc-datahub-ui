@@ -57,10 +57,13 @@ const StyledFormControl = styled(FormControl)(() => ({
     borderRadius: "8px",
     border: "1px solid #6B7294",
     marginTop: "2px",
+    maxHeight: "270px",
     "& .MuiAutocomplete-listbox": {
       padding: 0,
       overflow: "auto",
-      maxHeight: "300px",
+      width: "fit-content",
+      minWidth: "100%",
+      maxHeight: "unset",
     },
     "& .MuiAutocomplete-option[aria-selected='true']": {
       color: "#083A50",
@@ -71,6 +74,7 @@ const StyledFormControl = styled(FormControl)(() => ({
       minHeight: "35px",
       color: "#083A50",
       background: "#FFFFFF",
+      whiteSpace: "nowrap",
     },
     "& .MuiAutocomplete-option:hover": {
       backgroundColor: "#3E7E6D",

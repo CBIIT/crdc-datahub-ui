@@ -352,15 +352,17 @@ const HistoryDialog = <T extends string>({
               </DotContainer>
             </Grid>
             <Grid xs={3}>
-              <StatusWrapper>
-                <StyledEventItem
-                  color={color}
-                  textAlign="left"
-                  data-testid={`history-item-${index}-status`}
-                >
-                  {status?.toUpperCase()}
-                </StyledEventItem>
-              </StatusWrapper>
+              <div style={{ width: "fit-content" }}>
+                <StatusWrapper>
+                  <StyledEventItem
+                    color={color}
+                    textAlign="left"
+                    data-testid={`history-item-${index}-status`}
+                  >
+                    {status?.toUpperCase()}
+                  </StyledEventItem>
+                </StatusWrapper>
+              </div>
             </Grid>
             <Grid xs={3}>
               <StyledEventItem
