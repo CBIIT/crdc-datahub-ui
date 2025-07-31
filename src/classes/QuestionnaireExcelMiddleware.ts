@@ -123,11 +123,11 @@ export class QuestionnaireExcelMiddleware {
     const sheet = this.workbook.addWorksheet("Metadata");
 
     sheet.columns = [
-      { header: "Submission ID", key: "submissionId", width: 35 },
-      { header: "Applicant", key: "applicantName", width: 30 },
-      { header: "Status", key: "status", width: 8 },
-      { header: "Created Date", key: "createdAt", width: 30 },
-      { header: "Last Modified", key: "updatedAt", width: 30 },
+      { header: "Submission ID", key: "submissionId", width: 3, protection: { locked: true } },
+      { header: "Applicant", key: "applicantName", width: 30, protection: { locked: true } },
+      { header: "Status", key: "status", width: 8, protection: { locked: true } },
+      { header: "Created Date", key: "createdAt", width: 30, protection: { locked: true } },
+      { header: "Last Modified", key: "updatedAt", width: 30, protection: { locked: true } },
     ];
 
     sheet.getRow(1).font = { bold: true };
@@ -145,9 +145,101 @@ export class QuestionnaireExcelMiddleware {
    * Adds the form section A to the Excel workbook.
    */
   private async serializeSectionA(): Promise<void> {
-    this.workbook.addWorksheet(sectionMetadata.A.title);
+    const { sections } = sectionMetadata.A;
 
-    // TODO: Implement the logic to add Section A data
+    const sheet = this.workbook.addWorksheet("PI and Contact");
+    sheet.getRow(1).getCell("A").value = sections.PRINCIPAL_INVESTIGATOR.title;
+    sheet.getRow(1).getCell("A").note = sections.PRINCIPAL_INVESTIGATOR.description;
+    sheet.mergeCells("A1:G1");
+    sheet.getCell("A1:G1").style = {
+      font: { bold: true, size: 14 },
+      fill: {
+        type: "pattern",
+        pattern: "darkTrellis",
+        bgColor: { argb: "F08080" },
+      },
+    };
+
+    sheet.getColumn("A").width = 20;
+    sheet.getColumn("B").width = 20;
+    sheet.getColumn("C").width = 20;
+    sheet.getColumn("D").width = 30;
+    sheet.getColumn("E").width = 30;
+    sheet.getColumn("F").width = 30;
+    sheet.getColumn("G").width = 30;
+    sheet.getRow(2).font = { bold: true };
+    sheet.getRow(2).alignment = { horizontal: "center" };
+    sheet.getRow(2).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "D9EAD3" } };
+
+    const [A2, B2, C2, D2, E2, F2, G2] = [
+      sheet.getRow(2).getCell("A"),
+      sheet.getRow(2).getCell("B"),
+      sheet.getRow(2).getCell("C"),
+      sheet.getRow(2).getCell("D"),
+      sheet.getRow(2).getCell("E"),
+      sheet.getRow(2).getCell("F"),
+      sheet.getRow(2).getCell("G"),
+    ];
+    A2.value = "First Name";
+    B2.value = "Last Name";
+    C2.value = "Position";
+    D2.value = "Email";
+    E2.value = "ORCID";
+    F2.value = "Institution";
+    G2.value = "Institution Address";
+
+    const [A3, B3, C3, D3, E3, F3, G3] = [
+      sheet.getRow(3).getCell("A"),
+      sheet.getRow(3).getCell("B"),
+      sheet.getRow(3).getCell("C"),
+      sheet.getRow(3).getCell("D"),
+      sheet.getRow(3).getCell("E"),
+      sheet.getRow(3).getCell("F"),
+      sheet.getRow(3).getCell("G"),
+    ];
+    A3.value = this.data?.pi?.firstName || "";
+    B3.value = this.data?.pi?.lastName || "";
+    C3.value = this.data?.pi?.position || "";
+    D3.value = this.data?.pi?.email || "";
+    E3.value = this.data?.pi?.ORCID || "";
+    F3.value = this.data?.pi?.institution || "";
+    G3.value = this.data?.pi?.address || "";
+
+    A3.dataValidation = {
+      type: "textLength",
+      operator: "lessThan",
+      showErrorMessage: true,
+      error: "Must be less than 50 characters.",
+      allowBlank: false,
+      formulae: [50],
+    };
+    B3.dataValidation = {
+      type: "textLength",
+      operator: "lessThan",
+      showErrorMessage: true,
+      error: "Must be less than 50 characters.",
+      allowBlank: false,
+      formulae: [50],
+    };
+    C3.dataValidation = {
+      type: "textLength",
+      operator: "lessThan",
+      showErrorMessage: true,
+      error: "Must be less than 100 characters.",
+      allowBlank: false,
+      formulae: [100],
+    };
+    // TODO: D3 email validation
+    // TODO: E3 ORCID validation
+    // TODO: F3 institution name against institution list?
+    G3.dataValidation = {
+      type: "textLength",
+      operator: "lessThan",
+      showErrorMessage: true,
+      error: "Must be less than 200 characters.",
+      allowBlank: false,
+      formulae: [200],
+    };
   }
 
   /**
