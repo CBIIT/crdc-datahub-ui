@@ -148,17 +148,17 @@ export class QuestionnaireExcelMiddleware {
     const { sections } = sectionMetadata.A;
 
     const sheet = this.workbook.addWorksheet("PI and Contact");
-    sheet.getRow(1).getCell("A").value = sections.PRINCIPAL_INVESTIGATOR.title;
-    sheet.getRow(1).getCell("A").note = sections.PRINCIPAL_INVESTIGATOR.description;
-    sheet.mergeCells("A1:G1");
-    sheet.getCell("A1:G1").style = {
-      font: { bold: true, size: 14 },
-      fill: {
-        type: "pattern",
-        pattern: "darkTrellis",
-        bgColor: { argb: "F08080" },
-      },
-    };
+    // sheet.getRow(1).getCell("A").value = sections.PRINCIPAL_INVESTIGATOR.title;
+    // sheet.getRow(1).getCell("A").note = sections.PRINCIPAL_INVESTIGATOR.description;
+    // sheet.mergeCells("A1:G1");
+    // sheet.getCell("A1:G1").style = {
+    //   font: { bold: true, size: 14 },
+    //   fill: {
+    //     type: "pattern",
+    //     pattern: "darkTrellis",
+    //     bgColor: { argb: "F08080" },
+    //   },
+    // };
 
     sheet.getColumn("A").width = 20;
     sheet.getColumn("B").width = 20;
@@ -167,9 +167,26 @@ export class QuestionnaireExcelMiddleware {
     sheet.getColumn("E").width = 30;
     sheet.getColumn("F").width = 30;
     sheet.getColumn("G").width = 30;
-    sheet.getRow(2).font = { bold: true };
-    sheet.getRow(2).alignment = { horizontal: "center" };
-    sheet.getRow(2).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "D9EAD3" } };
+    sheet.getRow(1).font = { bold: true };
+    sheet.getRow(1).alignment = { horizontal: "center" };
+    sheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "D9EAD3" } };
+
+    const [A1, B1, C1, D1, E1, F1, G1] = [
+      sheet.getRow(1).getCell("A"),
+      sheet.getRow(1).getCell("B"),
+      sheet.getRow(1).getCell("C"),
+      sheet.getRow(1).getCell("D"),
+      sheet.getRow(1).getCell("E"),
+      sheet.getRow(1).getCell("F"),
+      sheet.getRow(1).getCell("G"),
+    ];
+    A1.value = "First Name";
+    B1.value = "Last Name";
+    C1.value = "Position";
+    D1.value = "Email";
+    E1.value = "ORCID";
+    F1.value = "Institution";
+    G1.value = "Institution Address";
 
     const [A2, B2, C2, D2, E2, F2, G2] = [
       sheet.getRow(2).getCell("A"),
@@ -180,32 +197,15 @@ export class QuestionnaireExcelMiddleware {
       sheet.getRow(2).getCell("F"),
       sheet.getRow(2).getCell("G"),
     ];
-    A2.value = "First Name";
-    B2.value = "Last Name";
-    C2.value = "Position";
-    D2.value = "Email";
-    E2.value = "ORCID";
-    F2.value = "Institution";
-    G2.value = "Institution Address";
+    A2.value = this.data?.pi?.firstName || "";
+    B2.value = this.data?.pi?.lastName || "";
+    C2.value = this.data?.pi?.position || "";
+    D2.value = this.data?.pi?.email || "";
+    E2.value = this.data?.pi?.ORCID || "";
+    F2.value = this.data?.pi?.institution || "";
+    G2.value = this.data?.pi?.address || "";
 
-    const [A3, B3, C3, D3, E3, F3, G3] = [
-      sheet.getRow(3).getCell("A"),
-      sheet.getRow(3).getCell("B"),
-      sheet.getRow(3).getCell("C"),
-      sheet.getRow(3).getCell("D"),
-      sheet.getRow(3).getCell("E"),
-      sheet.getRow(3).getCell("F"),
-      sheet.getRow(3).getCell("G"),
-    ];
-    A3.value = this.data?.pi?.firstName || "";
-    B3.value = this.data?.pi?.lastName || "";
-    C3.value = this.data?.pi?.position || "";
-    D3.value = this.data?.pi?.email || "";
-    E3.value = this.data?.pi?.ORCID || "";
-    F3.value = this.data?.pi?.institution || "";
-    G3.value = this.data?.pi?.address || "";
-
-    A3.dataValidation = {
+    A2.dataValidation = {
       type: "textLength",
       operator: "lessThan",
       showErrorMessage: true,
@@ -213,7 +213,7 @@ export class QuestionnaireExcelMiddleware {
       allowBlank: false,
       formulae: [50],
     };
-    B3.dataValidation = {
+    B2.dataValidation = {
       type: "textLength",
       operator: "lessThan",
       showErrorMessage: true,
@@ -221,7 +221,7 @@ export class QuestionnaireExcelMiddleware {
       allowBlank: false,
       formulae: [50],
     };
-    C3.dataValidation = {
+    C2.dataValidation = {
       type: "textLength",
       operator: "lessThan",
       showErrorMessage: true,
@@ -229,10 +229,10 @@ export class QuestionnaireExcelMiddleware {
       allowBlank: false,
       formulae: [100],
     };
-    // TODO: D3 email validation
-    // TODO: E3 ORCID validation
-    // TODO: F3 institution name against institution list?
-    G3.dataValidation = {
+    // TODO: D2 email validation
+    // TODO: E2 ORCID validation
+    // TODO: F2 institution name against institution list?
+    G2.dataValidation = {
       type: "textLength",
       operator: "lessThan",
       showErrorMessage: true,
