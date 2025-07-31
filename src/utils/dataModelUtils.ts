@@ -1,3 +1,5 @@
+import { chain, values } from "lodash";
+
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
 import { RetrieveCDEsResp } from "../graphql";
@@ -229,20 +231,16 @@ export const extractAllCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
     return [];
   }
 
-  const result = new Set<string>();
-  for (const node in dictionary) {
-    if (Object.hasOwn(dictionary, node) && dictionary[node].properties) {
-      for (const property in dictionary[node].properties) {
-        if (Object.hasOwn(dictionary[node].properties, property)) {
-          dictionary[node].properties[property].Term?.forEach((term) => {
-            result.add(`${term.Code};${term.Version};${term.Origin}`);
-          });
-        }
-      }
-    }
-  }
-
-  return Array.from(result)
-    .map((c) => c.split(";"))
-    .map(([CDECode, CDEVersion, CDEOrigin]) => ({ CDECode, CDEVersion, CDEOrigin }));
+  return chain(dictionary)
+    .values()
+    .flatMap((node) => values(node?.properties ?? {}))
+    .flatMap("Term")
+    .filter((t) => t?.Code && t?.Version && t?.Origin)
+    .uniqBy((t) => `${t.Code}:${t.Version}:${t.Origin}`)
+    .map((t) => ({
+      CDECode: t.Code,
+      CDEVersion: t.Version,
+      CDEOrigin: t.Origin,
+    }))
+    .value();
 };

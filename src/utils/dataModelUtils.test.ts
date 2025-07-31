@@ -824,6 +824,21 @@ describe("extractAllCDEs tests", () => {
     expect(() => utils.extractAllCDEs(input as MDFDictionary)).not.toThrow();
   });
 
+  it.each<unknown>([null, undefined, {}])(
+    "should handle nodes with invalid property definitions '%s'",
+    (input) => {
+      const dictionary = modelDefinitionFactory.build({
+        node1: modelDefinitionNodeFactory.build({
+          properties: input as MDFDictionary[number]["properties"],
+        }),
+      });
+
+      const result = utils.extractAllCDEs(dictionary);
+
+      expect(result).toEqual([]); // No CDEs should be extracted from invalid input
+    }
+  );
+
   it("should extract all CDEs from a valid dictionary", () => {
     const dictionary = modelDefinitionFactory.build({
       node1: modelDefinitionNodeFactory.build({
