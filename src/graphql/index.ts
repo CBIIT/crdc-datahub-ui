@@ -44,6 +44,9 @@ export type {
   Input as ListApplicationsInput,
 } from "./listApplications";
 
+export { RETRIEVE_FORM_VERSION } from "./retrieveFormVersion";
+export type { RetrieveFormVersionResp } from "./retrieveFormVersion";
+
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
 export type {

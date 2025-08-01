@@ -1,12 +1,18 @@
 import { useLazyQuery } from "@apollo/client";
 import { Button, ButtonProps, styled } from "@mui/material";
 import dayjs from "dayjs";
-import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
 import { memo, useState } from "react";
 
 import { QuestionnaireExcelMiddleware } from "@/classes/QuestionnaireExcelMiddleware";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
-import { ListInstitutionsResp, ListInstitutionsInput, LIST_INSTITUTIONS } from "@/graphql";
+import {
+  ListInstitutionsResp,
+  ListInstitutionsInput,
+  LIST_INSTITUTIONS,
+  RETRIEVE_FORM_VERSION,
+  RetrieveFormVersionResp,
+} from "@/graphql";
 import { downloadBlob, Logger } from "@/utils";
 
 const StyledTooltip = styled(StyledFormTooltip)({
@@ -24,33 +30,50 @@ type Props = Omit<ButtonProps, "onClick">;
  * @returns The ExportTemplateButton component.
  */
 const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [downloading, setDownloading] = useState<boolean>(false);
 
   const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
     LIST_INSTITUTIONS,
     {
-      variables: { first: -1, orderBy: "name", sortDirection: "asc" },
+      variables: { status: "Active", first: -1, orderBy: "name", sortDirection: "asc" },
       context: { clientName: "backend" },
       fetchPolicy: "cache-first",
       onError: (e) => Logger.error("ExportTemplateButton: listInstitutions API error:", e),
     }
   );
 
-  const formVersion = "1.0"; // TODO: Fetch from API
+  const [retrieveFormVersion] = useLazyQuery<RetrieveFormVersionResp>(RETRIEVE_FORM_VERSION, {
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-first",
+    onError: (e) => Logger.error("ExportTemplateButton: getFormVersion API error:", e),
+  });
 
   const onButtonClick = async () => {
     setDownloading(true);
+    try {
+      const { data } = await retrieveFormVersion();
+      const { getFormVersion: { formVersion } = {} } = data || {};
+      const formattedDate = dayjs().format("MMDDYYYY");
 
-    const middleware = new QuestionnaireExcelMiddleware(null, { getInstitutions });
-    const file = await middleware.serialize();
+      if (!formVersion || typeof formVersion !== "string") {
+        throw new Error("Invalid form version data received");
+      }
 
-    downloadBlob(
-      file,
-      `CRDC_Submission_Request_Template_v${formVersion}_${dayjs().format("MMDDYYYY")}.xlsx`,
-      "application/vnd.ms-excel"
-    );
+      const middleware = new QuestionnaireExcelMiddleware(null, { getInstitutions });
+      const file = await middleware.serialize();
+      const filename = `CRDC_Submission_Request_Template_v${formVersion}_${formattedDate}.xlsx`;
 
-    setDownloading(false);
+      downloadBlob(file, filename, "application/vnd.ms-excel");
+    } catch (error) {
+      Logger.error("ExportTemplateButton: Error downloading template", error);
+      enqueueSnackbar("Oops! Unable to generate the template. Please try again later.", {
+        variant: "error",
+      });
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -73,7 +96,6 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
           data-testid="export-application-excel-template-button"
           {...rest}
         >
-          {/* TODO: Rename based on US */}
           Download Template
         </Button>
       </span>
@@ -81,4 +103,4 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
   );
 };
 
-export default memo<Props>(ExportTemplateButton, isEqual);
+export default memo<Props>(ExportTemplateButton);
