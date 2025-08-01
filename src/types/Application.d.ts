@@ -46,37 +46,6 @@ type Application = {
   version: string;
 };
 
-type QuestionnaireData = {
-  sections: Section[];
-  pi: PI;
-  piAsPrimaryContact: boolean;
-  primaryContact: Contact; // null if piAsPrimaryContact is true
-  additionalContacts: Contact[];
-  program: ProgramInput;
-  study: Study;
-  accessTypes: string[];
-  targetedSubmissionDate: string; // YYYY-MM-DD format
-  targetedReleaseDate: string; // YYYY-MM-DD format
-  timeConstraints: TimeConstraint[];
-  cancerTypes: string[];
-  otherCancerTypes: string;
-  otherCancerTypesEnabled: boolean;
-  preCancerTypes: string;
-  numberOfParticipants: number;
-  species: string[];
-  otherSpeciesEnabled: boolean;
-  otherSpeciesOfSubjects: string;
-  cellLines: boolean;
-  modelSystems: boolean;
-  imagingDataDeIdentified: boolean;
-  dataDeIdentified: boolean;
-  dataTypes: string[];
-  otherDataTypes: string;
-  clinicalData: ClinicalData;
-  files: FileInfo[];
-  submitterComment: string;
-};
-
 type ApplicationStatus =
   | "New"
   | "In Progress"
@@ -88,95 +57,6 @@ type ApplicationStatus =
   | "Canceled"
   | "Deleted";
 
-type Section = {
-  name: string;
-  status: SectionStatus;
-};
-
-type SectionStatus = "In Progress" | "Completed" | "Not Started";
-
-type TimeConstraint = {
-  description: string;
-  effectiveDate: string;
-};
-
-type ClinicalData = {
-  dataTypes: string[];
-  otherDataTypes: string;
-  futureDataTypes: boolean;
-};
-
-type Contact = {
-  position: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  /**
-   * The institution name for the contact.
-   *
-   * @deprecated This is a legacy field and should only be used when the institutionID is not available.
-   */
-  institution: string;
-  /**
-   * The UUID of the institution for the contact.
-   *
-   * @since 3.4.0
-   */
-  institutionID: string;
-};
-
-type PI = {
-  ORCID: string;
-  address: string;
-} & Omit<Contact, "phone">;
-
-type ProgramInput = Partial<Pick<Organization, "_id" | "name" | "abbreviation" | "description">>;
-
-type Study = {
-  name: string;
-  abbreviation: string;
-  description: string;
-  publications: Publication[];
-  plannedPublications: PlannedPublication[];
-  repositories: Repository[];
-  funding: Funding[];
-  isDbGapRegistered: boolean;
-  dbGaPPPHSNumber: string;
-};
-
-type Repository = {
-  name: string;
-  studyID: string;
-  dataTypesSubmitted: string[];
-  otherDataTypesSubmitted: string;
-};
-
-type Publication = {
-  title: string;
-  pubmedID: string;
-  DOI: string;
-};
-
-type PlannedPublication = {
-  title: string;
-  expectedDate: string;
-};
-
-type FileInfo = {
-  type: string;
-  extension: string;
-  count: number;
-  amount: string;
-};
-
-type Funding = {
-  agency: string;
-  grantNumbers: string;
-  nciProgramOfficer: string;
-  nciGPA: string;
-};
-
 type HistoryEvent = HistoryBase<ApplicationStatus>;
 
 type Applicant = {
@@ -184,3 +64,18 @@ type Applicant = {
   applicantName: string;
   applicantEmail: string;
 };
+
+type QuestionnaireData = import("@/schemas/Application").QuestionnaireData;
+type Section = import("@/schemas/Application").Section;
+type SectionStatus = import("@/schemas/Application").Section["status"];
+type TimeConstraint = import("@/schemas/Application").TimeConstraint;
+type ClinicalData = import("@/schemas/Application").ClinicalData;
+type Contact = import("@/schemas/Application").Contact;
+type PI = import("@/schemas/Application").PI;
+type ProgramInput = import("@/schemas/Application").ProgramInput;
+type Study = import("@/schemas/Application").Study;
+type Repository = import("@/schemas/Application").Repository;
+type Publication = import("@/schemas/Application").Publication;
+type PlannedPublication = import("@/schemas/Application").PlannedPublication;
+type FileInfo = import("@/schemas/Application").FileInfo;
+type Funding = import("@/schemas/Application").Funding;

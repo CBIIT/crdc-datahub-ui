@@ -168,7 +168,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     const formObject = parseForm(formRef.current, { nullify: false });
     const combinedData = { ...cloneDeep(data), ...formObject };
     // Remove empty strings from dataType arrays
-    combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
+    combinedData.dataTypes = combinedData.dataTypes.filter((str: string) => str !== "");
     // Handle validity for at dataTypes section
     if (combinedData.dataTypes.length !== 0 || combinedData.otherDataTypes !== "") {
       setDataTypesErrorMsg("");
