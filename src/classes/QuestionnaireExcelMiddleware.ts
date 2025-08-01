@@ -12,6 +12,15 @@ import { Logger } from "@/utils/logger";
 const TEMPLATE_VERSION = "1.0";
 
 /**
+ * The names of the sheets used in the Excel workbook.
+ */
+const SHEET_NAMES = {
+  meta: "Metadata",
+  A: "PI and Contact",
+  institutions: "InstitutionList",
+} as const;
+
+/**
  * The required dependencies to import or export a Submission Request.
  */
 type MiddlewareDependencies = {
@@ -124,7 +133,7 @@ export class QuestionnaireExcelMiddleware {
   private async serializeMetadata(): Promise<Readonly<ExcelJS.Worksheet>> {
     const { application } = this.dependencies;
 
-    const sheet = this.workbook.addWorksheet("Metadata", { state: "hidden" });
+    const sheet = this.workbook.addWorksheet(SHEET_NAMES.meta, { state: "hidden" });
     sheet.columns = [
       { header: "Submission ID", key: "submissionId", width: 35, protection: { locked: true } },
       { header: "Applicant", key: "applicantName", width: 30, protection: { locked: true } },
@@ -170,7 +179,7 @@ export class QuestionnaireExcelMiddleware {
    * @returns A readonly reference to the created worksheet.
    */
   private async serializeSectionA(): Promise<Readonly<ExcelJS.Worksheet>> {
-    const sheet = this.workbook.addWorksheet("PI and Contact");
+    const sheet = this.workbook.addWorksheet(SHEET_NAMES.A);
 
     sheet.getColumn("A").width = 20;
     sheet.getColumn("B").width = 20;
@@ -283,7 +292,7 @@ export class QuestionnaireExcelMiddleware {
    * Parses the data from Section A of the Excel workbook.
    */
   private async parseSectionA(): Promise<void> {
-    const sheet = this.workbook.getWorksheet("PI and Contact");
+    const sheet = this.workbook.getWorksheet(SHEET_NAMES.A);
     if (!sheet) {
       Logger.info("parseSectionA: No sheet found for Section A");
     }
@@ -293,8 +302,7 @@ export class QuestionnaireExcelMiddleware {
   }
 
   /**
-   * Adds a hidden sheet 'InstitutionList', which contains the full list of API
-   * provided institutions at function call.
+   * Adds a hidden sheet which contains the full list of API provided institutions at function call.
    *
    * Columns:
    * - `A` – Institution ID
@@ -303,11 +311,9 @@ export class QuestionnaireExcelMiddleware {
    * @returns An immutable internal reference to the sheet.
    */
   private async createInstitutionSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
-    const SHEET_NAME = "InstitutionList";
-
-    let sheet = this.workbook.getWorksheet(SHEET_NAME);
+    let sheet = this.workbook.getWorksheet(SHEET_NAMES.institutions);
     if (!sheet) {
-      sheet = this.workbook.addWorksheet(SHEET_NAME, { state: "veryHidden" });
+      sheet = this.workbook.addWorksheet(SHEET_NAMES.institutions, { state: "veryHidden" });
 
       const institutions = await this.getAPIInstitutions();
       institutions?.forEach((institution, index) => {
