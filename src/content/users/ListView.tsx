@@ -235,7 +235,7 @@ const ListingView: FC = () => {
     }
 
     const filters: FilterFunction<T>[] = [
-      (u: T) => isUserMatch(u, userFilter),
+      (u: T) => (userFilter?.trim()?.length >= 3 ? isUserMatch(u, userFilter) : true),
       (u: T) => (roleFilter && roleFilter !== "All" ? u.role === roleFilter : true),
       (u: T) => (statusFilter && statusFilter !== "All" ? u.userStatus === statusFilter : true),
     ];
@@ -313,6 +313,12 @@ const ListingView: FC = () => {
   const handleFilterChange = (field: keyof FilterForm) => {
     setTouchedFilters((prev) => ({ ...prev, [field]: true }));
   };
+
+  useEffect(() => {
+    if (tableRef.current && userFilter?.trim()?.length) {
+      tableRef.current.refresh();
+    }
+  }, [userFilter]);
 
   return (
     <>
