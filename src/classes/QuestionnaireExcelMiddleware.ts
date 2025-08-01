@@ -2,8 +2,14 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
 import { cloneDeep } from "lodash";
 
+import env from "@/env";
 import { ListInstitutionsResp } from "@/graphql";
 import { Logger } from "@/utils/logger";
+
+/**
+ * An internal template version identifier.
+ */
+const TEMPLATE_VERSION = "1.0";
 
 /**
  * The required dependencies to import or export a Submission Request.
@@ -60,13 +66,8 @@ export class QuestionnaireExcelMiddleware {
   public async serialize(): Promise<ArrayBuffer> {
     this.setMetadataProperties();
 
-    // If an existing Submission Request is provided, add a metadata page
-    if (this.data !== null && this.dependencies.application !== undefined) {
-      Logger.info("serialize: Adding metadata sheet");
-      await this.serializeMetadata();
-    }
-
     // TODO: Implement the serialization logic Sections A-D
+    await this.serializeMetadata();
     await this.serializeSectionA();
 
     return this.workbook.xlsx.writeBuffer();
@@ -110,40 +111,65 @@ export class QuestionnaireExcelMiddleware {
 
   /**
    * Builds the metadata page for the Excel workbook.
-   * This method is called when an existing Submission Request is provided.
-   * It will add a metadata page to the workbook with relevant information.
+   *
+   * This page contains information such as:
+   * - Submission Request Information
+   * - Applicant Information
+   * - Development Tier
+   * - Template Version
+   * - Export Date
    *
    * @returns Promise<void>
    */
-  private async serializeMetadata(): Promise<void> {
+  private async serializeMetadata(): Promise<Readonly<ExcelJS.Worksheet>> {
     const { application } = this.dependencies;
 
-    // TODO: Was this page removed from the requirements?
-    const sheet = this.workbook.addWorksheet("Metadata");
-
+    const sheet = this.workbook.addWorksheet("Metadata", { state: "hidden" });
     sheet.columns = [
-      { header: "Submission ID", key: "submissionId", width: 3, protection: { locked: true } },
+      { header: "Submission ID", key: "submissionId", width: 35, protection: { locked: true } },
       { header: "Applicant", key: "applicantName", width: 30, protection: { locked: true } },
-      { header: "Status", key: "status", width: 8, protection: { locked: true } },
+      { header: "Applicant ID", key: "applicantId", width: 35, protection: { locked: true } },
+      { header: "Last Status", key: "lastStatus", width: 10, protection: { locked: true } },
+      { header: "Form Version", key: "formVersion", width: 15, protection: { locked: true } },
       { header: "Created Date", key: "createdAt", width: 30, protection: { locked: true } },
       { header: "Last Modified", key: "updatedAt", width: 30, protection: { locked: true } },
+      { header: "Tier", key: "devTier", width: 10, protection: { locked: true } },
+      {
+        header: "Template Version",
+        key: "templateVersion",
+        width: 15,
+        protection: { locked: true },
+      },
+      { header: "Export Date", key: "exportedAt", width: 30, protection: { locked: true } },
     ];
 
     sheet.getRow(1).font = { bold: true };
     sheet.getRow(1).alignment = { horizontal: "center" };
+    sheet.getRow(2).getCell("lastStatus").alignment = { horizontal: "center" };
 
-    sheet.getRow(2).getCell("submissionId").value = application._id;
-    sheet.getRow(2).getCell("applicantName").value = application.applicant.applicantName;
-    sheet.getRow(2).getCell("status").value = application.status;
-    sheet.getRow(2).getCell("status").alignment = { horizontal: "center" };
-    sheet.getRow(2).getCell("createdAt").value = application.createdAt;
-    sheet.getRow(2).getCell("updatedAt").value = application.updatedAt;
+    // Submission Request metadata
+    sheet.getRow(2).getCell("submissionId").value = application?._id;
+    sheet.getRow(2).getCell("applicantName").value = application?.applicant?.applicantName;
+    sheet.getRow(2).getCell("applicantId").value = application?.applicant?.applicantID;
+    sheet.getRow(2).getCell("lastStatus").value = application?.status;
+    sheet.getRow(2).getCell("formVersion").value = application?.version;
+    sheet.getRow(2).getCell("createdAt").value = application?.createdAt;
+    sheet.getRow(2).getCell("updatedAt").value = application?.updatedAt;
+
+    // Generic metadata
+    sheet.getRow(2).getCell("devTier").value = env.VITE_DEV_TIER || "N/A";
+    sheet.getRow(2).getCell("templateVersion").value = TEMPLATE_VERSION;
+    sheet.getRow(2).getCell("exportedAt").value = new Date().toISOString();
+
+    return sheet;
   }
 
   /**
    * Adds the form section A to the Excel workbook.
+   *
+   * @returns A readonly reference to the created worksheet.
    */
-  private async serializeSectionA(): Promise<void> {
+  private async serializeSectionA(): Promise<Readonly<ExcelJS.Worksheet>> {
     const sheet = this.workbook.addWorksheet("PI and Contact");
 
     sheet.getColumn("A").width = 20;
@@ -249,6 +275,8 @@ export class QuestionnaireExcelMiddleware {
       allowBlank: false,
       formulae: [200],
     };
+
+    return sheet;
   }
 
   /**
