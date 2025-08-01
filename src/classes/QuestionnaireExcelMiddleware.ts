@@ -112,8 +112,11 @@ export class QuestionnaireExcelMiddleware {
    * @returns Promise<void>
    */
   private async setMetadataProperties(): Promise<void> {
-    this.workbook.creator = "CRDC Submission Portal";
-    this.workbook.lastModifiedBy = "CRDC Submission Portal";
+    this.workbook.creator = "crdc-datahub-ui";
+    this.workbook.lastModifiedBy = "crdc-datahub-ui";
+    this.workbook.title = "CRDC Submission Request";
+    this.workbook.subject = "CRDC Submission Request Template";
+    this.workbook.company = "National Cancer Institute";
     this.workbook.created = new Date();
     this.workbook.modified = new Date();
   }
