@@ -99,3 +99,59 @@ type FacetSearchData = {
     name: string;
   }[];
 };
+
+/**
+ * An elementary definition for the Data Model Navigator internal dictionary
+ * data structure.
+ */
+type MDFDictionary = {
+  /**
+   * A MDF node name, e.g. "study"
+   */
+  [nodeName: string]: {
+    /**
+     * Unknown or irrelevant attributes of the node
+     */
+    [key: string]: unknown;
+    /**
+     * A map of node properties and their definitions
+     */
+    properties: {
+      [propertyName: string]: {
+        /**
+         * Unknown or irrelevant attributes of the property
+         */
+        [key: string]: unknown;
+        /**
+         * An array of permissible values, if applicable, for the property
+         */
+        enum: Array<unknown> | undefined;
+        /**
+         * An array of CDE Terms tied to the property
+         */
+        Term: Array<{
+          /**
+           * The CDE Code
+           */
+          Code: string;
+          /**
+           * The CDE Origin
+           *
+           * @example "caDSR"
+           */
+          Origin: string;
+          /**
+           * The CDE Display Name
+           */
+          Value: string;
+          /**
+           * The CDE Version number
+           *
+           * @example "1.0.0"
+           */
+          Version: string;
+        }>;
+      };
+    };
+  };
+};

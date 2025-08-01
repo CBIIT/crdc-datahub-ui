@@ -63,7 +63,7 @@ type Story = StoryObj<typeof meta>;
 export const ModelNavigator: Story = {
   args: {
     model: "GC",
-    version: "latest",
+    version: "9.0.0",
     tier: "dev",
   },
 };
