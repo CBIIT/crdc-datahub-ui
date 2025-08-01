@@ -1,4 +1,4 @@
-import { defaultTo } from "lodash";
+import { chain, values } from "lodash";
 
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
@@ -136,114 +136,110 @@ export const buildFilterOptionsList = (config: ModelNavigatorConfig): string[] =
 };
 
 /**
- * A function to parse the datalist and reolace enums with those returned from retrieveCde query
- * Commented out until api is ready
- * @params {void}
+ * A utility to mutate the dictionary by removing invalid CDEs.
+ * It will traverse the node's properties and remove any invalid CDEs (`Term`).
+ *
+ * @param dictionary the MDF dictionary to mutate
+ * @returns Nothing, the dictionary is mutated in place
  */
-export const updateEnums = (
-  cdeMap: Map<string, CDEInfo>,
-  dataList,
-  response: RetrieveCDEsResp["retrieveCDEs"] = [],
-  apiError = false
-) => {
-  const responseMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]> = new Map();
+export const deleteInvalidCDEs = (dictionary: MDFDictionary): void => {
+  if (!dictionary || Object.keys(dictionary).length === 0) {
+    return;
+  }
 
-  defaultTo(response, []).forEach((item) =>
-    responseMap.set(`${item.CDECode}.${item.CDEVersion}`, item)
-  );
+  Object.values(dictionary)
+    .flatMap((node) => Object.values(node?.properties ?? {}))
+    .forEach((property) => {
+      if (!Array.isArray(property?.Term)) {
+        return;
+      }
 
-  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }> =
-    new Map();
-  const mapKeyPrefixes: Map<string, string> = new Map();
-  const mapKeyPrefixesNoValues: Map<string, string> = new Map();
-
-  cdeMap.forEach((val, key) => {
-    const [prefix, cdeCodeAndVersion] = key.split(";");
-    const item = responseMap.get(cdeCodeAndVersion);
-
-    if (item) {
-      resultMap.set(key, { ...item, CDEOrigin: val?.CDEOrigin || "" });
-      mapKeyPrefixes.set(prefix, key);
-    } else {
-      mapKeyPrefixesNoValues.set(prefix, key);
-    }
-  });
-
-  const newObj = JSON.parse(JSON.stringify(dataList));
-
-  traverseAndReplace(newObj, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
-
-  return newObj;
+      property.Term = property.Term.filter(
+        (term) => term?.Origin?.toLowerCase()?.indexOf("cadsr") !== -1
+      );
+    });
 };
 
-export const traverseAndReplace = (
-  node,
-  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }>,
-  mapKeyPrefixes: Map<string, string>,
-  mapKeyPrefixesNoValues: Map<string, string>,
-  apiError: boolean,
-  parentKey = ""
-) => {
-  const getCDEPublicID = (cdeCode, cdeVersion) =>
-    `https://cadsr.cancer.gov/onedata/dmdirect/NIH/NCI/CO/CDEDD?filter=CDEDD.ITEM_ID=${cdeCode}%20and%20ver_nr=${cdeVersion}`;
+/**
+ * A utility to populate CDE data into the dictionary.
+ *
+ * Key details on handling:
+ * 1. Updates the Value field (CDE Name)
+ * 2. Updates the property enum
+ * 3. Updates the property type
+ *
+ * @param dictionary the MDF dictionary to populate with data
+ * @param data the API response data
+ */
+export const populateCDEData = (
+  dictionary: MDFDictionary,
+  data: RetrieveCDEsResp["retrieveCDEs"]
+): void => {
+  if (!dictionary || Object.keys(dictionary).length === 0) {
+    return;
+  }
 
-  if (typeof node !== "object" || node === null) return;
+  const mappedCDEs = new Map<string, RetrieveCDEsResp["retrieveCDEs"][number]>();
+  data?.forEach((cde) => {
+    mappedCDEs.set(`${cde.CDECode}:${cde.CDEVersion}`, cde);
+  });
 
-  if (node.properties) {
-    for (const key in node.properties) {
-      if (Object.hasOwn(node.properties, key)) {
-        const fullKey = `${parentKey}.${key}`.replace(/^\./, "");
-        const prefixMatch = mapKeyPrefixes.get(fullKey);
-        const noValuesMatch = mapKeyPrefixesNoValues.get(fullKey);
-        const property = node.properties[key];
-        const fallbackMessage = [
-          "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-        ];
+  Object.values(dictionary)
+    .flatMap((node) => Object.values(node?.properties ?? {}))
+    .forEach((prop) => {
+      if (!Array.isArray(prop?.Term)) {
+        return;
+      }
+      prop.Term?.forEach((term) => {
+        const apiData = mappedCDEs.get(`${term.Code}:${term.Version}`);
 
-        if (prefixMatch) {
-          const { CDECode, CDEFullName, CDEVersion, CDEOrigin, PermissibleValues } =
-            resultMap.get(prefixMatch);
-
-          // Populate CDE details
-          property.CDEFullName = CDEFullName;
-          property.CDECode = CDECode;
-          property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
-          property.CDEVersion = CDEVersion;
-          property.CDEOrigin = CDEOrigin;
+        if (apiData) {
+          // Update CDE Name
+          term.Value = apiData.CDEFullName;
 
           // Populate Permissible Values if available from API
-          if (Array.isArray(PermissibleValues) && PermissibleValues.length > 0) {
-            property.enum = PermissibleValues;
+          if (Array.isArray(apiData.PermissibleValues) && apiData.PermissibleValues.length > 0) {
+            prop.enum = apiData.PermissibleValues;
             // Permissible Values from API are empty, convert property to "string" type
           } else if (
-            Array.isArray(PermissibleValues) &&
-            PermissibleValues.length === 0 &&
-            property.enum
+            Array.isArray(apiData.PermissibleValues) &&
+            apiData.PermissibleValues.length === 0 &&
+            prop.enum
           ) {
-            delete property.enum;
-            property.type = "string";
+            delete prop.enum;
+            prop.type = "string";
           }
+        } else if (!apiData && prop.enum) {
+          Logger.error("dataModelUtils: Unable to match CDE for property", prop, term);
+          prop.enum = [
+            "Permissible values are currently not available. Please contact the CRDC Submission Portal HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
+          ];
         }
+      });
+    });
+};
 
-        // API did not return any Permissible Values, populate with fallback message
-        if (noValuesMatch && property.enum) {
-          Logger.error("Unable to match CDE for property", node?.properties?.[key]);
-          property.enum = fallbackMessage;
-        }
-      }
-    }
+/**
+ * A utility to extract all unique CDEs from the MDF dictionary.
+ *
+ * @param dictionary the MDF dictionary to extract CDEs from
+ * @return An array of objects containing the CDE Code/Version/Origin
+ */
+export const extractAllCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
+  if (!dictionary || Object.keys(dictionary).length === 0) {
+    return [];
   }
 
-  for (const subKey in node) {
-    if (Object.hasOwn(node, subKey)) {
-      traverseAndReplace(
-        node[subKey],
-        resultMap,
-        mapKeyPrefixes,
-        mapKeyPrefixesNoValues,
-        apiError,
-        `${parentKey}.${subKey}`
-      );
-    }
-  }
+  return chain(dictionary)
+    .values()
+    .flatMap((node) => values(node?.properties ?? {}))
+    .flatMap("Term")
+    .filter((t) => t?.Code && t?.Version && t?.Origin)
+    .uniqBy((t) => `${t.Code}:${t.Version}:${t.Origin}`)
+    .map((t) => ({
+      CDECode: t.Code,
+      CDEVersion: t.Version,
+      CDEOrigin: t.Origin,
+    }))
+    .value();
 };
