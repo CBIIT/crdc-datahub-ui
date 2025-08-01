@@ -181,50 +181,40 @@ export class QuestionnaireExcelMiddleware {
   private async serializeSectionA(): Promise<Readonly<ExcelJS.Worksheet>> {
     const sheet = this.workbook.addWorksheet(SHEET_NAMES.A);
 
-    sheet.getColumn("A").width = 20;
-    sheet.getColumn("B").width = 20;
-    sheet.getColumn("C").width = 20;
-    sheet.getColumn("D").width = 30;
-    sheet.getColumn("E").width = 30;
-    sheet.getColumn("F").width = 30;
-    sheet.getColumn("G").width = 30;
+    sheet.columns = [
+      { header: "First Name", key: "firstName", width: 20, protection: { locked: true } },
+      { header: "Last Name", key: "lastName", width: 20, protection: { locked: true } },
+      { header: "Position", key: "position", width: 20, protection: { locked: true } },
+      { header: "Email", key: "email", width: 30, protection: { locked: true } },
+      { header: "ORCID", key: "orcid", width: 30, protection: { locked: true } },
+      { header: "Institution", key: "institution", width: 30, protection: { locked: true } },
+      { header: "Institution Address", key: "address", width: 30, protection: { locked: true } },
+    ];
+
     sheet.getRow(1).font = { bold: true };
     sheet.getRow(1).alignment = { horizontal: "center" };
     sheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "D9EAD3" } };
 
-    const [A1, B1, C1, D1, E1, F1, G1] = [
-      sheet.getRow(1).getCell("A"),
-      sheet.getRow(1).getCell("B"),
-      sheet.getRow(1).getCell("C"),
-      sheet.getRow(1).getCell("D"),
-      sheet.getRow(1).getCell("E"),
-      sheet.getRow(1).getCell("F"),
-      sheet.getRow(1).getCell("G"),
-    ];
-    A1.value = "First Name";
-    B1.value = "Last Name";
-    C1.value = "Position";
-    D1.value = "Email";
-    E1.value = "ORCID";
-    F1.value = "Institution";
-    G1.value = "Institution Address";
+    const row2 = sheet.getRow(2);
+    row2.values = {
+      firstName: this.data?.pi?.firstName || "",
+      lastName: this.data?.pi?.lastName || "",
+      position: this.data?.pi?.position || "",
+      email: this.data?.pi?.email || "",
+      orcid: this.data?.pi?.ORCID || "",
+      institution: this.data?.pi?.institution || "",
+      address: this.data?.pi?.address || "",
+    };
 
     const [A2, B2, C2, D2, E2, F2, G2] = [
-      sheet.getRow(2).getCell("A"),
-      sheet.getRow(2).getCell("B"),
-      sheet.getRow(2).getCell("C"),
-      sheet.getRow(2).getCell("D"),
-      sheet.getRow(2).getCell("E"),
-      sheet.getRow(2).getCell("F"),
-      sheet.getRow(2).getCell("G"),
+      row2.getCell("firstName"),
+      row2.getCell("lastName"),
+      row2.getCell("position"),
+      row2.getCell("email"),
+      row2.getCell("orcid"),
+      row2.getCell("institution"),
+      row2.getCell("address"),
     ];
-    A2.value = this.data?.pi?.firstName || "";
-    B2.value = this.data?.pi?.lastName || "";
-    C2.value = this.data?.pi?.position || "";
-    D2.value = this.data?.pi?.email || "";
-    E2.value = this.data?.pi?.ORCID || "";
-    F2.value = this.data?.pi?.institution || "";
-    G2.value = this.data?.pi?.address || "";
 
     A2.dataValidation = {
       type: "textLength",
