@@ -29,6 +29,8 @@
     "paths": {
       "@/factories/*": ["./src/test-utils/factories/*"],
       "@/components/*": ["./src/components/*"],
+      "@/schemas/*": ["./src/schemas/*"],
+      "@/config/*": ["./src/config/*"],
       "@/*": ["./src/*"],
     }
   },
