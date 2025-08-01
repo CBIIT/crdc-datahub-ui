@@ -2,7 +2,6 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
 import { cloneDeep } from "lodash";
 
-import sectionMetadata from "@/config/SectionMetadata";
 import { ListInstitutionsResp } from "@/graphql";
 import { Logger } from "@/utils/logger";
 
@@ -240,7 +239,7 @@ export class QuestionnaireExcelMiddleware {
       type: "list",
       allowBlank: true,
       showErrorMessage: false,
-      formulae: [`=${institutionSheet.name}!$A$1:$A$${institutionSheet.rowCount}`],
+      formulae: [`=${institutionSheet.name}!$B$1:$B$${institutionSheet.rowCount}`],
     };
     G2.dataValidation = {
       type: "textLength",
@@ -256,7 +255,7 @@ export class QuestionnaireExcelMiddleware {
    * Parses the data from Section A of the Excel workbook.
    */
   private async parseSectionA(): Promise<void> {
-    const sheet = this.workbook.getWorksheet(sectionMetadata.A.title);
+    const sheet = this.workbook.getWorksheet("PI and Contact");
     if (!sheet) {
       Logger.info("parseSectionA: No sheet found for Section A");
     }
@@ -269,23 +268,41 @@ export class QuestionnaireExcelMiddleware {
    * Adds a hidden sheet 'InstitutionList', which contains the full list of API
    * provided institutions at function call.
    *
-   * @returns The internal reference to the sheet.
+   * Columns:
+   * - `A` – Institution ID
+   * - `B` – Institution Name
+   *
+   * @returns An immutable internal reference to the sheet.
    */
   private async createInstitutionSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
     const SHEET_NAME = "InstitutionList";
 
     let sheet = this.workbook.getWorksheet(SHEET_NAME);
     if (!sheet) {
-      const { data } = (await this.dependencies.getInstitutions?.()) || {};
-      const { institutions } = data?.listInstitutions || {};
+      sheet = this.workbook.addWorksheet(SHEET_NAME, { state: "veryHidden" });
 
-      sheet = this.workbook.addWorksheet(SHEET_NAME);
+      const institutions = await this.getAPIInstitutions();
       institutions?.forEach((institution, index) => {
-        sheet.getCell(`A${index + 1}`).value = institution.name;
+        sheet.getCell(`A${index + 1}`).value = institution._id;
+        sheet.getCell(`B${index + 1}`).value = institution.name;
       });
-      sheet.state = "veryHidden";
     }
 
     return sheet;
+  }
+
+  /**
+   * An internal utility to retrieve the Institution List from the dependencies
+   *
+   * @note This is error-safe
+   * @returns The array of institutions
+   */
+  private async getAPIInstitutions(): Promise<Institution[]> {
+    try {
+      const { data } = (await this.dependencies.getInstitutions?.()) || {};
+      return data?.listInstitutions?.institutions || [];
+    } catch (error) {
+      return [];
+    }
   }
 }
