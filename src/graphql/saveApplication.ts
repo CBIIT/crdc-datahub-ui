@@ -28,7 +28,6 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
         name
       }
       GPAName
-      GPAEmail
     }
   }
 `;
@@ -92,10 +91,6 @@ export type Input = {
      * The name of the Genomic Program Administrator
      */
     GPAName: string;
-    /**
-     * The email of the Genomic Program Administrator
-     */
-    GPAEmail: string;
   };
 };
 

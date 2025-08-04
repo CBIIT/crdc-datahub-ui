@@ -19,7 +19,6 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   newInstitutions: [],
   version: "",
   GPAName: "",
-  GPAEmail: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
@@ -69,7 +68,6 @@ export const InitialQuestionnaire: QuestionnaireData = {
     isDbGapRegistered: false,
     dbGaPPPHSNumber: "",
     GPAName: "",
-    GPAEmail: "",
   },
   accessTypes: [],
   targetedSubmissionDate: "",

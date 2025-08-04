@@ -451,14 +451,8 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
           />
           <ReviewDataListingProperty
             idPrefix="review-genomic-program-administrator-name"
-            label="Genomic Program Administrator (GPA) name"
+            label="Genomic Program Administrator"
             value={study.GPAName}
-            valuePlacement="bottom"
-          />
-          <ReviewDataListingProperty
-            idPrefix="review-genomic-program-administrator-email"
-            label="Genomic Program Administrator (GPA) email"
-            value={study.GPAEmail}
             valuePlacement="bottom"
           />
         </ReviewDataListing>

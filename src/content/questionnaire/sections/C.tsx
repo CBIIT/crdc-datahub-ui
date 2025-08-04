@@ -66,7 +66,6 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   );
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
   const [GPAName, setGPAName] = useState<string>(data.study?.GPAName);
-  const [GPAEmail, setGPAEmail] = useState<string>(data.study?.GPAEmail);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -194,26 +193,13 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-genomic-program-administrator-name"
           label={
             <>
-              Genomic Program Administrator (GPA) name (<GPAList />)
+              Genomic Program Administrator (<GPAList />)
             </>
           }
           name="study[GPAName]"
           value={GPAName}
           onChange={(e) => setGPAName(e.target.value || "")}
           placeholder="Enter GPA name, if applicable"
-          readOnly={readOnlyInputs}
-        />
-        <TextInput
-          id="section-c-genomic-program-administrator-email"
-          label={
-            <>
-              Genomic Program Administrator (GPA) email (<GPAList />)
-            </>
-          }
-          name="study[GPAEmail]"
-          value={GPAEmail}
-          onChange={(e) => setGPAEmail(e.target.value || "")}
-          placeholder="Enter GPA email, if applicable"
           readOnly={readOnlyInputs}
         />
       </SectionGroup>

@@ -14,7 +14,6 @@ export const baseStudy: Study = {
   isDbGapRegistered: false,
   dbGaPPPHSNumber: "",
   GPAName: "",
-  GPAEmail: "",
 };
 
 /**

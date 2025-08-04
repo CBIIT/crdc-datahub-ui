@@ -45,10 +45,6 @@ type Application = {
    */
   GPAName: string;
   /**
-   * The email of the Genomic Program Administrator
-   */
-  GPAEmail: string;
-  /**
    * The current form version
    */
   version: string;
@@ -152,7 +148,6 @@ type Study = {
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
   GPAName: string;
-  GPAEmail: string;
 };
 
 type Repository = {
