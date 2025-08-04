@@ -222,7 +222,7 @@ export class QuestionnaireDataMigrator {
 
     // Delete outdated GPA fields
     this.data.study.funding.forEach((funding) => {
-      delete funding.nciGPA;
+      delete funding?.nciGPA;
     });
   }
 }
