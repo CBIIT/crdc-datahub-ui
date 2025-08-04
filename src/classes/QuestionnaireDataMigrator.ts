@@ -220,9 +220,9 @@ export class QuestionnaireDataMigrator {
       GPAName: this.data.study.funding[0]?.nciGPA || "",
     };
 
-    // Delete outdated GPA fields
-    this.data.study.funding.forEach((funding) => {
-      delete funding?.nciGPA;
-    });
+    // Delete only the one GPA being migrated, leave the rest alone to avoid data loss
+    // Should be updated to delete all funding nciGPA when multiple
+    // GPA is supported
+    delete this.data.study.funding[0]?.nciGPA;
   }
 }
