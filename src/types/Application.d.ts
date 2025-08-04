@@ -184,6 +184,12 @@ type Funding = {
   agency: string;
   grantNumbers: string;
   nciProgramOfficer: string;
+  /**
+   * The name of the NCI Genomic Program Administrator
+   *
+   * @deprecated Use `GPAName` instead.
+   * @see Study
+   */
   nciGPA: string;
 };
 
