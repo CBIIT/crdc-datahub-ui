@@ -25,6 +25,8 @@ export const baseApplication: Application = {
   programDescription: "",
   newInstitutions: [],
   version: "",
+  GPAName: "",
+  GPAEmail: "",
 };
 
 /**

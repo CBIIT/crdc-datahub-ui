@@ -13,6 +13,8 @@ export const baseStudy: Study = {
   funding: [],
   isDbGapRegistered: false,
   dbGaPPPHSNumber: "",
+  GPAName: "",
+  GPAEmail: "",
 };
 
 /**
