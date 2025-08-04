@@ -219,5 +219,10 @@ export class QuestionnaireDataMigrator {
       ...this.data.study,
       GPAName: this.data.study.funding[0]?.nciGPA || "",
     };
+
+    // Delete outdated GPA fields
+    this.data.study.funding.forEach((funding) => {
+      delete funding.nciGPA;
+    });
   }
 }
