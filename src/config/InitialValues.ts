@@ -62,7 +62,6 @@ export const InitialQuestionnaire: QuestionnaireData = {
         agency: "",
         grantNumbers: "",
         nciProgramOfficer: "",
-        nciGPA: "",
       },
     ],
     isDbGapRegistered: false,

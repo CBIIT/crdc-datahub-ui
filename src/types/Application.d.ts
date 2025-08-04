@@ -185,7 +185,7 @@ type Funding = {
    * @deprecated Use `GPAName` instead.
    * @see Study
    */
-  nciGPA: string;
+  nciGPA?: string;
 };
 
 type HistoryEvent = HistoryBase<ApplicationStatus>;

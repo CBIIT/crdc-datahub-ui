@@ -209,7 +209,10 @@ export class QuestionnaireDataMigrator {
    * Migrates the outdated GPA field to new location in the questionnaireData.
    */
   private async _migrateGPA(): Promise<void> {
-    if (!this.data?.study?.funding?.length) {
+    if (
+      !this.data?.study?.funding?.length ||
+      !Object.hasOwn(this.data.study.funding[0], "nciGPA")
+    ) {
       Logger.info("_migrateGPA: No GPA to migrate", { ...this.data });
       return;
     }
