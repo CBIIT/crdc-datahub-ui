@@ -51,6 +51,7 @@ export class QuestionnaireDataMigrator {
     await this._migrateExistingInstitutions();
     await this._migrateInstitutionsToID();
     await this._migrateInstitutionNames();
+    await this._migrateGPA();
 
     return this.data;
   }
@@ -202,5 +203,21 @@ export class QuestionnaireDataMigrator {
         contact.institutionID = apiData._id;
       }
     });
+  }
+
+  /**
+   * Migrates the outdated GPA field to new location in the questionnaireData.
+   */
+  private async _migrateGPA(): Promise<void> {
+    if (!this.data?.study?.funding?.length) {
+      Logger.info("_migrateGPA: No GPA to migrate", { ...this.data });
+      return;
+    }
+
+    Logger.info("_migrateGPA: Migrating GPA to study level", { ...this.data });
+    this.data.study = {
+      ...this.data.study,
+      GPAName: this.data.study.funding[0]?.nciGPA || "",
+    };
   }
 }
