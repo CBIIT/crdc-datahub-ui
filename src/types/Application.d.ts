@@ -41,6 +41,14 @@ type Application = {
    */
   newInstitutions: Array<{ id: string; name: string }>;
   /**
+   * The name of the Genomic Program Administrator
+   */
+  GPAName: string;
+  /**
+   * The email of the Genomic Program Administrator
+   */
+  GPAEmail: string;
+  /**
    * The current form version
    */
   version: string;
@@ -143,6 +151,8 @@ type Study = {
   funding: Funding[];
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
+  GPAName: string;
+  GPAEmail: string;
 };
 
 type Repository = {
