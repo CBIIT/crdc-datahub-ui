@@ -207,6 +207,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           newInstitutions: newInstitutions
             .filter((inst) => contacts.findIndex((c) => c.institutionID === inst.id) !== -1)
             .map(({ id, name }) => ({ id, name })),
+          GPAName: data?.study?.GPAName,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));

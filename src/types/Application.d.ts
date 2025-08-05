@@ -41,6 +41,10 @@ type Application = {
    */
   newInstitutions: Array<{ id: string; name: string }>;
   /**
+   * The name of the Genomic Program Administrator
+   */
+  GPAName: string;
+  /**
    * The current form version
    */
   version: string;

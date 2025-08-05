@@ -7,7 +7,6 @@ export const baseFunding: Funding = {
   agency: "",
   grantNumbers: "",
   nciProgramOfficer: "",
-  nciGPA: "",
 };
 
 /**

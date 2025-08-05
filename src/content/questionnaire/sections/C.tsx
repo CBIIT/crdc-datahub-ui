@@ -2,6 +2,7 @@ import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
 import { cloneDeep, merge } from "lodash";
 import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
@@ -18,6 +19,20 @@ import SectionMetadata from "../../../config/SectionMetadata";
 import speciesOptions from "../../../config/SpeciesConfig";
 import useFormMode from "../../../hooks/useFormMode";
 import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
+
+const StyledLink = styled(Link)({
+  color: "#005A9E",
+});
+
+const GPAList = () => (
+  <StyledLink
+    to="https://sharing.nih.gov/genomic-data-sharing-policy/resources/contacts-and-help#gds_support"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    GPA List
+  </StyledLink>
+);
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400,
@@ -50,6 +65,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     data.study?.isDbGapRegistered
   );
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
+  const [GPAName, setGPAName] = useState<string>(data.study?.GPAName);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -171,6 +187,20 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           gridWidth={12}
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
+        />
+
+        <TextInput
+          id="section-c-genomic-program-administrator-name"
+          label={
+            <>
+              Genomic Program Administrator (<GPAList />)
+            </>
+          }
+          name="study[GPAName]"
+          value={GPAName}
+          onChange={(e) => setGPAName(e.target.value || "")}
+          placeholder="Enter GPA name, if applicable"
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
 

@@ -234,7 +234,10 @@ export const fundingSchema = z
      */
     nciProgramOfficer: z.string().max(50).optional(),
     /**
-     * The NCI Grants Management Specialist (GPA).
+     * The name of the NCI Genomic Program Administrator
+     *
+     * @deprecated Use `GPAName` instead.
+     * @see Study
      */
     nciGPA: z.string().optional(),
   })
@@ -291,6 +294,12 @@ export const studySchema = z
      * @example "phs002529.v1.p1"
      */
     dbGaPPPHSNumber: z.string().max(50),
+    /**
+     * The name of the Genomic Program Administrator.
+     *
+     * @example "John Doe"
+     */
+    GPAName: z.string().optional(),
   })
   .strict();
 
