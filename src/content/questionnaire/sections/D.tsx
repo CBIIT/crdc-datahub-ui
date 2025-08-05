@@ -182,7 +182,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.clinicalData = InitialQuestionnaire.clinicalData;
     } else {
       combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter(
-        (str) => str !== ""
+        (str: string) => str !== ""
       );
     }
 

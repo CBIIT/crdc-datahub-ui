@@ -1,8 +1,11 @@
 import { z } from "zod";
 
+import { repositoryDataTypesOptions } from "@/components/Questionnaire/Repository";
 import accessTypeOptions from "@/config/AccessTypesConfig";
 import cancerTypeOptions from "@/config/CancerTypesConfig";
-import dataTypeOptions from "@/config/DataTypesConfig";
+import DataTypes from "@/config/DataTypesConfig";
+
+const FIELD_IS_REQUIRED = "This field is required.";
 
 /**
  * Schema for a section in the application questionnaire.
@@ -46,21 +49,34 @@ export const clinicalDataSchema = z
      *
      * @example ["imaging", "proteomics", "genomics"]
      */
-    dataTypes: z.array(z.string()),
+    dataTypes: z
+      .array(
+        z.enum(
+          [
+            DataTypes.demographicData,
+            DataTypes.relapseRecurrenceData,
+            DataTypes.diagnosisData,
+            DataTypes.outcomeData,
+            DataTypes.treatmentData,
+            DataTypes.biospecimenData,
+          ].map((option) => option.name)
+        )
+      )
+      .optional(),
     /**
      * Free-text list of additional data types that are not listed.
      * List items should be separated by pipes ("|").
      *
      * @example "metabolomics | proteomics | genomics"
      */
-    otherDataTypes: z.string(),
+    otherDataTypes: z.string().optional(),
     /**
      * Indicates intent to add additional type of data in a future submission.
      *
      * @note List items should be separated by pipes ("|").
      * @example "dataType1 | dataType2 | dataType3"
      */
-    futureDataTypes: z.boolean(),
+    futureDataTypes: z.boolean().optional(),
   })
   .strict();
 
@@ -91,7 +107,7 @@ export const contactSchema = z
      *
      * @deprecated This is a legacy field and should only be used when the institutionID is not available.
      */
-    institution: z.string(),
+    institution: z.string().optional(),
     /**
      * UUIDv4 for the contact's institution; preferred over the legacy name field.
      * Enables consistent lookups and reporting.
@@ -130,24 +146,47 @@ export const programInputSchema = z
   .object({
     /**
      * Stable UUIDv4 for the program; used to link submissions to the program.
+     * "Not Applicable" and "Other" are also valid options.
      */
-    _id: z.uuidv4(),
+    _id: z.uuidv4().or(z.enum(["Not Applicable", "Other"])),
     /**
-     * Official program name as shown in selection lists.
+     * Existing/Custom program name or no value if not applicable.
      */
-    name: z.string().max(100),
+    name: z.string().max(100).optional(),
     /**
-     * Short code used in tags and compact displays
+     * Existing/Custom short abbreviation or no value if not applicable.
      *
      * @example "TCGA"
      */
-    abbreviation: z.string().max(100),
+    abbreviation: z.string().max(100).optional(),
     /**
-     * Overview to help reviewers understand the program.
+     * Existing/Custom overview to help reviewers understand the program. Or no value if not applicable.
      */
-    description: z.string().max(500),
+    description: z.string().max(500).optional(),
   })
-  .partial()
+  .superRefine((val, ctx) => {
+    if (val._id !== "Not Applicable" && !val.name) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["name"],
+        message: FIELD_IS_REQUIRED,
+      });
+    }
+    if (val._id !== "Not Applicable" && !val.abbreviation) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["abbreviation"],
+        message: FIELD_IS_REQUIRED,
+      });
+    }
+    if (val._id !== "Not Applicable" && !val.description) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["description"],
+        message: FIELD_IS_REQUIRED,
+      });
+    }
+  })
   .strict();
 
 export const repositorySchema = z
@@ -167,13 +206,13 @@ export const repositorySchema = z
      *
      * @example ["imaging", "proteomics", "genomics"]
      */
-    dataTypesSubmitted: z.array(z.string()),
+    dataTypesSubmitted: z.array(z.enum(repositoryDataTypesOptions.map((option) => option.name))),
     /**
      * Free-text for submitted data types not covered by the list.
      *
      * @example "dataType1 | dataType2 | dataType3"
      */
-    otherDataTypesSubmitted: z.string().max(100),
+    otherDataTypesSubmitted: z.string().max(100).optional(),
   })
   .strict();
 
@@ -187,13 +226,13 @@ export const publicationSchema = z
      */
     title: z.string().max(500),
     /**
-     * PubMed ID to enable automatic linking.
+     * PubMed ID (PMID) to enable automatic linking.
      */
-    pubmedID: z.string().max(20),
+    pubmedID: z.string().max(20).optional(),
     /**
      * Digital Object Identifier to uniquely reference the work.
      */
-    DOI: z.string().max(20),
+    DOI: z.string().max(20).optional(),
   })
   .strict();
 
@@ -237,7 +276,7 @@ export const fundingSchema = z
      * The name of the NCI Genomic Program Administrator
      *
      * @deprecated Use `GPAName` instead.
-     * @see Study
+     * @see studySchema
      */
     nciGPA: z.string().optional(),
   })
@@ -255,7 +294,7 @@ export const studySchema = z
     /**
      * The short study title.
      */
-    abbreviation: z.string().max(20),
+    abbreviation: z.string().max(20).optional(),
     /**
      * A short description of the effort that these data have been collected for.
      */
@@ -293,13 +332,22 @@ export const studySchema = z
      *
      * @example "phs002529.v1.p1"
      */
-    dbGaPPPHSNumber: z.string().max(50),
+    dbGaPPPHSNumber: z.string().max(50).optional(),
     /**
      * The name of the Genomic Program Administrator.
      *
      * @example "John Doe"
      */
     GPAName: z.string().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.isDbGapRegistered && !val.dbGaPPPHSNumber) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["dbGaPPPHSNumber"],
+        message: FIELD_IS_REQUIRED,
+      });
+    }
   })
   .strict();
 
@@ -352,13 +400,13 @@ export const questionnaireDataSchema = z
     /**
      * If true, the PI is also the primary contact and no separate contact is required.
      */
-    piAsPrimaryContact: z.boolean(),
+    piAsPrimaryContact: z.boolean().optional(),
     /**
-     * Designated contact for day-to-day coordination, or null if PI serves as primary.
+     * Designated contact for day-to-day coordination, or empty if PI serves as primary.
      *
      * @see contactSchema
      */
-    primaryContact: contactSchema.nullable(),
+    primaryContact: contactSchema.optional(),
     /**
      * Additional points of contacts.
      *
@@ -403,25 +451,25 @@ export const questionnaireDataSchema = z
     /**
      * Cancer types represented in the study.
      */
-    cancerTypes: z.array(z.enum(cancerTypeOptions)),
+    cancerTypes: z.array(z.enum(cancerTypeOptions)).optional(),
     /**
      * Free-text when the cancer type is not listed.
      *
      * @note List items should be separated by pipes ("|").
      * @example "Lorem, Ipsum | Dolor sit amet"
      */
-    otherCancerTypes: z.string().max(1_000),
+    otherCancerTypes: z.string().max(1_000).optional(),
     /**
      * Indicates whether the "Other cancer types" field is enabled.
      */
-    otherCancerTypesEnabled: z.boolean(),
+    otherCancerTypesEnabled: z.boolean().optional(),
     /**
      * Pre-cancer types represented in the study.
      *
      * @note List items should be separated by pipes ("|").
      * @example "Lorem, Ipsum | Dolor sit amet"
      */
-    preCancerTypes: z.string().max(500),
+    preCancerTypes: z.string().max(500).optional(),
     /**
      * Total enrolled or expected participant count.
      *
@@ -437,7 +485,7 @@ export const questionnaireDataSchema = z
     /**
      * Indicates whether an "Other species" text field is enabled.
      */
-    otherSpeciesEnabled: z.boolean(),
+    otherSpeciesEnabled: z.boolean().optional(),
     /**
      * Free-text for species not listed when enabled.
      *
@@ -445,19 +493,19 @@ export const questionnaireDataSchema = z
      * @note Must be less than or equal to 500 characters.
      * @example "Lorem, Ipsum | Dolor sit amet"
      */
-    otherSpeciesOfSubjects: z.string().max(500),
+    otherSpeciesOfSubjects: z.string().max(500).optional(),
     /**
      * Indicates if cell line data are included.
      */
-    cellLines: z.boolean(),
+    cellLines: z.boolean().optional(),
     /**
      * Indicates if model systems are included.
      */
-    modelSystems: z.boolean(),
+    modelSystems: z.boolean().optional(),
     /**
      * Confirms imaging data have been de-identified.
      */
-    imagingDataDeIdentified: z.boolean(),
+    imagingDataDeIdentified: z.boolean().optional(),
     /**
      * Confirms non-imaging data have been de-identified.
      */
@@ -465,20 +513,31 @@ export const questionnaireDataSchema = z
     /**
      * All major types of data included in this submission.
      */
-    dataTypes: z.array(z.enum(Object.values(dataTypeOptions).map((option) => option.name))),
+    dataTypes: z
+      .array(
+        z.enum(
+          [
+            DataTypes.clinicalTrial,
+            DataTypes.genomics,
+            DataTypes.imaging,
+            DataTypes.proteomics,
+          ].map((option) => option.name)
+        )
+      )
+      .optional(),
     /**
      * Free-text when a data type is not listed.
      *
      * @note List items should be separated by pipes ("|").
      * @example "Lorem, Ipsum | Dolor sit amet"
      */
-    otherDataTypes: z.string(),
+    otherDataTypes: z.string().optional(),
     /**
      * Clinical data subset details.
      *
      * @see clinicalDataSchema
      */
-    clinicalData: clinicalDataSchema,
+    clinicalData: clinicalDataSchema.optional(),
     /**
      * Summary of files by type.
      *
@@ -488,18 +547,49 @@ export const questionnaireDataSchema = z
     /**
      * Optional notes from the submitter to reviewers.
      */
-    submitterComment: z.string().max(500),
+    submitterComment: z.string().max(500).optional(),
   })
-  .strict()
-  .superRefine(({ piAsPrimaryContact, primaryContact }, ctx) => {
-    if (piAsPrimaryContact && primaryContact !== null) {
+  .superRefine((val, ctx) => {
+    if (val.otherCancerTypesEnabled && !val.otherCancerTypes?.length) {
       ctx.addIssue({
         code: "custom",
-        message: "primaryContact must be null when piAsPrimaryContact is true",
-        path: ["primaryContact"],
+        path: ["otherCancerTypes"],
+        message: FIELD_IS_REQUIRED,
       });
     }
-  });
+    if (val.otherSpeciesEnabled && !val.otherSpeciesOfSubjects?.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["otherSpeciesOfSubjects"],
+        message: FIELD_IS_REQUIRED,
+      });
+    }
+    if (!val.piAsPrimaryContact && val.primaryContact === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["primaryContact"],
+        message: "primaryContact is required when piAsPrimaryContact is false",
+      });
+    }
+    if (val.clinicalData && !val.dataTypes?.includes(DataTypes.clinicalTrial.name)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["clinicalData"],
+        message: `clinicalData is only valid when dataTypes includes ${DataTypes.clinicalTrial.name}`,
+      });
+    }
+    if (
+      val.dataTypes?.includes(DataTypes.imaging.name) &&
+      val.imagingDataDeIdentified === undefined
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["imagingDataDeIdentified"],
+        message: FIELD_IS_REQUIRED,
+      });
+    }
+  })
+  .strict();
 
 export type QuestionnaireData = z.infer<typeof questionnaireDataSchema>;
 export type Section = z.infer<typeof sectionSchema>;
