@@ -1,5 +1,14 @@
 # Release Notes
 
+## 3.3.1 (Released 08/01/2025)
+
+This production patch includes a critical fix to ensure reliable uploading of large data files using the CLI.
+
+#### Bug Fixes
+
+- **Resolved CLI Upload Timeout for Large Files**\
+  Improved the CLI upload process to prevent interruptions when submitting large files (e.g., 500GB or more).
+
 ## 3.3.0 (Released 07/09/2025)
 
 #### Submission Request
