@@ -12,6 +12,9 @@ import {
   LIST_INSTITUTIONS,
   RETRIEVE_FORM_VERSION,
   RetrieveFormVersionResp,
+  ListOrgsResp,
+  ListOrgsInput,
+  LIST_ORGS,
 } from "@/graphql";
 import { downloadBlob, Logger } from "@/utils";
 
@@ -44,6 +47,13 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
     }
   );
 
+  const [listOrgs] = useLazyQuery<ListOrgsResp, ListOrgsInput>(LIST_ORGS, {
+    context: { clientName: "backend" },
+    variables: { status: "All", first: -1, orderBy: "name", sortDirection: "asc" },
+    fetchPolicy: "cache-first",
+    onError: (e) => Logger.error("ExportTemplateButton: listOrgs API error:", e),
+  });
+
   const [retrieveFormVersion] = useLazyQuery<RetrieveFormVersionResp>(RETRIEVE_FORM_VERSION, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-first",
@@ -61,7 +71,10 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
         throw new Error("Invalid form version data received");
       }
 
-      const middleware = new QuestionnaireExcelMiddleware(null, { getInstitutions });
+      const middleware = new QuestionnaireExcelMiddleware(null, {
+        getInstitutions,
+        getPrograms: listOrgs,
+      });
       const file = await middleware.serialize();
       const filename = `CRDC_Submission_Request_Template_v${formVersion}_${formattedDate}.xlsx`;
 
