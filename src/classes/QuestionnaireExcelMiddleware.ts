@@ -299,9 +299,9 @@ export class QuestionnaireExcelMiddleware {
   /**
    * Serializes Section B data into the Excel workbook.
    *
-   * @returns A promise that resolves when the serialization is complete.
+   * @returns The serialized worksheet for Section B.
    */
-  private async serializeSectionB(): Promise<void> {
+  private async serializeSectionB(): Promise<Readonly<ExcelJS.Worksheet>> {
     const ctx: SectionCtxBase = {
       workbook: this.workbook,
       u: {
@@ -319,7 +319,9 @@ export class QuestionnaireExcelMiddleware {
       programSheet: await this.createProgramsSheet(),
     });
 
-    await sectionB.serialize(ctx);
+    const sheet = await sectionB.serialize(ctx);
+
+    return sheet;
   }
 
   /**

@@ -1,8 +1,26 @@
 import type ExcelJS from "exceljs";
 
+/**
+ * Represents the context for a section in the Excel worksheet.
+ */
 export type SectionCtxBase = {
+  /**
+   * The Excel workbook.
+   */
   workbook: ExcelJS.Workbook;
-  u: { header: (ws: ExcelJS.Worksheet, color?: string) => void };
+  /**
+   * The utility functions for the section.
+   */
+  u: {
+    /**
+     * Set the header for the worksheet.
+     *
+     * @param ws The worksheet to modify.
+     * @param color The color to use for the header.
+     * @returns void
+     */
+    header: (ws: ExcelJS.Worksheet, color?: string) => void;
+  };
 };
 
 /**
@@ -33,17 +51,22 @@ export type SectionConfig<K extends string, D> = {
 export type Section = {
   /**
    * The unique identifier for the section.
+   *
    * @example "B"
    */
   id: string;
   /**
    * Serialize the section data to the worksheet.
+   *
    * @param ctx The section context.
    * @returns The created worksheet.
    */
   serialize: (ctx: SectionCtxBase) => Promise<ExcelJS.Worksheet>;
 };
 
+/**
+ * Represents a section in the Excel worksheet.
+ */
 export abstract class SectionBase<K extends string, D> implements Section {
   /**
    * The unique identifier for the section.
@@ -80,6 +103,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
 
   /**
    * Create a new section.
+   *
    * @param cfg The section configuration.
    */
   constructor(cfg: SectionConfig<K, D>) {
@@ -93,6 +117,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
 
   /**
    * Serialize the section data to the worksheet.
+   *
    * @param ctx The section context.
    * @returns The created worksheet.
    */
@@ -106,6 +131,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
 
   /**
    * Create worksheet, add columns, and style header.
+   *
    * @param ctx The section context.
    * @returns The created worksheet.
    */
@@ -119,13 +145,16 @@ export abstract class SectionBase<K extends string, D> implements Section {
 
   /**
    * Write data to the worksheet.
+   *
    * @param ctx The section context.
    * @param ws The worksheet.
+   * @returns The created row.
    */
   protected abstract write(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row | ExcelJS.Row[];
 
   /**
    * Attach data validation to the data in the worksheet.
+   *
    * @param ctx The section context.
    * @param ws The worksheet.
    * @param row The row to validate.
@@ -135,4 +164,18 @@ export abstract class SectionBase<K extends string, D> implements Section {
     ws: ExcelJS.Worksheet,
     row: ExcelJS.Row | ExcelJS.Row[]
   ): void | Promise<void>;
+
+  /**
+   * Get the cells in row 2 of the worksheet.
+   *
+   * @note Follows the order of the defined columns.
+   * @param ws The worksheet.
+   * @returns The cells in row 2.
+   */
+  protected getRowCells(ws: ExcelJS.Worksheet) {
+    const r2 = ws.getRow(2);
+    const cells = this._columns.map((col) => r2.getCell(col.key)) || [];
+
+    return cells;
+  }
 }

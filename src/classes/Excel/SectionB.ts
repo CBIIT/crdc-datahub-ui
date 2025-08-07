@@ -5,10 +5,7 @@ import { IF, STR_EQ, REQUIRED, TEXT_MAX, AND, LIST_FORMULA } from "@/utils";
 import { CharacterLimitsMap, ColumnDef, SectionBase, SectionCtxBase } from "./SectionBase";
 
 type SectionBDeps = {
-  data: {
-    program?: QuestionnaireData["program"];
-    study?: QuestionnaireData["study"];
-  } | null;
+  data: QuestionnaireData | null;
   programSheet: ExcelJS.Worksheet;
 };
 
@@ -19,7 +16,10 @@ type BKeys =
   | "program.description"
   | "study.name"
   | "study.abbreviation"
-  | "study.description";
+  | "study.description"
+  | "study.funding.agency"
+  | "study.funding.grantNumbers"
+  | "study.funding.nciProgramOfficer";
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.name": 100,
@@ -27,52 +27,30 @@ const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.description": 500,
   "study.name": 100,
   "study.abbreviation": 20,
-  "study.description": 2500,
+  "study.description": 2_500,
+  // "study.funding.agency": 0,
+  "study.funding.grantNumbers": 250,
+  "study.funding.nciProgramOfficer": 50,
 };
 
+const protection = { locked: true };
+
 const columns: ColumnDef<BKeys>[] = [
+  { header: "Program", key: "program._id", width: 30, protection },
+  { header: "Program Title", key: "program.name", width: 30, protection },
+  { header: "Program Abbreviation", key: "program.abbreviation", width: 20, protection },
+  { header: "Program Description", key: "program.description", width: 30, protection },
+  { header: "Study Title", key: "study.name", width: 30, protection },
+  { header: "Study Abbreviation", key: "study.abbreviation", width: 30, protection },
+  { header: "Study Description", key: "study.description", width: 30, protection },
+  { header: "Funding Agency/Organization", key: "study.funding.agency", width: 30, protection },
   {
-    header: "Program",
-    key: "program._id",
+    header: "Grant or Contract Number(s)",
+    key: "study.funding.grantNumbers",
     width: 30,
-    protection: { locked: true },
+    protection,
   },
-  {
-    header: "Program Title",
-    key: "program.name",
-    width: 30,
-    protection: { locked: true },
-  },
-  {
-    header: "Program Abbreviation",
-    key: "program.abbreviation",
-    width: 20,
-    protection: { locked: true },
-  },
-  {
-    header: "Program Description",
-    key: "program.description",
-    width: 30,
-    protection: { locked: true },
-  },
-  {
-    header: "Study Title",
-    key: "study.name",
-    width: 30,
-    protection: { locked: true },
-  },
-  {
-    header: "Study Abbreviation",
-    key: "study.abbreviation",
-    width: 30,
-    protection: { locked: true },
-  },
-  {
-    header: "Study Description",
-    key: "study.description",
-    width: 30,
-    protection: { locked: true },
-  },
+  { header: "NCI Program Officer", key: "study.funding.nciProgramOfficer", width: 30, protection },
 ];
 
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
@@ -99,6 +77,16 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       "study.description": this.deps.data?.study?.description || "",
     };
 
+    // Set values for each row of funding
+    const funding = this.deps.data?.study?.funding || [];
+    funding.forEach((f, index) => {
+      const row = ws.getRow(index + 2);
+
+      row.getCell("study.funding.agency").value = f.agency || "";
+      row.getCell("study.funding.grantNumbers").value = f.grantNumbers || "";
+      row.getCell("study.funding.nciProgramOfficer").value = f.nciProgramOfficer || "";
+    });
+
     return r2;
   }
 
@@ -107,16 +95,10 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     ws: ExcelJS.Worksheet,
     row2: ExcelJS.Row
   ): Promise<void> {
-    const [A2, B2, C2, D2, E2, F2, G2] = [
-      row2.getCell("program._id"),
-      row2.getCell("program.name"),
-      row2.getCell("program.abbreviation"),
-      row2.getCell("program.description"),
-      row2.getCell("study.name"),
-      row2.getCell("study.abbreviation"),
-      row2.getCell("study.description"),
-    ];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [A2, B2, C2, D2, E2, F2, G2, _H2, I2, J2] = this.getRowCells(ws);
 
+    // Program
     A2.dataValidation = {
       type: "list",
       allowBlank: true,
@@ -125,7 +107,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         LIST_FORMULA(this.deps.programSheet.name, "B", 1, this.deps.programSheet.rowCount || 0),
       ],
     };
-
     B2.dataValidation = {
       type: "custom",
       allowBlank: false,
@@ -139,7 +120,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         ),
       ],
     };
-
     C2.dataValidation = {
       type: "custom",
       allowBlank: false,
@@ -153,7 +133,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         ),
       ],
     };
-
     D2.dataValidation = {
       type: "custom",
       allowBlank: false,
@@ -168,6 +147,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       ],
     };
 
+    // Study
     E2.dataValidation = {
       type: "textLength",
       operator: "lessThanOrEqual",
@@ -176,7 +156,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       error: "Required. Max 100 characters.",
       formulae: [this.CHARACTER_LIMITS["study.name"]],
     };
-
     F2.dataValidation = {
       type: "textLength",
       operator: "lessThanOrEqual",
@@ -193,6 +172,24 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       showErrorMessage: true,
       error: "Must be less than or equal to 2500 characters.",
       formulae: [this.CHARACTER_LIMITS["study.description"]],
+    };
+
+    // Funding
+    I2.dataValidation = {
+      type: "textLength",
+      operator: "lessThanOrEqual",
+      allowBlank: false,
+      showErrorMessage: true,
+      error: "Must be less than or equal to 250 characters.",
+      formulae: [this.CHARACTER_LIMITS["study.funding.grantNumbers"]],
+    };
+    J2.dataValidation = {
+      type: "textLength",
+      operator: "lessThanOrEqual",
+      allowBlank: false,
+      showErrorMessage: true,
+      error: "Must be less than or equal to 50 characters.",
+      formulae: [this.CHARACTER_LIMITS["study.funding.nciProgramOfficer"]],
     };
   }
 }
