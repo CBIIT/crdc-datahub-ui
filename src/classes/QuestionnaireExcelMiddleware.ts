@@ -2,9 +2,13 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
 import { cloneDeep } from "lodash";
 
+import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
 import env from "@/env";
-import { ListInstitutionsResp } from "@/graphql";
+import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
 import { Logger } from "@/utils/logger";
+
+import { SectionB } from "./Excel/SectionB";
+import { SectionCtxBase } from "./Excel/SectionBase";
 
 /**
  * An internal template version identifier.
@@ -12,20 +16,30 @@ import { Logger } from "@/utils/logger";
 const TEMPLATE_VERSION = "1.0";
 
 /**
+ * The names of the HIDDEN sheets used in the Excel workbook.
+ * Primarily used for hidden lists.
+ */
+export const HIDDEN_SHEET_NAMES = {
+  institutions: "InstitutionList",
+  programs: "ProgramList",
+} as const;
+
+/**
  * The names of the sheets used in the Excel workbook.
  */
 const SHEET_NAMES = {
+  ...HIDDEN_SHEET_NAMES,
   meta: "Metadata",
   A: "PI and Contact",
-  institutions: "InstitutionList",
+  B: "Program and Study",
 } as const;
 
 /**
  * The required dependencies to import or export a Submission Request.
  */
-type MiddlewareDependencies = {
+export type MiddlewareDependencies = {
   application?: Omit<Application, "QuestionnaireData">;
-  getPrograms?: LazyQueryExecFunction<ListInstitutionsResp, unknown>;
+  getPrograms?: LazyQueryExecFunction<ListOrgsResp, ListOrgsInput>;
   getInstitutions?: LazyQueryExecFunction<ListInstitutionsResp, unknown>;
 };
 
@@ -78,6 +92,7 @@ export class QuestionnaireExcelMiddleware {
     // TODO: Implement the serialization logic Sections A-D
     await this.serializeMetadata();
     await this.serializeSectionA();
+    await this.serializeSectionB();
 
     return this.workbook.xlsx.writeBuffer();
   }
@@ -281,6 +296,27 @@ export class QuestionnaireExcelMiddleware {
     return sheet;
   }
 
+  private async serializeSectionB(): Promise<void> {
+    const ctx: SectionCtxBase = {
+      workbook: this.workbook,
+      u: {
+        header: (ws: ExcelJS.Worksheet, color?: string) => {
+          const r1 = ws.getRow(1);
+          r1.font = { bold: true };
+          r1.alignment = { horizontal: "center" };
+          r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+        },
+      },
+    };
+
+    const sectionB = new SectionB({
+      data: this.data,
+      programSheet: await this.createProgramsSheet(),
+    });
+
+    await sectionB.serialize(ctx);
+  }
+
   /**
    * Parses the data from Section A of the Excel workbook.
    */
@@ -298,20 +334,50 @@ export class QuestionnaireExcelMiddleware {
    * Adds a hidden sheet which contains the full list of API provided institutions at function call.
    *
    * Columns:
-   * - `A` – Institution ID
-   * - `B` – Institution Name
+   * - `A` - Institution ID
+   * - `B` - Institution Name
    *
    * @returns An immutable internal reference to the sheet.
    */
   private async createInstitutionSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
-    let sheet = this.workbook.getWorksheet(SHEET_NAMES.institutions);
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.institutions);
     if (!sheet) {
-      sheet = this.workbook.addWorksheet(SHEET_NAMES.institutions, { state: "veryHidden" });
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.institutions, { state: "veryHidden" });
 
       const institutions = await this.getAPIInstitutions();
       institutions?.forEach((institution, index) => {
         sheet.getCell(`A${index + 1}`).value = institution._id;
         sheet.getCell(`B${index + 1}`).value = institution.name;
+      });
+    }
+
+    return sheet;
+  }
+
+  /**
+   * Adds a hidden sheet which contains the full list of API provided programs at function call.
+   *
+   * Columns:
+   * - `A` - Program ID
+   * - `B` - Program Name
+   *
+   * @returns The created worksheet.
+   */
+  private async createProgramsSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.programs);
+    if (!sheet) {
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.programs, { state: "veryHidden" });
+
+      // Set name for custom programs, otherwise dropdown option will not be disaplyed
+      const naProgram = { ...NotApplicableProgram, name: NotApplicableProgram._id };
+      const otherProgram = { ...OtherProgram, name: OtherProgram._id };
+
+      const programs = await this.getAPIPrograms();
+      const fullPrograms: ProgramInput[] = [naProgram, ...programs, otherProgram];
+
+      fullPrograms.forEach((program, index) => {
+        sheet.getCell(`A${index + 1}`).value = program._id;
+        sheet.getCell(`B${index + 1}`).value = program.name;
       });
     }
 
@@ -328,6 +394,24 @@ export class QuestionnaireExcelMiddleware {
     try {
       const { data } = (await this.dependencies.getInstitutions?.()) || {};
       return data?.listInstitutions?.institutions || [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * Retrieves the list of programs from the dependencies.
+   *
+   * @note This excludes 'readOnly' programs from the program list.
+   * @returns The array of programs.
+   */
+  private async getAPIPrograms(): Promise<Organization[]> {
+    try {
+      const { data } = (await this.dependencies.getPrograms?.()) || {};
+      return (
+        (data?.listPrograms?.programs as Organization[])?.filter((program) => !program.readOnly) ||
+        []
+      );
     } catch (error) {
       return [];
     }
