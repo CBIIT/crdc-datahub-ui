@@ -19,7 +19,10 @@ type BKeys =
   | "study.description"
   | "study.funding.agency"
   | "study.funding.grantNumbers"
-  | "study.funding.nciProgramOfficer";
+  | "study.funding.nciProgramOfficer"
+  | "study.publications.title"
+  | "study.publications.pubmedID"
+  | "study.publications.DOI";
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.name": 100,
@@ -31,6 +34,9 @@ const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   // "study.funding.agency": 0,
   "study.funding.grantNumbers": 250,
   "study.funding.nciProgramOfficer": 50,
+  "study.publications.title": 500,
+  "study.publications.pubmedID": 20,
+  "study.publications.DOI": 20,
 };
 
 const protection = { locked: true };
@@ -51,6 +57,9 @@ const columns: ColumnDef<BKeys>[] = [
     protection,
   },
   { header: "NCI Program Officer", key: "study.funding.nciProgramOfficer", width: 30, protection },
+  { header: "Publication Title", key: "study.publications.title", width: 30, protection },
+  { header: "PubMed ID (PMID)", key: "study.publications.pubmedID", width: 30, protection },
+  { header: "DOI", key: "study.publications.DOI", width: 30, protection },
 ];
 
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
@@ -87,6 +96,16 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       row.getCell("study.funding.nciProgramOfficer").value = f.nciProgramOfficer || "";
     });
 
+    // Set values for each row of publications
+    const publications = this.deps.data?.study?.publications || [];
+    publications.forEach((p, index) => {
+      const row = ws.getRow(index + 2);
+
+      row.getCell("study.publications.title").value = p.title || "";
+      row.getCell("study.publications.pubmedID").value = p.pubmedID || "";
+      row.getCell("study.publications.DOI").value = p.DOI || "";
+    });
+
     return r2;
   }
 
@@ -96,7 +115,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     row2: ExcelJS.Row
   ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [A2, B2, C2, D2, E2, F2, G2, _H2, I2, J2] = this.getRowCells(ws);
+    const [A2, B2, C2, D2, E2, F2, G2, _H2, I2, J2, K2, L2, M2] = this.getRowCells(ws);
 
     // Program
     A2.dataValidation = {
@@ -190,6 +209,32 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       showErrorMessage: true,
       error: "Must be less than or equal to 50 characters.",
       formulae: [this.CHARACTER_LIMITS["study.funding.nciProgramOfficer"]],
+    };
+
+    // Publications
+    K2.dataValidation = {
+      type: "textLength",
+      operator: "lessThanOrEqual",
+      allowBlank: false,
+      showErrorMessage: true,
+      error: "Must be less than or equal to 500 characters.",
+      formulae: [this.CHARACTER_LIMITS["study.publications.title"]],
+    };
+    L2.dataValidation = {
+      type: "textLength",
+      operator: "lessThanOrEqual",
+      allowBlank: false,
+      showErrorMessage: true,
+      error: "Must be less than or equal to 20 characters.",
+      formulae: [this.CHARACTER_LIMITS["study.publications.title"]],
+    };
+    M2.dataValidation = {
+      type: "textLength",
+      operator: "lessThanOrEqual",
+      allowBlank: false,
+      showErrorMessage: true,
+      error: "Must be less than or equal to 20 characters.",
+      formulae: [this.CHARACTER_LIMITS["study.publications.title"]],
     };
   }
 }
