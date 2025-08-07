@@ -296,6 +296,11 @@ export class QuestionnaireExcelMiddleware {
     return sheet;
   }
 
+  /**
+   * Serializes Section B data into the Excel workbook.
+   *
+   * @returns A promise that resolves when the serialization is complete.
+   */
   private async serializeSectionB(): Promise<void> {
     const ctx: SectionCtxBase = {
       workbook: this.workbook,
