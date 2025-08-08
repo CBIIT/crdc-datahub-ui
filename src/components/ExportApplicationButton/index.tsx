@@ -1,3 +1,4 @@
+import { useLazyQuery } from "@apollo/client";
 import { Button, ButtonProps, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { memo, useState } from "react";
@@ -5,7 +6,15 @@ import { memo, useState } from "react";
 import { QuestionnaireExcelMiddleware } from "@/classes/QuestionnaireExcelMiddleware";
 import { useFormContext } from "@/components/Contexts/FormContext";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
-import { downloadBlob } from "@/utils";
+import {
+  LIST_INSTITUTIONS,
+  LIST_ORGS,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
+  ListOrgsInput,
+  ListOrgsResp,
+} from "@/graphql";
+import { downloadBlob, Logger } from "@/utils";
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -26,6 +35,23 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
 
   const [downloading, setDownloading] = useState<boolean>(false);
 
+  const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: { status: "Active", first: -1, orderBy: "name", sortDirection: "asc" },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("ExportTemplateButton: listInstitutions API error:", e),
+    }
+  );
+
+  const [listOrgs] = useLazyQuery<ListOrgsResp, ListOrgsInput>(LIST_ORGS, {
+    context: { clientName: "backend" },
+    variables: { status: "All", first: -1, orderBy: "name", sortDirection: "asc" },
+    fetchPolicy: "cache-first",
+    onError: (e) => Logger.error("ExportTemplateButton: listOrgs API error:", e),
+  });
+
   const requestName = "TODO"; // TODO: What is the name of the request??
 
   const onButtonClick = async () => {
@@ -35,6 +61,8 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
 
     const middleware = new QuestionnaireExcelMiddleware(questionnaireData, {
       application: data,
+      getInstitutions,
+      getPrograms: listOrgs,
     });
     const file = await middleware.serialize();
 

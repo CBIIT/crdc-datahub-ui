@@ -282,7 +282,7 @@ export class QuestionnaireExcelMiddleware {
       type: "list",
       allowBlank: true,
       showErrorMessage: false,
-      formulae: [`=${institutionSheet.name}!$B$1:$B$${institutionSheet.rowCount}`],
+      formulae: [`='${institutionSheet.name}'!$B$1:$B$${institutionSheet.rowCount || 1}`],
     };
     G2.dataValidation = {
       type: "textLength",
