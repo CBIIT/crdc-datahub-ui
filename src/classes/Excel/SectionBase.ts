@@ -92,7 +92,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
 
   /**
    * The color of the header row.
-   * @example "D9EAD3"
+   * @example "#D9EAD3"
    */
   private readonly _headerColor: string;
 
@@ -111,7 +111,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
     this.deps = cfg.deps;
     this._sheetName = cfg.sheetName;
     this._columns = cfg.columns;
-    this._headerColor = cfg.headerColor ?? "#D9EAD3";
+    this._headerColor = cfg.headerColor || "#D9EAD3";
     this.CHARACTER_LIMITS = Object.freeze({ ...(cfg.characterLimits ?? {}) });
   }
 
@@ -136,9 +136,18 @@ export abstract class SectionBase<K extends string, D> implements Section {
    * @returns The created worksheet.
    */
   protected create(ctx: SectionCtxBase): ExcelJS.Worksheet {
+    const existing = ctx.workbook.worksheets.find((ws) => ws.name === this._sheetName);
+    if (existing) {
+      ctx.workbook.removeWorksheet(existing.id);
+    }
+
     const ws = ctx.workbook.addWorksheet(this._sheetName);
     ws.columns = this._columns;
-    ctx.u.header(ws, this._headerColor);
+
+    const color = (this._headerColor || "#D9EAD3").replace(/^#/, "").toUpperCase();
+    ctx.u.header(ws, color);
+
+    ws.views = [{ state: "frozen", ySplit: 1 }];
 
     return ws;
   }
