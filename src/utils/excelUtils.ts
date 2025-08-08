@@ -463,3 +463,25 @@ export const SHEET_RANGE = (sheet: string, a: ExcelJS.Cell | string, b: ExcelJS.
  */
 export const LIST_FORMULA = (sheet: string, col: string, startRow: number, endRow: number) =>
   `=${SHEET_RANGE(sheet, ABS_ADDR(col, startRow), ABS_ADDR(col, endRow))}`;
+
+/**
+ * Returns the formula for today's date.
+ *
+ * @returns The formula string for today's date.
+ */
+export const TODAY = () => "TODAY()";
+
+/**
+ * Checks if a cell contains a valid date not before today.
+ *
+ * @param c The cell to check
+ * @param opts Options for the validation
+ * @returns The formula string for the validation
+ */
+export const DATE_NOT_BEFORE_TODAY = (c: ExcelJS.Cell | string, opts: { allowBlank?: boolean }) => {
+  const allowBlank = opts?.allowBlank ?? false;
+  const x = CELL(c);
+
+  const base = AND(ISNUMBER(x), GTE(x, TODAY()));
+  return allowBlank ? OR(NOT(REQUIRED(x)), base) : base;
+};
