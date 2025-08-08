@@ -1,5 +1,7 @@
 import type ExcelJS from "exceljs";
 
+import { Logger } from "@/utils";
+
 /**
  * Represents the context for a section in the Excel worksheet.
  */
@@ -123,8 +125,8 @@ export abstract class SectionBase<K extends string, D> implements Section {
    */
   public async serialize(ctx: SectionCtxBase): Promise<ExcelJS.Worksheet> {
     const ws = this.create(ctx);
-    const row = this.write(ctx, ws);
-    await this.validate(ctx, ws, row);
+    this.write(ctx, ws);
+    this.applyValidation(ctx, ws);
 
     return ws;
   }
@@ -159,7 +161,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
    * @param ws The worksheet.
    * @returns The created row.
    */
-  protected abstract write(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row | ExcelJS.Row[];
+  protected abstract write(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row[];
 
   /**
    * Attach data validation to the data in the worksheet.
@@ -168,10 +170,9 @@ export abstract class SectionBase<K extends string, D> implements Section {
    * @param ws The worksheet.
    * @param row The row to validate.
    */
-  protected abstract validate(
+  protected abstract applyValidation(
     ctx: SectionCtxBase,
-    ws: ExcelJS.Worksheet,
-    row: ExcelJS.Row | ExcelJS.Row[]
+    ws: ExcelJS.Worksheet
   ): void | Promise<void>;
 
   /**
@@ -179,12 +180,63 @@ export abstract class SectionBase<K extends string, D> implements Section {
    *
    * @note Follows the order of the defined columns.
    * @param ws The worksheet.
-   * @returns The cells in row 2.
+   * @param row The row number to get cells from.
+   * @returns The cells in the specified row.
    */
-  protected getRowCells(ws: ExcelJS.Worksheet) {
-    const r2 = ws.getRow(2);
-    const cells = this._columns.map((col) => r2.getCell(col.key)) || [];
+  protected getRowCells(ws: ExcelJS.Worksheet, row = 2) {
+    const r = ws.getRow(row);
+    const cells = this._columns.map((col) => r.getCell(col.key)) || [];
 
     return cells;
+  }
+
+  /**
+   * Set the values for a specific row in the worksheet.
+   *
+   * @param ws The worksheet.
+   * @param rowIndex The index of the row to update.
+   * @param values The values to set.
+   */
+  protected setRowValues(
+    ws: ExcelJS.Worksheet,
+    rowIndex: number,
+    values: Partial<Record<K, string>>
+  ) {
+    const row = ws.getRow(rowIndex);
+    this._columns.forEach((col, index) => {
+      if (col.key in values) {
+        row.getCell(index + 1).value = values[col.key] ?? "";
+      }
+    });
+  }
+
+  /**
+   * Apply data validation to a specific column in the worksheet.
+   *
+   * @param ws The worksheet.
+   * @param key The column key.
+   * @param callback The callback to apply to each cell.
+   * @param options The options for the cell range.
+   */
+  protected forEachCellInColumn(
+    ws: ExcelJS.Worksheet,
+    key: K,
+    callback: (cell: ExcelJS.Cell, rowNumber: number) => void,
+    options?: { startRow?: number; endRow?: number }
+  ): void {
+    const keyIsFound = this._columns?.find((c) => c.key === key);
+    if (!keyIsFound) {
+      Logger.error(`SectionBase.tsx: Column with key "${key}" not found.`);
+      return;
+    }
+
+    const { startRow = 2, endRow = 9999 } = options ?? {};
+    const column = ws.getColumn(key as string);
+
+    Array.from({ length: endRow - startRow + 1 }, (_, i) => i + startRow).forEach((rowNum) => {
+      const row = ws.getRow(rowNum);
+      const cell = row.getCell(column.number);
+      callback(cell, rowNum);
+    });
   }
 }

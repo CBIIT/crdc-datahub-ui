@@ -107,10 +107,12 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     });
   }
 
-  protected write(_ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row {
+  protected write(_ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row[] {
     const startRow = 2;
+    const rows = new Set<ExcelJS.Row>();
+
     const row = ws.getRow(startRow);
-    row.values = {
+    this.setRowValues(ws, startRow, {
       "program._id": this.deps.data?.program?._id || "",
       "program.name": this.deps.data?.program?.name || "",
       "program.abbreviation": this.deps.data?.program?.abbreviation || "",
@@ -118,56 +120,55 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       "study.name": this.deps.data?.study?.name || "",
       "study.abbreviation": this.deps.data?.study?.abbreviation || "",
       "study.description": this.deps.data?.study?.description || "",
-    };
+    });
+    rows.add(row);
 
     const funding = this.deps.data?.study?.funding || [];
     funding.forEach((f, index) => {
-      const r = ws.getRow(index + startRow);
-
-      r.getCell("study.funding.agency").value = f.agency || "";
-      r.getCell("study.funding.grantNumbers").value = f.grantNumbers || "";
-      r.getCell("study.funding.nciProgramOfficer").value = f.nciProgramOfficer || "";
+      this.setRowValues(ws, index + startRow, {
+        "study.funding.agency": f.agency || "",
+        "study.funding.grantNumbers": f.grantNumbers || "",
+        "study.funding.nciProgramOfficer": f.nciProgramOfficer || "",
+      });
+      rows.add(ws.getRow(index + startRow));
     });
 
     const publications = this.deps.data?.study?.publications || [];
     publications.forEach((p, index) => {
-      const r = ws.getRow(index + startRow);
-
-      r.getCell("study.publications.title").value = p.title || "";
-      r.getCell("study.publications.pubmedID").value = p.pubmedID || "";
-      r.getCell("study.publications.DOI").value = p.DOI || "";
+      this.setRowValues(ws, index + startRow, {
+        "study.publications.title": p.title || "",
+        "study.publications.pubmedID": p.pubmedID || "",
+        "study.publications.DOI": p.DOI || "",
+      });
+      rows.add(ws.getRow(index + startRow));
     });
 
     const plannedPublications = this.deps.data?.study?.plannedPublications || [];
     plannedPublications.forEach((p, index) => {
-      const r = ws.getRow(index + startRow);
-
-      r.getCell("study.plannedPublications.title").value = p.title || "";
-      r.getCell("study.plannedPublications.expectedDate").value = p.expectedDate || "";
+      this.setRowValues(ws, index + startRow, {
+        "study.plannedPublications.title": p.title || "",
+        "study.plannedPublications.expectedDate": p.expectedDate || "",
+      });
+      rows.add(ws.getRow(index + startRow));
     });
 
     const repositories = this.deps.data?.study?.repositories || [];
     repositories.forEach((repo, index) => {
-      const r = ws.getRow(index + startRow);
-      r.getCell("study.repositories.name").value = repo.name || "";
-      r.getCell("study.repositories.studyID").value = repo.studyID || "";
-      r.getCell("study.repositories.dataTypesSubmitted").value =
-        repo.dataTypesSubmitted?.join(" | ");
-      r.getCell("study.repositories.otherDataTypesSubmitted").value =
-        repo.otherDataTypesSubmitted || "";
+      this.setRowValues(ws, index + startRow, {
+        "study.repositories.name": repo.name || "",
+        "study.repositories.studyID": repo.studyID || "",
+        "study.repositories.dataTypesSubmitted": repo.dataTypesSubmitted?.join(" | "),
+        "study.repositories.otherDataTypesSubmitted": repo.otherDataTypesSubmitted || "",
+      });
+      rows.add(ws.getRow(index + startRow));
     });
 
-    return row;
+    return [...rows];
   }
 
-  protected async validate(
-    _ctx: SectionCtxBase,
-    ws: ExcelJS.Worksheet,
-    _rows: ExcelJS.Row
-  ): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [A2, B2, C2, D2, E2, F2, G2, _H2, I2, J2, K2, L2, M2, N2, O2, P2, Q2, _R2, S2] =
-      this.getRowCells(ws);
+  protected async applyValidation(_ctx: SectionCtxBase, ws: ExcelJS.Worksheet): Promise<void> {
+    const startRow = 2;
+    const [A2, B2, C2, D2, E2, F2, G2] = this.getRowCells(ws, startRow);
 
     // Program
     A2.dataValidation = {
@@ -246,90 +247,113 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     };
 
     // Funding
-    I2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 250 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.funding.grantNumbers"]],
-    };
-    J2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 50 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.funding.nciProgramOfficer"]],
-    };
+    this.forEachCellInColumn(ws, "study.funding.grantNumbers", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 250 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.funding.grantNumbers"]],
+      };
+    });
+    this.forEachCellInColumn(ws, "study.funding.nciProgramOfficer", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 50 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.funding.nciProgramOfficer"]],
+      };
+    });
 
     // Publications
-    K2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 500 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.publications.title"]],
-    };
-    L2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 20 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.publications.pubmedID"]],
-    };
-    M2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 20 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.publications.DOI"]],
-    };
+    this.forEachCellInColumn(ws, "study.publications.title", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 500 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.publications.title"]],
+      };
+    });
+    this.forEachCellInColumn(ws, "study.publications.pubmedID", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 20 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.publications.pubmedID"]],
+      };
+    });
+    this.forEachCellInColumn(ws, "study.publications.DOI", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 20 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.publications.DOI"]],
+      };
+    });
 
     // Planned Publications
-    N2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 500 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.plannedPublications.title"]],
-    };
-    O2.dataValidation = {
-      type: "custom",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Enter a valid date (MM/DD/YYYY)",
-      formulae: [DATE_NOT_BEFORE_TODAY(O2, { allowBlank: false })],
-    };
+
+    this.forEachCellInColumn(ws, "study.plannedPublications.title", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 500 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.plannedPublications.title"]],
+      };
+    });
+
+    this.forEachCellInColumn(ws, "study.plannedPublications.expectedDate", (cell) => {
+      cell.dataValidation = {
+        type: "custom",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Enter a valid date (MM/DD/YYYY)",
+        formulae: [DATE_NOT_BEFORE_TODAY(cell, { allowBlank: false })],
+      };
+    });
 
     // Repositories
-    P2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 50 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.repositories.name"]],
-    };
-    Q2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 50 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.repositories.studyID"]],
-    };
-    S2.dataValidation = {
-      type: "textLength",
-      operator: "lessThanOrEqual",
-      allowBlank: false,
-      showErrorMessage: true,
-      error: "Must be less than or equal to 100 characters.",
-      formulae: [this.CHARACTER_LIMITS["study.repositories.otherDataTypesSubmitted"]],
-    };
+    this.forEachCellInColumn(ws, "study.repositories.name", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 50 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.repositories.name"]],
+      };
+    });
+    this.forEachCellInColumn(ws, "study.repositories.studyID", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 50 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.repositories.studyID"]],
+      };
+    });
+
+    this.forEachCellInColumn(ws, "study.repositories.otherDataTypesSubmitted", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be less than or equal to 100 characters.",
+        formulae: [this.CHARACTER_LIMITS["study.repositories.otherDataTypesSubmitted"]],
+      };
+    });
   }
 }
