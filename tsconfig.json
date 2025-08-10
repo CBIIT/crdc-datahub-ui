@@ -31,6 +31,7 @@
       "@/components/*": ["./src/components/*"],
       "@/schemas/*": ["./src/schemas/*"],
       "@/config/*": ["./src/config/*"],
+      "@/assets/*": ["./src/assets/*"],
       "@/*": ["./src/*"],
     }
   },
