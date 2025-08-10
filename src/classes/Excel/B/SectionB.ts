@@ -2,33 +2,9 @@ import type ExcelJS from "exceljs";
 
 import { IF, STR_EQ, REQUIRED, TEXT_MAX, AND, LIST_FORMULA, DATE_NOT_BEFORE_TODAY } from "@/utils";
 
-import { CharacterLimitsMap, ColumnDef, SectionBase, SectionCtxBase } from "./SectionBase";
+import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-type SectionBDeps = {
-  data: QuestionnaireData | null;
-  programSheet: ExcelJS.Worksheet;
-};
-
-type BKeys =
-  | "program._id"
-  | "program.name"
-  | "program.abbreviation"
-  | "program.description"
-  | "study.name"
-  | "study.abbreviation"
-  | "study.description"
-  | "study.funding.agency"
-  | "study.funding.grantNumbers"
-  | "study.funding.nciProgramOfficer"
-  | "study.publications.title"
-  | "study.publications.pubmedID"
-  | "study.publications.DOI"
-  | "study.plannedPublications.title"
-  | "study.plannedPublications.expectedDate"
-  | "study.repositories.name"
-  | "study.repositories.studyID"
-  | "study.repositories.dataTypesSubmitted"
-  | "study.repositories.otherDataTypesSubmitted";
+import columns, { BKeys } from "./Columns";
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.name": 100,
@@ -51,49 +27,10 @@ const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "study.repositories.otherDataTypesSubmitted": 100,
 };
 
-const protection = { locked: true };
-
-const columns: ColumnDef<BKeys>[] = [
-  { header: "Program", key: "program._id", width: 30, protection },
-  { header: "Program Title", key: "program.name", width: 30, protection },
-  { header: "Program Abbreviation", key: "program.abbreviation", width: 20, protection },
-  { header: "Program Description", key: "program.description", width: 30, protection },
-  { header: "Study Title", key: "study.name", width: 30, protection },
-  { header: "Study Abbreviation", key: "study.abbreviation", width: 30, protection },
-  { header: "Study Description", key: "study.description", width: 30, protection },
-  { header: "Funding Agency/Organization", key: "study.funding.agency", width: 30, protection },
-  {
-    header: "Grant or Contract Number(s)",
-    key: "study.funding.grantNumbers",
-    width: 30,
-    protection,
-  },
-  { header: "NCI Program Officer", key: "study.funding.nciProgramOfficer", width: 30, protection },
-  { header: "Publication Title", key: "study.publications.title", width: 30, protection },
-  { header: "PubMed ID (PMID)", key: "study.publications.pubmedID", width: 30, protection },
-  { header: "DOI", key: "study.publications.DOI", width: 30, protection },
-  { header: "Publication Title", key: "study.plannedPublications.title", width: 30, protection },
-  {
-    header: "Expected Publication Date",
-    key: "study.plannedPublications.expectedDate",
-    width: 30,
-    protection,
-  },
-  { header: "Repository Name", key: "study.repositories.name", width: 30, protection },
-  { header: "Study ID", key: "study.repositories.studyID", width: 30, protection },
-  {
-    header: "Data Type(s) Submitted",
-    key: "study.repositories.dataTypesSubmitted",
-    width: 30,
-    protection,
-  },
-  {
-    header: "Other Data Type(s)",
-    key: "study.repositories.otherDataTypesSubmitted",
-    width: 30,
-    protection,
-  },
-];
+type SectionBDeps = {
+  data: QuestionnaireData | null;
+  programSheet: ExcelJS.Worksheet;
+};
 
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
   constructor(deps: SectionBDeps) {
@@ -171,14 +108,32 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const [A2, B2, C2, D2, E2, F2, G2] = this.getRowCells(ws, startRow);
 
     // Program
+    // TODO: Fix when export the program is set to an ID instead of name causing the rest not to autofill
     A2.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: false,
       formulae: [
-        LIST_FORMULA(this.deps.programSheet.name, "B", 1, this.deps.programSheet.rowCount || 1),
+        LIST_FORMULA(this.deps.programSheet.name, "E", 1, this.deps.programSheet.rowCount || 1),
       ],
     };
+
+    // Autofill formulas for Program
+    const nameCol = `'${this.deps.programSheet.name}'!$B:$B`;
+    const abbreviationCol = `'${this.deps.programSheet.name}'!$C:$C`;
+    const descriptionCol = `'${this.deps.programSheet.name}'!$D:$D`;
+    const displayCol = `${this.deps.programSheet.name}!$E:$E`;
+
+    B2.value = {
+      formula: `IFERROR(INDEX(${nameCol}, MATCH(A2, ${displayCol}, 0)), "")`,
+    };
+    C2.value = {
+      formula: `IFERROR(INDEX(${abbreviationCol}, MATCH(A2, ${displayCol}, 0)), "")`,
+    };
+    D2.value = {
+      formula: `IFERROR(INDEX(${descriptionCol}, MATCH(A2, ${displayCol}, 0)), "")`,
+    };
+
     B2.dataValidation = {
       type: "custom",
       allowBlank: false,
@@ -355,5 +310,70 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         formulae: [this.CHARACTER_LIMITS["study.repositories.otherDataTypesSubmitted"]],
       };
     });
+  }
+
+  public static mapValues(
+    data: Map<BKeys, Array<unknown>>,
+    deps: Partial<SectionBDeps>
+  ): RecursivePartial<QuestionnaireData> {
+    const funding: Funding[] =
+      (data.get("study.funding.agency")?.map((agency, index) => ({
+        agency,
+        grantNumbers: data.get("study.funding.grantNumbers")?.[index],
+        nciProgramOfficer: data.get("study.funding.nciProgramOfficer")?.[index],
+      })) as Funding[]) || [];
+
+    const publications: Publication[] =
+      (data.get("study.publications.title")?.map((title, index) => ({
+        title,
+        pubmedID: data.get("study.publications.pubmedID")?.[index],
+        DOI: data.get("study.publications.DOI")?.[index],
+      })) as Publication[]) || [];
+
+    const plannedPublications: PlannedPublication[] =
+      (data.get("study.plannedPublications.title")?.map((title, index) => ({
+        title,
+        expectedDate: data.get("study.plannedPublications.expectedDate")?.[index],
+      })) as PlannedPublication[]) || [];
+
+    const repositories: Repository[] =
+      (data.get("study.repositories.name")?.map((name, index) => ({
+        name,
+        studyID: data.get("study.repositories.studyID")?.[index],
+        dataTypesSubmitted: String(data.get("study.repositories.dataTypesSubmitted")[index]).split(
+          " | "
+        ),
+        otherDataTypesSubmitted: data.get("study.repositories.otherDataTypesSubmitted")?.[index],
+      })) as Repository[]) || [];
+
+    // Match program name to get the _id
+    const programColB = deps.programSheet.getColumn(2);
+    let programId: string;
+    programColB.eachCell((cell, rowNumber) => {
+      const name = String(cell.value || "").trim();
+      if (name === data.get("program._id")[0]) {
+        programId = String(deps.programSheet.getCell(`A${rowNumber}`).value || "").trim();
+      }
+    });
+
+    const questionnairedata: RecursivePartial<QuestionnaireData> = {
+      program: {
+        _id: programId,
+        name: data.get("program.name")[0] as unknown as string,
+        abbreviation: data.get("program.abbreviation")[0] as unknown as string,
+        description: data.get("program.description")[0] as unknown as string,
+      },
+      study: {
+        name: data.get("study.name")[0] as unknown as string,
+        abbreviation: data.get("study.abbreviation")[0] as string,
+        description: data.get("study.description")[0] as string,
+        funding,
+        publications,
+        plannedPublications,
+        repositories,
+      },
+    };
+
+    return questionnairedata;
   }
 }
