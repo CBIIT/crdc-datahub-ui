@@ -1,5 +1,6 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
+import { GraphQLError } from "graphql";
 
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 
@@ -30,6 +31,15 @@ const mockGrantToken: MockedResponse<GrantTokenResp> = {
   },
 };
 
+const mockGrantTokenError: MockedResponse<GrantTokenResp> = {
+  request: {
+    query: GRANT_TOKEN,
+  },
+  result: {
+    errors: [new GraphQLError("Unable to generate token")],
+  },
+};
+
 export const Default: Story = {
   args: {
     open: true,
@@ -38,6 +48,18 @@ export const Default: Story = {
   parameters: {
     apolloClient: {
       mocks: [mockGrantToken],
+    },
+  },
+};
+
+export const GenerationError: Story = {
+  args: {
+    open: true,
+    onClose: () => {},
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [mockGrantTokenError],
     },
   },
 };
