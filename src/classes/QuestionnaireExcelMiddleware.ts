@@ -2,14 +2,18 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
 import { cloneDeep } from "lodash";
 
+import cancerTypeOptions from "@/config/CancerTypesConfig";
 import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
+import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
 import { programInputSchema, questionnaireDataSchema, studySchema } from "@/schemas/Application";
 import { Logger } from "@/utils/logger";
 
+import { SectionA } from "./Excel/A/SectionA";
 import columns from "./Excel/B/Columns";
 import { SectionB } from "./Excel/B/SectionB";
+import { SectionC } from "./Excel/C/SectionC";
 import { SectionD } from "./Excel/D/SectionD";
 import { SectionCtxBase } from "./Excel/SectionBase";
 
@@ -96,6 +100,7 @@ export class QuestionnaireExcelMiddleware {
     await this.serializeMetadata();
     await this.serializeSectionA();
     await this.serializeSectionB();
+    await this.serializeSectionC();
     await this.serializeSectionD();
 
     return this.workbook.xlsx.writeBuffer();
@@ -210,103 +215,24 @@ export class QuestionnaireExcelMiddleware {
    * @returns A readonly reference to the created worksheet.
    */
   private async serializeSectionA(): Promise<Readonly<ExcelJS.Worksheet>> {
-    const sheet = this.workbook.addWorksheet(SHEET_NAMES.A);
-
-    sheet.columns = [
-      { header: "First Name", key: "firstName", width: 20, protection: { locked: true } },
-      { header: "Last Name", key: "lastName", width: 20, protection: { locked: true } },
-      { header: "Position", key: "position", width: 20, protection: { locked: true } },
-      { header: "Email", key: "email", width: 30, protection: { locked: true } },
-      { header: "ORCID", key: "orcid", width: 30, protection: { locked: true } },
-      { header: "Institution", key: "institution", width: 30, protection: { locked: true } },
-      { header: "Institution Address", key: "address", width: 30, protection: { locked: true } },
-    ];
-
-    sheet.getRow(1).font = { bold: true };
-    sheet.getRow(1).alignment = { horizontal: "center" };
-    sheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "D9EAD3" } };
-
-    const row2 = sheet.getRow(2);
-    row2.values = {
-      firstName: this.data?.pi?.firstName || "",
-      lastName: this.data?.pi?.lastName || "",
-      position: this.data?.pi?.position || "",
-      email: this.data?.pi?.email || "",
-      orcid: this.data?.pi?.ORCID || "",
-      institution: this.data?.pi?.institution || "",
-      address: this.data?.pi?.address || "",
+    const ctx: SectionCtxBase = {
+      workbook: this.workbook,
+      u: {
+        header: (ws: ExcelJS.Worksheet, color?: string) => {
+          const r1 = ws.getRow(1);
+          r1.font = { bold: true };
+          r1.alignment = { horizontal: "center" };
+          r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+        },
+      },
     };
 
-    const [A2, B2, C2, D2, E2, F2, G2] = [
-      row2.getCell("firstName"),
-      row2.getCell("lastName"),
-      row2.getCell("position"),
-      row2.getCell("email"),
-      row2.getCell("orcid"),
-      row2.getCell("institution"),
-      row2.getCell("address"),
-    ];
+    const sectionA = new SectionA({
+      data: this.data,
+      institutionSheet: await this.createInstitutionSheet(),
+    });
 
-    A2.dataValidation = {
-      type: "textLength",
-      operator: "lessThan",
-      showErrorMessage: true,
-      error: "Must be less than 50 characters.",
-      allowBlank: false,
-      formulae: [50],
-    };
-    B2.dataValidation = {
-      type: "textLength",
-      operator: "lessThan",
-      showErrorMessage: true,
-      error: "Must be less than 50 characters.",
-      allowBlank: false,
-      formulae: [50],
-    };
-    C2.dataValidation = {
-      type: "textLength",
-      operator: "lessThan",
-      showErrorMessage: true,
-      error: "Must be less than 100 characters.",
-      allowBlank: false,
-      formulae: [100],
-    };
-    D2.dataValidation = {
-      type: "custom",
-      showErrorMessage: true,
-      error: "Please enter a valid email address.",
-      allowBlank: false,
-      formulae: [
-        '=AND(ISNUMBER(SEARCH("@",D2)), ISNUMBER(SEARCH(".",D2)), LEN(D2) - LEN(SUBSTITUTE(D2,".","")) >= 1, LEN(D2) - LEN(SUBSTITUTE(D2,"@","")) = 1)',
-      ],
-    };
-    E2.dataValidation = {
-      type: "custom",
-      showErrorMessage: true,
-      error: "Please enter a valid ORCID (format: 0000-0000-0000-0000 or 0000-0000-0000-000X)",
-      allowBlank: true,
-      formulae: [
-        '=AND(LEN(E2)=19, MID(E2,5,1)="-", MID(E2,10,1)="-", MID(E2,15,1)="-", ISNUMBER(VALUE(LEFT(E2,4))), ISNUMBER(VALUE(MID(E2,6,4))), ISNUMBER(VALUE(MID(E2,11,4))), ISNUMBER(VALUE(MID(E2,16,3))), OR(ISNUMBER(VALUE(RIGHT(E2,1))), RIGHT(E2,1)="X"))',
-      ],
-    };
-
-    const institutionSheet = await this.createInstitutionSheet();
-    F2.dataValidation = {
-      type: "list",
-      allowBlank: true,
-      showErrorMessage: false,
-      formulae: [`='${institutionSheet.name}'!$B$1:$B$${institutionSheet.rowCount || 1}`],
-    };
-    G2.dataValidation = {
-      type: "textLength",
-      operator: "lessThan",
-      showErrorMessage: true,
-      error: "Must be less than 200 characters.",
-      allowBlank: false,
-      formulae: [200],
-    };
-
-    return sheet;
+    return sectionA.serialize(ctx);
   }
 
   /**
@@ -335,6 +261,33 @@ export class QuestionnaireExcelMiddleware {
     const sheet = await sectionB.serialize(ctx);
 
     return sheet;
+  }
+
+  /**
+   * Adds the form section C to the Excel workbook.
+   *
+   * @returns A readonly reference to the created worksheet.
+   */
+  private async serializeSectionC(): Promise<Readonly<ExcelJS.Worksheet>> {
+    const ctx: SectionCtxBase = {
+      workbook: this.workbook,
+      u: {
+        header: (ws: ExcelJS.Worksheet, color?: string) => {
+          const r1 = ws.getRow(1);
+          r1.font = { bold: true };
+          r1.alignment = { horizontal: "center" };
+          r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+        },
+      },
+    };
+
+    const sectionC = new SectionC({
+      data: this.data,
+      cancerTypes: cancerTypeOptions,
+      species: speciesOptions,
+    });
+
+    return sectionC.serialize(ctx);
   }
 
   private async serializeSectionD(): Promise<Readonly<ExcelJS.Worksheet>> {
