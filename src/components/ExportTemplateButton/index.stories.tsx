@@ -2,6 +2,7 @@ import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { screen, userEvent, within } from "@storybook/test";
 
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 import { institutionFactory } from "@/factories/institution/InstitutionFactory";
 import {
   ListInstitutionsResp,
@@ -9,6 +10,9 @@ import {
   LIST_INSTITUTIONS,
   RetrieveFormVersionResp,
   RETRIEVE_FORM_VERSION,
+  LIST_ORGS,
+  ListOrgsInput,
+  ListOrgsResp,
 } from "@/graphql";
 
 import Button from "./index";
@@ -28,6 +32,29 @@ const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInp
           ...institutionFactory.build(5, (idx) => ({
             _id: `institution-${idx}`,
             name: `Institution ${idx + 1}`,
+            status: "Active",
+          })),
+        ],
+      },
+    },
+  },
+};
+
+const listOrgsMock: MockedResponse<ListOrgsResp, ListOrgsInput> = {
+  request: {
+    query: LIST_ORGS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listPrograms: {
+        total: 3,
+        programs: [
+          ...organizationFactory.build(3, (idx) => ({
+            _id: `program-${idx + 1}`,
+            name: `Program ${idx + 1}`,
+            abbreviation: `PRG-${idx + 1}`,
+            description: `Description for Program ${idx + 1}`,
             status: "Active",
           })),
         ],
@@ -56,7 +83,7 @@ const meta: Meta<CustomStoryProps> = {
   tags: ["autodocs"],
   parameters: {
     apolloClient: {
-      mocks: [institutionsMock, retrieveFormVersionMock],
+      mocks: [institutionsMock, listOrgsMock, retrieveFormVersionMock],
     },
   },
   argTypes: {},
