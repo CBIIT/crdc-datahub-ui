@@ -5,9 +5,12 @@ import { cloneDeep } from "lodash";
 import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
+import { programInputSchema, questionnaireDataSchema, studySchema } from "@/schemas/Application";
 import { Logger } from "@/utils/logger";
 
-import { SectionB } from "./Excel/SectionB";
+import columns from "./Excel/B/Columns";
+import { SectionB } from "./Excel/B/SectionB";
+import { SectionD } from "./Excel/D/SectionD";
 import { SectionCtxBase } from "./Excel/SectionBase";
 
 /**
@@ -93,6 +96,7 @@ export class QuestionnaireExcelMiddleware {
     await this.serializeMetadata();
     await this.serializeSectionA();
     await this.serializeSectionB();
+    await this.serializeSectionD();
 
     return this.workbook.xlsx.writeBuffer();
   }
@@ -118,7 +122,16 @@ export class QuestionnaireExcelMiddleware {
      * 4. If we aren't returning a new instance, we can separate import/export dependency types
      */
 
-    return new QuestionnaireExcelMiddleware(null, dependencies);
+    // Load the workbook from the ArrayBuffer
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(fileBuffer);
+
+    // Create an instance with null data, then assign the loaded workbook
+    const middleware = new QuestionnaireExcelMiddleware(null, dependencies);
+    middleware.workbook = workbook;
+    await middleware.parseSectionB();
+
+    return middleware;
   }
 
   /**
@@ -324,6 +337,29 @@ export class QuestionnaireExcelMiddleware {
     return sheet;
   }
 
+  private async serializeSectionD(): Promise<Readonly<ExcelJS.Worksheet>> {
+    const ctx: SectionCtxBase = {
+      workbook: this.workbook,
+      u: {
+        header: (ws: ExcelJS.Worksheet, color?: string) => {
+          const r1 = ws.getRow(1);
+          r1.font = { bold: true };
+          r1.alignment = { horizontal: "center" };
+          r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+        },
+      },
+    };
+
+    const sectionD = new SectionD({
+      data: this.data,
+      programSheet: await this.createProgramsSheet(),
+    });
+
+    const sheet = await sectionD.serialize(ctx);
+
+    return sheet;
+  }
+
   /**
    * Parses the data from Section A of the Excel workbook.
    */
@@ -335,6 +371,42 @@ export class QuestionnaireExcelMiddleware {
 
     // TODO: Mutate the data object with Section A data
     // Example: this.data.pi = { ... };
+  }
+
+  /**
+   * Parses the data from Section B of the Excel workbook.
+   *
+   * @returns A Promise that resolves to a boolean indicating success or failure of the parsing.
+   */
+  private async parseSectionB(): Promise<boolean> {
+    const ws = this.workbook.getWorksheet(SHEET_NAMES.B);
+    if (!ws) {
+      Logger.info("parseSectionB: No sheet found for Section B");
+      return Promise.resolve(false);
+    }
+
+    const data = await this.extractValuesFromWorksheet(ws);
+    const newData = new Map();
+    // Swap the column headers for the column keys in the mapping
+    data.forEach((values, key) => {
+      const colKey = columns.find((col) => col.header === key)?.key;
+      newData.set(
+        colKey,
+        values.map((value) => String(value).trim())
+      );
+    });
+    const newMapping = SectionB.mapValues(newData, {
+      programSheet: await this.createProgramsSheet(),
+    });
+
+    const result = questionnaireDataSchema.safeParse(newMapping);
+    const parseProgram = programInputSchema.safeParse(newMapping.program);
+    const parseStudy = studySchema.safeParse(newMapping.study);
+
+    // eslint-disable-next-line no-console
+    console.log({ data, newData, newMapping, result, parseProgram, parseStudy });
+
+    return Promise.resolve(result?.success);
   }
 
   /**
@@ -375,16 +447,21 @@ export class QuestionnaireExcelMiddleware {
     if (!sheet) {
       sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.programs, { state: "veryHidden" });
 
-      // Set name for custom programs, otherwise dropdown option will not be disaplyed
-      const naProgram = { ...NotApplicableProgram, name: NotApplicableProgram._id };
-      const otherProgram = { ...OtherProgram, name: OtherProgram._id };
-
       const programs = await this.getAPIPrograms();
-      const fullPrograms: ProgramInput[] = [naProgram, ...programs, otherProgram];
+      const fullPrograms: ProgramInput[] = [NotApplicableProgram, ...programs, OtherProgram];
 
       fullPrograms.forEach((program, index) => {
-        sheet.getCell(`A${index + 1}`).value = program._id;
-        sheet.getCell(`B${index + 1}`).value = program.name;
+        const row = index + 1;
+
+        sheet.getCell(`A${row}`).value = program._id || "";
+        sheet.getCell(`B${row}`).value = program.name || "";
+        sheet.getCell(`C${row}`).value = program.abbreviation || "";
+        sheet.getCell(`D${row}`).value = program.description || "";
+
+        // Set the formula for the Program name to default to Program ID if empty
+        sheet.getCell(`E${row}`).value = {
+          formula: `IF(LEN(TRIM(B${row}))>0,B${row},A${row})`,
+        };
       });
     }
 
@@ -422,5 +499,33 @@ export class QuestionnaireExcelMiddleware {
     } catch (error) {
       return [];
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private async extractValuesFromWorksheet(
+    ws: ExcelJS.Worksheet
+  ): Promise<Map<string, Array<unknown>>> {
+    const data = new Map<string, Array<unknown>>();
+    const headerRow = ws.getRow(1);
+    const headers = headerRow.values;
+
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) {
+        return;
+      }
+
+      row.eachCell((cell, colNumber) => {
+        const header = headers[colNumber - 1];
+        if (!header) {
+          // Invalid data, ignore
+          return;
+        }
+
+        const existingValues = data.get(header) || [];
+        data.set(header, [...existingValues, cell.value]);
+      });
+    });
+
+    return data;
   }
 }
