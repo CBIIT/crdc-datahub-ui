@@ -4,11 +4,15 @@ import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { axe } from "vitest-axe";
 
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 import { institutionFactory } from "@/factories/institution/InstitutionFactory";
 import {
   LIST_INSTITUTIONS,
+  LIST_ORGS,
   ListInstitutionsInput,
   ListInstitutionsResp,
+  ListOrgsInput,
+  ListOrgsResp,
   RETRIEVE_FORM_VERSION,
   RetrieveFormVersionResp,
 } from "@/graphql";
@@ -57,6 +61,27 @@ const formVersionMock: MockedResponse<RetrieveFormVersionResp> = {
   },
 };
 
+const listOrgsMock: MockedResponse<ListOrgsResp, ListOrgsInput> = {
+  request: {
+    query: LIST_ORGS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listPrograms: {
+        total: 3,
+        programs: [
+          ...organizationFactory.build(3, (idx) => ({
+            _id: `program-${idx + 1}`,
+            name: `Program ${idx + 1}`,
+            status: "Active",
+          })),
+        ],
+      },
+    },
+  },
+};
+
 type MockParentProps = {
   mocks: MockedResponse[];
   children?: React.ReactNode;
@@ -70,7 +95,9 @@ describe("Accessibility", () => {
   it("should have no accessibility violations", async () => {
     const { container } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, formVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, formVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -80,7 +107,9 @@ describe("Accessibility", () => {
   it("should have no accessibility violations (disabled)", async () => {
     const { container, getByTestId } = render(<ExportTemplateButton disabled />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, formVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, formVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -94,7 +123,9 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, formVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, formVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -114,7 +145,9 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, errorFormVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, errorFormVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -139,7 +172,9 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, errorFormVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, errorFormVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -168,7 +203,9 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, errorFormVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, errorFormVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -187,7 +224,9 @@ describe("Implementation Requirements", () => {
   it("should render a button with the correct text", () => {
     const { getByText } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, formVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, formVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -197,7 +236,9 @@ describe("Implementation Requirements", () => {
   it("should have a tooltip with the correct text", async () => {
     const { getByTestId, findByRole } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, formVersionMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, formVersionMock, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
@@ -229,7 +270,7 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, slowApiMock]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, slowApiMock, listOrgsMock]}>{children}</MockParent>
       ),
     });
 
@@ -260,7 +301,9 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId } = render(<ExportTemplateButton />, {
       wrapper: ({ children }) => (
-        <MockParent mocks={[institutionsMock, mockFormVersion]}>{children}</MockParent>
+        <MockParent mocks={[institutionsMock, mockFormVersion, listOrgsMock]}>
+          {children}
+        </MockParent>
       ),
     });
 
