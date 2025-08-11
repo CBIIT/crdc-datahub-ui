@@ -1,9 +1,13 @@
 import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query: TypedDocumentNode<Response> = gql`
-  query getApplication($id: ID!) {
-    getApplication(_id: $id) {
+export type Input = {
+  submissionID: string;
+};
+
+export const query: TypedDocumentNode<Response, Input> = gql`
+  query getApplication($submissionID: ID!) {
+    getApplication(_id: $submissionID) {
       _id
       status
       createdAt
