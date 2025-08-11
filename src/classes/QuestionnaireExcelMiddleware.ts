@@ -1,14 +1,15 @@
 import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
-import { cloneDeep } from "lodash";
+import { cloneDeep, merge } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
-import { programInputSchema, questionnaireDataSchema, studySchema } from "@/schemas/Application";
+import { questionnaireDataSchema } from "@/schemas/Application";
 import { Logger } from "@/utils/logger";
+import { parseSchemaObject } from "@/utils/zodUtils";
 
 import { SectionA } from "./Excel/A/SectionA";
 import columns from "./Excel/B/Columns";
@@ -66,7 +67,7 @@ export class QuestionnaireExcelMiddleware {
    * The internal QuestionnaireData object.
    * This object is mutated during the import process, but remains immutable for export.
    */
-  private data: QuestionnaireData | null;
+  private data: QuestionnaireData | RecursivePartial<QuestionnaireData> | null;
 
   /**
    * The dependencies required for exporting or importing,
@@ -228,7 +229,7 @@ export class QuestionnaireExcelMiddleware {
     };
 
     const sectionA = new SectionA({
-      data: this.data,
+      data: this.data as QuestionnaireData,
       institutionSheet: await this.createInstitutionSheet(),
     });
 
@@ -254,7 +255,7 @@ export class QuestionnaireExcelMiddleware {
     };
 
     const sectionB = new SectionB({
-      data: this.data,
+      data: this.data as QuestionnaireData,
       programSheet: await this.createProgramsSheet(),
     });
 
@@ -282,7 +283,7 @@ export class QuestionnaireExcelMiddleware {
     };
 
     const sectionC = new SectionC({
-      data: this.data,
+      data: this.data as QuestionnaireData,
       cancerTypes: cancerTypeOptions,
       species: speciesOptions,
     });
@@ -304,7 +305,7 @@ export class QuestionnaireExcelMiddleware {
     };
 
     const sectionD = new SectionD({
-      data: this.data,
+      data: this.data as QuestionnaireData,
       programSheet: await this.createProgramsSheet(),
     });
 
@@ -352,14 +353,14 @@ export class QuestionnaireExcelMiddleware {
       programSheet: await this.createProgramsSheet(),
     });
 
-    const result = questionnaireDataSchema.safeParse(newMapping);
-    const parseProgram = programInputSchema.safeParse(newMapping.program);
-    const parseStudy = studySchema.safeParse(newMapping.study);
+    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
+      questionnaireDataSchema,
+      newMapping
+    );
 
-    // eslint-disable-next-line no-console
-    console.log({ data, newData, newMapping, result, parseProgram, parseStudy });
+    this.data = merge({}, this.data, result);
 
-    return Promise.resolve(result?.success);
+    return Promise.resolve(true);
   }
 
   /**
