@@ -2,8 +2,8 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const query: TypedDocumentNode<Response> = gql`
-  query getApplication($id: ID!) {
-    getApplication(_id: $id) {
+  query getApplication($submissionID: ID!) {
+    getApplication(_id: $submissionID) {
       _id
       status
       createdAt
@@ -34,6 +34,10 @@ export const query: TypedDocumentNode<Response> = gql`
     }
   }
 `;
+
+export type Input = {
+  submissionID: string;
+};
 
 export type Response = {
   getApplication: Omit<Application, "questionnaireData"> & {

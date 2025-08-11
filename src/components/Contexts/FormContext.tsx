@@ -17,6 +17,7 @@ import {
   SUBMIT_APP,
   ApproveAppResp,
   GetAppResp,
+  GetAppInput,
   LastAppResp,
   InquireAppResp,
   RejectAppResp,
@@ -117,8 +118,8 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
-    variables: { id },
+  const [getApp] = useLazyQuery<GetAppResp, GetAppInput>(GET_APP, {
+    variables: { submissionID: id },
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
   });

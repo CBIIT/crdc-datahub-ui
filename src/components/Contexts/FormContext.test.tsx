@@ -10,6 +10,7 @@ import {
   ApproveAppInput,
   ApproveAppResp,
   GetAppResp,
+  GetAppInput,
   INQUIRE_APP,
   InquireAppResp,
   REJECT_APP,
@@ -91,7 +92,7 @@ describe("FormContext > FormProvider Tests", () => {
         request: {
           query: GET_APP,
           variables: {
-            id: "556ac14a-f247-42e8-8878-8468060fb49a",
+            submissionID: "556ac14a-f247-42e8-8878-8468060fb49a",
           },
         },
         result: {
@@ -115,7 +116,7 @@ describe("FormContext > FormProvider Tests", () => {
         request: {
           query: GET_APP,
           variables: {
-            id: "556ac14a-f247-42e8-8878-8468060fb49a",
+            submissionID: "556ac14a-f247-42e8-8878-8468060fb49a",
           },
         },
         error: new Error("Test network error"),
@@ -137,7 +138,7 @@ describe("FormContext > FormProvider Tests", () => {
         request: {
           query: GET_APP,
           variables: {
-            id: "556ac14a-f247-42e8-8878-8468060fb49a",
+            submissionID: "556ac14a-f247-42e8-8878-8468060fb49a",
           },
         },
         result: {
@@ -247,7 +248,7 @@ describe("FormContext > FormProvider Tests", () => {
         request: {
           query: GET_APP,
           variables: {
-            id: "AAA-BBB-EXISTING-APP",
+            submissionID: "AAA-BBB-EXISTING-APP",
           },
         },
         result: {
@@ -295,7 +296,7 @@ describe("FormContext > FormProvider Tests", () => {
         request: {
           query: GET_APP,
           variables: {
-            id: "AAA-BBB-EXISTING-APP",
+            submissionID: "AAA-BBB-EXISTING-APP",
           },
         },
         result: {
@@ -323,7 +324,7 @@ describe("FormContext > FormProvider Tests", () => {
 });
 
 describe("approveForm Tests", () => {
-  const getAppMock: MockedResponse<GetAppResp> = {
+  const getAppMock: MockedResponse<GetAppResp, GetAppInput> = {
     request: {
       query: GET_APP,
     },
@@ -462,7 +463,7 @@ describe("approveForm Tests", () => {
 });
 
 describe("inquireForm Tests", () => {
-  const getAppMock: MockedResponse<GetAppResp> = {
+  const getAppMock: MockedResponse<GetAppResp, GetAppInput> = {
     request: {
       query: GET_APP,
     },
@@ -578,7 +579,7 @@ describe("inquireForm Tests", () => {
 });
 
 describe("rejectForm Tests", () => {
-  const getAppMock: MockedResponse<GetAppResp> = {
+  const getAppMock: MockedResponse<GetAppResp, GetAppInput> = {
     request: {
       query: GET_APP,
     },
@@ -694,7 +695,7 @@ describe("rejectForm Tests", () => {
 });
 
 describe("reopenForm Tests", () => {
-  const getAppMock: MockedResponse<GetAppResp> = {
+  const getAppMock: MockedResponse<GetAppResp, GetAppInput> = {
     request: {
       query: GET_APP,
     },
