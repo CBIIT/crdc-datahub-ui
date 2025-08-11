@@ -485,3 +485,20 @@ export const DATE_NOT_BEFORE_TODAY = (c: ExcelJS.Cell | string, opts: { allowBla
   const base = AND(ISNUMBER(x), GTE(x, TODAY()));
   return allowBlank ? OR(NOT(REQUIRED(x)), base) : base;
 };
+
+/**
+ * Converts a boolean value to a Yes/No string.
+ *
+ * @param value The boolean value to convert.
+ * @returns The Yes/No string representation.
+ */
+export const toYesNo = (value: boolean | null | undefined) => {
+  if (value === true) {
+    return "Yes";
+  }
+  if (value === false) {
+    return "No";
+  }
+
+  return null;
+};
