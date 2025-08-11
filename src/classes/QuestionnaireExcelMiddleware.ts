@@ -97,7 +97,6 @@ export class QuestionnaireExcelMiddleware {
   public async serialize(): Promise<ArrayBuffer> {
     this.setMetadataProperties();
 
-    // TODO: Implement the serialization logic Sections A-D
     await this.serializeMetadata();
     await this.serializeSectionA();
     await this.serializeSectionB();
@@ -165,7 +164,7 @@ export class QuestionnaireExcelMiddleware {
    * - Template Version
    * - Export Date
    *
-   * @returns Promise<void>
+   * @returns A readonly reference to the created worksheet.
    */
   private async serializeMetadata(): Promise<Readonly<ExcelJS.Worksheet>> {
     const { application } = this.dependencies;
@@ -191,21 +190,20 @@ export class QuestionnaireExcelMiddleware {
 
     sheet.getRow(1).font = { bold: true };
     sheet.getRow(1).alignment = { horizontal: "center" };
-    sheet.getRow(2).getCell("lastStatus").alignment = { horizontal: "center" };
+    sheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "96ebff" } };
 
-    // Submission Request metadata
-    sheet.getRow(2).getCell("submissionId").value = application?._id;
-    sheet.getRow(2).getCell("applicantName").value = application?.applicant?.applicantName;
-    sheet.getRow(2).getCell("applicantId").value = application?.applicant?.applicantID;
-    sheet.getRow(2).getCell("lastStatus").value = application?.status;
-    sheet.getRow(2).getCell("formVersion").value = application?.version;
-    sheet.getRow(2).getCell("createdAt").value = application?.createdAt;
-    sheet.getRow(2).getCell("updatedAt").value = application?.updatedAt;
-
-    // Generic metadata
-    sheet.getRow(2).getCell("devTier").value = env.VITE_DEV_TIER || "N/A";
-    sheet.getRow(2).getCell("templateVersion").value = TEMPLATE_VERSION;
-    sheet.getRow(2).getCell("exportedAt").value = new Date().toISOString();
+    sheet.getRow(2).values = {
+      submissionId: application?._id,
+      applicantName: application?.applicant?.applicantName,
+      applicantId: application?.applicant?.applicantID,
+      lastStatus: application?.status,
+      formVersion: application?.version,
+      createdAt: application?.createdAt,
+      updatedAt: application?.updatedAt,
+      devTier: env.VITE_DEV_TIER || "N/A",
+      templateVersion: TEMPLATE_VERSION,
+      exportedAt: new Date().toISOString(),
+    };
 
     return sheet;
   }
