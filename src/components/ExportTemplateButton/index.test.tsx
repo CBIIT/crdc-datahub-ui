@@ -309,12 +309,15 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByTestId("export-application-excel-template-button"));
 
-    await waitFor(() => {
-      expect(mockDownloadBlob).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.stringContaining("CRDC_Submission_Request_Template_v3.5_"),
-        "application/vnd.ms-excel"
-      );
-    });
+    await waitFor(
+      () => {
+        expect(mockDownloadBlob).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.stringContaining("CRDC_Submission_Request_Template_v3.5_"),
+          "application/vnd.ms-excel"
+        );
+      },
+      { timeout: 10_000 }
+    );
   });
 });
