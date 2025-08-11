@@ -9,12 +9,12 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { FC, useState } from "react";
 
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import CopyIconSvg from "../../assets/icons/copy_icon.svg?react";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
-import GenericAlert, { AlertState } from "../GenericAlert";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -147,7 +147,7 @@ type Props = {
 const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
   const [tokens, setTokens] = useState<string[]>([]);
   const [tokenIdx, setTokenIdx] = useState<number | null>(null);
-  const [changesAlert, setChangesAlert] = useState<AlertState>(null);
+  const { enqueueSnackbar } = useSnackbar();
 
   const [grantToken] = useMutation<GrantTokenResp>(GRANT_TOKEN, {
     context: { clientName: "backend" },
@@ -155,11 +155,7 @@ const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
   });
 
   const onGenerateTokenError = () => {
-    setChangesAlert({
-      severity: "error",
-      message: `Token was unable to be created.`,
-    });
-    setTimeout(() => setChangesAlert(null), 10000);
+    enqueueSnackbar("Token was unable to be created.", { variant: "error" });
   };
 
   const generateToken = async () => {
@@ -199,7 +195,6 @@ const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
     }
     setTokens(null);
     setTokenIdx(null);
-    setChangesAlert(null);
   };
 
   return (
@@ -209,13 +204,6 @@ const APITokenDialog: FC<Props> = ({ onClose, open, ...rest }) => {
       aria-labelledby="api-token-header"
       {...rest}
     >
-      <GenericAlert
-        open={!!changesAlert}
-        severity={changesAlert?.severity}
-        key="api-token-dialog-changes-alert"
-      >
-        <span>{changesAlert?.message}</span>
-      </GenericAlert>
       <StyledCloseDialogButton aria-label="close" onClick={handleCloseDialog}>
         <CloseIconSvg />
       </StyledCloseDialogButton>
