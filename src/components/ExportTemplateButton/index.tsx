@@ -4,7 +4,6 @@ import dayjs from "dayjs";
 import { useSnackbar } from "notistack";
 import { memo, useState } from "react";
 
-import { QuestionnaireExcelMiddleware } from "@/classes/QuestionnaireExcelMiddleware";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import {
   ListInstitutionsResp,
@@ -63,6 +62,10 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
   const onButtonClick = async () => {
     setDownloading(true);
     try {
+      const { QuestionnaireExcelMiddleware } = await import(
+        "@/classes/QuestionnaireExcelMiddleware"
+      );
+
       const { data } = await retrieveFormVersion();
       const { getFormVersion: { formVersion } = {} } = data || {};
       const formattedDate = dayjs().format("MMDDYYYY");

@@ -1,7 +1,6 @@
 import { Button, styled } from "@mui/material";
 import { useRef, useState } from "react";
 
-import { QuestionnaireExcelMiddleware } from "@/classes/QuestionnaireExcelMiddleware";
 import { Logger } from "@/utils";
 
 import { useFormContext } from "../Contexts/FormContext";
@@ -30,6 +29,8 @@ const ImportApplicationButton = ({ disabled }: Props) => {
   };
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
+
     const { files } = event?.target || {};
     const file = files?.[0];
 

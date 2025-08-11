@@ -3,7 +3,6 @@ import { Button, ButtonProps, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { memo, useState } from "react";
 
-import { QuestionnaireExcelMiddleware } from "@/classes/QuestionnaireExcelMiddleware";
 import { useFormContext } from "@/components/Contexts/FormContext";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import {
@@ -58,6 +57,8 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
     setDownloading(true);
 
     const { questionnaireData } = data;
+
+    const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
 
     const middleware = new QuestionnaireExcelMiddleware(questionnaireData, {
       application: data,
