@@ -1,4 +1,5 @@
 import type ExcelJS from "exceljs";
+import { CellValue } from "exceljs";
 
 import { Logger } from "@/utils";
 
@@ -200,12 +201,12 @@ export abstract class SectionBase<K extends string, D> implements Section {
   protected setRowValues(
     ws: ExcelJS.Worksheet,
     rowIndex: number,
-    values: Partial<Record<K, string>>
+    values: Partial<Record<K, CellValue>>
   ) {
     const row = ws.getRow(rowIndex);
     this._columns.forEach((col, index) => {
       if (col.key in values) {
-        row.getCell(index + 1).value = values[col.key] ?? "";
+        row.getCell(index + 1).value = values[col.key] || null;
       }
     });
   }
