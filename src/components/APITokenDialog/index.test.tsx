@@ -121,7 +121,9 @@ describe("Basic Functionality", () => {
     userEvent.click(getByText(/Create Token/, { selector: "button" }));
 
     await waitFor(() => {
-      expect(getByText(/Token was unable to be created./)).toBeInTheDocument();
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Token was unable to be created.", {
+        variant: "error",
+      });
     });
   });
 
@@ -142,7 +144,9 @@ describe("Basic Functionality", () => {
     userEvent.click(getByText(/Create Token/, { selector: "button" }));
 
     await waitFor(() => {
-      expect(getByText(/Token was unable to be created./)).toBeInTheDocument();
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Token was unable to be created.", {
+        variant: "error",
+      });
     });
   });
 
@@ -161,7 +165,9 @@ describe("Basic Functionality", () => {
     userEvent.click(getByText(/Create Token/, { selector: "button" }));
 
     await waitFor(() => {
-      expect(getByText(/Token was unable to be created./)).toBeInTheDocument();
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Token was unable to be created.", {
+        variant: "error",
+      });
     });
   });
 });
