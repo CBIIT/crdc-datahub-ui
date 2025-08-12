@@ -28,17 +28,9 @@ const TEMPLATE_VERSION = "1.0";
  * Primarily used for hidden lists.
  */
 export const HIDDEN_SHEET_NAMES = {
+  meta: "Metadata",
   institutions: "InstitutionList",
   programs: "ProgramList",
-} as const;
-
-/**
- * The names of the sheets used in the Excel workbook.
- */
-const SHEET_NAMES = {
-  ...HIDDEN_SHEET_NAMES,
-  meta: "Metadata",
-  B: "Program and Study",
 } as const;
 
 /**
@@ -168,7 +160,7 @@ export class QuestionnaireExcelMiddleware {
   private async serializeMetadata(): Promise<Readonly<ExcelJS.Worksheet>> {
     const { application } = this.dependencies;
 
-    const sheet = this.workbook.addWorksheet(SHEET_NAMES.meta, { state: "hidden" });
+    const sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.meta, { state: "veryHidden" });
     sheet.columns = [
       { header: "Submission ID", key: "submissionId", width: 35, protection: { locked: true } },
       { header: "Applicant", key: "applicantName", width: 30, protection: { locked: true } },
@@ -330,7 +322,7 @@ export class QuestionnaireExcelMiddleware {
    * @returns A Promise that resolves to a boolean indicating success or failure of the parsing.
    */
   private async parseSectionB(): Promise<boolean> {
-    const ws = this.workbook.getWorksheet(SHEET_NAMES.B);
+    const ws = this.workbook.getWorksheet(SectionB.SHEET_NAME);
     if (!ws) {
       Logger.info("parseSectionB: No sheet found for Section B");
       return Promise.resolve(false);

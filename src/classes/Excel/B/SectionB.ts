@@ -33,10 +33,12 @@ type SectionBDeps = {
 };
 
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
+  static SHEET_NAME = "Program and Study";
+
   constructor(deps: SectionBDeps) {
     super({
       id: "B",
-      sheetName: "Program and Study",
+      sheetName: SectionB.SHEET_NAME,
       columns,
       headerColor: "D9EAD3",
       characterLimits: DEFAULT_CHARACTER_LIMITS,

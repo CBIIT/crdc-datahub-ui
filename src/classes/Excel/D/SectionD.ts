@@ -22,10 +22,12 @@ type SectionDDeps = {
 };
 
 export class SectionD extends SectionBase<DKeys, SectionDDeps> {
+  static SHEET_NAME = "Data Types";
+
   constructor(deps: SectionDDeps) {
     super({
       id: "D",
-      sheetName: "Data Types",
+      sheetName: SectionD.SHEET_NAME,
       columns,
       headerColor: "D9EAD3",
       characterLimits: DEFAULT_CHARACTER_LIMITS,
