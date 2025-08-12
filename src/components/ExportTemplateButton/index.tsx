@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { useSnackbar } from "notistack";
 import { memo, useState } from "react";
 
+import DownloadIcon from "@/assets/icons/download_icon_filled.svg?react";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import {
   ListInstitutionsResp,
@@ -21,6 +22,15 @@ const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
   "& .MuiTooltip-tooltip": {
     color: "#000000",
+  },
+});
+
+const StyledButton = styled(Button)({
+  color: "#156071",
+  fontSize: "16px",
+  fontWeight: 600,
+  "& .MuiButton-endIcon": {
+    marginLeft: "10px",
   },
 });
 
@@ -104,19 +114,19 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
       arrow
     >
       <span>
-        {/* TODO: Style based on design */}
-        <Button
-          variant="contained"
-          color="primary"
+        <StyledButton
+          variant="text"
           type="button"
+          size="large"
           onClick={onButtonClick}
           disabled={disabled || downloading}
           aria-label="Export application to Excel button"
           data-testid="export-application-excel-template-button"
+          endIcon={<DownloadIcon />}
           {...rest}
         >
           Download Template
-        </Button>
+        </StyledButton>
       </span>
     </StyledTooltip>
   );
