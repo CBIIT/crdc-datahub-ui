@@ -13,8 +13,8 @@ import {
   ListInstitutionsResp,
   ListOrgsInput,
   ListOrgsResp,
-  RETRIEVE_FORM_VERSION,
-  RetrieveFormVersionResp,
+  GET_APPLICATION_FORM_VERSION,
+  GetApplicationFormVersionResp,
 } from "@/graphql";
 import { render, waitFor } from "@/test-utils";
 
@@ -47,15 +47,15 @@ const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInp
   },
 };
 
-// TODO: Update this mock to match final GraphQL schema
-const formVersionMock: MockedResponse<RetrieveFormVersionResp> = {
+const formVersionMock: MockedResponse<GetApplicationFormVersionResp> = {
   request: {
-    query: RETRIEVE_FORM_VERSION,
+    query: GET_APPLICATION_FORM_VERSION,
   },
   result: {
     data: {
-      getFormVersion: {
-        formVersion: "1.0.0",
+      getApplicationFormVersion: {
+        _id: "mock-uuid",
+        version: "1.0.0",
       },
     },
   },
@@ -133,10 +133,9 @@ describe("Basic Functionality", () => {
   });
 
   it("should handle API errors gracefully (GraphQL)", async () => {
-    // TODO: Update this mock to match final GraphQL schema
-    const errorFormVersionMock: MockedResponse<RetrieveFormVersionResp> = {
+    const errorFormVersionMock: MockedResponse<GetApplicationFormVersionResp> = {
       request: {
-        query: RETRIEVE_FORM_VERSION,
+        query: GET_APPLICATION_FORM_VERSION,
       },
       result: {
         errors: [new GraphQLError("mock error")],
@@ -162,10 +161,9 @@ describe("Basic Functionality", () => {
   });
 
   it("should handle API errors gracefully (Network)", async () => {
-    // TODO: Update this mock to match final GraphQL schema
-    const errorFormVersionMock: MockedResponse<RetrieveFormVersionResp> = {
+    const errorFormVersionMock: MockedResponse<GetApplicationFormVersionResp> = {
       request: {
-        query: RETRIEVE_FORM_VERSION,
+        query: GET_APPLICATION_FORM_VERSION,
       },
       error: new Error("mock Network error"),
     };
@@ -189,14 +187,13 @@ describe("Basic Functionality", () => {
   });
 
   it("should handle API errors gracefully (API)", async () => {
-    // TODO: Update this mock to match final GraphQL schema
-    const errorFormVersionMock: MockedResponse<RetrieveFormVersionResp> = {
+    const errorFormVersionMock: MockedResponse<GetApplicationFormVersionResp> = {
       request: {
-        query: RETRIEVE_FORM_VERSION,
+        query: GET_APPLICATION_FORM_VERSION,
       },
       result: {
         data: {
-          getFormVersion: null, // Simulating an API error by returning null
+          getApplicationFormVersion: null, // Simulating an API error by returning null
         },
       },
     };
@@ -255,14 +252,13 @@ describe("Implementation Requirements", () => {
   });
 
   it("should be disabled while downloading", async () => {
-    // TODO: Update this mock to match final GraphQL schema
-    const slowApiMock: MockedResponse<RetrieveFormVersionResp> = {
+    const slowApiMock: MockedResponse<GetApplicationFormVersionResp> = {
       request: {
-        query: RETRIEVE_FORM_VERSION,
+        query: GET_APPLICATION_FORM_VERSION,
       },
       result: {
         data: {
-          getFormVersion: null, // This never resolves anyway
+          getApplicationFormVersion: null, // This never resolves anyway
         },
       },
       delay: 5000,
@@ -286,14 +282,15 @@ describe("Implementation Requirements", () => {
   });
 
   it("should download the template with the correct filename", async () => {
-    const mockFormVersion: MockedResponse<RetrieveFormVersionResp> = {
+    const mockFormVersion: MockedResponse<GetApplicationFormVersionResp> = {
       request: {
-        query: RETRIEVE_FORM_VERSION,
+        query: GET_APPLICATION_FORM_VERSION,
       },
       result: {
         data: {
-          getFormVersion: {
-            formVersion: "3.5",
+          getApplicationFormVersion: {
+            _id: "a mock uuid here",
+            version: "3.5",
           },
         },
       },

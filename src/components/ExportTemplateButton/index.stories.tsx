@@ -8,8 +8,8 @@ import {
   ListInstitutionsResp,
   ListInstitutionsInput,
   LIST_INSTITUTIONS,
-  RetrieveFormVersionResp,
-  RETRIEVE_FORM_VERSION,
+  GetApplicationFormVersionResp,
+  GET_APPLICATION_FORM_VERSION,
   LIST_ORGS,
   ListOrgsInput,
   ListOrgsResp,
@@ -63,15 +63,15 @@ const listOrgsMock: MockedResponse<ListOrgsResp, ListOrgsInput> = {
   },
 };
 
-// TODO: Update this mock to match final GraphQL schema
-const retrieveFormVersionMock: MockedResponse<RetrieveFormVersionResp> = {
+const retrieveFormVersionMock: MockedResponse<GetApplicationFormVersionResp> = {
   request: {
-    query: RETRIEVE_FORM_VERSION,
+    query: GET_APPLICATION_FORM_VERSION,
   },
   result: {
     data: {
-      getFormVersion: {
-        formVersion: "1.0.0",
+      getApplicationFormVersion: {
+        _id: "a mock uuid",
+        version: "1.0.0",
       },
     },
   },

@@ -9,8 +9,8 @@ import {
   ListInstitutionsResp,
   ListInstitutionsInput,
   LIST_INSTITUTIONS,
-  RETRIEVE_FORM_VERSION,
-  RetrieveFormVersionResp,
+  GET_APPLICATION_FORM_VERSION,
+  GetApplicationFormVersionResp,
   ListOrgsResp,
   ListOrgsInput,
   LIST_ORGS,
@@ -53,11 +53,14 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
     onError: (e) => Logger.error("ExportTemplateButton: listOrgs API error:", e),
   });
 
-  const [retrieveFormVersion] = useLazyQuery<RetrieveFormVersionResp>(RETRIEVE_FORM_VERSION, {
-    context: { clientName: "backend" },
-    fetchPolicy: "cache-first",
-    onError: (e) => Logger.error("ExportTemplateButton: getFormVersion API error:", e),
-  });
+  const [retrieveFormVersion] = useLazyQuery<GetApplicationFormVersionResp>(
+    GET_APPLICATION_FORM_VERSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("ExportTemplateButton: getFormVersion API error:", e),
+    }
+  );
 
   const onButtonClick = async () => {
     setDownloading(true);
@@ -67,10 +70,10 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
       );
 
       const { data } = await retrieveFormVersion();
-      const { getFormVersion: { formVersion } = {} } = data || {};
+      const { getApplicationFormVersion: { version } = {} } = data || {};
       const formattedDate = dayjs().format("MMDDYYYY");
 
-      if (!formVersion || typeof formVersion !== "string") {
+      if (!version || typeof version !== "string") {
         throw new Error("Invalid form version data received");
       }
 
@@ -79,7 +82,7 @@ const ExportTemplateButton = ({ disabled, ...rest }: Props) => {
         getPrograms: listOrgs,
       });
       const file = await middleware.serialize();
-      const filename = `CRDC_Submission_Request_Template_v${formVersion}_${formattedDate}.xlsx`;
+      const filename = `CRDC_Submission_Request_Template_v${version}_${formattedDate}.xlsx`;
 
       downloadBlob(file, filename, "application/vnd.ms-excel");
     } catch (error) {
