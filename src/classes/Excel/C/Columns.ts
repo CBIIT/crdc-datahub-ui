@@ -54,12 +54,14 @@ export const COLUMNS: ColumnDef<CKeys>[] = [
   },
   {
     header: "Other cancer type(s)",
+    annotation: 'Enter additional Cancer Types, separated by pipes ("|").',
     key: "otherCancerTypes",
     width: 50,
     protection: { locked: true },
   },
   {
     header: "Pre-Cancer types (provide all that apply)",
+    annotation: 'Enter additional Pre-Cancer Types, separated by pipes ("|").',
     key: "preCancerTypes",
     width: 50,
     protection: { locked: true },

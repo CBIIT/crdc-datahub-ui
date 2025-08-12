@@ -29,7 +29,13 @@ export type SectionCtxBase = {
 /**
  * Represents the definition of a column in the section.
  */
-export type ColumnDef<K extends string> = Omit<Partial<ExcelJS.Column>, "key"> & { key: K };
+export type ColumnDef<K extends string> = Omit<Partial<ExcelJS.Column>, "key"> & {
+  key: K;
+  /**
+   * An optional annotation for the column header.
+   */
+  annotation?: string;
+};
 
 /**
  * Represents the character limits for each column in the section.
@@ -128,6 +134,18 @@ export abstract class SectionBase<K extends string, D> implements Section {
     const ws = this.create(ctx);
     this.write(ctx, ws);
     this.applyValidation(ctx, ws);
+    this.annotate(
+      ws,
+      this._columns
+        .filter((c) => c.annotation)
+        .reduce(
+          (acc, col) => {
+            acc[col.key] = col.annotation;
+            return acc;
+          },
+          {} as Partial<Record<K, string>>
+        )
+    );
 
     return ws;
   }
@@ -175,6 +193,30 @@ export abstract class SectionBase<K extends string, D> implements Section {
     ctx: SectionCtxBase,
     ws: ExcelJS.Worksheet
   ): void | Promise<void>;
+
+  /**
+   * Write annotations on the specified cells in the worksheet.
+   *
+   * @param ws The worksheet to annotate
+   * @param annotations A map of Cell Key -> Note
+   * @param rowNum The row to annotate. Default is the header row.
+   */
+  protected annotate(
+    ws: ExcelJS.Worksheet,
+    annotations: Partial<Record<K, string>>,
+    rowNum = 1
+  ): void {
+    const row = ws.getRow(rowNum);
+    this._columns.forEach((col, index) => {
+      if (col.key in annotations) {
+        const cell = row.getCell(index + 1);
+        cell.note = {
+          texts: [{ text: annotations[col.key] || "" }],
+          protection: { locked: "True", lockText: "True" },
+        };
+      }
+    });
+  }
 
   /**
    * Get the cells in row 2 of the worksheet.
@@ -241,6 +283,12 @@ export abstract class SectionBase<K extends string, D> implements Section {
     });
   }
 
+  /**
+   * Applies a standard character limit validation to the specified cell.
+   *
+   * @param cell The cell to apply the ruleset to
+   * @param limit The character limit to apply
+   */
   // eslint-disable-next-line class-methods-use-this
   protected applyTextLengthValidation(cell: ExcelJS.Cell, limit: number): void {
     cell.dataValidation = {
