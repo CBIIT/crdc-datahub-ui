@@ -38,7 +38,6 @@ export const HIDDEN_SHEET_NAMES = {
 const SHEET_NAMES = {
   ...HIDDEN_SHEET_NAMES,
   meta: "Metadata",
-  A: "PI and Contact",
   B: "Program and Study",
 } as const;
 
@@ -316,7 +315,7 @@ export class QuestionnaireExcelMiddleware {
    * Parses the data from Section A of the Excel workbook.
    */
   private async parseSectionA(): Promise<void> {
-    const sheet = this.workbook.getWorksheet(SHEET_NAMES.A);
+    const sheet = this.workbook.getWorksheet(SectionA.SHEET_NAME);
     if (!sheet) {
       Logger.info("parseSectionA: No sheet found for Section A");
     }

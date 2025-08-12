@@ -240,4 +240,16 @@ export abstract class SectionBase<K extends string, D> implements Section {
       callback(cell, rowNum);
     });
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  protected applyTextLengthValidation(cell: ExcelJS.Cell, limit: number): void {
+    cell.dataValidation = {
+      type: "textLength",
+      operator: "lessThan",
+      showErrorMessage: true,
+      error: `Must be less than ${limit} characters.`,
+      allowBlank: false,
+      formulae: [limit],
+    };
+  }
 }
