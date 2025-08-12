@@ -2,6 +2,7 @@ import type ExcelJS from "exceljs";
 
 import { AND, EMAIL, IF, LIST_FORMULA, ORCID, REQUIRED, STR_EQ, TEXT_MAX } from "@/utils";
 
+import { YesNoList } from "../D/SectionD";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { AKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS } from "./Columns";
@@ -43,7 +44,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       "pi.ORCID": data?.pi?.ORCID || "",
       "pi.institution": data?.pi?.institution || "",
       "pi.address": data?.pi?.address || "",
-      piAsPrimaryContact: data?.piAsPrimaryContact || "FALSE",
+      piAsPrimaryContact: data?.piAsPrimaryContact ? "Yes" : "No",
       "primaryContact.firstName": data?.primaryContact?.firstName || "",
       "primaryContact.lastName": data?.primaryContact?.lastName || "",
       "primaryContact.position": data?.primaryContact?.position || "",
@@ -107,7 +108,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: false,
-      formulae: ['"TRUE,FALSE"'],
+      formulae: [YesNoList],
     };
 
     // Primary Contact
@@ -120,43 +121,24 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
         allowBlank: true,
         showErrorMessage: true,
         error: `Must be less than ${cellLimit} characters.`,
-        formulae: [IF(STR_EQ(H2, "TRUE"), "TRUE", AND(REQUIRED(cell), TEXT_MAX(cell, cellLimit)))],
+        formulae: [IF(STR_EQ(H2, "Yes"), "TRUE", AND(REQUIRED(cell), TEXT_MAX(cell, cellLimit)))],
       };
     });
 
-    // TODO: I think eachCell would only work if data is filled out. Probably need
-    // to define validation on either the whole column OR iterate using row count
-
     // Additional Contacts
-    ws.getColumn("additionalContacts.firstName").eachCell((cell, rowNumber) => {
-      if (rowNumber <= 1) {
-        return;
-      }
-
+    this.forEachCellInColumn(ws, "additionalContacts.firstName", (cell) => {
       this.applyTextLengthValidation(
         cell,
         DEFAULT_CHARACTER_LIMITS["additionalContacts.firstName"]
       );
     });
-    ws.getColumn("additionalContacts.lastName").eachCell((cell, rowNumber) => {
-      if (rowNumber <= 1) {
-        return;
-      }
-
+    this.forEachCellInColumn(ws, "additionalContacts.lastName", (cell) => {
       this.applyTextLengthValidation(cell, DEFAULT_CHARACTER_LIMITS["additionalContacts.lastName"]);
     });
-    ws.getColumn("additionalContacts.position").eachCell((cell, rowNumber) => {
-      if (rowNumber <= 1) {
-        return;
-      }
-
+    this.forEachCellInColumn(ws, "additionalContacts.position", (cell) => {
       this.applyTextLengthValidation(cell, DEFAULT_CHARACTER_LIMITS["additionalContacts.position"]);
     });
-    ws.getColumn("additionalContacts.email").eachCell((cell, rowNumber) => {
-      if (rowNumber <= 1) {
-        return;
-      }
-
+    this.forEachCellInColumn(ws, "additionalContacts.email", (cell) => {
       cell.dataValidation = {
         type: "custom",
         allowBlank: true,
@@ -165,21 +147,13 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
         formulae: [EMAIL(cell)],
       };
     });
-    ws.getColumn("additionalContacts.institution").eachCell((cell, rowNumber) => {
-      if (rowNumber <= 1) {
-        return;
-      }
-
+    this.forEachCellInColumn(ws, "additionalContacts.institution", (cell) => {
       this.applyTextLengthValidation(
         cell,
         DEFAULT_CHARACTER_LIMITS["additionalContacts.institution"]
       );
     });
-    ws.getColumn("additionalContacts.phone").eachCell((cell, rowNumber) => {
-      if (rowNumber <= 1) {
-        return;
-      }
-
+    this.forEachCellInColumn(ws, "additionalContacts.phone", (cell) => {
       this.applyTextLengthValidation(cell, DEFAULT_CHARACTER_LIMITS["additionalContacts.phone"]);
     });
   }

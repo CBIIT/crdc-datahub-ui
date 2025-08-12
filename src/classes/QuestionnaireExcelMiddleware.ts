@@ -33,6 +33,8 @@ export const HIDDEN_SHEET_NAMES = {
   institutions: "InstitutionList",
   programs: "ProgramList",
   fileTypes: "FileTypeList",
+  cancerTypes: "CancerTypeList",
+  speciesOptions: "SubjectSpeciesList",
 } as const;
 
 /**
@@ -275,8 +277,8 @@ export class QuestionnaireExcelMiddleware {
 
     const sectionC = new SectionC({
       data: this.data as QuestionnaireData,
-      cancerTypes: cancerTypeOptions,
-      species: speciesOptions,
+      cancerTypes: await this.createCancerTypesSheet(),
+      species: await this.createSpeciesListSheet(),
     });
 
     return sectionC.serialize(ctx);
@@ -431,6 +433,44 @@ export class QuestionnaireExcelMiddleware {
       const allExtensions = union(...Object.values(fileTypeExtensions));
       allExtensions?.forEach((extension, index) => {
         sheet.getCell(`B${index + 1}`).value = extension;
+      });
+    }
+
+    return sheet;
+  }
+
+  /**
+   * Creates a sheet with the full list of Cancer Types
+   *
+   * @returns A readonly reference to the worksheet.
+   */
+  private async createCancerTypesSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.cancerTypes);
+    if (!sheet) {
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.cancerTypes, { state: "veryHidden" });
+
+      cancerTypeOptions.forEach((file, index) => {
+        sheet.getCell(`A${index + 1}`).value = file;
+      });
+    }
+
+    return sheet;
+  }
+
+  /**
+   * Creates a hidden sheet containing the species options.
+   *
+   * @returns A readonly reference to the worksheet.
+   */
+  private async createSpeciesListSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.speciesOptions);
+    if (!sheet) {
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.speciesOptions, {
+        state: "veryHidden",
+      });
+
+      speciesOptions.forEach((file, index) => {
+        sheet.getCell(`A${index + 1}`).value = file;
       });
     }
 
