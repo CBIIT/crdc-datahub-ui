@@ -136,31 +136,6 @@ export const buildFilterOptionsList = (config: ModelNavigatorConfig): string[] =
 };
 
 /**
- * A utility to mutate the dictionary by removing invalid CDEs.
- * It will traverse the node's properties and remove any invalid CDEs (`Term`).
- *
- * @param dictionary the MDF dictionary to mutate
- * @returns Nothing, the dictionary is mutated in place
- */
-export const deleteInvalidCDEs = (dictionary: MDFDictionary): void => {
-  if (!dictionary || Object.keys(dictionary).length === 0) {
-    return;
-  }
-
-  Object.values(dictionary)
-    .flatMap((node) => Object.values(node?.properties ?? {}))
-    .forEach((property) => {
-      if (!Array.isArray(property?.Term)) {
-        return;
-      }
-
-      property.Term = property.Term.filter(
-        (term) => term?.Origin?.toLowerCase()?.indexOf("cadsr") !== -1
-      );
-    });
-};
-
-/**
  * A utility to populate CDE data into the dictionary.
  *
  * Key details on handling:
@@ -193,6 +168,10 @@ export const populateCDEData = (
       prop.Term?.forEach((term) => {
         const apiData = mappedCDEs.get(`${term.Code}:${term.Version}`);
 
+        if (!isSupportedOrigin(term)) {
+          return;
+        }
+
         if (apiData) {
           // Update CDE Name
           term.Value = apiData.CDEFullName;
@@ -220,12 +199,13 @@ export const populateCDEData = (
 };
 
 /**
- * A utility to extract all unique CDEs from the MDF dictionary.
+ * A utility to extract all unique caDSR CDEs from the MDF dictionary.
  *
+ * @note Since the only supported CDE Origin is "caDSR", we ignore the uniqueness of the Origin field.
  * @param dictionary the MDF dictionary to extract CDEs from
  * @return An array of objects containing the CDE Code/Version/Origin
  */
-export const extractAllCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
+export const extractSupportedCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
   if (!dictionary || Object.keys(dictionary).length === 0) {
     return [];
   }
@@ -235,7 +215,8 @@ export const extractAllCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
     .flatMap((node) => values(node?.properties ?? {}))
     .flatMap("Term")
     .filter((t) => t?.Code && t?.Version && t?.Origin)
-    .uniqBy((t) => `${t.Code}:${t.Version}:${t.Origin}`)
+    .filter(isSupportedOrigin)
+    .uniqBy((t) => `${t.Code}:${t.Version}`)
     .map((t) => ({
       CDECode: t.Code,
       CDEVersion: t.Version,
@@ -243,3 +224,13 @@ export const extractAllCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
     }))
     .value();
 };
+
+/**
+ * A base utility to determine if a CDE origin is supported.
+ *
+ * @param term The CDE term to check
+ * @returns True if the origin is supported, false otherwise
+ */
+const isSupportedOrigin = (
+  term: MDFDictionary[number]["properties"][number]["Term"][number]
+): boolean => term?.Origin?.toLowerCase()?.indexOf("cadsr") >= 0;

@@ -467,137 +467,6 @@ describe("buildFilterOptionsList tests", () => {
   });
 });
 
-describe("deleteInvalidCDEs tests", () => {
-  it("should delete CDEs for non-caDSR origins", () => {
-    const dictionary = modelDefinitionFactory.build({
-      node1: modelDefinitionNodeFactory.build({
-        properties: {
-          property_invalid_cde: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(1, {
-              Origin: "this is invalid",
-            }),
-          }),
-        },
-      }),
-      node2: modelDefinitionNodeFactory.build({
-        properties: {
-          property_valid_cde: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(2, (index) => ({
-              Code: `valid-code-${index}`,
-              Origin: "caDSR",
-            })),
-          }),
-        },
-      }),
-      node3: modelDefinitionNodeFactory.build({
-        properties: {
-          propert_valid_cde_CASED: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(1, {
-              Origin: "CADSR",
-            }),
-          }),
-        },
-      }),
-      node4: modelDefinitionNodeFactory.build({
-        properties: {
-          property_valid_cde_prefixed: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(2, {
-              Origin: "somePrefix - CADSR",
-            }),
-          }),
-        },
-      }),
-    });
-
-    utils.deleteInvalidCDEs(dictionary);
-
-    expect(dictionary.node1.properties.property_invalid_cde.Term).toEqual([]);
-    expect(dictionary.node2.properties.property_valid_cde.Term).toEqual([
-      ...modelDefinitionTermFactory.build(2, (index) => ({
-        Code: `valid-code-${index}`,
-        Origin: "caDSR",
-      })),
-    ]);
-    expect(dictionary.node3.properties.propert_valid_cde_CASED.Term).toEqual(
-      modelDefinitionTermFactory.build(1, {
-        Origin: "CADSR",
-      })
-    );
-    expect(dictionary.node4.properties.property_valid_cde_prefixed.Term).toEqual([
-      ...modelDefinitionTermFactory.build(2, {
-        Origin: "somePrefix - CADSR",
-      }),
-    ]);
-  });
-
-  it.each<unknown>([null, undefined, {}])("should handle invalid input '%s' safely", (input) => {
-    expect(() => utils.deleteInvalidCDEs(input as MDFDictionary)).not.toThrow();
-  });
-
-  it.each<unknown>([null, undefined, {}])(
-    "should handle nodes with invalid property definitions '%s'",
-    (input) => {
-      const dictionary = modelDefinitionFactory.build({
-        node1: modelDefinitionNodeFactory.build({
-          properties: input as MDFDictionary[number]["properties"],
-        }),
-      });
-
-      expect(() => utils.deleteInvalidCDEs(dictionary)).not.toThrow();
-
-      expect(dictionary.node1.properties).toEqual(input);
-    }
-  );
-
-  it.each<unknown>([[], {}, null, undefined])(
-    "should handle properties with invalid terms '%s'",
-    (terms) => {
-      const dictionary = modelDefinitionFactory.build({
-        node1: modelDefinitionNodeFactory.build({
-          properties: {
-            property_invalid_cde: modelDefinitionNodePropertyFactory.build({
-              Term: terms as unknown as MDFDictionary[number]["properties"][number]["Term"],
-            }),
-          },
-        }),
-      });
-
-      expect(() => utils.deleteInvalidCDEs(dictionary)).not.toThrow();
-
-      // NOTE: Technically it should be an empty array, but we're NOT mutating invalid input
-      expect(dictionary.node1.properties.property_invalid_cde.Term).toEqual(terms);
-    }
-  );
-
-  it("should clear all invalid CDEs origins", () => {
-    const dictionary = modelDefinitionFactory.build({
-      node1: modelDefinitionNodeFactory.build({
-        properties: {
-          property_invalid_cde: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(1, {
-              Origin: "this is invalid",
-            }),
-          }),
-          property_invalid_cde2: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(1, {
-              Origin: "this is",
-            }),
-          }),
-          property_invalid_cde3: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(1, {
-              Origin: "this",
-            }),
-          }),
-        },
-      }),
-    });
-
-    utils.deleteInvalidCDEs(dictionary);
-
-    expect(dictionary.node1.properties.property_invalid_cde.Term).toEqual([]);
-  });
-});
-
 describe("populateCDEData tests", () => {
   const mockData: RetrieveCDEsResp["retrieveCDEs"] = [
     {
@@ -670,12 +539,14 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "CDECode1",
               Version: "1.0",
+              Origin: "caDSR",
             }),
           }),
           property2: modelDefinitionNodePropertyFactory.build({
             Term: modelDefinitionTermFactory.build(1, {
               Code: "CDECode2",
               Version: "2.0",
+              Origin: "caDSR",
             }),
           }),
         },
@@ -696,6 +567,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "CDECode1",
               Version: "1.0",
+              Origin: "caDSR",
             }),
             enum: ["OldValue1", "OldValue2"],
           }),
@@ -703,6 +575,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "CDECode2",
               Version: "2.0",
+              Origin: "caDSR",
             }),
             enum: ["OldValue3", "OldValue4"],
           }),
@@ -724,6 +597,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "some-cde-code",
               Version: "2.00",
+              Origin: "caDSR",
             }),
             type: "enum",
             enum: ["Some value 1", "another value 2"],
@@ -732,6 +606,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "another-cde-code",
               Version: "3.00",
+              Origin: "caDSR",
             }),
             enum: undefined, // NOTE: explicitly not an enum
             type: "list", // NOTE: explicitly a list
@@ -774,6 +649,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "this-exists",
               Version: "1.0",
+              Origin: "caDSR",
             }),
             enum: ["value existing"],
           }),
@@ -781,6 +657,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "NonExistentCode",
               Version: "0.0",
+              Origin: "caDSR",
             }),
             enum: ["OldValue3", "OldValue4"],
           }),
@@ -788,6 +665,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "BadVersionCode",
               Version: "9.0.0",
+              Origin: "caDSR",
             }),
             enum: ["another value"],
           }),
@@ -837,6 +715,7 @@ describe("populateCDEData tests", () => {
             Term: modelDefinitionTermFactory.build(1, {
               Code: "BadCodeWithNoEnum",
               Version: "1.0",
+              Origin: "caDSR",
             }),
             enum: undefined, // NOTE: explicitly not an enum
             type: "something",
@@ -855,17 +734,52 @@ describe("populateCDEData tests", () => {
         Term: modelDefinitionTermFactory.build(1, {
           Code: "BadCodeWithNoEnum",
           Version: "1.0",
+          Origin: "caDSR",
         }),
         enum: undefined, // NOTE: explicitly not an enum
         type: "something",
       }),
     });
   });
+
+  it("should not do anything if the CDE Origin is unsupported", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "CDECode-Unsupported",
+              Value: "MDF name",
+              Version: "1.0",
+              Origin: "Unsupported Origin",
+            }),
+          }),
+        },
+      }),
+    });
+
+    const apiData: RetrieveCDEsResp["retrieveCDEs"] = [
+      {
+        CDEFullName: "Some full Name",
+        CDECode: "CDECode-Unsupported",
+        CDEVersion: "1.0",
+        PermissibleValues: ["valid value", "another value"],
+      },
+    ];
+
+    utils.populateCDEData(dictionary, apiData);
+
+    expect(dictionary.node1.properties.property1.Term[0].Value).toBe("MDF name");
+    expect(dictionary.node1.properties.property1.Term[0].Code).toBe("CDECode-Unsupported");
+    expect(dictionary.node1.properties.property1.Term[0].Version).toBe("1.0");
+    expect(dictionary.node1.properties.property1.Term[0].Origin).toBe("Unsupported Origin");
+    expect(dictionary.node1.properties.property1.enum).toBeUndefined(); // API data provided it, but it's unsupported
+  });
 });
 
-describe("extractAllCDEs tests", () => {
+describe("extractSupportedCDEs tests", () => {
   it.each<unknown>([null, undefined, {}])("should handle invalid input '%s' safely", (input) => {
-    expect(() => utils.extractAllCDEs(input as MDFDictionary)).not.toThrow();
+    expect(() => utils.extractSupportedCDEs(input as MDFDictionary)).not.toThrow();
   });
 
   it.each<unknown>([null, undefined, {}])(
@@ -877,7 +791,7 @@ describe("extractAllCDEs tests", () => {
         }),
       });
 
-      const result = utils.extractAllCDEs(dictionary);
+      const result = utils.extractSupportedCDEs(dictionary);
 
       expect(result).toEqual([]); // No CDEs should be extracted from invalid input
     }
@@ -900,29 +814,29 @@ describe("extractAllCDEs tests", () => {
         properties: {
           prop_abc: modelDefinitionNodePropertyFactory.build({
             Term: modelDefinitionTermFactory.build(2, (index) => ({
-              Code: `CDECode-${index}`,
+              Code: `CDECode-${index}-Variant2`,
               Version: `1.0.${index}`,
-              Origin: "Non-CaDSR-Supported",
+              Origin: "Contains CADSR",
             })),
           }),
         },
       }),
     });
 
-    const result = utils.extractAllCDEs(dictionary);
+    const result = utils.extractSupportedCDEs(dictionary);
     expect(result).toEqual([
       { CDECode: "CDECode-0", CDEVersion: "1.0.0", CDEOrigin: "caDSR" },
       { CDECode: "CDECode-1", CDEVersion: "1.0.1", CDEOrigin: "caDSR" },
       { CDECode: "CDECode-2", CDEVersion: "1.0.2", CDEOrigin: "caDSR" },
       { CDECode: "CDECode-3", CDEVersion: "1.0.3", CDEOrigin: "caDSR" },
       { CDECode: "CDECode-4", CDEVersion: "1.0.4", CDEOrigin: "caDSR" },
-      { CDECode: "CDECode-0", CDEVersion: "1.0.0", CDEOrigin: "Non-CaDSR-Supported" },
-      { CDECode: "CDECode-1", CDEVersion: "1.0.1", CDEOrigin: "Non-CaDSR-Supported" },
+      { CDECode: "CDECode-0-Variant2", CDEVersion: "1.0.0", CDEOrigin: "Contains CADSR" },
+      { CDECode: "CDECode-1-Variant2", CDEVersion: "1.0.1", CDEOrigin: "Contains CADSR" },
     ]);
     expect(result.length).toBe(7); // 5 from node1, 2 from node2
   });
 
-  it("should deduplicate CDEs based on Code, Version, and Origin", () => {
+  it("should deduplicate CDEs based on Code and Version", () => {
     const dictionary = modelDefinitionFactory.build({
       node1: modelDefinitionNodeFactory.build({
         properties: {
@@ -946,20 +860,76 @@ describe("extractAllCDEs tests", () => {
           }),
         },
       }),
+    });
+
+    const result = utils.extractSupportedCDEs(dictionary);
+    expect(result.length).toBe(3); // 3 unique options between node1 and node2
+  });
+
+  it("should only extract supported CDEs", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Uppercase",
+              Version: "2.00",
+              Origin: "CADSR",
+            })),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Uppercase",
+              Version: "2.00",
+              Origin: "XYZ Prefix - CADSR",
+            })),
+          }),
+        },
+      }),
+      node2: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Correct-Casing",
+              Version: "1.50",
+              Origin: "caDSR",
+            })),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Correct-Casing",
+              Version: "1.50",
+              Origin: "Prefix - caDSR",
+            })),
+          }),
+        },
+      }),
       node3: modelDefinitionNodeFactory.build({
         properties: {
-          property3: modelDefinitionNodePropertyFactory.build({
-            Term: modelDefinitionTermFactory.build(2, (index) => ({
-              Code: `CDECode-${index}`,
-              Version: `1.0.${index}`,
-              Origin: `unique-origin-${index}`,
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-All-Lowercase",
+              Version: "15.00",
+              Origin: "cadsr",
+            })),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-All-Lowercase",
+              Version: "15.00",
+              Origin: "Prefix - cadsr",
             })),
           }),
         },
       }),
     });
 
-    const result = utils.extractAllCDEs(dictionary);
-    expect(result.length).toBe(5); // 3 from node1, 2 from node2, 2 from node3  });
+    const result = utils.extractSupportedCDEs(dictionary);
+    expect(result.length).toBe(3);
+    expect(result).toEqual([
+      { CDECode: "CDE-With-Uppercase", CDEVersion: "2.00", CDEOrigin: "CADSR" },
+      { CDECode: "CDE-With-Correct-Casing", CDEVersion: "1.50", CDEOrigin: "caDSR" },
+      { CDECode: "CDE-All-Lowercase", CDEVersion: "15.00", CDEOrigin: "cadsr" },
+    ]);
   });
 });
