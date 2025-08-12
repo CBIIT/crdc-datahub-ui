@@ -1,8 +1,10 @@
 import type ExcelJS from "exceljs";
+import { union } from "lodash";
 
+import { fileTypeExtensions } from "@/config/FileTypeConfig";
 import { DATE_NOT_BEFORE_TODAY } from "@/utils";
 
-import { toYesNo } from "../../../utils/excelUtils";
+import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
 import columns, { DKeys } from "./Columns";
@@ -19,6 +21,7 @@ const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<DKeys> = {
 type SectionDDeps = {
   data: QuestionnaireData | null;
   programSheet: ExcelJS.Worksheet;
+  fileTypesSheet: ExcelJS.Worksheet;
 };
 
 export class SectionD extends SectionBase<DKeys, SectionDDeps> {
@@ -209,20 +212,36 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     };
 
     // Files
-    // TODO: Implement
-    //     this.forEachCellInColumn(ws, "files.type", (cell) => {
-    //       cell.dataValidation = {
-    //         type: "list",
-    //         allowBlank: false,
-    //         showErrorMessage: true,
-    //         formulae: [`=${NAME_TYPES}`],
-    //       };
-    //     });
-    //     this.forEachCellInColumn(ws, "files.extension", (cell) => {
-    //       cell.dataValidation = {
-    //
-    //       };
-    //     });
+    const { fileTypesSheet } = this.deps || {};
+    this.forEachCellInColumn(ws, "files.type", (cell) => {
+      cell.dataValidation = {
+        type: "list",
+        allowBlank: false,
+        showErrorMessage: false,
+        formulae: [
+          LIST_FORMULA(fileTypesSheet.name, "A", 1, Object.keys(fileTypeExtensions).length || 1),
+        ],
+      };
+    });
+    const allExtensions = union(...Object.values(fileTypeExtensions));
+    this.forEachCellInColumn(ws, "files.extension", (cell) => {
+      cell.dataValidation = {
+        type: "list",
+        allowBlank: false,
+        showErrorMessage: false,
+        formulae: [LIST_FORMULA(fileTypesSheet.name, "B", 1, allExtensions.length || 1)],
+      };
+    });
+    this.forEachCellInColumn(ws, "files.count", (cell) => {
+      cell.dataValidation = {
+        type: "whole",
+        operator: "greaterThan",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Must be greater than 0.",
+        formulae: [0],
+      };
+    });
 
     // Data De-Identified
     U.dataValidation = {

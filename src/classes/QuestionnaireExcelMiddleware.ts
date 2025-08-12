@@ -1,8 +1,9 @@
 import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
-import { cloneDeep, merge } from "lodash";
+import { cloneDeep, merge, union } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
+import { fileTypeExtensions } from "@/config/FileTypeConfig";
 import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
@@ -30,6 +31,7 @@ const TEMPLATE_VERSION = "1.0";
 export const HIDDEN_SHEET_NAMES = {
   institutions: "InstitutionList",
   programs: "ProgramList",
+  fileTypes: "FileTypeList",
 } as const;
 
 /**
@@ -305,6 +307,7 @@ export class QuestionnaireExcelMiddleware {
     const sectionD = new SectionD({
       data: this.data as QuestionnaireData,
       programSheet: await this.createProgramsSheet(),
+      fileTypesSheet: await this.createFileTypesSheet(),
     });
 
     const sheet = await sectionD.serialize(ctx);
@@ -414,6 +417,29 @@ export class QuestionnaireExcelMiddleware {
         sheet.getCell(`E${row}`).value = {
           formula: `IF(LEN(TRIM(B${row}))>0,B${row},A${row})`,
         };
+      });
+    }
+
+    return sheet;
+  }
+
+  /**
+   * Creates a hidden sheet containing the file types.
+   *
+   * @returns The created worksheet.
+   */
+  private async createFileTypesSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.fileTypes);
+    if (!sheet) {
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.fileTypes, { state: "veryHidden" });
+
+      Object.keys(fileTypeExtensions)?.forEach((file, index) => {
+        sheet.getCell(`A${index + 1}`).value = file;
+      });
+
+      const allExtensions = union(...Object.values(fileTypeExtensions));
+      allExtensions?.forEach((extension, index) => {
+        sheet.getCell(`B${index + 1}`).value = extension;
       });
     }
 
