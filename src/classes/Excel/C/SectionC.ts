@@ -11,10 +11,12 @@ type SectionCDeps = {
 };
 
 export class SectionC extends SectionBase<CKeys, SectionCDeps> {
+  static SHEET_NAME = "Data Access and Disease";
+
   constructor(deps: SectionCDeps) {
     super({
       id: "C",
-      sheetName: "Data Access and Disease", // TODO: Use constants for the name
+      sheetName: SectionC.SHEET_NAME,
       columns: COLUMNS,
       headerColor: "D9EAD3",
       characterLimits: DEFAULT_CHARACTER_LIMITS,

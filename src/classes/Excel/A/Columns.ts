@@ -27,13 +27,48 @@ export type AKeys =
 
 export const COLUMNS: ColumnDef<AKeys>[] = [
   // Principal Investigator
-  { header: "First Name", key: "pi.firstName", width: 20, protection: { locked: true } },
-  { header: "Last Name", key: "pi.lastName", width: 20, protection: { locked: true } },
-  { header: "Position", key: "pi.position", width: 20, protection: { locked: true } },
-  { header: "Email", key: "pi.email", width: 30, protection: { locked: true } },
-  { header: "ORCID", key: "pi.ORCID", width: 30, protection: { locked: true } },
-  { header: "Institution", key: "pi.institution", width: 30, protection: { locked: true } },
-  { header: "Institution Address", key: "pi.address", width: 30, protection: { locked: true } },
+  {
+    header: "Principal Investigator First name",
+    key: "pi.firstName",
+    width: 28,
+    protection: { locked: true },
+  },
+  {
+    header: "Principal Investigator Last name",
+    key: "pi.lastName",
+    width: 28,
+    protection: { locked: true },
+  },
+  {
+    header: "Principal Investigator Position",
+    key: "pi.position",
+    width: 25,
+    protection: { locked: true },
+  },
+  {
+    header: "Principal Investigator Email",
+    key: "pi.email",
+    width: 30,
+    protection: { locked: true },
+  },
+  {
+    header: "Principal Investigator ORCID",
+    key: "pi.ORCID",
+    width: 30,
+    protection: { locked: true },
+  },
+  {
+    header: "Principal Investigator Institution",
+    key: "pi.institution",
+    width: 30,
+    protection: { locked: true },
+  },
+  {
+    header: "Principal Investigator Institution Address",
+    key: "pi.address",
+    width: 35,
+    protection: { locked: true },
+  },
   // Primary Contact
   {
     header: "Same as Principal Investigator",
@@ -42,48 +77,78 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
     protection: { locked: true },
   },
   {
-    header: "First Name",
+    header: "Primary Contact First name",
     key: "primaryContact.firstName",
-    width: 20,
+    width: 25,
     protection: { locked: true },
   },
-  { header: "Last Name", key: "primaryContact.lastName", width: 20, protection: { locked: true } },
-  { header: "Position", key: "primaryContact.position", width: 20, protection: { locked: true } },
-  { header: "Email", key: "primaryContact.email", width: 30, protection: { locked: true } },
   {
-    header: "Institution",
+    header: "Primary Contact Last name",
+    key: "primaryContact.lastName",
+    width: 25,
+    protection: { locked: true },
+  },
+  {
+    header: "Primary Contact Position",
+    key: "primaryContact.position",
+    width: 23,
+    protection: { locked: true },
+  },
+  {
+    header: "Primary Contact Email",
+    key: "primaryContact.email",
+    width: 30,
+    protection: { locked: true },
+  },
+  {
+    header: "Primary Contact Institution",
     key: "primaryContact.institution",
     width: 30,
     protection: { locked: true },
   },
-  { header: "Phone", key: "primaryContact.phone", width: 20, protection: { locked: true } },
+  {
+    header: "Primary Contact Phone",
+    key: "primaryContact.phone",
+    width: 20,
+    protection: { locked: true },
+  },
   // Additional Contact(s)
   {
-    header: "First Name",
+    header: "Additional Contact(s) First name",
     key: "additionalContacts.firstName",
-    width: 20,
+    width: 25,
     protection: { locked: true },
   },
   {
-    header: "Last Name",
+    header: "Additional Contact(s) Last name",
     key: "additionalContacts.lastName",
-    width: 20,
+    width: 25,
     protection: { locked: true },
   },
   {
-    header: "Position",
+    header: "Additional Contact(s) Position",
     key: "additionalContacts.position",
-    width: 20,
+    width: 25,
     protection: { locked: true },
   },
-  { header: "Email", key: "additionalContacts.email", width: 30, protection: { locked: true } },
   {
-    header: "Institution",
+    header: "Additional Contact(s) Email",
+    key: "additionalContacts.email",
+    width: 30,
+    protection: { locked: true },
+  },
+  {
+    header: "Additional Contact(s) Institution",
     key: "additionalContacts.institution",
     width: 30,
     protection: { locked: true },
   },
-  { header: "Phone", key: "additionalContacts.phone", width: 20, protection: { locked: true } },
+  {
+    header: "Additional Contact(s) Phone number",
+    key: "additionalContacts.phone",
+    width: 30,
+    protection: { locked: true },
+  },
 ];
 
 export const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<AKeys> = {
