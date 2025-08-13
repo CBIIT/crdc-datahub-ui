@@ -50,12 +50,31 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const startRow = 2;
     const rows = new Set<ExcelJS.Row>();
 
+    let foundProgramName = "";
+    const rawProgramId = this.deps.data?.program?._id;
+    const foundProgramCell = this.findProgramById(rawProgramId);
+
+    // Use name if available
+    foundProgramName =
+      rawProgramId?.length > 0 && foundProgramCell
+        ? `${this.deps?.programSheet?.getCell(`B${foundProgramCell.row}`).value || ""}`
+        : "Other";
+
+    // Otherwise use ID
+    if (!foundProgramName && rawProgramId?.length > 0 && foundProgramCell) {
+      foundProgramName = `${
+        this.deps?.programSheet?.getCell(`A${foundProgramCell.row}`).value || ""
+      }`;
+    }
+
     const row = ws.getRow(startRow);
     this.setRowValues(ws, startRow, {
-      "program._id": this.deps.data?.program?._id || "",
-      "program.name": this.deps.data?.program?.name || "",
-      "program.abbreviation": this.deps.data?.program?.abbreviation || "",
-      "program.description": this.deps.data?.program?.description || "",
+      "program._id": foundProgramName,
+      "program.name": foundProgramName === "Other" ? this.deps.data?.program?.name || "" : "",
+      "program.abbreviation":
+        foundProgramName === "Other" ? this.deps.data?.program?.abbreviation || "" : "",
+      "program.description":
+        foundProgramName === "Other" ? this.deps.data?.program?.description || "" : "",
       "study.name": this.deps.data?.study?.name || "",
       "study.abbreviation": this.deps.data?.study?.abbreviation || "",
       "study.description": this.deps.data?.study?.description || "",
@@ -128,7 +147,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     });
 
     // Program
-    // TODO: Fix when export the program is set to an ID instead of name causing the rest not to autofill
     A2.dataValidation = {
       type: "list",
       allowBlank: true,
@@ -268,7 +286,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     });
 
     // Planned Publications
-
     this.forEachCellInColumn(ws, "study.plannedPublications.title", (cell) => {
       cell.dataValidation = {
         type: "textLength",
@@ -387,5 +404,30 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     };
 
     return questionnairedata;
+  }
+
+  /**
+   * Finds a program by its ID.
+   * @param id The ID of the program to find.
+   * @returns The ExcelJS cell containing the program ID, or null if not found.
+   */
+  private findProgramById(id: string): ExcelJS.Cell | null {
+    if (!id?.trim()?.length) {
+      return null;
+    }
+
+    const colA = this.deps?.programSheet?.getColumn(1);
+    if (!colA) {
+      return null;
+    }
+
+    let cell: ExcelJS.Cell | undefined;
+    colA.eachCell((c) => {
+      if (!cell && c.value === id) {
+        cell = c;
+      }
+    });
+
+    return cell || null;
   }
 }
