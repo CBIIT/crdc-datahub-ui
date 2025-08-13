@@ -3,8 +3,7 @@ import gql from "graphql-tag";
 
 export const GET_APPLICATION_FORM_VERSION: TypedDocumentNode<GetApplicationFormVersionResp> = gql`
   query getApplicationFormVersion {
-    # TODO: Once the typo is fixed, remove the alias
-    getApplicationFormVersion: getApplicationFromVersion {
+    getApplicationFormVersion {
       _id
       version: new
     }
@@ -19,6 +18,8 @@ export type GetApplicationFormVersionResp = {
     _id: string;
     /**
      * The form version for all new forms.
+     *
+     * @note This is internally mapped from `new`, since that's a special keyword
      */
     version: string;
   };
