@@ -14,6 +14,7 @@ const StyledIconWrapper = styled(Box)({
   alignItems: "center",
   justifyContent: "center",
   marginRight: "16px",
+  color: "#136071",
 });
 
 const StyledText = styled(Typography)({
