@@ -55,10 +55,11 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const foundProgramCell = this.findProgramById(rawProgramId);
 
     // Use name if available
-    foundProgramName =
-      rawProgramId?.length > 0 && foundProgramCell
+    if (rawProgramId?.length > 0) {
+      foundProgramName = foundProgramCell
         ? `${this.deps?.programSheet?.getCell(`B${foundProgramCell.row}`).value || ""}`
         : "Other";
+    }
 
     // Otherwise use ID
     if (!foundProgramName && rawProgramId?.length > 0 && foundProgramCell) {
