@@ -1,10 +1,12 @@
 import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
-import { cloneDeep, merge, union } from "lodash";
+import { cloneDeep, merge, union, some, values } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
+import { InitialQuestionnaire } from "@/config/InitialValues";
 import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
+import { InitialSections } from "@/config/SectionConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
@@ -12,8 +14,9 @@ import { questionnaireDataSchema } from "@/schemas/Application";
 import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
 
+import { COLUMNS as AColumns } from "./Excel/A/Columns";
 import { SectionA } from "./Excel/A/SectionA";
-import columns from "./Excel/B/Columns";
+import BColumns from "./Excel/B/Columns";
 import { SectionB } from "./Excel/B/SectionB";
 import { SectionC } from "./Excel/C/SectionC";
 import { SectionD } from "./Excel/D/SectionD";
@@ -129,6 +132,12 @@ export class QuestionnaireExcelMiddleware {
     // Create an instance with null data, then assign the loaded workbook
     const middleware = new QuestionnaireExcelMiddleware(null, dependencies);
     middleware.workbook = workbook;
+    middleware.data = {
+      ...InitialQuestionnaire,
+      sections: [...InitialSections],
+    };
+
+    await middleware.parseSectionA();
     await middleware.parseSectionB();
 
     return middleware;
@@ -310,15 +319,55 @@ export class QuestionnaireExcelMiddleware {
 
   /**
    * Parses the data from Section A of the Excel workbook.
+   *
+   * @returns A Promise that resolves to a boolean indicating success or failure of the parsing.
    */
-  private async parseSectionA(): Promise<void> {
+  private async parseSectionA(): Promise<boolean> {
     const sheet = this.workbook.getWorksheet(SectionA.SHEET_NAME);
     if (!sheet) {
       Logger.info("parseSectionA: No sheet found for Section A");
+      return false;
     }
 
-    // TODO: Mutate the data object with Section A data
-    // Example: this.data.pi = { ... };
+    const data = await this.extractValuesFromWorksheet(sheet);
+    const newData = new Map();
+
+    data.forEach((values, key) => {
+      const colKey = AColumns.find((col) => col.header === key)?.key;
+      newData.set(
+        colKey,
+        values.map((value) => String(value).trim())
+      );
+    });
+
+    const newMapping = SectionA.mapValues(newData, {
+      institutionSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.institutions), // TODO: Handle no result
+    });
+
+    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
+      questionnaireDataSchema,
+      newMapping
+    );
+
+    const hasPIFields = some(values(result?.pi), (v) => typeof v === "string" && v.trim() !== "");
+    const hasPrimaryContactFields = some(
+      values(result?.primaryContact),
+      (v) => typeof v === "string" && v.trim() !== ""
+    );
+    const hasAdditionalContactFields = some(result?.additionalContacts || [], (contact) =>
+      some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
+    );
+
+    this.data = merge({}, this.data, result);
+
+    const isStarted = hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
+    this.data.sections.find((s) => s.name === "A").status = isStarted
+      ? "In Progress"
+      : "Not Started";
+
+    console.log(this.data);
+
+    return true;
   }
 
   /**
@@ -337,7 +386,7 @@ export class QuestionnaireExcelMiddleware {
     const newData = new Map();
     // Swap the column headers for the column keys in the mapping
     data.forEach((values, key) => {
-      const colKey = columns.find((col) => col.header === key)?.key;
+      const colKey = BColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
         values.map((value) => String(value).trim())
