@@ -45,7 +45,7 @@ const columns: ColumnDef<BKeys>[] = [
   {
     header: "Program Description",
     key: "program.description",
-    width: 30,
+    width: 50,
     protection,
   },
   {
@@ -57,19 +57,19 @@ const columns: ColumnDef<BKeys>[] = [
   {
     header: "Study Abbreviation",
     key: "study.abbreviation",
-    width: 30,
+    width: 20,
     protection,
   },
   {
     header: "Study Description",
     key: "study.description",
-    width: 30,
+    width: 50,
     protection,
   },
   {
     header: "Funding Agency/Organization",
     key: "study.funding.agency",
-    width: 30,
+    width: 40,
     protection,
   },
   {
@@ -129,13 +129,13 @@ const columns: ColumnDef<BKeys>[] = [
   {
     header: "Data Type(s) Submitted",
     key: "study.repositories.dataTypesSubmitted",
-    width: 30,
+    width: 50,
     protection,
   },
   {
     header: "Other Data Type(s)",
     key: "study.repositories.otherDataTypesSubmitted",
-    width: 30,
+    width: 50,
     protection,
   },
 ];
