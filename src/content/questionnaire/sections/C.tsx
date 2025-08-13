@@ -200,7 +200,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="study[GPAName]"
           value={GPAName}
           onChange={(e) => setGPAName(e.target.value || "")}
-          placeholder="Enter GPA name, if applicable"
+          placeholder="Enter GPA Name, if applicable"
           tooltipText="Provide information on the Genomic Program Administrator (GPA) who registered the study on dbGaP."
           gridWidth={12}
           readOnly={readOnlyInputs}
