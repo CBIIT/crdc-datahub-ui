@@ -72,6 +72,24 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
   protected async applyValidation(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): Promise<void> {
     const [A2, B2, C2, D2, E2, F2, G2, H2, I2, J2, K2, L2, M2, N2] = this.getRowCells(ws);
 
+    ws.addConditionalFormatting({
+      ref: "I2:N2",
+      rules: [
+        {
+          type: "expression",
+          formulae: ['IF($H$2="Yes",TRUE,FALSE)'],
+          style: {
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              bgColor: { argb: "000000" },
+            },
+          },
+          priority: 1,
+        },
+      ],
+    });
+
     this.applyTextLengthValidation(A2, DEFAULT_CHARACTER_LIMITS["pi.firstName"]);
     this.applyTextLengthValidation(B2, DEFAULT_CHARACTER_LIMITS["pi.lastName"]);
     this.applyTextLengthValidation(C2, DEFAULT_CHARACTER_LIMITS["pi.position"]);

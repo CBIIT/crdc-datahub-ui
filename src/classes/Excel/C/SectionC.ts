@@ -72,6 +72,24 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
   protected async applyValidation(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): Promise<void> {
     const [A, B, C, D, , , G, H, I, , K] = this.getRowCells(ws);
 
+    ws.addConditionalFormatting({
+      ref: "D2",
+      rules: [
+        {
+          type: "expression",
+          formulae: ['IF($C$2="No",TRUE,FALSE)'],
+          style: {
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              bgColor: { argb: "000000" },
+            },
+          },
+          priority: 1,
+        },
+      ],
+    });
+
     A.dataValidation = {
       type: "list",
       allowBlank: false,
