@@ -23,7 +23,7 @@ export type BKeys =
 
 const protection = { locked: true };
 
-const columns: ColumnDef<BKeys>[] = [
+export const COLUMNS: ColumnDef<BKeys>[] = [
   {
     header: "Program",
     key: "program._id",
@@ -139,5 +139,3 @@ const columns: ColumnDef<BKeys>[] = [
     protection,
   },
 ];
-
-export default columns;

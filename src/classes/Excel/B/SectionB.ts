@@ -1,10 +1,11 @@
 import type ExcelJS from "exceljs";
+import { toString } from "lodash";
 
 import { IF, STR_EQ, REQUIRED, TEXT_MAX, AND, LIST_FORMULA, DATE_NOT_BEFORE_TODAY } from "@/utils";
 
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-import columns, { BKeys } from "./Columns";
+import { COLUMNS, BKeys } from "./Columns";
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.name": 100,
@@ -39,7 +40,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     super({
       id: "B",
       sheetName: SectionB.SHEET_NAME,
-      columns,
+      columns: COLUMNS,
       headerColor: "D9EAD3",
       characterLimits: DEFAULT_CHARACTER_LIMITS,
       deps,
@@ -348,55 +349,57 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
   ): RecursivePartial<QuestionnaireData> {
     const funding: Funding[] =
       (data.get("study.funding.agency")?.map((agency, index) => ({
-        agency,
-        grantNumbers: data.get("study.funding.grantNumbers")?.[index],
-        nciProgramOfficer: data.get("study.funding.nciProgramOfficer")?.[index],
+        agency: toString(agency).trim(),
+        grantNumbers: toString(data.get("study.funding.grantNumbers")?.[index]).trim(),
+        nciProgramOfficer: toString(data.get("study.funding.nciProgramOfficer")?.[index]).trim(),
       })) as Funding[]) || [];
 
     const publications: Publication[] =
       (data.get("study.publications.title")?.map((title, index) => ({
-        title,
-        pubmedID: data.get("study.publications.pubmedID")?.[index],
-        DOI: data.get("study.publications.DOI")?.[index],
+        title: toString(title).trim(),
+        pubmedID: toString(data.get("study.publications.pubmedID")?.[index]).trim(),
+        DOI: toString(data.get("study.publications.DOI")?.[index]).trim(),
       })) as Publication[]) || [];
 
     const plannedPublications: PlannedPublication[] =
       (data.get("study.plannedPublications.title")?.map((title, index) => ({
-        title,
-        expectedDate: data.get("study.plannedPublications.expectedDate")?.[index],
+        title: toString(title).trim(),
+        expectedDate: toString(data.get("study.plannedPublications.expectedDate")?.[index]).trim(),
       })) as PlannedPublication[]) || [];
 
     const repositories: Repository[] =
       (data.get("study.repositories.name")?.map((name, index) => ({
-        name,
-        studyID: data.get("study.repositories.studyID")?.[index],
-        dataTypesSubmitted: String(data.get("study.repositories.dataTypesSubmitted")[index]).split(
-          " | "
-        ),
-        otherDataTypesSubmitted: data.get("study.repositories.otherDataTypesSubmitted")?.[index],
+        name: toString(name).trim(),
+        studyID: toString(data.get("study.repositories.studyID")?.[index]).trim(),
+        dataTypesSubmitted: String(data.get("study.repositories.dataTypesSubmitted")?.[index])
+          .split("|")
+          .map((item) => item.trim()),
+        otherDataTypesSubmitted: toString(
+          data.get("study.repositories.otherDataTypesSubmitted")?.[index]
+        ).trim(),
       })) as Repository[]) || [];
 
     // Match program name to get the _id
     const programColB = deps.programSheet.getColumn(2);
     let programId: string;
     programColB.eachCell((cell, rowNumber) => {
-      const name = String(cell.value || "").trim();
-      if (name === data.get("program._id")[0]) {
-        programId = String(deps.programSheet.getCell(`A${rowNumber}`).value || "").trim();
+      const name = toString(cell.value).trim();
+      if (name === toString(data.get("program._id")?.[0])) {
+        programId = toString(deps.programSheet.getCell(`A${rowNumber}`).value).trim();
       }
     });
 
-    const questionnairedata: RecursivePartial<QuestionnaireData> = {
+    const questionnaireData: RecursivePartial<QuestionnaireData> = {
       program: {
         _id: programId,
-        name: data.get("program.name")[0] as unknown as string,
-        abbreviation: data.get("program.abbreviation")[0] as unknown as string,
-        description: data.get("program.description")[0] as unknown as string,
+        name: toString(data.get("program.name")?.[0]).trim(),
+        abbreviation: toString(data.get("program.abbreviation")?.[0]).trim(),
+        description: toString(data.get("program.description")?.[0]).trim(),
       },
       study: {
-        name: data.get("study.name")[0] as unknown as string,
-        abbreviation: data.get("study.abbreviation")[0] as string,
-        description: data.get("study.description")[0] as string,
+        name: toString(data.get("study.name")?.[0]).trim(),
+        abbreviation: toString(data.get("study.abbreviation")?.[0]).trim(),
+        description: toString(data.get("study.description")?.[0]).trim(),
         funding,
         publications,
         plannedPublications,
@@ -404,7 +407,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       },
     };
 
-    return questionnairedata;
+    return questionnaireData;
   }
 
   /**
@@ -432,3 +435,5 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     return cell || null;
   }
 }
+
+export { COLUMNS as SectionBColumns };
