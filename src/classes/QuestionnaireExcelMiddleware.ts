@@ -306,18 +306,25 @@ export class QuestionnaireExcelMiddleware {
     });
 
     if (newData?.get("devTier")?.[0] !== env.VITE_DEV_TIER) {
-      Logger.info(
-        `parseMetadata: devTier mismatch. Expected '${env.VITE_DEV_TIER}', got '${newData?.get(
-          "devTier"
-        )}'`
-      );
+      Logger.info("QuestionnaireExcelMiddleware: Received mismatched devTier.", {
+        expected: env.VITE_DEV_TIER,
+        received: newData?.get("devTier")?.[0],
+      });
     }
     if (newData?.get("templateVersion")?.[0] !== TEMPLATE_VERSION) {
-      Logger.info(
-        `parseMetadata: templateVersion mismatch. Expected '${TEMPLATE_VERSION}', got '${newData?.get(
-          "templateVersion"
-        )}'`
-      );
+      Logger.info("QuestionnaireExcelMiddleware: Received mismatched templateVersion.", {
+        expected: TEMPLATE_VERSION,
+        received: newData?.get("templateVersion")?.[0],
+      });
+    }
+    if (
+      newData?.get("submissionId")?.[0] &&
+      newData?.get("submissionId")?.[0] !== this.dependencies?.application?._id
+    ) {
+      Logger.info("QuestionnaireExcelMiddleware: Received mismatched submissionId.", {
+        expected: this.dependencies?.application?._id,
+        received: newData?.get("submissionId")?.[0],
+      });
     }
 
     return true;
