@@ -109,6 +109,24 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const startRow = 2;
     const [A2, B2, C2, D2, E2, F2, G2] = this.getRowCells(ws, startRow);
 
+    ws.addConditionalFormatting({
+      ref: "B2:D2",
+      rules: [
+        {
+          type: "expression",
+          formulae: ['AND($A2<>"Other", LEN(TRIM($A2))>0)'],
+          style: {
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              bgColor: { argb: "000000" },
+            },
+          },
+          priority: 1,
+        },
+      ],
+    });
+
     // Program
     // TODO: Fix when export the program is set to an ID instead of name causing the rest not to autofill
     A2.dataValidation = {
@@ -120,58 +138,50 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       ],
     };
 
-    // Autofill formulas for Program
-    const nameCol = `'${this.deps.programSheet.name}'!$B:$B`;
-    const abbreviationCol = `'${this.deps.programSheet.name}'!$C:$C`;
-    const descriptionCol = `'${this.deps.programSheet.name}'!$D:$D`;
-    const displayCol = `${this.deps.programSheet.name}!$E:$E`;
-
-    B2.value = {
-      formula: `IFERROR(INDEX(${nameCol}, MATCH(A2, ${displayCol}, 0)), "")`,
-    };
-    C2.value = {
-      formula: `IFERROR(INDEX(${abbreviationCol}, MATCH(A2, ${displayCol}, 0)), "")`,
-    };
-    D2.value = {
-      formula: `IFERROR(INDEX(${descriptionCol}, MATCH(A2, ${displayCol}, 0)), "")`,
-    };
-
+    // Program Name
     B2.dataValidation = {
       type: "custom",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
-      error: 'Required (max 100) unless Program is "Not Applicable".',
+      showInputMessage: true,
+      error: "Invalid operation.",
       formulae: [
         IF(
-          STR_EQ(A2, "Not Applicable"),
-          "TRUE",
-          AND(REQUIRED(B2), TEXT_MAX(B2, this.CHARACTER_LIMITS["program.name"]))
+          STR_EQ(A2, "Other"),
+          AND(REQUIRED("B2"), TEXT_MAX("B2", this.CHARACTER_LIMITS["program.name"])),
+          `LEN(TRIM(${"B2"}))=0`
         ),
       ],
     };
+
+    // Program Abbreviation
     C2.dataValidation = {
       type: "custom",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
-      error: 'Required (max 100) unless Program is "Not Applicable".',
+      showInputMessage: true,
+      error: "Invalid operation.",
       formulae: [
         IF(
-          STR_EQ(A2, "Not Applicable"),
-          "TRUE",
-          AND(REQUIRED(C2), TEXT_MAX(C2, this.CHARACTER_LIMITS["program.abbreviation"]))
+          STR_EQ(A2, "Other"),
+          AND(REQUIRED("C2"), TEXT_MAX("C2", this.CHARACTER_LIMITS["program.abbreviation"])),
+          `LEN(TRIM(${"C2"}))=0`
         ),
       ],
     };
+
+    // Program Description
     D2.dataValidation = {
       type: "custom",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
-      error: 'Required (max 500) unless Program is "Not Applicable".',
+      showInputMessage: true,
+      error: "Invalid operation.",
       formulae: [
         IF(
-          STR_EQ(A2, "Not Applicable"),
-          "TRUE",
-          AND(REQUIRED(D2), TEXT_MAX(D2, this.CHARACTER_LIMITS["program.description"]))
+          STR_EQ(A2, "Other"),
+          AND(REQUIRED("D2"), TEXT_MAX("D2", this.CHARACTER_LIMITS["program.description"])),
+          `LEN(TRIM(${"D2"}))=0`
         ),
       ],
     };
