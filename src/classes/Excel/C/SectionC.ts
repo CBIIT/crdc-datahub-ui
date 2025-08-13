@@ -1,6 +1,6 @@
 import type ExcelJS from "exceljs";
 
-import { IF, STR_EQ, AND, REQUIRED, TEXT_MAX, LIST_FORMULA } from "@/utils";
+import { IF, STR_EQ, AND, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
@@ -9,8 +9,8 @@ import { CKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS } from "./Columns";
 
 type SectionCDeps = {
   data: QuestionnaireData | null;
-  cancerTypes: ExcelJS.Worksheet;
-  species: ExcelJS.Worksheet;
+  cancerTypesSheet: ExcelJS.Worksheet;
+  speciesSheet: ExcelJS.Worksheet;
 };
 
 export class SectionC extends SectionBase<CKeys, SectionCDeps> {
@@ -112,7 +112,12 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
         allowBlank: true,
         showErrorMessage: true,
         formulae: [
-          LIST_FORMULA(this.deps.cancerTypes.name, "A", 1, this.deps.cancerTypes.rowCount || 1),
+          LIST_FORMULA(
+            this.deps.cancerTypesSheet.name,
+            "A",
+            1,
+            this.deps.cancerTypesSheet.rowCount || 1
+          ),
         ],
       };
     });
@@ -124,7 +129,9 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
         type: "list",
         allowBlank: true,
         showErrorMessage: true,
-        formulae: [LIST_FORMULA(this.deps.species.name, "A", 1, this.deps.species.rowCount || 1)],
+        formulae: [
+          LIST_FORMULA(this.deps.speciesSheet.name, "A", 1, this.deps.speciesSheet.rowCount || 1),
+        ],
       };
     });
     K.dataValidation = {
@@ -135,4 +142,78 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       formulae: [1, 2000000000],
     };
   }
+
+  public static mapValues(
+    data: Map<CKeys, Array<unknown>>,
+    deps: Partial<SectionCDeps>
+  ): RecursivePartial<QuestionnaireData> {
+    const { cancerTypesSheet, speciesSheet } = deps;
+    const validCancerList = new Set<string>();
+    if (!cancerTypesSheet || !cancerTypesSheet?.rowCount) {
+      Logger.error(`SectionC.ts: The cancer types sheet is missing or invalid.`);
+    } else {
+      cancerTypesSheet.eachRow((row) => {
+        validCancerList.add(row.getCell("A").value.toString().trim());
+      });
+    }
+
+    const validSpeciesList = new Set<string>();
+    if (!speciesSheet || !speciesSheet?.rowCount) {
+      Logger.error(`SectionC.ts: The species sheet is missing or invalid.`);
+    } else {
+      speciesSheet.eachRow((row) => {
+        validSpeciesList.add(row.getCell("A").value.toString().trim());
+      });
+    }
+
+    const accessTypes = [];
+    if (data.get("accessTypes.openAccess")?.[0] === "Yes") {
+      accessTypes.push("Open Access");
+    }
+    if (data.get("accessTypes.controlledAccess")?.[0] === "Yes") {
+      accessTypes.push("Controlled Access");
+    }
+
+    const isDbGapRegistered = data.get("study.isDbGapRegistered")?.[0] === "Yes";
+    const cancerTypes = new Set<string>();
+    data.get("cancerTypes")?.forEach((c: string) => {
+      if (!validCancerList.has(c?.trim())) {
+        return;
+      }
+
+      cancerTypes.add(c?.trim());
+    });
+
+    const species = new Set<string>();
+    data.get("species")?.forEach((s: string) => {
+      if (!validSpeciesList.has(s?.trim())) {
+        return;
+      }
+
+      species.add(s?.trim());
+    });
+
+    const numberOfParticipants = Number(data.get("numberOfParticipants")?.[0]) || 0;
+
+    return {
+      accessTypes,
+      study: {
+        isDbGapRegistered,
+        dbGaPPPHSNumber: isDbGapRegistered
+          ? (data.get("study.dbGaPPPHSNumber")?.[0] as string)?.trim()
+          : "",
+        GPAName: (data.get("study.GPAName")?.[0] as string)?.trim() || "",
+      },
+      cancerTypes: Array.from(cancerTypes),
+      otherCancerTypesEnabled: !!(data.get("otherCancerTypes")?.[0] as string)?.trim(),
+      otherCancerTypes: (data.get("otherCancerTypes")?.[0] as string) || "",
+      preCancerTypes: (data.get("preCancerTypes")?.[0] as string) || "",
+      species: Array.from(species),
+      otherSpeciesEnabled: !!(data.get("otherSpeciesOfSubjects")?.[0] as string)?.trim(),
+      otherSpeciesOfSubjects: (data.get("otherSpeciesOfSubjects")?.[0] as string) || "",
+      numberOfParticipants: numberOfParticipants > 0 ? numberOfParticipants : null,
+    };
+  }
 }
+
+export { COLUMNS as SectionCColumns };

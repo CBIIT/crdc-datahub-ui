@@ -1,6 +1,6 @@
 import type ExcelJS from "exceljs";
 
-import { AND, EMAIL, IF, LIST_FORMULA, ORCID, REQUIRED, STR_EQ, TEXT_MAX } from "@/utils";
+import { AND, EMAIL, IF, LIST_FORMULA, Logger, ORCID, REQUIRED, STR_EQ, TEXT_MAX } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
@@ -157,4 +157,70 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       this.applyTextLengthValidation(cell, DEFAULT_CHARACTER_LIMITS["additionalContacts.phone"]);
     });
   }
+
+  public static mapValues(
+    data: Map<AKeys, Array<unknown>>,
+    deps: Partial<SectionADeps>
+  ): RecursivePartial<QuestionnaireData> {
+    const { institutionSheet } = deps;
+    const institutionMap = new Map<string, string>();
+    if (!institutionSheet || !institutionSheet?.rowCount) {
+      Logger.error(`SectionA.ts: The institution sheet is missing or invalid.`);
+    } else {
+      institutionSheet.eachRow((row) => {
+        const institutionID = row.getCell("A").value.toString();
+        const institutionName = row.getCell("B").value.toString();
+        institutionMap.set(institutionName?.trim(), institutionID);
+      });
+    }
+
+    const piInstitution = (data.get("pi.institution")?.[0] as string)?.trim();
+    const pi: PI = {
+      firstName: data.get("pi.firstName")?.[0] as string,
+      lastName: data.get("pi.lastName")?.[0] as string,
+      position: data.get("pi.position")?.[0] as string,
+      email: data.get("pi.email")?.[0] as string,
+      ORCID: data.get("pi.ORCID")?.[0] as string,
+      institution: piInstitution,
+      institutionID: institutionMap.get(piInstitution) || null,
+      address: data.get("pi.address")?.[0] as string,
+    };
+
+    const piAsPrimaryContact = data.get("piAsPrimaryContact")?.[0] === "Yes";
+    const pcInstitution = (data.get("primaryContact.institution")?.[0] as string)?.trim();
+    const primaryContact: Contact = {
+      firstName: data.get("primaryContact.firstName")?.[0] as string,
+      lastName: data.get("primaryContact.lastName")?.[0] as string,
+      position: data.get("primaryContact.position")?.[0] as string,
+      email: data.get("primaryContact.email")?.[0] as string,
+      institution: pcInstitution,
+      institutionID: institutionMap.get(pcInstitution) || null,
+    };
+
+    const additionalContacts: Contact[] =
+      data.get("additionalContacts.firstName")?.map((firstName, index) => {
+        const contactInstitution = (
+          data.get("additionalContacts.institution")?.[index] as string
+        )?.trim();
+
+        return {
+          firstName: firstName as string,
+          lastName: data.get("additionalContacts.lastName")?.[index] as string,
+          position: data.get("additionalContacts.position")?.[index] as string,
+          email: data.get("additionalContacts.email")?.[index] as string,
+          institution: contactInstitution,
+          institutionID: institutionMap.get(contactInstitution) || null,
+          phone: data.get("additionalContacts.phone")?.[index] as string,
+        };
+      }) || [];
+
+    return {
+      pi,
+      piAsPrimaryContact,
+      primaryContact: piAsPrimaryContact ? null : primaryContact,
+      additionalContacts,
+    };
+  }
 }
+
+export { COLUMNS as SectionAColumns };

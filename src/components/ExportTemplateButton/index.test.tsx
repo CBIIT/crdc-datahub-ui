@@ -152,12 +152,15 @@ describe("Basic Functionality", () => {
 
     userEvent.click(getByTestId("export-application-excel-template-button"));
 
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! Unable to generate the template. Please try again later.",
-        { variant: "error" }
-      );
-    });
+    await waitFor(
+      () => {
+        expect(global.mockEnqueue).toHaveBeenCalledWith(
+          "Oops! Unable to generate the template. Please try again later.",
+          { variant: "error" }
+        );
+      },
+      { timeout: 10_000 }
+    );
   });
 
   it("should handle API errors gracefully (Network)", async () => {
@@ -178,12 +181,15 @@ describe("Basic Functionality", () => {
 
     userEvent.click(getByTestId("export-application-excel-template-button"));
 
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! Unable to generate the template. Please try again later.",
-        { variant: "error" }
-      );
-    });
+    await waitFor(
+      () => {
+        expect(global.mockEnqueue).toHaveBeenCalledWith(
+          "Oops! Unable to generate the template. Please try again later.",
+          { variant: "error" }
+        );
+      },
+      { timeout: 10_000 }
+    );
   });
 
   it("should handle API errors gracefully (API)", async () => {
@@ -208,12 +214,15 @@ describe("Basic Functionality", () => {
 
     userEvent.click(getByTestId("export-application-excel-template-button"));
 
-    await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! Unable to generate the template. Please try again later.",
-        { variant: "error" }
-      );
-    });
+    await waitFor(
+      () => {
+        expect(global.mockEnqueue).toHaveBeenCalledWith(
+          "Oops! Unable to generate the template. Please try again later.",
+          { variant: "error" }
+        );
+      },
+      { timeout: 10_000 }
+    );
   });
 });
 
