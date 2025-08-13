@@ -19,6 +19,8 @@ import BColumns from "./Excel/B/Columns";
 import { SectionB } from "./Excel/B/SectionB";
 import { SectionC, SectionCColumns } from "./Excel/C/SectionC";
 import { SectionD } from "./Excel/D/SectionD";
+import { MetaKeys } from "./Excel/Metadata/Columns";
+import { MetadataColumns, MetadataSection } from "./Excel/Metadata/MetadataSection";
 import { SectionCtxBase } from "./Excel/SectionBase";
 
 /**
@@ -125,6 +127,7 @@ export class QuestionnaireExcelMiddleware {
     middleware.workbook = workbook;
     middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
 
+    await middleware.parseMetadata();
     await middleware.parseSectionA();
     await middleware.parseSectionB();
     await middleware.parseSectionC();
@@ -150,55 +153,29 @@ export class QuestionnaireExcelMiddleware {
   /**
    * Builds the metadata page for the Excel workbook.
    *
-   * This page contains information such as:
-   * - Submission Request Information
-   * - Applicant Information
-   * - Development Tier
-   * - Template Version
-   * - Export Date
-   *
    * @returns A readonly reference to the created worksheet.
    */
   private async serializeMetadata(): Promise<Readonly<ExcelJS.Worksheet>> {
-    const { application } = this.dependencies;
-
-    const sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.meta, { state: "veryHidden" });
-    sheet.columns = [
-      { header: "Submission ID", key: "submissionId", width: 35, protection: { locked: true } },
-      { header: "Applicant", key: "applicantName", width: 30, protection: { locked: true } },
-      { header: "Applicant ID", key: "applicantId", width: 35, protection: { locked: true } },
-      { header: "Last Status", key: "lastStatus", width: 10, protection: { locked: true } },
-      { header: "Form Version", key: "formVersion", width: 15, protection: { locked: true } },
-      { header: "Created Date", key: "createdAt", width: 30, protection: { locked: true } },
-      { header: "Last Modified", key: "updatedAt", width: 30, protection: { locked: true } },
-      { header: "Tier", key: "devTier", width: 10, protection: { locked: true } },
-      {
-        header: "Template Version",
-        key: "templateVersion",
-        width: 15,
-        protection: { locked: true },
+    const ctx: SectionCtxBase = {
+      workbook: this.workbook,
+      u: {
+        header: (ws: ExcelJS.Worksheet, color?: string) => {
+          const r1 = ws.getRow(1);
+          r1.font = { bold: true };
+          r1.alignment = { horizontal: "center" };
+          r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+          ws.state = "veryHidden";
+        },
       },
-      { header: "Export Date", key: "exportedAt", width: 30, protection: { locked: true } },
-    ];
-
-    sheet.getRow(1).font = { bold: true };
-    sheet.getRow(1).alignment = { horizontal: "center" };
-    sheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "96ebff" } };
-
-    sheet.getRow(2).values = {
-      submissionId: application?._id,
-      applicantName: application?.applicant?.applicantName,
-      applicantId: application?.applicant?.applicantID,
-      lastStatus: application?.status,
-      formVersion: application?.version,
-      createdAt: application?.createdAt,
-      updatedAt: application?.updatedAt,
-      devTier: env.VITE_DEV_TIER || "N/A",
-      templateVersion: TEMPLATE_VERSION,
-      exportedAt: new Date().toISOString(),
     };
 
-    return sheet;
+    const metaSection = new MetadataSection({
+      application: this.dependencies.application,
+      templateVersion: TEMPLATE_VERSION,
+      devTier: env.VITE_DEV_TIER || "N/A",
+    });
+
+    return metaSection.serialize(ctx);
   }
 
   /**
@@ -304,6 +281,46 @@ export class QuestionnaireExcelMiddleware {
     const sheet = await sectionD.serialize(ctx);
 
     return sheet;
+  }
+
+  /**
+   * Parses the data from the metadata section.
+   *
+   * @returns A Promise that resolves to a boolean indicating success or failure of the parsing.
+   */
+  private async parseMetadata(): Promise<boolean> {
+    const sheet = this.workbook.getWorksheet(MetadataSection.SHEET_NAME);
+    if (!sheet) {
+      return false;
+    }
+
+    const data = await this.extractValuesFromWorksheet(sheet);
+    const newData = new Map<MetaKeys, Array<unknown>>();
+
+    data.forEach((values, key) => {
+      const colKey = MetadataColumns.find((col) => col.header === key)?.key;
+      newData.set(
+        colKey,
+        values.map((value) => String(value).trim())
+      );
+    });
+
+    if (newData?.get("devTier")?.[0] !== env.VITE_DEV_TIER) {
+      Logger.info(
+        `parseMetadata: devTier mismatch. Expected '${env.VITE_DEV_TIER}', got '${newData?.get(
+          "devTier"
+        )}'`
+      );
+    }
+    if (newData?.get("templateVersion")?.[0] !== TEMPLATE_VERSION) {
+      Logger.info(
+        `parseMetadata: templateVersion mismatch. Expected '${TEMPLATE_VERSION}', got '${newData?.get(
+          "templateVersion"
+        )}'`
+      );
+    }
+
+    return true;
   }
 
   /**
