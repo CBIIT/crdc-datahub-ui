@@ -364,6 +364,8 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
         : "",
       files,
       dataDeIdentified: toString(data.get("dataDeIdentified")?.[0]) === "Yes",
+      cellLines: toString(data.get("cellLines")?.[0]) === "Yes",
+      modelSystems: toString(data.get("modelSystems")?.[0]) === "Yes",
       submitterComment: toString(data.get("submitterComment")?.[0]).trim(),
     };
   }

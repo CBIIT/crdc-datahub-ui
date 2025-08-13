@@ -414,6 +414,37 @@ export class QuestionnaireExcelMiddleware {
 
     this.data = merge({}, this.data, result);
 
+    const hasProgramId = result?.program?._id?.length > 0;
+    const hasProgramName = result?.program?.name?.length > 0;
+    const hasProgramAbbreviation = result?.program?.abbreviation?.length > 0;
+    const hasStudyName = result?.study?.name?.length > 0;
+    const hasStudyAbbreviation = result?.study?.abbreviation?.length > 0;
+    const hasStudyDescription = result?.study?.description?.length > 0;
+    // SR form creates one funding entry by default
+    const hasFundingAgency = result?.study?.funding?.[0]?.agency;
+    const hasFundingGrantNumbers = result?.study?.funding?.[0]?.grantNumbers;
+    const hasFundingNciProgramOfficer = result?.study?.funding?.[0]?.nciProgramOfficer;
+    const hasPublications = result?.study?.publications?.length > 0;
+    const hasPlannedPublications = result?.study?.plannedPublications?.length > 0;
+    const hasRepositories = result?.study?.repositories?.length > 0;
+
+    const isStarted =
+      hasProgramId ||
+      hasProgramName ||
+      hasProgramAbbreviation ||
+      hasStudyName ||
+      hasStudyAbbreviation ||
+      hasStudyDescription ||
+      hasFundingAgency ||
+      hasFundingGrantNumbers ||
+      hasFundingNciProgramOfficer ||
+      hasPublications ||
+      hasPlannedPublications ||
+      hasRepositories;
+    this.data.sections.find((s) => s.name === "B").status = isStarted
+      ? "In Progress"
+      : "Not Started";
+
     return Promise.resolve(true);
   }
 
@@ -507,6 +538,30 @@ export class QuestionnaireExcelMiddleware {
     );
 
     this.data = merge({}, this.data, result);
+
+    const hasTargetedSubmissionDate = result?.targetedSubmissionDate?.length > 0;
+    const hasTargetedReleaseDate = result?.targetedReleaseDate?.length > 0;
+    const hasDataTypes = result?.dataTypes?.length > 0;
+    const hasOtherDataTypes = result?.otherDataTypes?.length > 0;
+    const hasFiles = result?.files?.length > 0;
+    const hasDataDeIdentified = !!result?.dataDeIdentified;
+    const hasSubmitterComment = result?.submitterComment?.length > 0;
+    const hasCellLines = !!result?.cellLines;
+    const hasModelSystems = !!result?.modelSystems;
+
+    const isStarted =
+      hasTargetedSubmissionDate ||
+      hasTargetedReleaseDate ||
+      hasDataTypes ||
+      hasOtherDataTypes ||
+      hasFiles ||
+      hasDataDeIdentified ||
+      hasSubmitterComment ||
+      hasCellLines ||
+      hasModelSystems;
+    this.data.sections.find((s) => s.name === "D").status = isStarted
+      ? "In Progress"
+      : "Not Started";
 
     return Promise.resolve(true);
   }
