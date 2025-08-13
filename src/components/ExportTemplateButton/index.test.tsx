@@ -16,7 +16,7 @@ import {
   GET_APPLICATION_FORM_VERSION,
   GetApplicationFormVersionResp,
 } from "@/graphql";
-import { render, waitFor } from "@/test-utils";
+import { render, waitFor, act } from "@/test-utils";
 
 import ExportTemplateButton from "./index";
 
@@ -24,6 +24,12 @@ const mockDownloadBlob = vi.fn();
 vi.mock("@/utils", async () => ({
   ...(await vi.importActual("@/utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
+}));
+
+vi.mock("@/classes/QuestionnaireExcelMiddleware", () => ({
+  QuestionnaireExcelMiddleware: vi.fn().mockImplementation(() => ({
+    serialize: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+  })),
 }));
 
 const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
@@ -152,15 +158,12 @@ describe("Basic Functionality", () => {
 
     userEvent.click(getByTestId("export-application-excel-template-button"));
 
-    await waitFor(
-      () => {
-        expect(global.mockEnqueue).toHaveBeenCalledWith(
-          "Oops! Unable to generate the template. Please try again later.",
-          { variant: "error" }
-        );
-      },
-      { timeout: 10_000 }
-    );
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! Unable to generate the template. Please try again later.",
+        { variant: "error" }
+      );
+    });
   });
 
   it("should handle API errors gracefully (Network)", async () => {
@@ -179,17 +182,17 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("export-application-excel-template-button"));
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      userEvent.click(getByTestId("export-application-excel-template-button"));
+    });
 
-    await waitFor(
-      () => {
-        expect(global.mockEnqueue).toHaveBeenCalledWith(
-          "Oops! Unable to generate the template. Please try again later.",
-          { variant: "error" }
-        );
-      },
-      { timeout: 10_000 }
-    );
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! Unable to generate the template. Please try again later.",
+        { variant: "error" }
+      );
+    });
   });
 
   it("should handle API errors gracefully (API)", async () => {
@@ -212,17 +215,17 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("export-application-excel-template-button"));
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      userEvent.click(getByTestId("export-application-excel-template-button"));
+    });
 
-    await waitFor(
-      () => {
-        expect(global.mockEnqueue).toHaveBeenCalledWith(
-          "Oops! Unable to generate the template. Please try again later.",
-          { variant: "error" }
-        );
-      },
-      { timeout: 10_000 }
-    );
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! Unable to generate the template. Please try again later.",
+        { variant: "error" }
+      );
+    });
   });
 });
 
@@ -283,7 +286,10 @@ describe("Implementation Requirements", () => {
 
     expect(button).toBeEnabled(); // Initial state
 
-    userEvent.click(button);
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      userEvent.click(button);
+    });
 
     await waitFor(() => {
       expect(button).toBeDisabled();
@@ -315,15 +321,12 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByTestId("export-application-excel-template-button"));
 
-    await waitFor(
-      () => {
-        expect(mockDownloadBlob).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.stringContaining("CRDC_Submission_Request_Template_v3.5_"),
-          "application/vnd.ms-excel"
-        );
-      },
-      { timeout: 10_000 }
-    );
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.stringContaining("CRDC_Submission_Request_Template_v3.5_"),
+        "application/vnd.ms-excel"
+      );
+    });
   });
 });
