@@ -10,9 +10,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import ExportApplicationButton from "@/components/ExportApplicationButton";
-import ImportApplicationButton from "@/components/ImportApplicationButton";
-
 import bannerPng from "../../assets/banner/submission_banner.png";
 import ChevronLeft from "../../assets/icons/chevron_left.svg?react";
 import ChevronRight from "../../assets/icons/chevron_right.svg?react";
@@ -673,12 +670,6 @@ const FormView: FC<Props> = ({ section }: Props) => {
           </StyledSidebar>
 
           <StyledContent direction="column" spacing={5}>
-            {/* TODO: temporary placement */}
-            <div>
-              <ImportApplicationButton />
-              <ExportApplicationButton />
-            </div>
-
             <StatusBar />
 
             <Section section={activeSection} refs={refs} />

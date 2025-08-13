@@ -1,8 +1,9 @@
 import { useLazyQuery } from "@apollo/client";
-import { Button, ButtonProps, styled } from "@mui/material";
+import { Box, Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
 import { memo, useState } from "react";
 
+import ExportIconSvg from "@/assets/icons/export_icon.svg?react";
 import { useFormContext } from "@/components/Contexts/FormContext";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import {
@@ -14,6 +15,42 @@ import {
   ListOrgsResp,
 } from "@/graphql";
 import { downloadBlob, Logger } from "@/utils";
+
+const StyledIconWrapper = styled(Box)({
+  width: "27px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  marginRight: "16px",
+});
+
+const StyledText = styled(Typography)({
+  fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
+  letterSpacing: "-0.25px",
+  fontWeight: 600,
+  fontSize: "16px",
+  color: "#136071",
+  lineHeight: "150%",
+
+  "&:hover": {
+    color: "#00819E",
+  },
+});
+
+const StyledStack = styled(Stack)({
+  margin: "0 !important",
+  width: "100%",
+});
+
+const StyledExportButton = styled(Button)({
+  justifyContent: "flex-start",
+  padding: "12px 14px",
+  marginRight: "auto",
+
+  "&:hover": {
+    background: "transparent",
+  },
+});
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -77,30 +114,32 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
   };
 
   return (
-    <StyledTooltip
-      title="Export the Submission Request to Excel."
-      placement="top"
-      data-testid="export-application-excel-tooltip"
-      disableInteractive
-      arrow
-    >
-      <span>
-        {/* TODO: Style based on design */}
-        <Button
-          variant="contained"
-          color="primary"
-          type="button"
-          onClick={onButtonClick}
-          disabled={disabled || downloading}
-          aria-label="Export application to Excel button"
-          data-testid="export-application-excel-button"
-          {...rest}
+    <StyledStack direction="row" alignItems="center" justifyContent="center">
+      <StyledIconWrapper>
+        <ExportIconSvg />
+      </StyledIconWrapper>
+
+      {/* TODO: Style based on design */}
+      <StyledExportButton
+        variant="text"
+        onClick={onButtonClick}
+        disabled={disabled || downloading}
+        aria-label="Export application to Excel button"
+        data-testid="export-application-excel-button"
+        {...rest}
+      >
+        <StyledTooltip
+          title="Export the Submission Request to Excel."
+          placement="top"
+          data-testid="export-application-excel-tooltip"
+          disableInteractive
+          arrow
         >
           {/* TODO: Rename based on US */}
-          Export
-        </Button>
-      </span>
-    </StyledTooltip>
+          <StyledText variant="body2">Export</StyledText>
+        </StyledTooltip>
+      </StyledExportButton>
+    </StyledStack>
   );
 };
 
