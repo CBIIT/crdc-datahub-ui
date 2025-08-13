@@ -365,8 +365,6 @@ export class QuestionnaireExcelMiddleware {
       ? "In Progress"
       : "Not Started";
 
-    console.log(this.data);
-
     return true;
   }
 
