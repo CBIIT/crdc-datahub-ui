@@ -26,6 +26,7 @@ import RejectFormDialog from "../../components/Questionnaire/RejectFormDialog";
 import SubmitFormDialog from "../../components/Questionnaire/SubmitFormDialog";
 import UnsavedChangesDialog from "../../components/Questionnaire/UnsavedChangesDialog";
 import StatusBar from "../../components/StatusBar/StatusBar";
+import StyledFormTooltip from "../../components/StyledFormComponents/StyledTooltip";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { hasPermission } from "../../config/AuthPermissions";
 import map, { InitialSections } from "../../config/SectionConfig";
@@ -122,6 +123,13 @@ const StyledExtendedLoadingButton = styled(StyledLoadingButton)({
   },
 });
 
+const StyledTooltip = styled(StyledFormTooltip)({
+  margin: "0 !important",
+  "& .MuiTooltip-tooltip": {
+    color: "#000000",
+  },
+});
+
 const validateSection = (section: string) => typeof map[section] !== "undefined";
 
 export type SaveForm =
@@ -177,6 +185,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
+  const shouldShowToolTip = isSectionD && !allSectionsComplete;
 
   const refs: FormSectionProps["refs"] = {
     getFormObjectRef: useRef<(() => FormObject) | null>(null),
@@ -716,22 +725,31 @@ const FormView: FC<Props> = ({ section }: Props) => {
               <CancelApplicationButton onCancel={handleOnCancel} />
 
               {activeSection !== "REVIEW" && (
-                <StyledLoadingButton
-                  id="submission-form-next-button"
-                  variant="contained"
-                  color="info"
-                  type="button"
-                  onClick={handleNextClick}
-                  disabled={
-                    status === FormStatus.SAVING ||
-                    !nextSection ||
-                    (isSectionD && !allSectionsComplete)
+                <StyledTooltip
+                  title={
+                    shouldShowToolTip
+                      ? "Click ‘Save’ to validate your answers. Once all pages are complete, you can proceed to the Review page to submit."
+                      : ""
                   }
-                  size="large"
-                  endIcon={<ChevronRight />}
+                  placement="top"
+                  arrow
+                  disableHoverListener={!shouldShowToolTip}
                 >
-                  Next
-                </StyledLoadingButton>
+                  <span>
+                    <StyledLoadingButton
+                      id="submission-form-next-button"
+                      variant="contained"
+                      color="info"
+                      type="button"
+                      onClick={handleNextClick}
+                      disabled={status === FormStatus.SAVING || !nextSection || shouldShowToolTip}
+                      size="large"
+                      endIcon={<ChevronRight />}
+                    >
+                      Next
+                    </StyledLoadingButton>
+                  </span>
+                </StyledTooltip>
               )}
 
               {activeSection === "REVIEW" && formMode === "Review" && (

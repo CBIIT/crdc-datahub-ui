@@ -977,26 +977,6 @@ describe("shouldDisableRelease", () => {
     }
   );
 
-  it.each<CrossSubmissionStatus>(["Passed"])(
-    "should allow release when crossSubmissionStatus is %s even if other submissions exist",
-    (status) => {
-      const result: ReleaseInfo = utils.shouldDisableRelease({
-        ...baseSubmission,
-        crossSubmissionStatus: status,
-        otherSubmissions: JSON.stringify({
-          "In Progress": ["ABC-123", "XYZ-456"],
-          Submitted: ["DEF-456", "GHI-789"],
-          Released: ["JKL-012", "MNO-345"],
-          Rejected: ["PQR-678", "STU-901"],
-          Withdrawn: ["VWX-234", "YZA-567"],
-        }),
-      });
-
-      expect(result.disable).toBe(false);
-      expect(result.requireAlert).toBe(false);
-    }
-  );
-
   it.each<CrossSubmissionStatus>([
     null,
     "New",
@@ -1070,5 +1050,39 @@ describe("shouldDisableRelease", () => {
 
     expect(result.disable).toBe(true);
     expect(result.requireAlert).toBe(false);
+  });
+
+  it("should not allow release without alert when cross validation status is 'Error' and there are In-Progress submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: "Error",
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: null,
+        Released: [],
+        Rejected: [],
+        Withdrawn: [],
+      }),
+    });
+
+    expect(result.disable).toBe(true);
+    expect(result.requireAlert).toBe(false);
+  });
+
+  it("should allow release with alert when cross validation status is 'Passed' and there are In-Progress submissions", () => {
+    const result: ReleaseInfo = utils.shouldDisableRelease({
+      ...baseSubmission,
+      crossSubmissionStatus: "Passed",
+      otherSubmissions: JSON.stringify({
+        "In Progress": ["ABC-123", "XYZ-456"],
+        Submitted: null,
+        Released: [],
+        Rejected: [],
+        Withdrawn: [],
+      }),
+    });
+
+    expect(result.disable).toBe(false);
+    expect(result.requireAlert).toBe(true);
   });
 });
