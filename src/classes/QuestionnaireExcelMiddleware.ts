@@ -15,10 +15,9 @@ import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
 
 import { SectionA, SectionAColumns } from "./Excel/A/SectionA";
-import BColumns from "./Excel/B/Columns";
-import { SectionB } from "./Excel/B/SectionB";
+import { SectionB, SectionBColumns } from "./Excel/B/SectionB";
 import { SectionC, SectionCColumns } from "./Excel/C/SectionC";
-import { SectionD } from "./Excel/D/SectionD";
+import { SectionD, SectionDColumns } from "./Excel/D/SectionD";
 import { MetaKeys } from "./Excel/Metadata/Columns";
 import { MetadataColumns, MetadataSection } from "./Excel/Metadata/MetadataSection";
 import { SectionCtxBase } from "./Excel/SectionBase";
@@ -131,6 +130,7 @@ export class QuestionnaireExcelMiddleware {
     await middleware.parseSectionA();
     await middleware.parseSectionB();
     await middleware.parseSectionC();
+    await middleware.parseSectionD();
 
     return middleware;
   }
@@ -397,7 +397,7 @@ export class QuestionnaireExcelMiddleware {
     const newData = new Map();
     // Swap the column headers for the column keys in the mapping
     data.forEach((values, key) => {
-      const colKey = BColumns.find((col) => col.header === key)?.key;
+      const colKey = SectionBColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
         values.map((value) => String(value).trim())
@@ -478,6 +478,37 @@ export class QuestionnaireExcelMiddleware {
       : "Not Started";
 
     return true;
+  }
+
+  private async parseSectionD(): Promise<boolean> {
+    const ws = this.workbook.getWorksheet(SectionD.SHEET_NAME);
+    if (!ws) {
+      Logger.info("parseSectionD: No sheet found for Section D");
+      return Promise.resolve(false);
+    }
+
+    const data = await this.extractValuesFromWorksheet(ws);
+    const newData = new Map();
+    // Swap the column headers for the column keys in the mapping
+    data.forEach((values, key) => {
+      const colKey = SectionDColumns.find((col) => col.header === key)?.key;
+      newData.set(
+        colKey,
+        values.map((value) => String(value).trim())
+      );
+    });
+    const newMapping = SectionD.mapValues(newData, {
+      programSheet: await this.createProgramsSheet(),
+    });
+
+    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
+      questionnaireDataSchema,
+      newMapping
+    );
+
+    this.data = merge({}, this.data, result);
+
+    return Promise.resolve(true);
   }
 
   /**
@@ -647,7 +678,7 @@ export class QuestionnaireExcelMiddleware {
       }
 
       row.eachCell((cell, colNumber) => {
-        const header = headers[colNumber];
+        const header = headers[colNumber - 1];
         if (!header) {
           // Invalid data, ignore
           return;

@@ -28,7 +28,7 @@ export type DKeys =
 
 const protection = { locked: true };
 
-const columns: ColumnDef<DKeys>[] = [
+export const COLUMNS: ColumnDef<DKeys>[] = [
   {
     header: "Targeted Data Submission Delivery Date",
     key: "targetedSubmissionDate",
@@ -168,5 +168,3 @@ const columns: ColumnDef<DKeys>[] = [
     protection,
   },
 ];
-
-export default columns;

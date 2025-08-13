@@ -1,13 +1,14 @@
 import type ExcelJS from "exceljs";
-import { union } from "lodash";
+import { union, toString, toSafeInteger } from "lodash";
 
+import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
 import { DATE_NOT_BEFORE_TODAY } from "@/utils";
 
 import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-import columns, { DKeys } from "./Columns";
+import { COLUMNS, DKeys } from "./Columns";
 
 /**
  * List of options for Yes/No validation.
@@ -31,7 +32,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     super({
       id: "D",
       sheetName: SectionD.SHEET_NAME,
-      columns,
+      columns: COLUMNS,
       headerColor: "D9EAD3",
       characterLimits: DEFAULT_CHARACTER_LIMITS,
       deps,
@@ -271,4 +272,101 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       formulae: [YesNoList],
     };
   }
+
+  public static mapValues(
+    data: Map<DKeys, Array<unknown>>,
+    _deps: Partial<SectionDDeps>
+  ): RecursivePartial<QuestionnaireData> {
+    const yesNoOptions = ["Yes", "No"];
+
+    // Extract data types
+    const dataTypes = [];
+    if (data.get("dataTypes.clinicalTrial")?.[0] === "Yes") {
+      dataTypes.push(DataTypes.clinicalTrial.name);
+    }
+    if (data.get("dataTypes.genomics")?.[0] === "Yes") {
+      dataTypes.push(DataTypes.genomics.name);
+    }
+    if (data.get("dataTypes.imaging")?.[0] === "Yes") {
+      dataTypes.push(DataTypes.imaging.name);
+    }
+    if (data.get("dataTypes.proteomics")?.[0] === "Yes") {
+      dataTypes.push(DataTypes.proteomics.name);
+    }
+
+    // Extract imaging data de-identification
+    const hasImagingDataType = dataTypes.includes(DataTypes.imaging.name);
+
+    let imagingDataDeIdentified: boolean | null = hasImagingDataType ? false : null;
+    const rawImagingDataDeIdentified = toString(data.get("imagingDataDeIdentified")?.[0]);
+    if (hasImagingDataType && yesNoOptions.includes(rawImagingDataDeIdentified)) {
+      imagingDataDeIdentified = rawImagingDataDeIdentified === "Yes";
+    }
+
+    // Extract clinical data types
+    const hasClinicalDataType = dataTypes.includes(DataTypes.clinicalTrial.name);
+
+    const clinicalDataTypes = [];
+    if (hasClinicalDataType && data.get("clinicalData.dataTypes.demographicData")?.[0] === "Yes") {
+      clinicalDataTypes.push(DataTypes.demographicData.name);
+    }
+    if (
+      hasClinicalDataType &&
+      data.get("clinicalData.dataTypes.relapseRecurrenceData")?.[0] === "Yes"
+    ) {
+      clinicalDataTypes.push(DataTypes.relapseRecurrenceData.name);
+    }
+    if (hasClinicalDataType && data.get("clinicalData.dataTypes.diagnosisData")?.[0] === "Yes") {
+      clinicalDataTypes.push(DataTypes.diagnosisData.name);
+    }
+    if (hasClinicalDataType && data.get("clinicalData.dataTypes.outcomeData")?.[0] === "Yes") {
+      clinicalDataTypes.push(DataTypes.outcomeData.name);
+    }
+    if (hasClinicalDataType && data.get("clinicalData.dataTypes.treatmentData")?.[0] === "Yes") {
+      clinicalDataTypes.push(DataTypes.treatmentData.name);
+    }
+    if (hasClinicalDataType && data.get("clinicalData.dataTypes.biospecimenData")?.[0] === "Yes") {
+      clinicalDataTypes.push(DataTypes.biospecimenData.name);
+    }
+
+    // Extract future data types
+    let futureDataTypes = false;
+    const rawFutureDataTypes = toString(data.get("clinicalData.futureDataTypes")?.[0]);
+    if (hasClinicalDataType && yesNoOptions.includes(rawFutureDataTypes)) {
+      futureDataTypes = rawFutureDataTypes === "Yes";
+    }
+
+    // Extract files
+    const files: FileInfo[] = [];
+    data.get("files.type")?.forEach((fileType) => {
+      if (fileType === "Other") {
+        files.push({
+          type: fileType,
+          count: toSafeInteger(data.get("files.count")?.[0]),
+          amount: toString(data.get("files.count")?.[0]).trim(),
+          extension: toString(data.get("files.count")?.[0]).trim(),
+        });
+      }
+    });
+
+    return {
+      targetedSubmissionDate: toString(data.get("targetedSubmissionDate")?.[0]).trim(),
+      targetedReleaseDate: toString(data.get("targetedReleaseDate")?.[0]).trim(),
+      dataTypes,
+      imagingDataDeIdentified,
+      clinicalData: {
+        dataTypes: clinicalDataTypes,
+        otherDataTypes: toString(data.get("otherDataTypes")?.[0]).trim(),
+        futureDataTypes,
+      },
+      otherDataTypes: hasClinicalDataType
+        ? toString(data.get("otherDataTypes")?.[0] as string).trim()
+        : "",
+      files,
+      dataDeIdentified: toString(data.get("dataDeIdentified")?.[0]) === "Yes",
+      submitterComment: toString(data.get("submitterComment")?.[0]).trim(),
+    };
+  }
 }
+
+export { COLUMNS as SectionDColumns };
