@@ -524,7 +524,7 @@ export class QuestionnaireExcelMiddleware {
       }
 
       row.eachCell((cell, colNumber) => {
-        const header = headers[colNumber - 1];
+        const header = headers[colNumber];
         if (!header) {
           // Invalid data, ignore
           return;
