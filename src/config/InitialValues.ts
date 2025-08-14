@@ -18,6 +18,7 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   programDescription: "",
   newInstitutions: [],
   version: "",
+  GPAName: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
@@ -61,11 +62,11 @@ export const InitialQuestionnaire: QuestionnaireData = {
         agency: "",
         grantNumbers: "",
         nciProgramOfficer: "",
-        nciGPA: "",
       },
     ],
     isDbGapRegistered: false,
     dbGaPPPHSNumber: "",
+    GPAName: "",
   },
   accessTypes: [],
   targetedSubmissionDate: "",

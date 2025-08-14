@@ -73,6 +73,7 @@ const CreateApplicationButton: FC<CreateApplicationButtonProps> = ({
             programAbbreviation: "",
             programDescription: "",
             newInstitutions: [],
+            GPAName: "",
           },
         },
       });

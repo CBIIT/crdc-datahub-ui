@@ -27,6 +27,7 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
         id
         name
       }
+      GPAName
     }
   }
 `;
@@ -86,6 +87,10 @@ export type Input = {
      * An array of new institutions in the form.
      */
     newInstitutions: Array<{ id: string; name: string }>;
+    /**
+     * The name of the Genomic Program Administrator
+     */
+    GPAName: string;
   };
 };
 

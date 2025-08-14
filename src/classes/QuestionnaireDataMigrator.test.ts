@@ -2,8 +2,10 @@ import { v4 } from "uuid";
 import { vi } from "vitest";
 
 import { contactFactory } from "@/factories/application/ContactFactory";
+import { fundingFactory } from "@/factories/application/FundingFactory";
 import { piFactory } from "@/factories/application/PIFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { studyFactory } from "@/factories/application/StudyFactory";
 import { institutionFactory } from "@/factories/institution/InstitutionFactory";
 import { Logger } from "@/utils/logger";
 
@@ -1186,4 +1188,223 @@ describe("_migrateExistingInstitutions", () => {
       );
     }
   );
+});
+
+describe("_migrateGPA", () => {
+  it("should migrate the first funding nciGPA found to GPAName and remove nciGPA from all funding objects", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: [
+          fundingFactory.build({ nciGPA: "", agency: "NCI" }),
+          fundingFactory.build({ nciGPA: null, agency: "NIH" }),
+          fundingFactory.build({ nciGPA: 123 as unknown as string, agency: "Other" }),
+          fundingFactory.build({ nciGPA: "GPA-11111", agency: "Other" }),
+        ],
+      }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result).not.toEqual(data);
+    expect(result.study.GPAName).toBe("GPA-11111");
+    expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
+    expect(result.study.funding[1]).not.toHaveProperty("nciGPA");
+    expect(result.study.funding[2]).not.toHaveProperty("nciGPA");
+    expect(result.study.funding[0].agency).toBe("NCI");
+    expect(result.study.funding[1].agency).toBe("NIH");
+    expect(result.study.funding[2].agency).toBe("Other");
+
+    expect(Logger.info).toHaveBeenCalledWith(
+      "_migrateGPA: Migrating GPA to study level",
+      expect.objectContaining({
+        study: expect.objectContaining({
+          funding: expect.arrayContaining([
+            expect.objectContaining({ agency: "NCI" }),
+            expect.objectContaining({ agency: "NIH" }),
+            expect.objectContaining({ agency: "Other" }),
+          ]),
+        }),
+      })
+    );
+  });
+
+  it("should handle empty nciGPA value by setting GPAName to empty string", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: [
+          fundingFactory.build({ nciGPA: "", agency: "NCI" }),
+          fundingFactory.build({ nciGPA: "", agency: "NIH" }),
+        ],
+      }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result.study.GPAName).toBe("");
+    expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
+    expect(result.study.funding[1]).not.toHaveProperty("nciGPA");
+  });
+
+  it("should handle null nciGPA value by setting GPAName to empty string", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: fundingFactory.build(1, { nciGPA: null, agency: "NCI" }),
+      }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result.study.GPAName).toBe("");
+    expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
+  });
+
+  it("should handle undefined nciGPA value by setting GPAName to empty string", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: fundingFactory.build(1, { agency: "NCI", nciGPA: undefined }),
+      }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result.study.GPAName).toBe("");
+    expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
+  });
+
+  it("should do nothing if no funding array exists", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({ funding: null }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result).toEqual(data);
+    expect(Logger.info).not.toHaveBeenCalled();
+  });
+
+  it("should do nothing if funding array is empty", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({ funding: [] }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result).toEqual(data);
+    expect(Logger.info).not.toHaveBeenCalled();
+  });
+
+  it("should do nothing if study is null", async () => {
+    const data = questionnaireDataFactory.build({ study: null });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result).toEqual(data);
+    expect(Logger.info).not.toHaveBeenCalled();
+  });
+
+  it("should do nothing if study is undefined", async () => {
+    const data = questionnaireDataFactory.build({ study: undefined });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result).toEqual(data);
+    expect(Logger.info).not.toHaveBeenCalled();
+  });
+
+  it("should preserve existing study properties while adding GPAName", async () => {
+    const data = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        name: "Test Study",
+        description: "A test study",
+        abbreviation: "should be preserved",
+        funding: fundingFactory.build(1, {
+          nciGPA: "GPA-98765",
+          agency: "NCI",
+          grantNumbers: "1a0x35b",
+        }),
+      }),
+    });
+
+    const migrator = new QuestionnaireDataMigrator(data, {
+      getInstitutions: mockGetInstitutions,
+      newInstitutions: [],
+      getLastApplication: mockGetLastApplication,
+    });
+
+    // @ts-expect-error Calling private helper function
+    await migrator._migrateGPA();
+    const result = migrator.getData();
+
+    expect(result.study.name).toBe("Test Study");
+    expect(result.study.description).toBe("A test study");
+    expect(result.study.abbreviation).toBe("should be preserved");
+    expect(result.study.GPAName).toBe("GPA-98765");
+    expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
+    expect(result.study.funding[0].agency).toBe("NCI");
+    expect(result.study.funding[0].grantNumbers).toBe("1a0x35b");
+  });
 });
