@@ -1,19 +1,35 @@
 import { useLazyQuery } from "@apollo/client";
-import { CloudDownload } from "@mui/icons-material";
-import { IconButtonProps, IconButton, styled } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  IconButtonProps,
+  IconButton,
+  styled,
+  Box,
+  ClickAwayListener,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import dayjs from "dayjs";
 import { useSnackbar } from "notistack";
 import { unparse } from "papaparse";
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 
+import CloseIconSvg from "@/assets/icons/close_icon.svg?react";
+import DownloadIconSvg from "@/assets/icons/download_icon.svg?react";
+import type { Column } from "@/components/GenericTable";
 import {
+  DOWNLOAD_ALL_RELEASED_NODES,
+  DownloadAllReleasedNodesResp,
+  DownloadAllReleaseNodesInput,
   LIST_RELEASED_DATA_RECORDS,
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
-} from "../../graphql";
-import { downloadBlob, fetchAllData, Logger } from "../../utils";
-import type { Column } from "../GenericTable";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+} from "@/graphql";
+import { downloadBlob, fetchAllData, Logger } from "@/utils";
 
 export type DataExplorerStudyExportProps = {
   /**
@@ -40,11 +56,59 @@ export type DataExplorerStudyExportProps = {
 } & IconButtonProps;
 
 const StyledIconButton = styled(IconButton)({
-  color: "#346798",
+  padding: 0,
+  paddingLeft: "3px",
+  marginLeft: "4px",
 });
 
-const StyledCloudDownload = styled(CloudDownload)({
-  fontSize: "31px",
+const StyledExpandMoreIcon = styled(ExpandMoreIcon)({
+  color: "#000",
+  fontSize: "18px",
+  alignSelf: "flex-end",
+});
+
+const StyledDownloadIcon = styled(DownloadIconSvg)({
+  color: "#346798",
+  width: "24px",
+  height: "24px",
+});
+
+const StyledPaper = styled(Paper)({
+  border: "1px solid #000000",
+  borderRadius: "8px",
+});
+
+const StyledMenuHeader = styled(Stack)({
+  position: "relative",
+  padding: "11px 17px",
+  paddingBottom: "0",
+});
+
+const StyledMenuTitle = styled(Typography)({
+  fontWeight: "700",
+  fontSize: "16px",
+  color: "#083A50",
+});
+
+const StyledPopperCloseButton = styled(IconButton)(() => ({
+  padding: "10px",
+  "& svg": {
+    color: "#44627C",
+  },
+}));
+
+const StyledMenuItem = styled(MenuItem)({
+  height: "50px",
+  borderTop: "1px solid #CCCCCC",
+  color: "#0A4A6D",
+  fontWeight: "500",
+});
+
+const StyledExportFormat = styled(Typography)({
+  fontSize: "9px",
+  color: "#0A4A6D",
+  fontWeight: "400",
+  marginLeft: "5px",
 });
 
 /**
@@ -59,11 +123,13 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
   nodeType,
   dataCommonsDisplayName,
   columns,
-  disabled,
   ...buttonProps
 }: DataExplorerStudyExportProps) => {
   const { enqueueSnackbar } = useSnackbar();
+
   const [loading, setLoading] = useState<boolean>(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const anchorRef = useRef<HTMLButtonElement>(null);
 
   const [listReleasedDataRecords] = useLazyQuery<
     ListReleasedDataRecordsResponse,
@@ -73,8 +139,29 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
     fetchPolicy: "cache-and-network",
   });
 
-  const handleClick = async () => {
+  const [downloadAllReleasedNodes] = useLazyQuery<
+    DownloadAllReleasedNodesResp,
+    DownloadAllReleaseNodesInput
+  >(DOWNLOAD_ALL_RELEASED_NODES, {
+    context: { clientName: "backend" },
+    fetchPolicy: "no-cache",
+  });
+
+  const handleToggle = () => {
+    setMenuOpen((prevOpen) => !prevOpen);
+  };
+
+  const handleClose = (event: Event | React.SyntheticEvent) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
+      return;
+    }
+
+    setMenuOpen(false);
+  };
+
+  const handleClickSelected = async () => {
     setLoading(true);
+    setMenuOpen(false);
 
     enqueueSnackbar("Downloading the requested metadata file. This may take a moment...", {
       variant: "default",
@@ -108,7 +195,7 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
 
       downloadBlob(unparse(finalData, { delimiter: "\t" }), filename, "text/tab-separated-values");
     } catch (err) {
-      Logger.error("Error during TSV generation", err);
+      Logger.error("Error during study TSV generation", err);
       enqueueSnackbar("Failed to generate the TSV for the selected node.", {
         variant: "error",
       });
@@ -117,24 +204,78 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
     }
   };
 
+  const handleClickFull = async () => {
+    setLoading(true);
+    setMenuOpen(false);
+
+    enqueueSnackbar("Downloading the requested metadata file. This may take a moment...", {
+      variant: "default",
+    });
+
+    try {
+      const { data, error } = await downloadAllReleasedNodes({
+        variables: { studyId },
+      });
+
+      if (error) {
+        throw error;
+      }
+      if (!data?.downloadAllReleasedNodes) {
+        throw new Error("Oops! The API did not return a download link.");
+      }
+
+      window.open(data.downloadAllReleasedNodes, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      Logger.error("Error during study download", err);
+      enqueueSnackbar(err?.message?.trim() || "Oops! Unable to download the study metadata.", {
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <StyledFormTooltip
-      title="Download displayed metadata in .tsv format"
-      data-testid="data-explorer-export-tooltip"
-      placement="top"
-    >
-      <span>
-        <StyledIconButton
-          onClick={handleClick}
-          disabled={loading || disabled}
-          data-testid="data-explorer-export-button"
-          aria-label="Export Node TSV"
-          {...buttonProps}
-        >
-          <StyledCloudDownload />
-        </StyledIconButton>
-      </span>
-    </StyledFormTooltip>
+    <Box>
+      <StyledIconButton
+        ref={anchorRef}
+        onClick={handleToggle}
+        aria-label="Export study metadata"
+        data-testid="export-study-metadata-toggle"
+        {...buttonProps}
+      >
+        <Stack direction="row">
+          <StyledDownloadIcon />
+          <StyledExpandMoreIcon />
+        </Stack>
+      </StyledIconButton>
+      <Popper open={menuOpen} anchorEl={anchorRef.current} placement="bottom-end">
+        <StyledPaper>
+          <StyledMenuHeader direction="row" alignItems="center" justifyContent="space-between">
+            <StyledMenuTitle variant="subtitle1">Available Downloads</StyledMenuTitle>
+            <StyledPopperCloseButton
+              aria-label="close"
+              data-testid="column-visibility-popper-close-button"
+              onClick={handleClose}
+            >
+              <CloseIconSvg />
+            </StyledPopperCloseButton>
+          </StyledMenuHeader>
+          <ClickAwayListener onClickAway={handleClose}>
+            <MenuList autoFocusItem={menuOpen}>
+              <StyledMenuItem onClick={handleClickSelected} disabled={loading}>
+                Download selected metadata
+                <StyledExportFormat>(TSV)</StyledExportFormat>
+              </StyledMenuItem>
+              <StyledMenuItem onClick={handleClickFull} disabled={loading}>
+                Download full study metadata
+                <StyledExportFormat>(TSV)</StyledExportFormat>
+              </StyledMenuItem>
+            </MenuList>
+          </ClickAwayListener>
+        </StyledPaper>
+      </Popper>
+    </Box>
   );
 };
 
