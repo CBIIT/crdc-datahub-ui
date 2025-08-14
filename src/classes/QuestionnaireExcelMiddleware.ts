@@ -34,7 +34,6 @@ const TEMPLATE_VERSION = "1.0";
  * Primarily used for hidden lists.
  */
 export const HIDDEN_SHEET_NAMES = {
-  meta: "Metadata",
   institutions: "InstitutionList",
   programs: "ProgramList",
   fileTypes: "FileTypeList",
