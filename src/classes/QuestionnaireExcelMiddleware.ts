@@ -27,7 +27,7 @@ import { SectionCtxBase } from "./Excel/SectionBase";
 /**
  * An internal template version identifier.
  */
-const TEMPLATE_VERSION = "1.0";
+export const TEMPLATE_VERSION = "1.0";
 
 /**
  * The names of the HIDDEN sheets used in the Excel workbook.
@@ -141,7 +141,7 @@ export class QuestionnaireExcelMiddleware {
   /**
    * Sets the metadata properties for the Excel workbook.
    *
-   * @returns Promise<void>
+   * @returns A Promise that resolves when the properties have been set.
    */
   private async setMetadataProperties(): Promise<void> {
     this.workbook.creator = "crdc-datahub-ui";
