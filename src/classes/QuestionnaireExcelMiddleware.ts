@@ -4,6 +4,7 @@ import { cloneDeep, merge, union, some, values } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
+import fundingOptions from "@/config/FundingConfig";
 import { InitialQuestionnaire } from "@/config/InitialValues";
 import { NotApplicableProgram, OtherProgram } from "@/config/ProgramConfig";
 import { InitialSections } from "@/config/SectionConfig";
@@ -38,6 +39,7 @@ export const HIDDEN_SHEET_NAMES = {
   fileTypes: "FileTypeList",
   cancerTypes: "CancerTypeList",
   speciesOptions: "SubjectSpeciesList",
+  fundingAgencies: "FundingAgencyList",
 } as const;
 
 /**
@@ -225,6 +227,7 @@ export class QuestionnaireExcelMiddleware {
     const sectionB = new SectionB({
       data: this.data as QuestionnaireData,
       programSheet: await this.createProgramsSheet(),
+      fundingAgenciesSheet: await this.createFundingAgencySheet(),
     });
 
     const sheet = await sectionB.serialize(ctx);
@@ -642,6 +645,21 @@ export class QuestionnaireExcelMiddleware {
       const allExtensions = union(...Object.values(fileTypeExtensions));
       allExtensions?.forEach((extension, index) => {
         sheet.getCell(`B${index + 1}`).value = extension;
+      });
+    }
+
+    return sheet;
+  }
+
+  private async createFundingAgencySheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.fundingAgencies);
+    if (!sheet) {
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.fundingAgencies, {
+        state: "veryHidden",
+      });
+
+      fundingOptions?.forEach((agency, index) => {
+        sheet.getCell(`A${index + 1}`).value = agency;
       });
     }
 

@@ -31,6 +31,7 @@ const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
 type SectionBDeps = {
   data: QuestionnaireData | null;
   programSheet: ExcelJS.Worksheet;
+  fundingAgenciesSheet: ExcelJS.Worksheet;
 };
 
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
@@ -234,6 +235,21 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     };
 
     // Funding
+    this.forEachCellInColumn(ws, "study.funding.agency", (cell) => {
+      cell.dataValidation = {
+        type: "list",
+        allowBlank: false,
+        showErrorMessage: false,
+        formulae: [
+          LIST_FORMULA(
+            this.deps.fundingAgenciesSheet.name,
+            "A",
+            1,
+            this.deps.fundingAgenciesSheet.rowCount || 1
+          ),
+        ],
+      };
+    });
     this.forEachCellInColumn(ws, "study.funding.grantNumbers", (cell) => {
       cell.dataValidation = {
         type: "textLength",
