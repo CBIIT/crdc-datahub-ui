@@ -28,6 +28,7 @@ const partialStudyProperties = [
   "dbGaPID",
   "controlledAccess",
   "pendingModelChange",
+  "isPendingGPA",
 ] satisfies (keyof ApprovedStudy)[];
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
@@ -62,6 +63,24 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     dbGaPID: "phsTEST",
     controlledAccess: null,
     pendingModelChange: true,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
+    _id: "pending-GPA-condition",
+    studyName: "study with pending GPA condition",
+    studyAbbreviation: "PGC",
+    dbGaPID: "phsTEST",
+    controlledAccess: true,
+    pendingModelChange: false,
+    isPendingGPA: true,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
+    _id: "pending-conditions",
+    studyName: "study with pending conditions",
+    studyAbbreviation: "PC",
+    dbGaPID: null,
+    controlledAccess: true,
+    pendingModelChange: true,
+    isPendingGPA: true,
   }),
 ];
 
@@ -1200,6 +1219,119 @@ describe("Implementation Requirements", () => {
     // Hover over the button parent span to trigger the tooltip
     const createButtonWrapper = createButton.parentElement as HTMLElement;
     userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("disables the Create button and shows a tooltip if the selected study has pending GPA condition", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending model changes study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-GPA-condition")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-GPA-condition"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /Data submissions cannot be created until the required GPA updates are provided./i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("disables the Create button and shows a tooltip with multiple pending conditions", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending model changes study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-conditions")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-conditions"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /Data submissions cannot be created until the required GPA updates are provided./i
+      )
+    ).toBeInTheDocument();
     expect(
       await findByText(
         /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
