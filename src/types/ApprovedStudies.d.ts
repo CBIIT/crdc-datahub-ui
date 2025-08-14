@@ -52,6 +52,10 @@ type ApprovedStudy = {
    */
   pendingModelChange: boolean;
   /**
+   * Indicates whether the study has a pending Genomic Program Administrator (GPA)
+   */
+  isPendingGPA: boolean;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;
