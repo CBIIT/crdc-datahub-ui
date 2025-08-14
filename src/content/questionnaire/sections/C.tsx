@@ -2,6 +2,7 @@ import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
 import { cloneDeep, merge } from "lodash";
 import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { useFormContext } from "../../../components/Contexts/FormContext";
 import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
@@ -18,6 +19,24 @@ import SectionMetadata from "../../../config/SectionMetadata";
 import speciesOptions from "../../../config/SpeciesConfig";
 import useFormMode from "../../../hooks/useFormMode";
 import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
+
+const StyledLink = styled(Link)({
+  color: "#005A9E",
+  fontSize: "16px",
+  fontWeight: 700,
+  lineHeight: "19.6px",
+  marginLeft: "10px",
+});
+
+const GPAList = () => (
+  <StyledLink
+    to="https://sharing.nih.gov/genomic-data-sharing-policy/resources/contacts-and-help#gds_support"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    View GPA List
+  </StyledLink>
+);
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400,
@@ -50,6 +69,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     data.study?.isDbGapRegistered
   );
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
+  const [GPAName, setGPAName] = useState<string>(data.study?.GPAName);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -172,6 +192,19 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
         />
+
+        <TextInput
+          id="section-c-genomic-program-administrator-name"
+          label="GPA Name"
+          labelEndAdornment={<GPAList />}
+          name="study[GPAName]"
+          value={GPAName}
+          onChange={(e) => setGPAName(e.target.value || "")}
+          placeholder="Enter GPA Name, if applicable"
+          tooltipText="Provide information on the Genomic Program Administrator (GPA) who registered the study on dbGaP."
+          gridWidth={12}
+          readOnly={readOnlyInputs}
+        />
       </SectionGroup>
 
       {/* Cancer Types Section */}
@@ -198,7 +231,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
           tooltipText='Enter additional Cancer Types, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherCancerTypesEnabled"
@@ -249,7 +282,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-other-species-of-subjects"
           label="Other Specie(s) involved"
           tooltipText='Enter additional Species, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherSpeciesEnabled"

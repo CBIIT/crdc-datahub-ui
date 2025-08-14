@@ -1,5 +1,5 @@
 import { LazyQueryExecFunction } from "@apollo/client";
-import { cloneDeep } from "lodash";
+import { cloneDeep, unset } from "lodash";
 import { validate as validateUUID } from "uuid";
 
 import { LastAppResp, ListInstitutionsResp } from "@/graphql";
@@ -51,6 +51,7 @@ export class QuestionnaireDataMigrator {
     await this._migrateExistingInstitutions();
     await this._migrateInstitutionsToID();
     await this._migrateInstitutionNames();
+    await this._migrateGPA();
 
     return this.data;
   }
@@ -202,5 +203,34 @@ export class QuestionnaireDataMigrator {
         contact.institutionID = apiData._id;
       }
     });
+  }
+
+  /**
+   * Migrates the outdated GPA field to new location in the questionnaireData.
+   */
+  private async _migrateGPA(): Promise<void> {
+    const fundingHasOutdatedProperty = this.data?.study?.funding?.some((f) =>
+      Object.hasOwn(f, "nciGPA")
+    );
+    if (!fundingHasOutdatedProperty) {
+      return;
+    }
+
+    Logger.info("_migrateGPA: Found outdated nciGPA field", cloneDeep(this.data.study.funding));
+
+    // Find first valid nciGPA and migrate it, if found
+    const fundingWithGPA = this.data.study.funding.find(
+      (f) => typeof f.nciGPA === "string" && f.nciGPA.trim().length > 0
+    );
+    if (fundingWithGPA) {
+      Logger.info("_migrateGPA: Migrating GPA to study level", this.data);
+      this.data.study = {
+        ...this.data.study,
+        GPAName: fundingWithGPA.nciGPA.trim() || "",
+      };
+    }
+
+    // Remove outdated nciGPA fields
+    this.data.study.funding.forEach((f) => unset(f, "nciGPA"));
   }
 }
