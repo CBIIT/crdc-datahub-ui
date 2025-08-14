@@ -32,6 +32,7 @@ type SectionBDeps = {
   data: QuestionnaireData | null;
   programSheet: ExcelJS.Worksheet;
   fundingAgenciesSheet: ExcelJS.Worksheet;
+  repositoryDataTypesSheet: ExcelJS.Worksheet;
 };
 
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
@@ -347,6 +348,31 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       };
     });
 
+    // Add header annotation
+    ws.getCell("R1").dataValidation = {
+      type: "custom",
+      allowBlank: false,
+      showInputMessage: true,
+      promptTitle: "Data Type(s) Submitted",
+      prompt:
+        "Pick from the dropdown or type multiple using the | separator (e.g. 'clinicalTrial | genomics | imaging').",
+      formulae: ["TRUE"],
+    };
+    this.forEachCellInColumn(ws, "study.repositories.dataTypesSubmitted", (cell) => {
+      cell.dataValidation = {
+        type: "list",
+        allowBlank: false,
+        showErrorMessage: false,
+        formulae: [
+          LIST_FORMULA(
+            this.deps.repositoryDataTypesSheet.name,
+            "A",
+            1,
+            this.deps.repositoryDataTypesSheet.rowCount || 1
+          ),
+        ],
+      };
+    });
     this.forEachCellInColumn(ws, "study.repositories.otherDataTypesSubmitted", (cell) => {
       cell.dataValidation = {
         type: "textLength",

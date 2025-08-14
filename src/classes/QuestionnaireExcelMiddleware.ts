@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { cloneDeep, merge, union, some, values } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
+import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
 import fundingOptions from "@/config/FundingConfig";
 import { InitialQuestionnaire } from "@/config/InitialValues";
@@ -40,6 +41,7 @@ export const HIDDEN_SHEET_NAMES = {
   cancerTypes: "CancerTypeList",
   speciesOptions: "SubjectSpeciesList",
   fundingAgencies: "FundingAgencyList",
+  repositoryDataTypes: "RepositoryDataTypeList",
 } as const;
 
 /**
@@ -228,6 +230,7 @@ export class QuestionnaireExcelMiddleware {
       data: this.data as QuestionnaireData,
       programSheet: await this.createProgramsSheet(),
       fundingAgenciesSheet: await this.createFundingAgencySheet(),
+      repositoryDataTypesSheet: await this.createRepositoryDataTypesSheet(),
     });
 
     const sheet = await sectionB.serialize(ctx);
@@ -697,6 +700,32 @@ export class QuestionnaireExcelMiddleware {
       });
 
       speciesOptions.forEach((file, index) => {
+        sheet.getCell(`A${index + 1}`).value = file;
+      });
+    }
+
+    return sheet;
+  }
+
+  /**
+   * Creates a hidden sheet containing the repository data types.
+   *
+   * @returns The created worksheet.
+   */
+  private async createRepositoryDataTypesSheet(): Promise<Readonly<ExcelJS.Worksheet>> {
+    let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.repositoryDataTypes);
+    if (!sheet) {
+      sheet = this.workbook.addWorksheet(HIDDEN_SHEET_NAMES.repositoryDataTypes, {
+        state: "veryHidden",
+      });
+
+      const repositoryDataTypeOptions = [
+        DataTypes.clinicalTrial.name,
+        DataTypes.genomics.name,
+        DataTypes.imaging.name,
+        DataTypes.proteomics.name,
+      ];
+      repositoryDataTypeOptions.forEach((file, index) => {
         sheet.getCell(`A${index + 1}`).value = file;
       });
     }
