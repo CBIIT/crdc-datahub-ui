@@ -119,8 +119,8 @@ const StyledOutlinedInput = styled(OutlinedInput, {
 
 type Props = {
   label?: string | ReactNode;
-  labelStartAddornment?: ReactNode;
-  labelEndAddornment?: ReactNode;
+  labelStartAdornment?: ReactNode;
+  labelEndAdornment?: ReactNode;
   infoText?: string;
   errorText?: string;
   tooltipText?: string | ReactNode;
@@ -148,8 +148,8 @@ const TextInput: FC<Props> = ({
   classes,
   value,
   label,
-  labelStartAddornment,
-  labelEndAddornment,
+  labelStartAdornment,
+  labelEndAdornment,
   required = false,
   gridWidth,
   maxLength,
@@ -229,7 +229,7 @@ const TextInput: FC<Props> = ({
     <StyledGridWrapper md={gridWidth || 6} xs={12} item>
       <StyledFormControl fullWidth error={error}>
         <StyledLabelWrapper>
-          {labelStartAddornment}
+          {labelStartAdornment}
           {label && (
             <StyledLabel htmlFor={id}>
               {label}
@@ -237,7 +237,7 @@ const TextInput: FC<Props> = ({
               {tooltipText && <Tooltip placement="right" title={tooltipText} />}
             </StyledLabel>
           )}
-          {labelEndAddornment}
+          {labelEndAdornment}
         </StyledLabelWrapper>
         <StyledOutlinedInput
           inputRef={inputRef}

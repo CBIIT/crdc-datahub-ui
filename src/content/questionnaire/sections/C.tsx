@@ -196,7 +196,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TextInput
           id="section-c-genomic-program-administrator-name"
           label="GPA Name"
-          labelEndAddornment={<GPAList />}
+          labelEndAdornment={<GPAList />}
           name="study[GPAName]"
           value={GPAName}
           onChange={(e) => setGPAName(e.target.value || "")}
@@ -231,7 +231,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
           tooltipText='Enter additional Cancer Types, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherCancerTypesEnabled"
@@ -282,7 +282,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-other-species-of-subjects"
           label="Other Specie(s) involved"
           tooltipText='Enter additional Species, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherSpeciesEnabled"
