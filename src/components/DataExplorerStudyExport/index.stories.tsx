@@ -9,7 +9,7 @@ import {
   LIST_RELEASED_DATA_RECORDS,
 } from "../../graphql";
 
-import Button, { DataExplorerExportButtonProps } from "./index";
+import Button, { DataExplorerStudyExportProps } from "./index";
 
 const mockSuccessResponse: MockedResponse<
   ListReleasedDataRecordsResponse,
@@ -49,7 +49,7 @@ const mockErrorResponse: MockedResponse<
   },
 };
 
-type CustomStoryProps = DataExplorerExportButtonProps;
+type CustomStoryProps = DataExplorerStudyExportProps;
 
 const meta: Meta<CustomStoryProps> = {
   title: "Data Explorer / Export Metadata Button",

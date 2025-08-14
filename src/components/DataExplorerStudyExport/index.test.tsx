@@ -10,7 +10,7 @@ import {
 } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 
-import DataExplorerExportButton, { DataExplorerExportButtonProps } from "./index";
+import DataExplorerStudyExport, { DataExplorerStudyExportProps } from "./index";
 
 const mockDownloadBlob = vi.fn();
 vi.mock("../../utils", async () => ({
@@ -29,7 +29,7 @@ const MockParent: React.FC<MockParentProps> = ({ mocks = [], children }) => (
   </MockedProvider>
 );
 
-const BaseProps: DataExplorerExportButtonProps = {
+const BaseProps: DataExplorerStudyExportProps = {
   studyId: "mock-study-id",
   studyDisplayName: "Mock Study",
   nodeType: "participant",
@@ -39,7 +39,7 @@ const BaseProps: DataExplorerExportButtonProps = {
 
 describe("Accessibility", () => {
   it("should have no accessibility violations", async () => {
-    const { container, getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { container, getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: MockParent,
     });
 
@@ -49,12 +49,9 @@ describe("Accessibility", () => {
   });
 
   it("should have no accessibility violations when disabled", async () => {
-    const { container, getByTestId } = render(
-      <DataExplorerExportButton {...BaseProps} disabled />,
-      {
-        wrapper: MockParent,
-      }
-    );
+    const { container, getByTestId } = render(<DataExplorerStudyExport {...BaseProps} disabled />, {
+      wrapper: MockParent,
+    });
 
     expect(getByTestId("data-explorer-export-button")).toBeDisabled(); // Sanity check
 
@@ -65,7 +62,7 @@ describe("Accessibility", () => {
 describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     expect(() =>
-      render(<DataExplorerExportButton {...BaseProps} />, { wrapper: MockParent })
+      render(<DataExplorerStudyExport {...BaseProps} />, { wrapper: MockParent })
     ).not.toThrow();
   });
 
@@ -82,7 +79,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -109,7 +106,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -140,7 +137,7 @@ describe("Basic Functionality", () => {
       error: new Error("Network error"),
     };
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -175,7 +172,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -213,7 +210,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -292,7 +289,7 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={mocks}>{children}</MockParent>,
     });
 
@@ -323,7 +320,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should be disabled when `disabled` prop is true", () => {
-    const { rerender, getByTestId } = render(<DataExplorerExportButton {...BaseProps} disabled />, {
+    const { rerender, getByTestId } = render(<DataExplorerStudyExport {...BaseProps} disabled />, {
       wrapper: MockParent,
     });
 
@@ -331,7 +328,7 @@ describe("Basic Functionality", () => {
 
     rerender(
       <MockParent>
-        <DataExplorerExportButton {...BaseProps} disabled={false} />
+        <DataExplorerStudyExport {...BaseProps} disabled={false} />
       </MockParent>
     );
 
@@ -354,7 +351,7 @@ describe("Basic Functionality", () => {
       delay: 1000,
     };
 
-    const { getByTestId } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
@@ -376,7 +373,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should have a tooltip on the button", async () => {
-    const { getByTestId, findByRole } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { getByTestId, findByRole } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: MockParent,
     });
 
@@ -395,7 +392,7 @@ describe("Implementation Requirements", () => {
 
   it.each<
     { expected: string; date: Date } & Pick<
-      DataExplorerExportButtonProps,
+      DataExplorerStudyExportProps,
       "studyDisplayName" | "nodeType"
     >
   >([
@@ -434,7 +431,7 @@ describe("Implementation Requirements", () => {
     async ({ expected, studyDisplayName, nodeType, date }) => {
       vi.useFakeTimers().setSystemTime(date);
 
-      const mockColumns: DataExplorerExportButtonProps["columns"] = [
+      const mockColumns: DataExplorerStudyExportProps["columns"] = [
         { label: "id", field: "id", renderValue: () => null },
         { label: "foo", field: "foo", renderValue: () => null },
       ];
@@ -455,7 +452,7 @@ describe("Implementation Requirements", () => {
       };
 
       const { getByTestId } = render(
-        <DataExplorerExportButton
+        <DataExplorerStudyExport
           {...BaseProps}
           studyDisplayName={studyDisplayName}
           nodeType={nodeType}
@@ -483,7 +480,7 @@ describe("Implementation Requirements", () => {
   );
 
   it("should only export the current visible columns", async () => {
-    const mockColumns: DataExplorerExportButtonProps["columns"] = [
+    const mockColumns: DataExplorerStudyExportProps["columns"] = [
       { label: "visible_col01", field: "visible_col01", renderValue: () => null },
       { label: "visible_col02", field: "visible_col02", renderValue: () => null },
     ];
@@ -512,7 +509,7 @@ describe("Implementation Requirements", () => {
     };
 
     const { getByTestId } = render(
-      <DataExplorerExportButton {...BaseProps} columns={mockColumns} />,
+      <DataExplorerStudyExport {...BaseProps} columns={mockColumns} />,
       {
         wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
       }
@@ -532,7 +529,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should handle columns not present in the data", async () => {
-    const mockColumns: DataExplorerExportButtonProps["columns"] = [
+    const mockColumns: DataExplorerStudyExportProps["columns"] = [
       { label: "col1", field: "col1", renderValue: () => null },
       { label: "col2", field: "col2", renderValue: () => null },
     ];
@@ -554,7 +551,7 @@ describe("Implementation Requirements", () => {
     };
 
     const { getByTestId } = render(
-      <DataExplorerExportButton {...BaseProps} columns={mockColumns} />,
+      <DataExplorerStudyExport {...BaseProps} columns={mockColumns} />,
       {
         wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
       }
@@ -574,7 +571,7 @@ describe("Implementation Requirements", () => {
 
 describe("Snapshots", () => {
   it("should match snapshot when enabled", () => {
-    const { container } = render(<DataExplorerExportButton {...BaseProps} />, {
+    const { container } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: MockParent,
     });
 
@@ -582,7 +579,7 @@ describe("Snapshots", () => {
   });
 
   it("should match snapshot when disabled", () => {
-    const { container } = render(<DataExplorerExportButton {...BaseProps} disabled />, {
+    const { container } = render(<DataExplorerStudyExport {...BaseProps} disabled />, {
       wrapper: MockParent,
     });
 
@@ -591,7 +588,7 @@ describe("Snapshots", () => {
 
   it("should match snapshot when hovered", async () => {
     const { container, getByTestId, findByRole } = render(
-      <DataExplorerExportButton {...BaseProps} />,
+      <DataExplorerStudyExport {...BaseProps} />,
       {
         wrapper: MockParent,
       }

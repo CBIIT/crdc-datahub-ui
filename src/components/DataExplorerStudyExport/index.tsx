@@ -15,7 +15,7 @@ import { downloadBlob, fetchAllData, Logger } from "../../utils";
 import type { Column } from "../GenericTable";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
-export type DataExplorerExportButtonProps = {
+export type DataExplorerStudyExportProps = {
   /**
    * The `_id` of the study to export data for.
    */
@@ -53,7 +53,7 @@ const StyledCloudDownload = styled(CloudDownload)({
  *
  * @returns The button to export the released metadata
  */
-const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
+const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
   studyId,
   studyDisplayName,
   nodeType,
@@ -61,7 +61,7 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
   columns,
   disabled,
   ...buttonProps
-}: DataExplorerExportButtonProps) => {
+}: DataExplorerStudyExportProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -138,4 +138,4 @@ const DataExplorerExportButton: React.FC<DataExplorerExportButtonProps> = ({
   );
 };
 
-export default memo<DataExplorerExportButtonProps>(DataExplorerExportButton);
+export default memo<DataExplorerStudyExportProps>(DataExplorerStudyExport);

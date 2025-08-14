@@ -6,8 +6,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 import bannerPng from "../../assets/banner/submission_banner.png";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import DataExplorerExportButton from "../../components/DataExplorerExportButton";
 import DataExplorerFilters, { FilterForm } from "../../components/DataExplorerFilters";
+import DataExplorerStudyExport from "../../components/DataExplorerStudyExport";
 import GenericTable, { Column } from "../../components/GenericTable";
 import ColumnVisibilityButton from "../../components/GenericTable/ColumnVisibilityButton";
 import { ColumnVisibilityPopperGroup } from "../../components/GenericTable/ColumnVisibilityPopper";
@@ -328,7 +328,7 @@ const StudyView: FC<StudyViewProps> = ({ _id: studyId }) => {
         onColumnVisibilityModelChange={setColumnVisibilityModel}
         data-testid="column-visibility-button"
       />,
-      <DataExplorerExportButton
+      <DataExplorerStudyExport
         key="export-data-action"
         studyId={studyId}
         studyDisplayName={studyDisplayName}
