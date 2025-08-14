@@ -1254,7 +1254,7 @@ describe("Implementation Requirements", () => {
       expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
     });
 
-    // Open the study select dropdown and select the pending model changes study
+    // Open the study select dropdown and select the pending GPA study
     const studySelectButton = within(
       getByTestId("create-data-submission-dialog-study-id-input")
     ).getByRole("button");
@@ -1308,7 +1308,7 @@ describe("Implementation Requirements", () => {
       expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
     });
 
-    // Open the study select dropdown and select the pending model changes study
+    // Open the study select dropdown and select the multiple pending conditions study
     const studySelectButton = within(
       getByTestId("create-data-submission-dialog-study-id-input")
     ).getByRole("button");
