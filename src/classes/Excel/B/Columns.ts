@@ -103,7 +103,7 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     protection,
   },
   {
-    header: "Publication Title",
+    header: "Planned Publication Title",
     key: "study.plannedPublications.title",
     width: 30,
     protection,
