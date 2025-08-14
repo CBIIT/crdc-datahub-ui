@@ -22,6 +22,10 @@ import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
 
 const StyledLink = styled(Link)({
   color: "#005A9E",
+  fontSize: "16px",
+  fontWeight: 700,
+  lineHeight: "19.6px",
+  marginLeft: "10px",
 });
 
 const GPAList = () => (
@@ -30,7 +34,7 @@ const GPAList = () => (
     target="_blank"
     rel="noopener noreferrer"
   >
-    GPA List
+    View GPA List
   </StyledLink>
 );
 
@@ -191,15 +195,14 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
         <TextInput
           id="section-c-genomic-program-administrator-name"
-          label={
-            <>
-              Genomic Program Administrator (<GPAList />)
-            </>
-          }
+          label="GPA Name"
+          labelEndAdornment={<GPAList />}
           name="study[GPAName]"
           value={GPAName}
           onChange={(e) => setGPAName(e.target.value || "")}
-          placeholder="Enter GPA name, if applicable"
+          placeholder="Enter GPA Name, if applicable"
+          tooltipText="Provide information on the Genomic Program Administrator (GPA) who registered the study on dbGaP."
+          gridWidth={12}
           readOnly={readOnlyInputs}
         />
       </SectionGroup>
@@ -228,7 +231,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
           tooltipText='Enter additional Cancer Types, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherCancerTypesEnabled"
@@ -279,7 +282,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-other-species-of-subjects"
           label="Other Specie(s) involved"
           tooltipText='Enter additional Species, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherSpeciesEnabled"

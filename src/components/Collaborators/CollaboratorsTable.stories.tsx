@@ -123,7 +123,7 @@ export const Editable: Story = {
     const c = within(canvasElement);
 
     const addBtn = await c.findByTestId("add-collaborator-button");
-    await expect(addBtn).not.toBeDisabled();
+    await waitFor(() => expect(addBtn).not.toBeDisabled());
 
     await userEvent.click(addBtn);
     const rows = await c.findAllByTestId(/collaborator-row-/);
@@ -147,7 +147,7 @@ export const MaxReached: Story = {
     const c = within(canvasElement);
 
     const addBtn = await c.findByTestId("add-collaborator-button");
-    await expect(addBtn).not.toBeDisabled();
+    await waitFor(() => expect(addBtn).not.toBeDisabled());
 
     new Array(NUM_COLLABORATORS - 1).fill(null).forEach(() => {
       userEvent.click(addBtn);
