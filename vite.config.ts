@@ -9,6 +9,7 @@ const testExcludes: string[] = [
   "src/**/*.stories.tsx",
   "src/test-utils/**",
   "src/vitest.global-setup.ts",
+  "src/schemas/**",
   "conf/**",
   "public/**",
 ];

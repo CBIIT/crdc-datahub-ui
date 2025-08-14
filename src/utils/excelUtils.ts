@@ -57,6 +57,7 @@ export const AND = (...xs: string[]) => `AND(${xs.join(",")})`;
  * OR("B1>5", "C1<3", "D1=0") // returns "OR(B1>5,C1<3,D1=0)"
  */
 export const OR = (...xs: string[]) => `OR(${xs.join(",")})`;
+
 /**
  * Negates a condition
  *
@@ -67,6 +68,7 @@ export const OR = (...xs: string[]) => `OR(${xs.join(",")})`;
  * NOT("ISBLANK(B1)") // returns "NOT(ISBLANK(B1))"
  */
 export const NOT = (x: string) => `NOT(${x})`;
+
 /**
  * Creates an IF formula
  *
