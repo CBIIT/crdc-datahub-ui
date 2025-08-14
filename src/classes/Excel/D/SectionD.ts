@@ -40,50 +40,51 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
   }
 
   protected write(_ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row[] {
+    const { data } = this.deps;
+    if (!data) {
+      return null;
+    }
+
     const startRow = 2;
     const rows = new Set<ExcelJS.Row>();
 
     const row = ws.getRow(startRow);
     this.setRowValues(ws, startRow, {
-      targetedSubmissionDate: this.deps.data?.targetedSubmissionDate || "",
-      targetedReleaseDate: this.deps.data?.targetedReleaseDate || "",
-      "dataTypes.clinicalTrial": toYesNo(
-        this.deps.data?.dataTypes?.includes("clinicalTrial") || false
-      ),
-      "dataTypes.genomics": toYesNo(this.deps.data?.dataTypes?.includes("genomics") || false),
-      "dataTypes.imaging": toYesNo(this.deps.data?.dataTypes?.includes("imaging") || false),
-      "dataTypes.proteomics": toYesNo(this.deps.data?.dataTypes?.includes("proteomics") || false),
-      imagingDataDeIdentified: toYesNo(this.deps.data?.imagingDataDeIdentified || null),
-      otherDataTypes: this.deps.data?.otherDataTypes || "",
+      targetedSubmissionDate: data?.targetedSubmissionDate || "",
+      targetedReleaseDate: data?.targetedReleaseDate || "",
+      "dataTypes.clinicalTrial": toYesNo(data?.dataTypes?.includes("clinicalTrial") || false),
+      "dataTypes.genomics": toYesNo(data?.dataTypes?.includes("genomics") || false),
+      "dataTypes.imaging": toYesNo(data?.dataTypes?.includes("imaging") || false),
+      "dataTypes.proteomics": toYesNo(data?.dataTypes?.includes("proteomics") || false),
+      imagingDataDeIdentified: toYesNo(data?.imagingDataDeIdentified || null),
+      otherDataTypes: data?.otherDataTypes || "",
       "clinicalData.dataTypes.demographicData": toYesNo(
-        this.deps.data?.clinicalData?.dataTypes?.includes("demographicData") || false
+        data?.clinicalData?.dataTypes?.includes("demographicData") || false
       ),
       "clinicalData.dataTypes.relapseRecurrenceData": toYesNo(
-        this.deps.data?.clinicalData?.dataTypes?.includes("relapseRecurrenceData") || false
+        data?.clinicalData?.dataTypes?.includes("relapseRecurrenceData") || false
       ),
       "clinicalData.dataTypes.diagnosisData": toYesNo(
-        this.deps.data?.clinicalData?.dataTypes?.includes("diagnosisData") || false
+        data?.clinicalData?.dataTypes?.includes("diagnosisData") || false
       ),
       "clinicalData.dataTypes.outcomeData": toYesNo(
-        this.deps.data?.clinicalData?.dataTypes?.includes("outcomeData") || false
+        data?.clinicalData?.dataTypes?.includes("outcomeData") || false
       ),
       "clinicalData.dataTypes.treatmentData": toYesNo(
-        this.deps.data?.clinicalData?.dataTypes?.includes("treatmentData") || false
+        data?.clinicalData?.dataTypes?.includes("treatmentData") || false
       ),
       "clinicalData.dataTypes.biospecimenData": toYesNo(
-        this.deps.data?.clinicalData?.dataTypes?.includes("biospecimenData") || false
+        data?.clinicalData?.dataTypes?.includes("biospecimenData") || false
       ),
-      "clinicalData.otherDataTypes": this.deps.data?.clinicalData?.otherDataTypes || "",
-      "clinicalData.futureDataTypes": toYesNo(
-        this.deps.data?.clinicalData?.futureDataTypes || false
-      ),
-      dataDeIdentified: toYesNo(this.deps.data?.dataDeIdentified || null),
-      cellLines: toYesNo(this.deps.data?.cellLines || false),
-      modelSystems: toYesNo(this.deps.data?.modelSystems || false),
+      "clinicalData.otherDataTypes": data?.clinicalData?.otherDataTypes || "",
+      "clinicalData.futureDataTypes": toYesNo(data?.clinicalData?.futureDataTypes || false),
+      dataDeIdentified: toYesNo(data?.dataDeIdentified || null),
+      cellLines: toYesNo(data?.cellLines || false),
+      modelSystems: toYesNo(data?.modelSystems || false),
     });
     rows.add(row);
 
-    const files = this.deps.data?.files || [];
+    const files = data?.files || [];
     files.forEach((f, index) => {
       this.setRowValues(ws, index + startRow, {
         "files.type": f.type || "",

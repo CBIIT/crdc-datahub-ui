@@ -50,11 +50,16 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
   }
 
   protected write(_ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row[] {
+    const { data } = this.deps;
+    if (!data) {
+      return null;
+    }
+
     const startRow = 2;
     const rows = new Set<ExcelJS.Row>();
 
     let foundProgramName = "";
-    const rawProgramId = this.deps.data?.program?._id;
+    const rawProgramId = data?.program?._id;
     const foundProgramCell = this.findProgramById(rawProgramId);
 
     // Use name if available
@@ -74,18 +79,16 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const row = ws.getRow(startRow);
     this.setRowValues(ws, startRow, {
       "program._id": foundProgramName,
-      "program.name": foundProgramName === "Other" ? this.deps.data?.program?.name || "" : "",
-      "program.abbreviation":
-        foundProgramName === "Other" ? this.deps.data?.program?.abbreviation || "" : "",
-      "program.description":
-        foundProgramName === "Other" ? this.deps.data?.program?.description || "" : "",
-      "study.name": this.deps.data?.study?.name || "",
-      "study.abbreviation": this.deps.data?.study?.abbreviation || "",
-      "study.description": this.deps.data?.study?.description || "",
+      "program.name": foundProgramName === "Other" ? data?.program?.name || "" : "",
+      "program.abbreviation": foundProgramName === "Other" ? data?.program?.abbreviation || "" : "",
+      "program.description": foundProgramName === "Other" ? data?.program?.description || "" : "",
+      "study.name": data?.study?.name || "",
+      "study.abbreviation": data?.study?.abbreviation || "",
+      "study.description": data?.study?.description || "",
     });
     rows.add(row);
 
-    const funding = this.deps.data?.study?.funding || [];
+    const funding = data?.study?.funding || [];
     funding.forEach((f, index) => {
       this.setRowValues(ws, index + startRow, {
         "study.funding.agency": f.agency || "",
@@ -95,7 +98,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       rows.add(ws.getRow(index + startRow));
     });
 
-    const publications = this.deps.data?.study?.publications || [];
+    const publications = data?.study?.publications || [];
     publications.forEach((p, index) => {
       this.setRowValues(ws, index + startRow, {
         "study.publications.title": p.title || "",
@@ -105,7 +108,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       rows.add(ws.getRow(index + startRow));
     });
 
-    const plannedPublications = this.deps.data?.study?.plannedPublications || [];
+    const plannedPublications = data?.study?.plannedPublications || [];
     plannedPublications.forEach((p, index) => {
       this.setRowValues(ws, index + startRow, {
         "study.plannedPublications.title": p.title || "",
@@ -114,7 +117,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       rows.add(ws.getRow(index + startRow));
     });
 
-    const repositories = this.deps.data?.study?.repositories || [];
+    const repositories = data?.study?.repositories || [];
     repositories.forEach((repo, index) => {
       this.setRowValues(ws, index + startRow, {
         "study.repositories.name": repo.name || "",
