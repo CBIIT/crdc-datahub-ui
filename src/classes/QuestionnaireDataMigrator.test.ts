@@ -1191,12 +1191,13 @@ describe("_migrateExistingInstitutions", () => {
 });
 
 describe("_migrateGPA", () => {
-  it("should migrate the first funding nciGPA to GPAName and remove nciGPA from only the first funding object", async () => {
+  it("should migrate the first funding nciGPA found to GPAName and remove nciGPA from all funding objects", async () => {
     const data = questionnaireDataFactory.build({
       study: studyFactory.build({
         funding: [
-          fundingFactory.build({ nciGPA: "GPA-12345", agency: "NCI" }),
-          fundingFactory.build({ nciGPA: "GPA-67890", agency: "NIH" }),
+          fundingFactory.build({ nciGPA: "", agency: "NCI" }),
+          fundingFactory.build({ nciGPA: null, agency: "NIH" }),
+          fundingFactory.build({ nciGPA: 123 as unknown as string, agency: "Other" }),
           fundingFactory.build({ nciGPA: "GPA-11111", agency: "Other" }),
         ],
       }),
@@ -1213,10 +1214,10 @@ describe("_migrateGPA", () => {
     const result = migrator.getData();
 
     expect(result).not.toEqual(data);
-    expect(result.study.GPAName).toBe("GPA-12345");
+    expect(result.study.GPAName).toBe("GPA-11111");
     expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
-    expect(result.study.funding[1]).toHaveProperty("nciGPA");
-    expect(result.study.funding[2]).toHaveProperty("nciGPA");
+    expect(result.study.funding[1]).not.toHaveProperty("nciGPA");
+    expect(result.study.funding[2]).not.toHaveProperty("nciGPA");
     expect(result.study.funding[0].agency).toBe("NCI");
     expect(result.study.funding[1].agency).toBe("NIH");
     expect(result.study.funding[2].agency).toBe("Other");
@@ -1240,7 +1241,7 @@ describe("_migrateGPA", () => {
       study: studyFactory.build({
         funding: [
           fundingFactory.build({ nciGPA: "", agency: "NCI" }),
-          fundingFactory.build({ nciGPA: "GPA-67890", agency: "NIH" }),
+          fundingFactory.build({ nciGPA: "", agency: "NIH" }),
         ],
       }),
     });
@@ -1257,7 +1258,7 @@ describe("_migrateGPA", () => {
 
     expect(result.study.GPAName).toBe("");
     expect(result.study.funding[0]).not.toHaveProperty("nciGPA");
-    expect(result.study.funding[1]).toHaveProperty("nciGPA");
+    expect(result.study.funding[1]).not.toHaveProperty("nciGPA");
   });
 
   it("should handle null nciGPA value by setting GPAName to empty string", async () => {
@@ -1318,10 +1319,7 @@ describe("_migrateGPA", () => {
     const result = migrator.getData();
 
     expect(result).toEqual(data);
-    expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateGPA: No GPA to migrate",
-      expect.objectContaining({ ...data })
-    );
+    expect(Logger.info).not.toHaveBeenCalled();
   });
 
   it("should do nothing if funding array is empty", async () => {
@@ -1340,10 +1338,7 @@ describe("_migrateGPA", () => {
     const result = migrator.getData();
 
     expect(result).toEqual(data);
-    expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateGPA: No GPA to migrate",
-      expect.objectContaining({ ...data })
-    );
+    expect(Logger.info).not.toHaveBeenCalled();
   });
 
   it("should do nothing if study is null", async () => {
@@ -1360,10 +1355,7 @@ describe("_migrateGPA", () => {
     const result = migrator.getData();
 
     expect(result).toEqual(data);
-    expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateGPA: No GPA to migrate",
-      expect.objectContaining({ ...data })
-    );
+    expect(Logger.info).not.toHaveBeenCalled();
   });
 
   it("should do nothing if study is undefined", async () => {
@@ -1380,10 +1372,7 @@ describe("_migrateGPA", () => {
     const result = migrator.getData();
 
     expect(result).toEqual(data);
-    expect(Logger.info).toHaveBeenCalledWith(
-      "_migrateGPA: No GPA to migrate",
-      expect.objectContaining({ ...data })
-    );
+    expect(Logger.info).not.toHaveBeenCalled();
   });
 
   it("should preserve existing study properties while adding GPAName", async () => {
