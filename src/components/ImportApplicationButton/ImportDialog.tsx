@@ -189,7 +189,7 @@ const ImportDialog = ({ disabled, onClose, onConfirm, open, ...rest }: Props): J
       >
         <CloseIconSvg />
       </StyledCloseDialogButton>
-      <StyledTitle variant="h3" data-testid="import-dialog-title">
+      <StyledTitle variant="h4" data-testid="import-dialog-title">
         Submission Request Form
       </StyledTitle>
       <StyledHeader variant="h3" data-testid="import-dialog-header">
@@ -214,6 +214,7 @@ const ImportDialog = ({ disabled, onClose, onConfirm, open, ...rest }: Props): J
         placeholder="Choose Excel Files"
         endAdornment={<StyledExcelSheetSvg />}
         onClick={onImportInputClick}
+        data-testid="import-dialog-file-input"
         readOnly
       />
 
