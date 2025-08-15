@@ -35,6 +35,7 @@ import StyledLabel from "../StyledFormComponents/StyledLabel";
 import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 import StyledSelect from "../StyledFormComponents/StyledSelect";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import TooltipList from "../SummaryList/TooltipList";
 import Tooltip from "../Tooltip";
 
 import RadioInput, { RadioOption } from "./RadioInput";
@@ -198,6 +199,12 @@ const StyledBellIcon = styled(BellIcon)({
   color: "#C94313",
 });
 
+const TOOLTIPS = {
+  pendingModelChange:
+    "The CRDC team is reviewing the data requirements of this study for potential data model changes. Data submissions cannot be created until any required model updates are released.",
+  pendingGPA: "Data submissions cannot be created until the required GPA updates are provided.",
+};
+
 type Props = {
   onCreate: () => void;
 };
@@ -265,13 +272,21 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     );
   }, [shouldFetchAllStudies, allStudies, user?.studies]);
 
-  const studyHasPendingConditions = useMemo<boolean>(() => {
+  const studyPendingConditions = useMemo<string[]>(() => {
     if (!studyID) {
-      return false;
+      return [];
     }
 
     const mappedStudy = studies?.find((s) => s?._id === studyID);
-    return mappedStudy?.pendingModelChange || false;
+
+    const conditions = [];
+    if (mappedStudy?.pendingModelChange) {
+      conditions.push(TOOLTIPS.pendingModelChange);
+    }
+    if (mappedStudy?.isPendingGPA) {
+      conditions.push(TOOLTIPS.pendingGPA);
+    }
+    return conditions;
   }, [studyID, studies]);
 
   const submissionTypeOptions: RadioOption[] = [
@@ -320,7 +335,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   };
 
   const onSubmit: SubmitHandler<CreateSubmissionInput> = async (input) => {
-    if (studyHasPendingConditions) {
+    if (studyPendingConditions?.length > 0) {
       return;
     }
 
@@ -583,10 +598,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
         </StyledDialogContent>
         <StyledDialogActions>
           <StyledTooltip
-            title="The CRDC team is reviewing the data requirements of this study for potential data model changes. Data submissions cannot be created until any required model updates are released."
+            title={<TooltipList data={studyPendingConditions} />}
             placement="top"
             open={undefined}
-            disableHoverListener={!studyHasPendingConditions}
+            disableHoverListener={!studyPendingConditions?.length}
             arrow
           >
             <span>
@@ -596,7 +611,9 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 data-testid="create-data-submission-dialog-create-button"
                 form="create-submission-dialog-form"
                 disabled={
-                  (isDbGapRequired && !dbGaPID) || studyHasPendingConditions || isSubmitting
+                  (isDbGapRequired && !dbGaPID) ||
+                  studyPendingConditions?.length > 0 ||
+                  isSubmitting
                 }
               >
                 Create
