@@ -116,10 +116,7 @@ const ImportApplicationButton = ({ disabled = false }: Props) => {
     dataTransfer?.items?.add(file);
 
     const dataTransferFile = dataTransfer?.files?.[0];
-    if (
-      !Object.hasOwn(dataTransferFile, "arrayBuffer") ||
-      typeof dataTransferFile?.arrayBuffer !== "function"
-    ) {
+    if (typeof dataTransferFile?.arrayBuffer !== "function") {
       Logger.error(
         `ImportApplicationButton: File does not have arrayBuffer method`,
         dataTransferFile
