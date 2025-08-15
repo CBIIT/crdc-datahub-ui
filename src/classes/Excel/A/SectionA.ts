@@ -213,6 +213,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       email: data.get("primaryContact.email")?.[0] as string,
       institution: pcInstitution,
       institutionID: institutionMap.get(pcInstitution) || null,
+      phone: data.get("primaryContact.phone")?.[0] as string,
     };
 
     const additionalContacts: Contact[] =
