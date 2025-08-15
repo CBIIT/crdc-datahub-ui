@@ -74,7 +74,7 @@ type Props = Omit<ButtonProps, "onClick">;
  * @param param Props for the button component.
  * @returns JSX.Element
  */
-const ImportApplicationButton = ({ disabled }: Props) => {
+const ImportApplicationButton = ({ disabled = false }: Props) => {
   const { palette } = useTheme();
   const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();

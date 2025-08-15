@@ -57,7 +57,7 @@ const TestParent: FC<ParentProps> = ({
           ...formCtxState?.data,
           _id: "application-1",
           history: historyEventFactory.build(1),
-          applicant: applicantFactory.build(),
+          applicant: applicantFactory.build({ applicantID: "current-user" }),
           newInstitutions: [],
           questionnaireData: questionnaireDataFactory.build(),
         }) as Application,
