@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
 import useFormMode from "@/hooks/useFormMode";
+import { Logger } from "@/utils";
 
 import { useFormContext } from "../Contexts/FormContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
@@ -79,7 +80,7 @@ const ImportApplicationButton = ({ disabled }: Props) => {
   const { readOnlyInputs } = useFormMode();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const shouldDisable = disabled || disableImportStatuses.includes(data.status) || readOnlyInputs;
+  const shouldDisable = disabled || disableImportStatuses.includes(data?.status) || readOnlyInputs;
 
   /**
    * Triggers the file input dialog.
@@ -114,8 +115,20 @@ const ImportApplicationButton = ({ disabled }: Props) => {
     const dataTransfer = new DataTransfer();
     dataTransfer?.items?.add(file);
 
+    const dataTransferFile = dataTransfer?.files?.[0];
+    if (
+      !Object.hasOwn(dataTransferFile, "arrayBuffer") ||
+      typeof dataTransferFile?.arrayBuffer !== "function"
+    ) {
+      Logger.error(
+        `ImportApplicationButton: File does not have arrayBuffer method`,
+        dataTransferFile
+      );
+      return;
+    }
+
     const newData = await QuestionnaireExcelMiddleware.parse(
-      await dataTransfer?.files?.[0]?.arrayBuffer(),
+      await dataTransferFile?.arrayBuffer(),
       {
         application: data,
       }
@@ -151,7 +164,9 @@ const ImportApplicationButton = ({ disabled }: Props) => {
             disableInteractive
             arrow
           >
-            <StyledText variant="body2">Import</StyledText>
+            <StyledText variant="body2" data-testid="import-application-excel-tooltip-text">
+              Import
+            </StyledText>
           </StyledTooltip>
         </StyledImportExportButton>
       </StyledStack>
