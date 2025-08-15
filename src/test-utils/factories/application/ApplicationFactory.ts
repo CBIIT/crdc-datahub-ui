@@ -23,7 +23,9 @@ export const baseApplication: Application = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  newInstitutions: [],
   version: "",
+  GPAName: "",
 };
 
 /**

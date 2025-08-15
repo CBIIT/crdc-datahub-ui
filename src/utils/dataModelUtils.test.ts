@@ -1,10 +1,14 @@
 import { Mock } from "vitest";
 
+import { MODEL_FILE_REPO } from "@/config/DataCommons";
 import { dataCommonFactory } from "@/factories/data-common/DataCommonFactory";
 import { manifestAssetsFactory } from "@/factories/data-common/ManifestAssetsFactory";
 import { modelNavigatorConfigFactory } from "@/factories/data-common/ModelNavigatorConfigFactory";
-
-import { MODEL_FILE_REPO } from "../config/DataCommons";
+import { modelDefinitionFactory } from "@/factories/mdf/ModelDefinitionFactory";
+import { modelDefinitionNodeFactory } from "@/factories/mdf/ModelDefinitionNodeFactory";
+import { modelDefinitionNodePropertyFactory } from "@/factories/mdf/ModelDefinitionNodePropertyFactory";
+import { modelDefinitionTermFactory } from "@/factories/mdf/ModelDefinitionTermFactory";
+import { RetrieveCDEsResp } from "@/graphql";
 
 import * as utils from "./dataModelUtils";
 
@@ -463,233 +467,469 @@ describe("buildFilterOptionsList tests", () => {
   });
 });
 
-describe("updateEnums", () => {
-  const cdeMap = new Map([
-    [
-      "program.program_name;11444542.1.00",
-      {
-        CDECode: "11444542",
-        CDEVersion: "1.00",
-        CDEOrigin: "caDSR",
-      },
-    ],
-  ]);
-
-  const dataList = {
-    program: {
-      properties: {
-        program_name: {
-          category: "program",
-          description:
-            "The name of the program under which related studies will be grouped, in full text and unabbreviated form, exactly as it will be displayed within the UI.",
-          type: "string",
-          src: "Internally-curated",
-          isIncludedInTemplate: true,
-          propertyType: "required",
-          display: "no",
-          enum: ["enum one", "enum two"],
-        },
-      },
+describe("populateCDEData tests", () => {
+  const mockData: RetrieveCDEsResp["retrieveCDEs"] = [
+    {
+      CDEFullName: "CDE Full Name 1",
+      CDECode: "CDECode1",
+      CDEVersion: "1.0",
+      PermissibleValues: ["Value1", "Value2"],
     },
-  };
+    {
+      CDEFullName: "CDE Full Name 2",
+      CDECode: "CDECode2",
+      CDEVersion: "2.0",
+      PermissibleValues: ["Value3", "Value4"],
+    },
+  ];
 
-  const CDEresponse = {
-    _id: "967c20fd-8980-44ec-aa3e-e9647e4f6b26",
-    CDEFullName: "Subject Legal Adult Or Pediatric Participant Type",
-    CDECode: "11444542",
-    CDEVersion: "1.00",
-    PermissibleValues: ["Pediatric", "Adult - legal age"],
-    createdAt: "2024-09-24T11:45:42.313Z",
-    updatedAt: "2024-09-24T11:45:42.313Z",
-  };
-
-  it("should update dataList with permissible values from the response", () => {
-    const response = [CDEresponse];
-
-    const result = utils.updateEnums(cdeMap, dataList, response);
-
-    expect(result.program.properties.program_name.enum).toEqual(["Pediatric", "Adult - legal age"]);
+  it.each<unknown>([null, undefined, {}])("should handle invalid input '%s' safely", (input) => {
+    expect(() => utils.populateCDEData(input as MDFDictionary, mockData)).not.toThrow();
   });
 
-  it("should convert the property to a string if the permissible values is an empty array", () => {
-    const response = [
+  it.each<Array<RetrieveCDEsResp["retrieveCDEs"]>>([[], null])(
+    "should handle invalid API data '%s' gracefully",
+    (apiData) => {
+      const dictionary = modelDefinitionFactory.build({
+        node1: modelDefinitionNodeFactory.build({
+          properties: {
+            property1: modelDefinitionNodePropertyFactory.build({
+              Term: modelDefinitionTermFactory.build(1, {
+                Code: "CDECode1",
+                Version: "1.0",
+              }),
+            }),
+          },
+        }),
+      });
+
+      expect(() => utils.populateCDEData(dictionary, apiData)).not.toThrow();
+    }
+  );
+
+  it("should handle nodes with no properties", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: null,
+      }),
+    });
+
+    expect(() => utils.populateCDEData(dictionary, mockData)).not.toThrow();
+  });
+
+  it.each([undefined, null])("should handle properties with invalid terms '%s'", (terms) => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: terms,
+          }),
+        },
+      }),
+    });
+
+    expect(() => utils.populateCDEData(dictionary, mockData)).not.toThrow();
+  });
+
+  it("should update the CDE Value (CDE Full Name) with API data", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "CDECode1",
+              Version: "1.0",
+              Origin: "caDSR",
+            }),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "CDECode2",
+              Version: "2.0",
+              Origin: "caDSR",
+            }),
+          }),
+        },
+      }),
+    });
+
+    utils.populateCDEData(dictionary, mockData);
+
+    expect(dictionary.node1.properties.property1.Term[0].Value).toBe("CDE Full Name 1");
+    expect(dictionary.node1.properties.property2.Term[0].Value).toBe("CDE Full Name 2");
+  });
+
+  it("should replace the enum with Permissible Values from API data", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "CDECode1",
+              Version: "1.0",
+              Origin: "caDSR",
+            }),
+            enum: ["OldValue1", "OldValue2"],
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "CDECode2",
+              Version: "2.0",
+              Origin: "caDSR",
+            }),
+            enum: ["OldValue3", "OldValue4"],
+          }),
+        },
+      }),
+    });
+
+    utils.populateCDEData(dictionary, mockData);
+
+    expect(dictionary.node1.properties.property1.enum).toEqual(["Value1", "Value2"]);
+    expect(dictionary.node1.properties.property2.enum).toEqual(["Value3", "Value4"]);
+  });
+
+  it("should change the type of the property to 'string' if the API returns an empty Permissible Values array", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          previously_enum: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "some-cde-code",
+              Version: "2.00",
+              Origin: "caDSR",
+            }),
+            type: "enum",
+            enum: ["Some value 1", "another value 2"],
+          }),
+          was_not_enum: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "another-cde-code",
+              Version: "3.00",
+              Origin: "caDSR",
+            }),
+            enum: undefined, // NOTE: explicitly not an enum
+            type: "list", // NOTE: explicitly a list
+          }),
+        },
+      }),
+    });
+
+    const emptyData: RetrieveCDEsResp["retrieveCDEs"] = [
       {
-        ...CDEresponse,
+        CDEFullName: "mock-value",
+        CDECode: "some-cde-code",
+        CDEVersion: "2.00",
+        PermissibleValues: [],
+      },
+      {
+        CDEFullName: "mock-value",
+        CDECode: "another-cde-code",
+        CDEVersion: "3.00",
         PermissibleValues: [],
       },
     ];
 
-    const result = utils.updateEnums(cdeMap, dataList, response);
+    utils.populateCDEData(dictionary, emptyData);
 
-    expect(result.program.properties.program_name.enum).not.toBeDefined();
-    expect(result.program.properties.program_name.type).toEqual("string");
+    // This was modified to be a string type
+    expect(dictionary.node1.properties.previously_enum.enum).not.toBeDefined();
+    expect(dictionary.node1.properties.previously_enum.type).toBe("string");
+
+    // This was not an enum, so it should remain unchanged
+    expect(dictionary.node1.properties.was_not_enum.enum).not.toBeDefined();
+    expect(dictionary.node1.properties.was_not_enum.type).toBe("list");
   });
 
-  it("should return the enum from mdf or undefined if none when permissable values is null", () => {
-    const response = [
+  it("should remove the enum if the API does not return CDE info for a property", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "this-exists",
+              Version: "1.0",
+              Origin: "caDSR",
+            }),
+            enum: ["value existing"],
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "NonExistentCode",
+              Version: "0.0",
+              Origin: "caDSR",
+            }),
+            enum: ["OldValue3", "OldValue4"],
+          }),
+          property3: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "BadVersionCode",
+              Version: "9.0.0",
+              Origin: "caDSR",
+            }),
+            enum: ["another value"],
+          }),
+        },
+      }),
+    });
+
+    const missingData: RetrieveCDEsResp["retrieveCDEs"] = [
       {
-        ...CDEresponse,
-        PermissibleValues: null,
+        CDEFullName: "mock name",
+        CDECode: "this-exists",
+        CDEVersion: "1.0",
+        PermissibleValues: ["valid value"],
+      },
+      {
+        CDEFullName: "we returned data but the code does not match",
+        CDECode: "BadVersionCode",
+        CDEVersion: "2.00", // NOTE: We need 9.0.0
+        PermissibleValues: ["another value"],
       },
     ];
 
-    const result = utils.updateEnums(cdeMap, dataList, response);
+    utils.populateCDEData(dictionary, missingData);
 
-    expect(result.program.properties.program_name.enum).toEqual(["enum one", "enum two"]);
-  });
+    // property1 should have its enum updated
+    expect(dictionary.node1.properties.property1.enum).toEqual(["valid value"]);
+    expect(dictionary.node1.properties.property1.Term[0].Value).toBe("mock name");
 
-  it("should populate the CDE details in the property regardless of the permissible values", () => {
-    const emptyPvResult = utils.updateEnums(cdeMap, dataList, [CDEresponse]);
-
-    expect(emptyPvResult.program.properties.program_name.CDEFullName).toEqual(
-      "Subject Legal Adult Or Pediatric Participant Type"
-    );
-    expect(emptyPvResult.program.properties.program_name.CDECode).toEqual("11444542");
-    expect(emptyPvResult.program.properties.program_name.CDEVersion).toEqual("1.00");
-    expect(emptyPvResult.program.properties.program_name.CDEOrigin).toEqual("caDSR");
-
-    const nullPvResult = utils.updateEnums(cdeMap, dataList, [
-      {
-        ...CDEresponse,
-        PermissibleValues: null,
-      },
+    // property2 should have its enum updated to the fallback value
+    // CDECode does not match, so enum should be removed
+    expect(dictionary.node1.properties.property2.enum).toEqual([
+      "Permissible values are currently not available. Please contact the CRDC Submission Portal HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
     ]);
 
-    expect(nullPvResult.program.properties.program_name.CDEFullName).toEqual(
-      "Subject Legal Adult Or Pediatric Participant Type"
-    );
-    expect(nullPvResult.program.properties.program_name.CDECode).toEqual("11444542");
-    expect(nullPvResult.program.properties.program_name.CDEVersion).toEqual("1.00");
-    expect(nullPvResult.program.properties.program_name.CDEOrigin).toEqual("caDSR");
+    // property3 should have its enum updated to the fallback value
+    // CDEVersion does not match, so enum should be removed
+    expect(dictionary.node1.properties.property3.enum).toEqual([
+      "Permissible values are currently not available. Please contact the CRDC Submission Portal HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
+    ]);
   });
 
-  // NOTE: this is a temporary solution until 3.2.0 supports alternate CDE origins
-  it("should populate the CDE Origin from the CDEMap provided by Model Navigator", () => {
-    const testMap = new Map([
-      [
-        "program.program_name;11444542.1.00",
-        {
-          CDECode: "11444542",
-          CDEVersion: "1.00",
-          CDEOrigin: "fake origin that is not caDSR",
+  it("should not remove the enum if the API does not return CDE info but the property does not have an enum", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "BadCodeWithNoEnum",
+              Version: "1.0",
+              Origin: "caDSR",
+            }),
+            enum: undefined, // NOTE: explicitly not an enum
+            type: "something",
+          }),
         },
-      ],
-    ]);
+      }),
+    });
 
-    const result = utils.updateEnums(testMap, dataList, [CDEresponse]);
+    const missingData: RetrieveCDEsResp["retrieveCDEs"] = [];
 
-    expect(result.program.properties.program_name.CDEOrigin).toEqual(
-      "fake origin that is not caDSR"
-    );
+    utils.populateCDEData(dictionary, missingData);
+
+    // property1 should be untouched since it does not have an enum
+    expect(dictionary.node1.properties.property1).toEqual({
+      ...modelDefinitionNodePropertyFactory.build({
+        Term: modelDefinitionTermFactory.build(1, {
+          Code: "BadCodeWithNoEnum",
+          Version: "1.0",
+          Origin: "caDSR",
+        }),
+        enum: undefined, // NOTE: explicitly not an enum
+        type: "something",
+      }),
+    });
   });
 
-  it("should apply fallback message when response is empty and apiError is true", () => {
-    const result = utils.updateEnums(cdeMap, dataList, [], true);
+  it("should not do anything if the CDE Origin is unsupported", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, {
+              Code: "CDECode-Unsupported",
+              Value: "MDF name",
+              Version: "1.0",
+              Origin: "Unsupported Origin",
+            }),
+          }),
+        },
+      }),
+    });
 
-    expect(result.program.properties.program_name.enum).toEqual([
-      "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-    ]);
+    const apiData: RetrieveCDEsResp["retrieveCDEs"] = [
+      {
+        CDEFullName: "Some full Name",
+        CDECode: "CDECode-Unsupported",
+        CDEVersion: "1.0",
+        PermissibleValues: ["valid value", "another value"],
+      },
+    ];
+
+    utils.populateCDEData(dictionary, apiData);
+
+    expect(dictionary.node1.properties.property1.Term[0].Value).toBe("MDF name");
+    expect(dictionary.node1.properties.property1.Term[0].Code).toBe("CDECode-Unsupported");
+    expect(dictionary.node1.properties.property1.Term[0].Version).toBe("1.0");
+    expect(dictionary.node1.properties.property1.Term[0].Origin).toBe("Unsupported Origin");
+    expect(dictionary.node1.properties.property1.enum).toBeUndefined(); // API data provided it, but it's unsupported
   });
 });
 
-describe("traverseAndReplace", () => {
-  const node = {
-    program: {
-      properties: {
-        program_name: {
-          category: "program",
-          description:
-            "The name of the program under which related studies will be grouped, in full text and unabbreviated form, exactly as it will be displayed within the UI.",
-          type: "string",
-          src: "Internally-curated",
-          isIncludedInTemplate: true,
-          propertyType: "required",
-          display: "no",
-          enum: ["enum one", "enum two"],
-        },
-      },
-    },
-  };
-
-  const resultMap = new Map([
-    [
-      "program.program_name;11524549.1.00",
-      {
-        _id: "967c20fd-8980-44ec-aa3e-e9647e4f6b26",
-        CDEFullName: "Subject Legal Adult Or Pediatric Participant Type",
-        CDECode: "11524549",
-        CDEVersion: "1.00",
-        CDEOrigin: "caDSR",
-        PermissibleValues: ["Pediatric", "Adult - legal age"],
-        createdAt: "2024-09-24T11:45:42.313Z",
-        updatedAt: "2024-09-24T11:45:42.313Z",
-      },
-    ],
-  ]);
-
-  const mapKeyPrefixes = new Map([["program.program_name", "program.program_name;11524549.1.00"]]);
-
-  it("should replace permissible values using mapKeyPrefixes", () => {
-    const mapKeyPrefixesNoValues = new Map();
-    const apiError = false;
-
-    utils.traverseAndReplace(node, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
-
-    expect(node.program.properties.program_name.enum).toEqual(["Pediatric", "Adult - legal age"]);
+describe("extractSupportedCDEs tests", () => {
+  it.each<unknown>([null, undefined, {}])("should handle invalid input '%s' safely", (input) => {
+    expect(() => utils.extractSupportedCDEs(input as MDFDictionary)).not.toThrow();
   });
 
-  it("should return the enum from mdf or undefined if there is no enum in the MDF", () => {
-    const resultMap = new Map();
-    const mapKeyPrefixes = new Map();
-    const mapKeyPrefixesNoValues = new Map([
-      ["program.program_name", "program.program_name;11524549.1.00"],
-    ]);
-    const thisNode = {
-      program: {
-        ...node.program,
+  it.each<unknown>([null, undefined, {}])(
+    "should handle nodes with invalid property definitions '%s'",
+    (input) => {
+      const dictionary = modelDefinitionFactory.build({
+        node1: modelDefinitionNodeFactory.build({
+          properties: input as MDFDictionary[number]["properties"],
+        }),
+      });
+
+      const result = utils.extractSupportedCDEs(dictionary);
+
+      expect(result).toEqual([]); // No CDEs should be extracted from invalid input
+    }
+  );
+
+  it("should extract all CDEs from a valid dictionary", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
         properties: {
-          ...node.program.properties,
-          program_name: {
-            ...node.program.properties.program_name,
-            enum: undefined,
-          },
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(5, (index) => ({
+              Code: `CDECode-${index}`,
+              Version: `1.0.${index}`,
+              Origin: "caDSR",
+            })),
+          }),
         },
-      },
-    };
-    const apiError = true;
+      }),
+      node2: modelDefinitionNodeFactory.build({
+        properties: {
+          prop_abc: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(2, (index) => ({
+              Code: `CDECode-${index}-Variant2`,
+              Version: `1.0.${index}`,
+              Origin: "Contains CADSR",
+            })),
+          }),
+        },
+      }),
+    });
 
-    utils.traverseAndReplace(thisNode, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
-
-    expect(thisNode.program.properties.program_name.enum).toEqual(undefined);
+    const result = utils.extractSupportedCDEs(dictionary);
+    expect(result).toEqual([
+      { CDECode: "CDECode-0", CDEVersion: "1.0.0", CDEOrigin: "caDSR" },
+      { CDECode: "CDECode-1", CDEVersion: "1.0.1", CDEOrigin: "caDSR" },
+      { CDECode: "CDECode-2", CDEVersion: "1.0.2", CDEOrigin: "caDSR" },
+      { CDECode: "CDECode-3", CDEVersion: "1.0.3", CDEOrigin: "caDSR" },
+      { CDECode: "CDECode-4", CDEVersion: "1.0.4", CDEOrigin: "caDSR" },
+      { CDECode: "CDECode-0-Variant2", CDEVersion: "1.0.0", CDEOrigin: "Contains CADSR" },
+      { CDECode: "CDECode-1-Variant2", CDEVersion: "1.0.1", CDEOrigin: "Contains CADSR" },
+    ]);
+    expect(result.length).toBe(7); // 5 from node1, 2 from node2
   });
 
-  it("should use fallback message when permissible values are empty and apiError is true", () => {
-    const resultMap = new Map();
-    const mapKeyPrefixes = new Map();
-    const mapKeyPrefixesNoValues = new Map([
-      ["program.program_name", "program.program_name;11524549.1.00"],
-    ]);
-    const apiError = true;
+  it("should deduplicate CDEs based on Code and Version", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(3, (index) => ({
+              Code: `CDECode-${index}`,
+              Version: `1.0.${index}`,
+              Origin: "caDSR",
+            })),
+          }),
+        },
+      }),
+      node2: modelDefinitionNodeFactory.build({
+        properties: {
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(3, (index) => ({
+              Code: `CDECode-${index}`,
+              Version: `1.0.${index}`,
+              Origin: "caDSR",
+            })),
+          }),
+        },
+      }),
+    });
 
-    utils.traverseAndReplace(node, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
-
-    expect(node.program.properties.program_name.enum).toEqual([
-      "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-    ]);
+    const result = utils.extractSupportedCDEs(dictionary);
+    expect(result.length).toBe(3); // 3 unique options between node1 and node2
   });
 
-  it("should use fallback message if resultMap has no matching entry", () => {
-    const resultMap = new Map();
-    const mapKeyPrefixes = new Map();
-    const mapKeyPrefixesNoValues = new Map([
-      ["program.program_name", "program.program_name;11524549.1.00"],
-    ]);
-    const apiError = false;
+  it("should only extract supported CDEs", () => {
+    const dictionary = modelDefinitionFactory.build({
+      node1: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Uppercase",
+              Version: "2.00",
+              Origin: "CADSR",
+            })),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Uppercase",
+              Version: "2.00",
+              Origin: "XYZ Prefix - CADSR",
+            })),
+          }),
+        },
+      }),
+      node2: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Correct-Casing",
+              Version: "1.50",
+              Origin: "caDSR",
+            })),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-With-Correct-Casing",
+              Version: "1.50",
+              Origin: "Prefix - caDSR",
+            })),
+          }),
+        },
+      }),
+      node3: modelDefinitionNodeFactory.build({
+        properties: {
+          property1: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-All-Lowercase",
+              Version: "15.00",
+              Origin: "cadsr",
+            })),
+          }),
+          property2: modelDefinitionNodePropertyFactory.build({
+            Term: modelDefinitionTermFactory.build(1, () => ({
+              Code: "CDE-All-Lowercase",
+              Version: "15.00",
+              Origin: "Prefix - cadsr",
+            })),
+          }),
+        },
+      }),
+    });
 
-    utils.traverseAndReplace(node, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
-
-    expect(node.program.properties.program_name.enum).toEqual([
-      "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
+    const result = utils.extractSupportedCDEs(dictionary);
+    expect(result.length).toBe(3);
+    expect(result).toEqual([
+      { CDECode: "CDE-With-Uppercase", CDEVersion: "2.00", CDEOrigin: "CADSR" },
+      { CDECode: "CDE-With-Correct-Casing", CDEVersion: "1.50", CDEOrigin: "caDSR" },
+      { CDECode: "CDE-All-Lowercase", CDEVersion: "15.00", CDEOrigin: "cadsr" },
     ]);
   });
 });

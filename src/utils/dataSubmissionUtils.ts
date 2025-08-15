@@ -199,33 +199,27 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
   const { crossSubmissionStatus, otherSubmissions } = submission || {};
   const parsedSubmissions = safeParse<OtherSubmissions>(otherSubmissions);
 
-  // Cross-validation has already occurred and passed, nothing else required
-  const shortCircuitStatuses: CrossSubmissionStatus[] = ["Passed"];
-  if (crossSubmissionStatus && shortCircuitStatuses.includes(crossSubmissionStatus)) {
-    return { disable: false, requireAlert: false };
+  // Scenario 1: Cross-validation has issues, disable release entirely
+  if (crossSubmissionStatus === "Error") {
+    return { disable: true, requireAlert: false };
   }
 
-  // Scenario 1: All other submissions are "In Progress", "Rejected", or "Withdrawn", allow release with alert
+  // Scenario 2: More than one other Submitted/Released submission exists, disable release entirely
   const hasRelatedSubmitted = parsedSubmissions?.Submitted?.length > 0;
   const hasRelatedReleased = parsedSubmissions?.Released?.length > 0;
 
+  if (hasRelatedSubmitted || hasRelatedReleased) {
+    return { disable: true, requireAlert: false };
+  }
+
+  // Scenario 3: All other submissions are "In Progress", "Rejected", or "Withdrawn", allow release with alert
   const hasRelatedInProgress = parsedSubmissions?.["In Progress"]?.length > 0;
   const hasRelatedRejected = parsedSubmissions?.Rejected?.length > 0;
   const hasRelatedWithdrawn = parsedSubmissions?.Withdrawn?.length > 0;
   const allowRelatedWithAlert = hasRelatedInProgress || hasRelatedRejected || hasRelatedWithdrawn;
 
-  if (!hasRelatedSubmitted && !hasRelatedReleased && allowRelatedWithAlert) {
+  if (allowRelatedWithAlert) {
     return { disable: false, requireAlert: true };
-  }
-
-  // Scenario 2: More than one other Submitted/Released submission exists, disable release entirely
-  if (hasRelatedSubmitted || hasRelatedReleased) {
-    return { disable: true, requireAlert: false };
-  }
-
-  // Scenario 3: Cross-validation has issues and no other Submitted/Released submission exists, disable release entirely
-  if (crossSubmissionStatus === "Error") {
-    return { disable: true, requireAlert: false };
   }
 
   // Scenario 0: No restrictions, allow release

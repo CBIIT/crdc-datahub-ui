@@ -37,6 +37,14 @@ type Application = {
    */
   programDescription: string;
   /**
+   * The new institutions present in the form
+   */
+  newInstitutions: Array<{ id: string; name: string }>;
+  /**
+   * The name of the Genomic Program Administrator
+   */
+  GPAName: string;
+  /**
    * The current form version
    */
   version: string;
@@ -102,24 +110,30 @@ type ClinicalData = {
   futureDataTypes: boolean;
 };
 
-type PI = {
-  firstName: string;
-  lastName: string;
-  position: string;
-  email: string;
-  ORCID: string;
-  institution: string;
-  address: string;
-};
-
 type Contact = {
   position: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  institution?: string;
+  /**
+   * The institution name for the contact.
+   *
+   * @deprecated This is a legacy field and should only be used when the institutionID is not available.
+   */
+  institution: string;
+  /**
+   * The UUID of the institution for the contact.
+   *
+   * @since 3.4.0
+   */
+  institutionID: string;
 };
+
+type PI = {
+  ORCID: string;
+  address: string;
+} & Omit<Contact, "phone">;
 
 type ProgramInput = Partial<Pick<Organization, "_id" | "name" | "abbreviation" | "description">>;
 
@@ -133,6 +147,7 @@ type Study = {
   funding: Funding[];
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
+  GPAName: string;
 };
 
 type Repository = {
@@ -164,7 +179,13 @@ type Funding = {
   agency: string;
   grantNumbers: string;
   nciProgramOfficer: string;
-  nciGPA: string;
+  /**
+   * The name of the NCI Genomic Program Administrator
+   *
+   * @deprecated Use `GPAName` instead.
+   * @see Study
+   */
+  nciGPA?: string;
 };
 
 type HistoryEvent = HistoryBase<ApplicationStatus>;

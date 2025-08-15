@@ -1,5 +1,10 @@
-import { Box, Stack, styled, Typography } from "@mui/material";
-import React, { memo } from "react";
+import { useQuery } from "@apollo/client";
+import { Box, Skeleton, Stack, styled, Typography } from "@mui/material";
+import React, { memo, useMemo } from "react";
+
+import Repeater from "@/components/Repeater";
+import { RETRIEVE_OMB_DETAILS, RetrieveOMBDetailsResp } from "@/graphql";
+import { FormatDate, Logger } from "@/utils";
 
 const StyledBox = styled(Box)({
   padding: "20px",
@@ -33,42 +38,99 @@ const StyledContent = styled(Typography)({
 });
 
 /**
- * Handles the rendering of the Privacy Act Notification Statement (PANS) banner.
- *
- * @returns {React.FC}
+ * Loading placeholder component for the PANS banner
  */
-const PansBanner: React.FC = (): React.ReactNode => (
-  <StyledBox>
+const PansBannerLoading: React.FC = () => (
+  <StyledBox data-testid="pans-banner-skeleton">
     <StyledHeaderStack>
-      <StyledApprovalNumber variant="h1" data-testid="pans-approval-number">
-        OMB No.: 0925-7775
-      </StyledApprovalNumber>
-      <StyledExpirationDate variant="h2" data-testid="pans-expiration">
-        Expiration Date: 06/30/2025
-      </StyledExpirationDate>
+      <Skeleton
+        variant="text"
+        width={160}
+        height={19}
+        data-testid="pans-approval-number-skeleton"
+      />
+      <Skeleton variant="text" width={180} height={19} data-testid="pans-expiration-skeleton" />
     </StyledHeaderStack>
-    <StyledContent>
-      Collection of this information is authorized by The Public Health Service Act, Section 411 (42
-      USC 285a). Rights of participants are protected by The Privacy Act of 1974. Participation is
-      voluntary, and there are no penalties for not participating or withdrawing at any time.
-      Refusal to participate will not affect your benefits in any way. The information collected
-      will be kept private to the extent provided by law. Names and other identifiers will not
-      appear in any report. Information provided will be combined for all participants and reported
-      as summaries. You are being contacted online to complete this form so that NCI can consider
-      your study for submission into the Cancer Research Data Commons.
-      <br />
-      <br />
-      Public reporting burden for this collection of information is estimated to average 60 minutes
-      per response, including the time for reviewing instructions, searching existing data sources,
-      gathering and maintaining the data needed, and completing and reviewing the collection of
-      information. An agency may not conduct or sponsor, and a person is not required to respond to,
-      a collection of information unless it displays a currently valid OMB control number. Send
-      comments regarding this burden estimate or any other aspect of this collection of information,
-      including suggestions for reducing this burden to: NIH, Project Clearance Branch, 6705
-      Rockledge Drive, MSC 7974, Bethesda, MD 20892-7974, ATTN: PRA (0925-7775). Do not return the
-      completed form to this address.
-    </StyledContent>
+    <div data-testid="pans-content-skeleton">
+      <Repeater count={3}>
+        <Skeleton variant="text" width="100%" height={18} />
+      </Repeater>
+      <Skeleton variant="text" width="90%" height={18} />
+      <Skeleton variant="text" width={0} height={18} />
+      <Repeater count={4}>
+        <Skeleton variant="text" width="100%" height={18} />
+      </Repeater>
+      <Skeleton variant="text" width="80%" height={18} />
+    </div>
   </StyledBox>
 );
+
+/**
+ * Handles the rendering of the Privacy Act Notification Statement (PANS) banner.
+ *
+ * @returns The PANS banner component containing the OMB approval number, expiration date, and content.
+ */
+const PansBanner: React.FC = (): React.ReactNode => {
+  const { data, loading, error } = useQuery<RetrieveOMBDetailsResp>(RETRIEVE_OMB_DETAILS, {
+    fetchPolicy: "cache-first",
+    context: { clientName: "backend" },
+    onError: (e) => {
+      Logger.error("Error fetching OMB details for PANS banner", e);
+    },
+  });
+
+  const formattedDate = useMemo<string>(() => {
+    if (!data?.getOMB?.expirationDate) {
+      return "N/A";
+    }
+
+    return FormatDate(data.getOMB.expirationDate, "MM/DD/YYYY", "N/A", false);
+  }, [data?.getOMB?.expirationDate]);
+
+  const paragraphs = useMemo<React.ReactNode | null>(() => {
+    if (!data?.getOMB?.OMBInfo?.length) {
+      return null;
+    }
+
+    const { OMBInfo } = data.getOMB;
+    return OMBInfo.map((paragraph, index) => (
+      <React.Fragment key={paragraph}>
+        {paragraph}
+        {index < OMBInfo.length - 1 && (
+          <Repeater count={2}>
+            <br />
+          </Repeater>
+        )}
+      </React.Fragment>
+    ));
+  }, [data?.getOMB?.OMBInfo]);
+
+  if (loading) {
+    return <PansBannerLoading />;
+  }
+
+  if (
+    error ||
+    !data?.getOMB?.OMBNumber ||
+    !data?.getOMB?.expirationDate ||
+    !data?.getOMB?.OMBInfo?.length
+  ) {
+    return null;
+  }
+
+  return (
+    <StyledBox data-testid="pans-banner">
+      <StyledHeaderStack>
+        <StyledApprovalNumber variant="h1" data-testid="pans-approval-number">
+          OMB No.: {data?.getOMB.OMBNumber}
+        </StyledApprovalNumber>
+        <StyledExpirationDate variant="h2" data-testid="pans-expiration">
+          Expiration Date: {formattedDate}
+        </StyledExpirationDate>
+      </StyledHeaderStack>
+      <StyledContent data-testid="pans-content">{paragraphs}</StyledContent>
+    </StyledBox>
+  );
+};
 
 export default memo(PansBanner);

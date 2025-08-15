@@ -412,7 +412,7 @@ type SubmitButtonResult = {
 /**
  * Represents the permissions a collaborator can have in a submission
  */
-type CollaboratorPermissions = "Can Edit";
+type CollaboratorPermissions = "Can Edit" | "No Access";
 
 /**
  * Represents a submitter that can view and edit another submitter's submission

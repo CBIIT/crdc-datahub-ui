@@ -16,7 +16,9 @@ export const InitialApplication: Omit<Application, "questionnaireData"> = {
   pendingConditions: [],
   programAbbreviation: "",
   programDescription: "",
+  newInstitutions: [],
   version: "",
+  GPAName: "",
 };
 
 export const InitialQuestionnaire: QuestionnaireData = {
@@ -28,6 +30,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     email: "",
     ORCID: "",
     institution: "",
+    institutionID: "",
     address: "",
   },
   piAsPrimaryContact: false,
@@ -38,6 +41,7 @@ export const InitialQuestionnaire: QuestionnaireData = {
     phone: "",
     position: "",
     institution: "",
+    institutionID: "",
   },
   additionalContacts: [],
   program: {
@@ -58,11 +62,11 @@ export const InitialQuestionnaire: QuestionnaireData = {
         agency: "",
         grantNumbers: "",
         nciProgramOfficer: "",
-        nciGPA: "",
       },
     ],
     isDbGapRegistered: false,
     dbGaPPPHSNumber: "",
+    GPAName: "",
   },
   accessTypes: [],
   targetedSubmissionDate: "",

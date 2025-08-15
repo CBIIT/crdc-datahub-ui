@@ -475,7 +475,9 @@ const GenericTable = <T,>(
 
   return (
     <StyledTableContainer {...containerProps}>
-      {(!paramsInitialized || showDelayedLoading) && <SuspenseLoader fullscreen={false} />}
+      {(!paramsInitialized || showDelayedLoading) && (
+        <SuspenseLoader fullscreen={false} data-testid="generic-table-suspense-loader" />
+      )}
       {(position === "top" || position === "both") && (
         <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
       )}
@@ -517,10 +519,10 @@ const GenericTable = <T,>(
               </TableRow>
             </TableHeadComponent>
           )}
-          <TableBody>
+          <TableBody data-testid="generic-table-body">
             {(!paramsInitialized || showDelayedLoading) && (total === 0 || !data?.length)
               ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
-                  <StyledTableRow key={`loading_row_${idx}`}>
+                  <StyledTableRow key={`loading_row_${idx}`} data-testid="loading-row">
                     <TableCell colSpan={columns?.length} />
                   </StyledTableRow>
                 ))
@@ -528,7 +530,7 @@ const GenericTable = <T,>(
                   // eslint-disable-next-line @typescript-eslint/dot-notation
                   const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
                   return (
-                    <TableRow tabIndex={-1} hover key={itemKey}>
+                    <TableRow tabIndex={-1} hover key={itemKey} data-testid="generic-table-row">
                       {columns?.map((col: Column<T>) => (
                         <TableBodyCellComponent
                           key={`${itemKey}_${col.label}`}

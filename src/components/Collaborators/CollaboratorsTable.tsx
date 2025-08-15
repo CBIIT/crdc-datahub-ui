@@ -28,6 +28,11 @@ const StyledTableContainer = styled(TableContainer)(() => ({
   marginBottom: "15px",
 }));
 
+const FixedTable = styled(Table)({
+  tableLayout: "fixed",
+  width: "100%",
+});
+
 const StyledTableHeaderRow = styled(TableRow)(() => ({
   "&.MuiTableRow-root": {
     height: "38px",
@@ -153,12 +158,22 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
   return (
     <>
       <StyledTableContainer data-testid="collaborators-table-container">
-        <Table>
+        <FixedTable>
+          <colgroup>
+            <col style={{ width: isEdit ? "68%" : "82%" }} />
+            <col style={{ width: "18%" }} />
+            {isEdit && <col style={{ width: "14%" }} />}
+          </colgroup>
+
           <TableHead>
             <StyledTableHeaderRow data-testid="table-header-row">
               <StyledTableHeaderCell id="header-collaborator" data-testid="header-collaborator">
                 Collaborator
               </StyledTableHeaderCell>
+              <StyledTableHeaderCell id="header-access" data-testid="header-access">
+                Access
+              </StyledTableHeaderCell>
+
               {isEdit && (
                 <StyledTableHeaderCell
                   id="header-remove"
@@ -177,7 +192,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                 key={`collaborator_${idx}_${collaborator.collaboratorID}`}
                 data-testid={`collaborator-row-${idx}`}
               >
-                <StyledNameCell width="100%">
+                <StyledNameCell>
                   <StyledSelect
                     value={collaborator.collaboratorID || ""}
                     onChange={(e) =>
@@ -197,7 +212,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                     renderValue={() => (
                       <TruncatedText
                         text={collaborator.collaboratorName ?? " "}
-                        maxCharacters={35}
+                        maxCharacters={isEdit ? 31 : 39}
                         underline={false}
                         ellipsis
                       />
@@ -216,6 +231,11 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
                       ))}
                   </StyledSelect>
                 </StyledNameCell>
+
+                <StyledTableCell data-testid={`collaborator-access-${idx}`}>
+                  {collaborator?.permission || ""}
+                </StyledTableCell>
+
                 {isEdit && (
                   <StyledTableCell>
                     <Stack direction="row" justifyContent="center" alignItems="center">
@@ -233,7 +253,7 @@ const CollaboratorsTable = ({ isEdit }: Props) => {
               </StyledTableRow>
             ))}
           </TableBody>
-        </Table>
+        </FixedTable>
       </StyledTableContainer>
 
       <AddRemoveButton

@@ -18,7 +18,7 @@ describe("Logger", () => {
     vi.restoreAllMocks();
   });
 
-  it("should log an error message with the correct format", () => {
+  it("should log with the correct output format", () => {
     env.NODE_ENV = "development"; // Override 'test' to log the message
 
     Logger.error("Test error message");
@@ -27,6 +27,32 @@ describe("Logger", () => {
       expect.stringMatching(
         /\[ERROR\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test error message/
       )
+    );
+  });
+
+  it("should support logging error levels", () => {
+    env.NODE_ENV = "development"; // Override 'test' to log the message
+
+    Logger.error("Test ERROR message");
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /\[ERROR\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test ERROR message/
+      )
+    );
+  });
+
+  it("should support logging info levels", () => {
+    env.NODE_ENV = "development"; // Override 'test' to log the message
+    const consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+
+    Logger.info("Test INFO message");
+
+    expect(consoleInfoSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /%c\[INFO\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test INFO message/
+      ),
+      "color: #90D5FF;"
     );
   });
 
