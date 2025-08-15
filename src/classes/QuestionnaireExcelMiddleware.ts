@@ -119,7 +119,7 @@ export class QuestionnaireExcelMiddleware {
   public static async parse(
     fileBuffer: ArrayBuffer,
     dependencies: MiddlewareDependencies
-  ): Promise<QuestionnaireExcelMiddleware> {
+  ): Promise<QuestionnaireExcelMiddleware["data"]> {
     // Load the workbook from the ArrayBuffer
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(fileBuffer);
@@ -135,7 +135,7 @@ export class QuestionnaireExcelMiddleware {
     await middleware.parseSectionC();
     await middleware.parseSectionD();
 
-    return middleware;
+    return middleware.data;
   }
 
   /**

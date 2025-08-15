@@ -1,12 +1,13 @@
 import { Box, Button, ButtonProps, Stack, styled, Typography, useTheme } from "@mui/material";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
 import useFormMode from "@/hooks/useFormMode";
-import { Logger } from "@/utils";
 
 import { useFormContext } from "../Contexts/FormContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+
+import ImportDialog from "./ImportDialog";
 
 const StyledIconWrapper = styled(Box)({
   width: "27px",
@@ -55,10 +56,6 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
-const VisuallyHiddenInput = styled("input")({
-  display: "none !important",
-});
-
 const disableImportStatuses: ApplicationStatus[] = [
   "Submitted",
   "Approved",
@@ -69,61 +66,63 @@ const disableImportStatuses: ApplicationStatus[] = [
 
 type Props = Omit<ButtonProps, "onClick">;
 
+/**
+ * ImportApplicationButton component for handling the import of application data
+ * from an Excel file.
+ *
+ * @param param Props for the button component.
+ * @returns JSX.Element
+ */
 const ImportApplicationButton = ({ disabled }: Props) => {
   const { palette } = useTheme();
-  const { data } = useFormContext();
+  const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const uploadInputRef = useRef<HTMLInputElement>(null);
-  const acceptedExtensions = [".xlsx"];
-  const shouldDisable =
-    disabled || isUploading || disableImportStatuses.includes(data.status) || readOnlyInputs;
+  const shouldDisable = disabled || disableImportStatuses.includes(data.status) || readOnlyInputs;
 
+  /**
+   * Triggers the file input dialog.
+   *
+   * @returns void
+   */
   const onImportClick = () => {
     if (shouldDisable) {
       return;
     }
 
-    uploadInputRef.current?.click();
+    setOpenDialog(true);
   };
 
-  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
-
-    const { files } = event?.target || {};
-    const file = files?.[0];
-
+  /**
+   * Handles the import of the selected file and uses middleware
+   * to parse only the valid values from the Excel file. Finally,
+   * it updates the form data to the new imported data.
+   *
+   * @param file The file to import.
+   * @returns void
+   */
+  const handleImport = async (file: File) => {
     if (!file) {
-      Logger.error(`ImportApplicationButton: No file selected`);
-      return;
-    }
-
-    const isCorrectFormat = acceptedExtensions.some(
-      (ext) => file.name?.toLowerCase()?.endsWith(ext)
-    );
-    if (!isCorrectFormat) {
-      Logger.error(`ImportApplicationButton: Unsupported file format`);
       return;
     }
 
     setIsUploading(true);
+    const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
 
     // Add the file back to a FileList
     const dataTransfer = new DataTransfer();
     dataTransfer?.items?.add(file);
 
-    // TODO: Set the form data
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const middleware = await QuestionnaireExcelMiddleware.parse(
+    const newData = await QuestionnaireExcelMiddleware.parse(
       await dataTransfer?.files?.[0]?.arrayBuffer(),
       {
         application: data,
       }
     );
 
-    // setData(middleware.data);
-    // TODO: Reset validity for each form section
-
+    setData(newData);
+    setOpenDialog(false);
     setIsUploading(false);
   };
 
@@ -137,16 +136,6 @@ const ImportApplicationButton = ({ disabled }: Props) => {
         >
           <ImportIconSvg />
         </StyledIconWrapper>
-
-        <VisuallyHiddenInput
-          ref={uploadInputRef}
-          type="file"
-          accept={acceptedExtensions.toString()}
-          data-testid="import-upload-file-input"
-          aria-label="Upload application template"
-          onChange={handleImport}
-          readOnly={disabled}
-        />
 
         <StyledImportExportButton
           variant="text"
@@ -167,7 +156,12 @@ const ImportApplicationButton = ({ disabled }: Props) => {
         </StyledImportExportButton>
       </StyledStack>
 
-      {/* TODO: Add import dialog */}
+      <ImportDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onConfirm={handleImport}
+        disabled={isUploading}
+      />
     </>
   );
 };
