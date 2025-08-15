@@ -2,6 +2,7 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { axe } from "vitest-axe";
 
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
 import { formContextStateFactory } from "@/factories/application/FormContextStateFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
@@ -43,6 +44,7 @@ const TestParent: FC<ParentProps> = ({
                 questionnaireData: questionnaireDataFactory.build({
                   ...formCtxState?.data?.questionnaireData,
                 }),
+                applicant: applicantFactory.build({ applicantID: "current-user" }),
               })
             : null,
       }),
