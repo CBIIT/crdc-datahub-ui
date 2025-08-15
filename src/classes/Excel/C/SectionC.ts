@@ -1,5 +1,6 @@
 import type ExcelJS from "exceljs";
 
+import { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
 import { IF, STR_EQ, AND, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
@@ -52,19 +53,23 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
     });
     rows.add(row);
 
-    data?.cancerTypes?.forEach((c, idx) => {
-      this.setRowValues(ws, idx + startRow, {
-        cancerTypes: c || "",
+    data?.cancerTypes
+      ?.filter((c) => !!c)
+      ?.forEach((c, idx) => {
+        this.setRowValues(ws, idx + startRow, {
+          cancerTypes: c,
+        });
+        rows.add(ws.getRow(idx + startRow));
       });
-      rows.add(ws.getRow(idx + startRow));
-    });
 
-    data?.species?.forEach((s, idx) => {
-      this.setRowValues(ws, idx + startRow, {
-        species: s || "",
+    data?.species
+      ?.filter((s) => !!s)
+      ?.forEach((s, idx) => {
+        this.setRowValues(ws, idx + startRow, {
+          species: s,
+        });
+        rows.add(ws.getRow(idx + startRow));
       });
-      rows.add(ws.getRow(idx + startRow));
-    });
 
     return [...rows];
   }
@@ -134,7 +139,7 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
             this.deps.cancerTypesSheet.name,
             "A",
             1,
-            this.deps.cancerTypesSheet.rowCount || 1
+            this.deps.cancerTypesSheet.rowCount
           ),
         ],
       };
@@ -148,7 +153,7 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
         allowBlank: true,
         showErrorMessage: true,
         formulae: [
-          LIST_FORMULA(this.deps.speciesSheet.name, "A", 1, this.deps.speciesSheet.rowCount || 1),
+          LIST_FORMULA(this.deps.speciesSheet.name, "A", 1, this.deps.speciesSheet.rowCount),
         ],
       };
     });
@@ -201,6 +206,10 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
 
       cancerTypes.add(c?.trim());
     });
+    if (cancerTypes.has(CUSTOM_CANCER_TYPES.NOT_APPLICABLE)) {
+      cancerTypes.clear();
+      cancerTypes.add(CUSTOM_CANCER_TYPES.NOT_APPLICABLE);
+    }
 
     const species = new Set<string>();
     data.get("species")?.forEach((s: string) => {

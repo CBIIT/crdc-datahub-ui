@@ -1,15 +1,19 @@
+import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
 import { InitialQuestionnaire } from "@/config/InitialValues";
 import { InitialSections } from "@/config/SectionConfig";
+import speciesOptions from "@/config/SpeciesConfig";
 import { applicantFactory } from "@/factories/application/ApplicantFactory";
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
 import { contactFactory } from "@/factories/application/ContactFactory";
 import { piFactory } from "@/factories/application/PIFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { studyFactory } from "@/factories/application/StudyFactory";
 import { institutionFactory } from "@/factories/institution/InstitutionFactory";
 import { waitFor } from "@/test-utils";
 import { Logger } from "@/utils";
 
 import { SectionAColumns } from "./Excel/A/SectionA";
+import { SectionCColumns } from "./Excel/C/SectionC";
 import {
   HIDDEN_SHEET_NAMES,
   QuestionnaireExcelMiddleware,
@@ -93,7 +97,7 @@ describe("Serialization", () => {
     });
 
     it("should generate SectionA sheet with all dependent sheets", async () => {
-      const mockInstitutions = vi.fn().mockResolvedValue([]);
+      const mockInstitutions = vi.fn().mockResolvedValue(null);
 
       const middleware = new QuestionnaireExcelMiddleware(null, {
         getInstitutions: mockInstitutions,
@@ -115,7 +119,22 @@ describe("Serialization", () => {
 
     it.todo("should generate SectionB sheet with all dependent sheets", () => {});
 
-    it.todo("should generate SectionC sheet with all dependent sheets", () => {});
+    it("should generate SectionC sheet with all dependent sheets", async () => {
+      const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionC();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Access and Disease")).toEqual(sheet);
+      expect(wb.getWorksheet(HIDDEN_SHEET_NAMES.cancerTypes)).toBeDefined();
+      expect(wb.getWorksheet(HIDDEN_SHEET_NAMES.speciesOptions)).toBeDefined();
+
+      // NOTE: Values are 1-indexed, need to use a empty value at 0 index
+      // eslint-disable-next-line no-sparse-arrays
+      expect(sheet.getRow(1).values).toEqual([, ...SectionCColumns.map((col) => col.header)]);
+    });
 
     it.todo("should generate SectionD sheet with all dependent sheets", () => {});
   });
@@ -460,7 +479,130 @@ describe("Serialization", () => {
 
     it.todo("should generate SectionB sheet with pre-filled data", () => {});
 
-    it.todo("should generate SectionC sheet with pre-filled data", () => {});
+    it("should generate SectionC sheet with all data", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        accessTypes: ["Open Access"],
+        study: studyFactory.build({
+          isDbGapRegistered: true,
+          dbGaPPPHSNumber: "phs100009.v6.a1",
+          GPAName: "Benjamin 'Gpa' Bunny",
+        }),
+        cancerTypes: cancerTypeOptions.slice(1, 10),
+        otherCancerTypes: "Some option | Another Option | xyz 123",
+        preCancerTypes: "Pre-cancer type 1 | Pre-cancer type 2",
+        species: speciesOptions.slice(0, speciesOptions.length - 1),
+        otherSpeciesOfSubjects: "Mythical Creature",
+        numberOfParticipants: 150_000,
+      });
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionC();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Access and Disease")).toEqual(sheet);
+
+      expect(sheet.getCell("A2").value).toEqual("Yes");
+      expect(sheet.getCell("B2").value).toEqual("No"); // Not 'Controlled Access'
+      expect(sheet.getCell("C2").value).toEqual("Yes");
+      expect(sheet.getCell("D2").value).toEqual("phs100009.v6.a1");
+      expect(sheet.getCell("E2").value).toEqual("Benjamin 'Gpa' Bunny");
+      expect(sheet.getColumn("F").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        ...cancerTypeOptions.slice(1, 10),
+      ]);
+      expect(sheet.getCell("G2").value).toEqual("Some option | Another Option | xyz 123");
+      expect(sheet.getCell("H2").value).toEqual("Pre-cancer type 1 | Pre-cancer type 2");
+      expect(sheet.getColumn("I").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        ...speciesOptions.slice(0, speciesOptions.length - 1),
+      ]);
+      expect(sheet.getCell("J2").value).toEqual("Mythical Creature");
+      expect(sheet.getCell("K2").value).toEqual(150_000);
+    });
+
+    it("should generate SectionC sheet with partial data (no study)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        accessTypes: ["Controlled Access"],
+        study: null,
+        cancerTypes: cancerTypeOptions.slice(1, 2),
+        otherCancerTypes: "some unlisted type",
+        preCancerTypes: "some unlisted p-type",
+        species: speciesOptions.slice(0, 1),
+        otherSpeciesOfSubjects: "Zebra",
+        numberOfParticipants: 10,
+      });
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionC();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Access and Disease")).toEqual(sheet);
+
+      expect(sheet.getCell("A2").value).toEqual("No"); // Not 'Open Access'
+      expect(sheet.getCell("B2").value).toEqual("Yes");
+      expect(sheet.getCell("C2").value).toEqual("No"); // Default if not provided
+      expect(sheet.getCell("D2").value).toBeNull();
+      expect(sheet.getCell("E2").value).toBeNull();
+      expect(sheet.getColumn("F").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        ...cancerTypeOptions.slice(1, 2),
+      ]);
+      expect(sheet.getCell("G2").value).toEqual("some unlisted type");
+      expect(sheet.getCell("H2").value).toEqual("some unlisted p-type");
+      expect(sheet.getColumn("I").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        ...speciesOptions.slice(0, 1),
+      ]);
+      expect(sheet.getCell("J2").value).toEqual("Zebra");
+      expect(sheet.getCell("K2").value).toEqual(10);
+    });
+
+    it("should generate SectionC sheet with partial data (all null)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        accessTypes: null,
+        study: null,
+        cancerTypes: null,
+        otherCancerTypes: null,
+        preCancerTypes: null,
+        species: null,
+        otherSpeciesOfSubjects: null,
+        numberOfParticipants: null,
+      });
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionC();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Access and Disease")).toEqual(sheet);
+
+      expect(sheet.getCell("A2").value).toEqual("No"); // Defaults if not provided
+      expect(sheet.getCell("B2").value).toEqual("No");
+      expect(sheet.getCell("C2").value).toEqual("No");
+      expect(sheet.getCell("D2").value).toBeNull();
+      expect(sheet.getCell("E2").value).toBeNull();
+      expect(sheet.getColumn("F").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+      ]);
+      expect(sheet.getCell("G2").value).toBeNull();
+      expect(sheet.getCell("H2").value).toBeNull();
+      expect(sheet.getColumn("I").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+      ]);
+      expect(sheet.getCell("J2").value).toBeNull();
+      expect(sheet.getCell("K2").value).toBeNull();
+    });
 
     it.todo("should generate SectionD sheet with pre-filled data", () => {});
   });
@@ -710,6 +852,27 @@ describe("Parsing", () => {
     );
   });
 
+  it("should log an error when parsing SectionA if the dependent sheets are invalid", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(questionnaireDataFactory.build(), {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    expect(result).toEqual(true);
+
+    await waitFor(() => {
+      expect(Logger.error).toHaveBeenCalledWith(
+        "SectionA.ts: The institution sheet is missing or invalid."
+      );
+    });
+  });
+
   it("should set the status of Section A correctly (In Progress, PI)", async () => {
     const mockForm = questionnaireDataFactory.build({
       pi: piFactory.build({
@@ -818,6 +981,237 @@ describe("Parsing", () => {
 
     expect(result).toEqual(true);
     expect(output.sections.find((s) => s.name === "A")).toEqual(
+      expect.objectContaining({
+        status: "Not Started",
+      })
+    );
+  });
+
+  it("should parse the SectionC sheet correctly", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      accessTypes: ["Open Access", "Controlled Access"],
+      study: studyFactory.build({
+        isDbGapRegistered: true,
+        dbGaPPPHSNumber: "phs100009.v6.a1",
+        GPAName: "Benjamin 'Gpa' Bunny",
+      }),
+      cancerTypes: cancerTypeOptions.slice(1, 10),
+      otherCancerTypes: "Some option | Another Option | xyz 123",
+      preCancerTypes: "Pre-cancer type 1 | Pre-cancer type 2",
+      species: speciesOptions.slice(0, speciesOptions.length - 1),
+      otherSpeciesOfSubjects: "Mythical Creature",
+      numberOfParticipants: 150_000,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.accessTypes).toContain("Open Access");
+    expect(output.accessTypes).toContain("Controlled Access");
+    expect(output.study).toEqual(
+      expect.objectContaining({
+        isDbGapRegistered: true,
+        dbGaPPPHSNumber: "phs100009.v6.a1",
+        GPAName: "Benjamin 'Gpa' Bunny",
+      })
+    );
+    expect(output.cancerTypes).toEqual(cancerTypeOptions.slice(1, 10));
+    expect(output.otherCancerTypes).toEqual("Some option | Another Option | xyz 123");
+    expect(output.preCancerTypes).toEqual("Pre-cancer type 1 | Pre-cancer type 2");
+    expect(output.species).toEqual(speciesOptions.slice(0, speciesOptions.length - 1));
+    expect(output.otherSpeciesOfSubjects).toEqual("Mythical Creature");
+    expect(output.numberOfParticipants).toEqual(150_000);
+  });
+
+  it("should ignore invalid Cancer Type options in SectionC", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      cancerTypes: [
+        "this-option-will-never-exist",
+        "another-very-invalid-option",
+        cancerTypeOptions[3],
+      ],
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.cancerTypes).toEqual([cancerTypeOptions[3]]);
+  });
+
+  it("should clear all Cancer Type options if 'Not Applicable' is selected", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      cancerTypes: [...cancerTypeOptions.slice(1, 5), CUSTOM_CANCER_TYPES.NOT_APPLICABLE],
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.cancerTypes).toEqual([CUSTOM_CANCER_TYPES.NOT_APPLICABLE]);
+  });
+
+  it("should ignore invalid Species options in SectionC", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      species: ["this-option-will-never-exist", "another-very-invalid-option", speciesOptions[3]],
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.species).toEqual([speciesOptions[3]]);
+  });
+
+  it("should coerce Number of Participants to a number", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      numberOfParticipants: "150000" as unknown as number,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.numberOfParticipants).toEqual(150000);
+  });
+
+  it.each<[string, string]>([
+    [HIDDEN_SHEET_NAMES.cancerTypes, "SectionC.ts: The cancer types sheet is missing or invalid."],
+    [HIDDEN_SHEET_NAMES.speciesOptions, "SectionC.ts: The species sheet is missing or invalid."],
+  ])(
+    "should log an error when parsing SectionC if the dependent sheets are invalid (%s)",
+    async (sheetName, expectedMessage) => {
+      const middleware = new QuestionnaireExcelMiddleware(questionnaireDataFactory.build(), {});
+
+      // @ts-expect-error Private member
+      await middleware.serializeSectionC();
+
+      // @ts-expect-error Private member
+      middleware.workbook.getWorksheet(sheetName)?.destroy();
+
+      // @ts-expect-error Private member
+      middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+      // @ts-expect-error Private member
+      const result = await middleware.parseSectionC();
+
+      expect(result).toEqual(true);
+
+      await waitFor(() => {
+        expect(Logger.error).toHaveBeenCalledWith(expectedMessage);
+      });
+    }
+  );
+
+  it("should handle missing SectionC sheet", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeSectionC();
+
+    sheet.destroy();
+
+    // @ts-expect-error Private member
+    await expect(middleware.parseSectionC()).resolves.toEqual(false);
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining(`parseSectionC: No sheet found for Data Access and Disease. Skipping`)
+    );
+  });
+
+  it("should set the status of SectionC correctly (In Progress)", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        GPAName: "this obscure value triggers in progress",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.sections.find((s) => s.name === "C")).toEqual(
+      expect.objectContaining({
+        status: "In Progress",
+      })
+    );
+  });
+
+  it("should set the status of SectionC correctly (Not Started)", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(questionnaireDataFactory.build(), {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.sections.find((s) => s.name === "C")).toEqual(
       expect.objectContaining({
         status: "Not Started",
       })
