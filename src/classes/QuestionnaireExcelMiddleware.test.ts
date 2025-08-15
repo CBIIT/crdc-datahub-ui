@@ -1,8 +1,11 @@
+import { waitFor } from "@testing-library/react";
+
 import { applicantFactory } from "@/factories/application/ApplicantFactory";
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
 import { contactFactory } from "@/factories/application/ContactFactory";
 import { piFactory } from "@/factories/application/PIFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { Logger } from "@/utils";
 
 import { SectionAColumns } from "./Excel/A/SectionA";
 import {
@@ -22,9 +25,24 @@ vi.mock(import("@/env"), async (importOriginal) => {
   };
 });
 
+vi.mock("@/utils/logger", () => ({
+  Logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.resetAllMocks();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("Serialization", () => {
   it("should set workbook metadata properties correctly during serialization", async () => {
-    vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-06-07T14:11:00Z"));
 
     const middleware = new QuestionnaireExcelMiddleware(null, {});
@@ -42,13 +60,10 @@ describe("Serialization", () => {
     expect(wb.company).toEqual("National Cancer Institute");
     expect(wb.created).toEqual(new Date("2025-06-07T14:11:00Z"));
     expect(wb.modified).toEqual(new Date("2025-06-07T14:11:00Z"));
-
-    vi.useRealTimers();
   });
 
   describe("Template", () => {
     it("should generate the metadata sheet with available data", async () => {
-      vi.useFakeTimers();
       vi.setSystemTime(new Date("2025-01-07T17:34:00Z"));
 
       const middleware = new QuestionnaireExcelMiddleware(null, {});
@@ -73,8 +88,6 @@ describe("Serialization", () => {
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
       expect(sheet.getCell("J2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
-
-      vi.useRealTimers();
     });
 
     it("should generate SectionA sheet with all dependent sheets", async () => {
@@ -107,7 +120,6 @@ describe("Serialization", () => {
 
   describe("With Data", () => {
     it("should generate the metadata sheet with pre-filled data", async () => {
-      vi.useFakeTimers();
       vi.setSystemTime(new Date("2025-03-15T22:36:00Z"));
 
       const middleware = new QuestionnaireExcelMiddleware(null, {
@@ -141,8 +153,6 @@ describe("Serialization", () => {
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
       expect(sheet.getCell("J2").value).toEqual(new Date("2025-03-15T22:36:00Z").toISOString());
-
-      vi.useRealTimers();
     });
 
     it("should generate SectionA sheet with all data", async () => {
@@ -454,6 +464,54 @@ describe("Serialization", () => {
   });
 });
 
-describe.todo("Importing");
+describe("Parsing", () => {
+  it("should parse the metadata section correctly", async () => {
+    vi.setSystemTime(new Date("2025-03-15T22:36:00Z"));
+
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeMetadata();
+
+    // Modify columns to force different values
+    sheet.getCell("A2").value = "some uuid";
+    sheet.getCell("H2").value = "invalid dev tier";
+    sheet.getCell("I2").value = "invalid template version";
+
+    // @ts-expect-error Private member
+    middleware.dependencies.application = applicationFactory.build({
+      _id: "a different uuid",
+    });
+
+    // @ts-expect-error Private member
+    await middleware.parseMetadata();
+
+    await waitFor(() => {
+      expect(Logger.info).toHaveBeenCalled();
+    });
+
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("Received mismatched devTier."),
+      expect.objectContaining({
+        expected: "mock-dev-tier",
+        received: "invalid dev tier",
+      })
+    );
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("Received mismatched templateVersion."),
+      expect.objectContaining({
+        expected: expect.any(String), // Internal variable
+        received: "invalid template version",
+      })
+    );
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("Received mismatched submissionId."),
+      expect.objectContaining({
+        expected: "a different uuid",
+        received: "some uuid",
+      })
+    );
+  });
+});
 
 describe.todo("Read-Write Symmetry");
