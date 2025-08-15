@@ -1,10 +1,12 @@
-import { waitFor } from "@testing-library/react";
-
+import { InitialQuestionnaire } from "@/config/InitialValues";
+import { InitialSections } from "@/config/SectionConfig";
 import { applicantFactory } from "@/factories/application/ApplicantFactory";
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
 import { contactFactory } from "@/factories/application/ContactFactory";
 import { piFactory } from "@/factories/application/PIFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+import { waitFor } from "@/test-utils";
 import { Logger } from "@/utils";
 
 import { SectionAColumns } from "./Excel/A/SectionA";
@@ -484,11 +486,13 @@ describe("Parsing", () => {
     });
 
     // @ts-expect-error Private member
-    await middleware.parseMetadata();
+    const result = await middleware.parseMetadata();
 
     await waitFor(() => {
       expect(Logger.info).toHaveBeenCalled();
     });
+
+    expect(result).toEqual(true);
 
     expect(Logger.info).toHaveBeenCalledWith(
       expect.stringContaining("Received mismatched devTier."),
@@ -509,6 +513,313 @@ describe("Parsing", () => {
       expect.objectContaining({
         expected: "a different uuid",
         received: "some uuid",
+      })
+    );
+  });
+
+  it("should handle a missing metadata sheet", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeMetadata();
+
+    sheet.destroy();
+
+    // @ts-expect-error Private member
+    await expect(middleware.parseMetadata()).resolves.toEqual(false);
+  });
+
+  it("should parse the SectionA sheet correctly", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      pi: piFactory.build({
+        firstName: "benjamin",
+        lastName: "bunny",
+        position: "Some PI Position",
+        email: "benjamin.bunny@example.com",
+        ORCID: "1234-5678-9012-3456",
+        institution: "A Mock Institution",
+        institutionID: null,
+        address: "123 Bunny Lane, Bunnyville, USA 20001",
+      }),
+      piAsPrimaryContact: false,
+      primaryContact: contactFactory.build({
+        firstName: "Radish",
+        lastName: "Rabbit",
+        position: "Some Contact Position",
+        email: "radish.rabbit@example.com",
+        institution: "Another Mock Institution",
+        institutionID: null,
+        phone: "957-123-9393",
+      }),
+      additionalContacts: contactFactory.build(3, (idx) => ({
+        firstName: `Contact ${idx + 1} First`,
+        lastName: `Contact ${idx + 1} Last`,
+        position: `Contact ${idx + 1} Position`,
+        email: `contact${idx + 1}@example.com`,
+        institution: `Contact ${idx + 1} Institution`,
+        institutionID: null,
+        phone: `555-123-${9000 + idx}`,
+      })),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.pi).toEqual(mockForm.pi);
+    expect(output.primaryContact).toEqual(mockForm.primaryContact);
+    expect(output.additionalContacts).toEqual(mockForm.additionalContacts);
+  });
+
+  it("should handle missing SectionA sheet", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeSectionA();
+
+    sheet.destroy();
+
+    // @ts-expect-error Private member
+    await expect(middleware.parseSectionA()).resolves.toEqual(false);
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining(`parseSectionA: No sheet found for PI and Contact. Skipping`)
+    );
+  });
+
+  it("should ignore Primary Contact if piAsPrimaryContact is set", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      pi: null,
+      piAsPrimaryContact: true, // NOTE: This will cause the parsing to ignore PC
+      primaryContact: contactFactory.build({
+        firstName: "Radish",
+        lastName: "Rabbit",
+        position: "Some Contact Position",
+        email: "radish.rabbit@example.com",
+        institution: "Another Mock Institution",
+        institutionID: null,
+        phone: "957-123-9393",
+      }),
+      additionalContacts: null,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.primaryContact).toBeNull();
+  });
+
+  it("should set the institutionID correctly", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      pi: piFactory.build({
+        institution: "api-option-1",
+        institutionID: "this uuid will be replaced by API data because of the name",
+      }),
+      piAsPrimaryContact: false,
+      primaryContact: contactFactory.build({
+        institution: "This one is new",
+        institutionID: null,
+      }),
+      additionalContacts: contactFactory.build(3, (idx) => ({
+        firstName: `Contact ${idx + 2}`, // NOTE: Required otherwise additionalContacts would be ignored
+        institution: `api-option-${idx + 2}`,
+        institutionID: `uuid-for-api-${idx + 2}`,
+      })),
+    });
+
+    const mockInstitutions = vi.fn().mockResolvedValue({
+      data: {
+        listInstitutions: {
+          total: 3,
+          institutions: [
+            ...institutionFactory.build(3, (idx) => ({
+              _id: `uuid-for-api-${idx + 1}`,
+              name: `api-option-${idx + 1}`,
+            })),
+          ],
+        },
+      },
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {
+      getInstitutions: mockInstitutions,
+    });
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.pi).toEqual(
+      expect.objectContaining({
+        institution: "api-option-1",
+        institutionID: "uuid-for-api-1",
+      })
+    );
+    expect(output.primaryContact).toEqual(
+      expect.objectContaining({
+        institution: "This one is new",
+        institutionID: null, // No match from API
+      })
+    );
+    expect(output.additionalContacts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          institution: "api-option-2",
+          institutionID: "uuid-for-api-2",
+        }),
+        expect.objectContaining({
+          institution: "api-option-3",
+          institutionID: "uuid-for-api-3",
+        }),
+        expect.objectContaining({
+          institution: "api-option-4",
+          institutionID: null,
+        }),
+      ])
+    );
+  });
+
+  it("should set the status of Section A correctly (In Progress, PI)", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      pi: piFactory.build({
+        firstName: "this obscure value triggers in progress",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.sections.find((s) => s.name === "A")).toEqual(
+      expect.objectContaining({
+        status: "In Progress",
+      })
+    );
+  });
+
+  it("should set the status of Section A correctly (In Progress, PC)", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      primaryContact: contactFactory.build({
+        institution: "this obscure value triggers in progress",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.sections.find((s) => s.name === "A")).toEqual(
+      expect.objectContaining({
+        status: "In Progress",
+      })
+    );
+  });
+
+  it("should set the status of Section A correctly (In Progress, Additional Contact)", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      additionalContacts: [
+        contactFactory.build({
+          firstName: "this obscure value triggers in progress",
+        }),
+      ],
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.sections.find((s) => s.name === "A")).toEqual(
+      expect.objectContaining({
+        status: "In Progress",
+      })
+    );
+  });
+
+  it("should set the status of Section A correctly (Not Started)", async () => {
+    const mockForm = questionnaireDataFactory.build({});
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionA();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionA();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.sections.find((s) => s.name === "A")).toEqual(
+      expect.objectContaining({
+        status: "Not Started",
       })
     );
   });

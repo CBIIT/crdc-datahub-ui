@@ -216,6 +216,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       phone: data.get("primaryContact.phone")?.[0] as string,
     };
 
+    // NOTE: Known limitation that we require first name in order to parse
     const additionalContacts: Contact[] =
       data.get("additionalContacts.firstName")?.map((firstName, index) => {
         const contactInstitution = (
