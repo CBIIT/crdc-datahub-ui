@@ -131,7 +131,8 @@ const ImportApplicationButton = ({ disabled = false }: Props) => {
       }
     );
 
-    setData(newData);
+    await setData(newData);
+
     setOpenDialog(false);
     setIsUploading(false);
   };
