@@ -1,5 +1,5 @@
-import { Box, Button, ButtonProps, Stack, styled, Typography, useTheme } from "@mui/material";
-import { useState } from "react";
+import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
+import { SVGProps, useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
 import useFormMode from "@/hooks/useFormMode";
@@ -10,14 +10,16 @@ import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 import ImportDialog from "./ImportDialog";
 
-const StyledIconWrapper = styled(Box)({
+const StyledImportIcon = styled(ImportIconSvg, {
+  shouldForwardProp: (prop) => prop !== "disabled",
+})<SVGProps<SVGSVGElement> & { disabled: boolean }>(({ disabled }) => ({
   width: "27px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   marginRight: "16px",
-  color: "#136071",
-});
+  color: disabled ? "#BBBBBB" : "currentColor",
+}));
 
 const StyledText = styled(Typography)({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
@@ -35,20 +37,31 @@ const StyledText = styled(Typography)({
 const StyledStack = styled(Stack)({
   margin: "0 !important",
   width: "100%",
+  color: "#136071",
+
+  "&:has(> button:hover) svg": {
+    color: "#00819E",
+  },
+
+  "&:has(> button:focus-visible) svg": {
+    color: "#00819E",
+  },
 });
 
-const StyledImportExportButton = styled(Button)(({ theme }) => ({
+const StyledImportButton = styled(Button)({
   justifyContent: "flex-start",
   padding: "12px 14px",
   marginRight: "auto",
-
+  color: "#136071",
+  "&.Mui-disabled": {
+    color: "#BBBBBB",
+    opacity: 1,
+  },
   "&:hover": {
+    color: "#00819E",
     background: "transparent",
   },
-  "&.Mui-disabled": {
-    opacity: theme.palette.action.disabledOpacity,
-  },
-}));
+});
 
 const StyledTooltip = styled(StyledFormTooltip)({
   marginLeft: "0 !important",
@@ -75,7 +88,6 @@ type Props = Omit<ButtonProps, "onClick">;
  * @returns JSX.Element
  */
 const ImportApplicationButton = ({ disabled = false }: Props) => {
-  const { palette } = useTheme();
   const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -140,15 +152,9 @@ const ImportApplicationButton = ({ disabled = false }: Props) => {
   return (
     <>
       <StyledStack direction="row" alignItems="center" justifyContent="center">
-        <StyledIconWrapper
-          sx={{
-            opacity: shouldDisable ? palette.action.disabledOpacity : 1,
-          }}
-        >
-          <ImportIconSvg />
-        </StyledIconWrapper>
+        <StyledImportIcon disabled={disabled} />
 
-        <StyledImportExportButton
+        <StyledImportButton
           variant="text"
           onClick={onImportClick}
           disabled={shouldDisable}
@@ -166,7 +172,7 @@ const ImportApplicationButton = ({ disabled = false }: Props) => {
               Import
             </StyledText>
           </StyledTooltip>
-        </StyledImportExportButton>
+        </StyledImportButton>
       </StyledStack>
 
       <ImportDialog

@@ -1,7 +1,7 @@
 import { useLazyQuery } from "@apollo/client";
-import { Box, Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
+import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
-import { memo, useState } from "react";
+import { memo, SVGProps, useState } from "react";
 
 import ExportIconSvg from "@/assets/icons/export_icon.svg?react";
 import { useFormContext } from "@/components/Contexts/FormContext";
@@ -16,39 +16,50 @@ import {
 } from "@/graphql";
 import { downloadBlob, Logger } from "@/utils";
 
-const StyledIconWrapper = styled(Box)({
+const StyledExportIcon = styled(ExportIconSvg, {
+  shouldForwardProp: (prop) => prop !== "disabled",
+})<SVGProps<SVGSVGElement> & { disabled: boolean }>(({ disabled }) => ({
   width: "27px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   marginRight: "16px",
-  color: "#136071",
-});
+  color: disabled ? "#BBBBBB" : "currentColor",
+}));
 
 const StyledText = styled(Typography)({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   letterSpacing: "-0.25px",
   fontWeight: 600,
   fontSize: "16px",
-  color: "#136071",
   lineHeight: "150%",
-
-  "&:hover": {
-    color: "#00819E",
-  },
 });
 
 const StyledStack = styled(Stack)({
   margin: "0 !important",
   width: "100%",
+  color: "#136071",
+
+  "&:has(> button:hover) svg": {
+    color: "#00819E",
+  },
+
+  "&:has(> button:focus-visible) svg": {
+    color: "#00819E",
+  },
 });
 
 const StyledExportButton = styled(Button)({
   justifyContent: "flex-start",
   padding: "12px 14px",
   marginRight: "auto",
-
+  color: "#136071",
+  "&.Mui-disabled": {
+    color: "#BBBBBB",
+    opacity: 1,
+  },
   "&:hover": {
+    color: "#00819E",
     background: "transparent",
   },
 });
@@ -92,9 +103,14 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
   const requestName = "TODO"; // TODO: What is the name of the request??
 
   const onButtonClick = async () => {
+    if (!data?.questionnaireData) {
+      Logger.error("ExportTemplateButton: No questionnaire data found");
+      return;
+    }
+
     setDownloading(true);
 
-    const { questionnaireData } = data;
+    const { questionnaireData } = data || {};
 
     const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
 
@@ -116,11 +132,8 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
 
   return (
     <StyledStack direction="row" alignItems="center" justifyContent="center">
-      <StyledIconWrapper>
-        <ExportIconSvg />
-      </StyledIconWrapper>
+      <StyledExportIcon disabled={disabled} />
 
-      {/* TODO: Style based on design */}
       <StyledExportButton
         variant="text"
         onClick={onButtonClick}
@@ -137,7 +150,9 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
           arrow
         >
           {/* TODO: Rename based on US */}
-          <StyledText variant="body2">Export</StyledText>
+          <StyledText variant="body2" data-testid="export-application-excel-button-text">
+            Export
+          </StyledText>
         </StyledTooltip>
       </StyledExportButton>
     </StyledStack>
