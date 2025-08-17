@@ -171,7 +171,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
       <StyledDivider />
 
       <Stack flexDirection="column" gap="11px">
-        <ImportApplicationButton />
+        {section?.toUpperCase() !== "REVIEW" ? <ImportApplicationButton /> : null}
         <ExportApplicationButton />
       </Stack>
     </Stack>
