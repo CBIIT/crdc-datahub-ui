@@ -183,7 +183,7 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(QuestionnaireExcelMiddleware.parse).toHaveBeenCalled();
-      expect(setData).toHaveBeenCalledWith(parsedData);
+      expect(setData).toHaveBeenCalledWith(parsedData, { skipSave: true });
     });
   });
 
