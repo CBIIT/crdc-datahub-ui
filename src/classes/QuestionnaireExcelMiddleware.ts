@@ -363,7 +363,12 @@ export class QuestionnaireExcelMiddleware {
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      questionnaireDataSchema,
+      questionnaireDataSchema.pick({
+        pi: true,
+        piAsPrimaryContact: true,
+        primaryContact: true,
+        additionalContacts: true,
+      }),
       newMapping
     );
 
@@ -482,7 +487,18 @@ export class QuestionnaireExcelMiddleware {
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      questionnaireDataSchema,
+      questionnaireDataSchema.pick({
+        accessTypes: true,
+        cancerTypes: true,
+        study: true, // TODO: Only partial object
+        otherCancerTypesEnabled: true,
+        otherCancerTypes: true,
+        preCancerTypes: true,
+        species: true,
+        otherSpeciesEnabled: true,
+        otherSpeciesOfSubjects: true,
+        numberOfParticipants: true,
+      }),
       newMapping
     );
 

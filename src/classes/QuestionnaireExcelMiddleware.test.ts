@@ -1848,7 +1848,7 @@ describe("Parsing", () => {
       additionalContacts: contactFactory.build(3, (idx) => ({
         firstName: `Contact ${idx + 2}`, // NOTE: Required otherwise additionalContacts would be ignored
         institution: `api-option-${idx + 2}`,
-        institutionID: `uuid-for-api-${idx + 2}`,
+        institutionID: `f5f76325-7fe9-41df-b419-c6f7bb6e539${idx + 2}`,
       })),
     });
 
@@ -1858,7 +1858,7 @@ describe("Parsing", () => {
           total: 3,
           institutions: [
             ...institutionFactory.build(3, (idx) => ({
-              _id: `uuid-for-api-${idx + 1}`,
+              _id: `f5f76325-7fe9-41df-b419-c6f7bb6e539${idx + 1}`,
               name: `api-option-${idx + 1}`,
             })),
           ],
@@ -1886,7 +1886,7 @@ describe("Parsing", () => {
     expect(output.pi).toEqual(
       expect.objectContaining({
         institution: "api-option-1",
-        institutionID: "uuid-for-api-1",
+        institutionID: "f5f76325-7fe9-41df-b419-c6f7bb6e5391",
       })
     );
     expect(output.primaryContact).toEqual(
@@ -1899,11 +1899,11 @@ describe("Parsing", () => {
       expect.arrayContaining([
         expect.objectContaining({
           institution: "api-option-2",
-          institutionID: "uuid-for-api-2",
+          institutionID: "f5f76325-7fe9-41df-b419-c6f7bb6e5392",
         }),
         expect.objectContaining({
           institution: "api-option-3",
-          institutionID: "uuid-for-api-3",
+          institutionID: "f5f76325-7fe9-41df-b419-c6f7bb6e5393",
         }),
         expect.objectContaining({
           institution: "api-option-4",
