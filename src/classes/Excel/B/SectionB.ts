@@ -1,7 +1,18 @@
 import type ExcelJS from "exceljs";
 import { toString } from "lodash";
 
-import { IF, STR_EQ, REQUIRED, TEXT_MAX, AND, LIST_FORMULA, DATE_NOT_BEFORE_TODAY } from "@/utils";
+import DataTypes from "@/config/DataTypesConfig";
+import {
+  IF,
+  STR_EQ,
+  REQUIRED,
+  TEXT_MAX,
+  AND,
+  LIST_FORMULA,
+  DATE_NOT_BEFORE_TODAY,
+  FormatDate,
+  Logger,
+} from "@/utils";
 
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
@@ -392,6 +403,11 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     data: Map<BKeys, Array<unknown>>,
     deps: Partial<SectionBDeps>
   ): RecursivePartial<QuestionnaireData> {
+    const { programSheet } = deps;
+    if (!programSheet || !programSheet.rowCount) {
+      Logger.error(`SectionB.ts: The programs sheet is missing or invalid.`);
+    }
+
     const funding: Funding[] =
       (data.get("study.funding.agency")?.map((agency, index) => ({
         agency: toString(agency).trim(),
@@ -409,30 +425,49 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const plannedPublications: PlannedPublication[] =
       (data.get("study.plannedPublications.title")?.map((title, index) => ({
         title: toString(title).trim(),
-        expectedDate: toString(data.get("study.plannedPublications.expectedDate")?.[index]).trim(),
+        expectedDate: FormatDate(
+          toString(data.get("study.plannedPublications.expectedDate")?.[index]).trim(),
+          "YYYY/MM/DD",
+          ""
+        ),
       })) as PlannedPublication[]) || [];
 
     const repositories: Repository[] =
       (data.get("study.repositories.name")?.map((name, index) => ({
         name: toString(name).trim(),
         studyID: toString(data.get("study.repositories.studyID")?.[index]).trim(),
-        dataTypesSubmitted: String(data.get("study.repositories.dataTypesSubmitted")?.[index])
+        dataTypesSubmitted: toString(data.get("study.repositories.dataTypesSubmitted")?.[index])
           .split("|")
-          .map((item) => item.trim()),
+          .map((item) => item.trim())
+          .filter((item) => {
+            const dataTypes: string[] = [
+              DataTypes.clinicalTrial.name,
+              DataTypes.genomics.name,
+              DataTypes.imaging.name,
+              DataTypes.proteomics.name,
+            ];
+
+            return dataTypes.includes(item);
+          }),
         otherDataTypesSubmitted: toString(
           data.get("study.repositories.otherDataTypesSubmitted")?.[index]
         ).trim(),
       })) as Repository[]) || [];
 
     // Match program name to get the _id
-    const programColB = deps.programSheet.getColumn(2);
     let programId: string;
-    programColB.eachCell((cell, rowNumber) => {
-      const name = toString(cell.value).trim();
-      if (name === toString(data.get("program._id")?.[0])) {
-        programId = toString(deps.programSheet.getCell(`A${rowNumber}`).value).trim();
-      }
-    });
+    const rawProgramId = toString(data.get("program._id")?.[0]).trim();
+    if (rawProgramId === "Not Applicable" || rawProgramId === "Other") {
+      programId = rawProgramId;
+    } else if (programSheet) {
+      const programColB = programSheet.getColumn(2);
+      programColB.eachCell((cell, rowNumber) => {
+        const name = toString(cell.value).trim();
+        if (name === toString(data.get("program._id")?.[0])) {
+          programId = toString(programSheet.getCell(`A${rowNumber}`).value).trim();
+        }
+      });
+    }
 
     const questionnaireData: RecursivePartial<QuestionnaireData> = {
       program: {
