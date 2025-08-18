@@ -5,6 +5,7 @@ import speciesOptions from "@/config/SpeciesConfig";
 import { applicantFactory } from "@/factories/application/ApplicantFactory";
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
 import { contactFactory } from "@/factories/application/ContactFactory";
+import { fileInfoFactory } from "@/factories/application/FileInfoFactory";
 import { fundingFactory } from "@/factories/application/FundingFactory";
 import { piFactory } from "@/factories/application/PIFactory";
 import { plannedPublicationFactory } from "@/factories/application/PlannedPublicationFactory";
@@ -20,6 +21,7 @@ import { Logger } from "@/utils";
 import { SectionAColumns } from "./Excel/A/SectionA";
 import { SectionBColumns } from "./Excel/B/SectionB";
 import { SectionCColumns } from "./Excel/C/SectionC";
+import { SectionDColumns } from "./Excel/D/SectionD";
 import {
   HIDDEN_SHEET_NAMES,
   QuestionnaireExcelMiddleware,
@@ -163,7 +165,26 @@ describe("Serialization", () => {
       expect(sheet.getRow(1).values).toEqual([, ...SectionCColumns.map((col) => col.header)]);
     });
 
-    it.todo("should generate SectionD sheet with all dependent sheets", () => {});
+    it("should generate SectionD sheet with all dependent sheets", async () => {
+      const mockPrograms = vi.fn().mockResolvedValue(null);
+
+      const middleware = new QuestionnaireExcelMiddleware(null, {
+        getPrograms: mockPrograms,
+      });
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+      expect(wb.getWorksheet(HIDDEN_SHEET_NAMES.programs)).toBeDefined();
+      expect(mockPrograms).toHaveBeenCalled();
+
+      // NOTE: Values are 1-indexed, need to use a empty value at 0 index
+      // eslint-disable-next-line no-sparse-arrays
+      expect(sheet.getRow(1).values).toEqual([, ...SectionDColumns.map((col) => col.header)]);
+    });
   });
 
   describe("With Data", () => {
@@ -1239,7 +1260,412 @@ describe("Serialization", () => {
       expect(sheet.getCell("K2").value).toBeNull();
     });
 
-    it.todo("should generate SectionD sheet with pre-filled data", () => {});
+    it("should generate SectionD sheet with all data", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        targetedSubmissionDate: "2030/03/15",
+        targetedReleaseDate: "2030/03/15",
+        dataTypes: ["clinicalTrial", "genomics", "imaging", "proteomics"],
+        imagingDataDeIdentified: true,
+        otherDataTypes: "other 1 | other 2 | other 3",
+        clinicalData: {
+          dataTypes: [
+            "biospecimenData",
+            "demographicData",
+            "diagnosisData",
+            "outcomeData",
+            "relapseRecurrenceData",
+            "treatmentData",
+          ],
+          otherDataTypes: "other 1 | other 2 | other 3",
+          futureDataTypes: true,
+        },
+        files: fileInfoFactory.build(3, (index) => ({
+          type: `type-${index + 1}`,
+          extension: `ext${index + 1}`,
+          count: index + 1,
+          amount: `${(index + 1) * 10} MB`,
+        })),
+        dataDeIdentified: true,
+        cellLines: true,
+        modelSystems: true,
+        submitterComment: "Lorem Ipsum",
+      });
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Target Dates
+      expect(sheet.getCell("A2").value).toEqual("2030/03/15");
+      expect(sheet.getCell("B2").value).toEqual("2030/03/15");
+
+      // Data Types
+      expect(sheet.getCell("C2").value).toEqual("Yes");
+      expect(sheet.getCell("D2").value).toEqual("Yes");
+      expect(sheet.getCell("E2").value).toEqual("Yes");
+      expect(sheet.getCell("F2").value).toEqual("Yes");
+      expect(sheet.getCell("G2").value).toEqual("Yes");
+      expect(sheet.getCell("H2").value).toEqual("other 1 | other 2 | other 3");
+
+      // Clinical Data TYpes
+      expect(sheet.getCell("I2").value).toEqual("Yes");
+      expect(sheet.getCell("J2").value).toEqual("Yes");
+      expect(sheet.getCell("K2").value).toEqual("Yes");
+      expect(sheet.getCell("L2").value).toEqual("Yes");
+      expect(sheet.getCell("M2").value).toEqual("Yes");
+      expect(sheet.getCell("N2").value).toEqual("Yes");
+      expect(sheet.getCell("O2").value).toEqual("other 1 | other 2 | other 3");
+      expect(sheet.getCell("P2").value).toEqual("Yes");
+
+      // File Types
+      expect(sheet.getColumn("Q").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        "type-1",
+        "type-2",
+        "type-3",
+      ]);
+      expect(sheet.getColumn("R").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        "ext1",
+        "ext2",
+        "ext3",
+      ]);
+      expect(sheet.getColumn("S").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        1,
+        2,
+        3,
+      ]);
+      expect(sheet.getColumn("T").values).toEqual([
+        undefined, // 1-indexed
+        expect.any(String), // Header
+        "10 MB",
+        "20 MB",
+        "30 MB",
+      ]);
+
+      // Data de-identified
+      expect(sheet.getCell("U2").value).toEqual("Yes");
+
+      // Cell Lines & Model Systems
+      expect(sheet.getCell("V2").value).toEqual("Yes");
+      expect(sheet.getCell("W2").value).toEqual("Yes");
+
+      // Additional Comment
+      expect(sheet.getCell("X2").value).toEqual("Lorem Ipsum");
+    });
+
+    it("should generate SectionD sheet with partial data (only Target Dates)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        targetedSubmissionDate: "2035/07/04",
+        targetedReleaseDate: "2036/08/15",
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Target Dates only
+      expect(sheet.getCell("A2").value).toEqual("2035/07/04");
+      expect(sheet.getCell("B2").value).toEqual("2036/08/15");
+
+      // File Types columns should have only headers
+      for (const col of ["Q", "R", "S", "T"]) {
+        expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
+      }
+    });
+
+    it("should generate SectionD sheet with partial data (only Data Types)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        dataTypes: ["clinicalTrial", "genomics", "imaging"],
+        imagingDataDeIdentified: true,
+        otherDataTypes: "spatialTranscriptomics | singleCell | long-read sequencing",
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Data Types
+      expect(sheet.getCell("C2").value).toEqual("Yes");
+      expect(sheet.getCell("D2").value).toEqual("Yes");
+      expect(sheet.getCell("E2").value).toEqual("Yes");
+      expect(sheet.getCell("F2").value).toEqual("Yes");
+      expect(sheet.getCell("G2").value).toEqual("No");
+      expect(sheet.getCell("H2").value).toEqual(
+        "spatialTranscriptomics | singleCell | long-read sequencing"
+      );
+
+      for (const col of ["Q", "R", "S", "T"]) {
+        expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
+      }
+    });
+
+    it("should generate SectionD sheet with partial data (only Clinical Data Types)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        clinicalData: {
+          dataTypes: [
+            "biospecimenData",
+            "demographicData",
+            "diagnosisData",
+            "outcomeData",
+            "relapseRecurrenceData",
+            "treatmentData",
+          ],
+          otherDataTypes: "patientReportedOutcomes | adverseEvents | concomitantMeds",
+          futureDataTypes: true,
+        },
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Clinical Data Types
+      expect(sheet.getCell("I2").value).toEqual("Yes");
+      expect(sheet.getCell("J2").value).toEqual("Yes");
+      expect(sheet.getCell("K2").value).toEqual("Yes");
+      expect(sheet.getCell("L2").value).toEqual("Yes");
+      expect(sheet.getCell("M2").value).toEqual("Yes");
+      expect(sheet.getCell("N2").value).toEqual("Yes");
+      expect(sheet.getCell("O2").value).toEqual(
+        "patientReportedOutcomes | adverseEvents | concomitantMeds"
+      );
+      expect(sheet.getCell("P2").value).toEqual("Yes");
+
+      // File Types columns should have only headers
+      for (const col of ["Q", "R", "S", "T"]) {
+        expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
+      }
+    });
+
+    it("should generate SectionD sheet with partial data (only File Types)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        files: [
+          { type: "FASTQ", extension: ".fastq.gz", count: 120, amount: "240 GB" },
+          { type: "DICOM", extension: ".dcm", count: 3500, amount: "1.2 TB" },
+          { type: "VCF", extension: ".vcf.gz", count: 42, amount: "6.3 GB" },
+          { type: "BAM", extension: ".bam", count: 15, amount: "90 GB" },
+          { type: "CSV", extension: ".csv", count: 200, amount: "15 MB" },
+        ],
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // File Types
+      expect(sheet.getColumn("Q").values).toEqual([
+        undefined,
+        expect.any(String),
+        "FASTQ",
+        "DICOM",
+        "VCF",
+        "BAM",
+        "CSV",
+      ]);
+      expect(sheet.getColumn("R").values).toEqual([
+        undefined,
+        expect.any(String),
+        ".fastq.gz",
+        ".dcm",
+        ".vcf.gz",
+        ".bam",
+        ".csv",
+      ]);
+      expect(sheet.getColumn("S").values).toEqual([
+        undefined,
+        expect.any(String),
+        120,
+        3500,
+        42,
+        15,
+        200,
+      ]);
+      expect(sheet.getColumn("T").values).toEqual([
+        undefined,
+        expect.any(String),
+        "240 GB",
+        "1.2 TB",
+        "6.3 GB",
+        "90 GB",
+        "15 MB",
+      ]);
+    });
+
+    it("should generate SectionD sheet with partial data (only data de-identified)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        dataDeIdentified: true,
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Data De-identified
+      expect(sheet.getCell("U2").value).toEqual("Yes");
+
+      // File Types columns should have only headers
+      for (const col of ["Q", "R", "S", "T"]) {
+        expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
+      }
+    });
+
+    it("should generate SectionD sheet with partial data (only Cell Lines & Model Systems)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        cellLines: true,
+        modelSystems: false,
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Cell Lines & Model Systems
+      expect(sheet.getCell("V2").value).toEqual("Yes");
+      expect(sheet.getCell("W2").value).toEqual("No");
+
+      // File Types columns should have only headers
+      for (const col of ["Q", "R", "S", "T"]) {
+        expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
+      }
+    });
+
+    it("should generate SectionD sheet with partial data (only Additional Comment)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        submitterComment:
+          "This submission includes harmonized data with detailed provenance, validation notes, and curation steps.",
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Additional Comment
+      expect(sheet.getCell("X2").value).toEqual(
+        "This submission includes harmonized data with detailed provenance, validation notes, and curation steps."
+      );
+
+      // File Types columns should have only headers
+      for (const col of ["Q", "R", "S", "T"]) {
+        expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
+      }
+    });
+
+    it("should generate SectionD sheet with partial data (all null)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        targetedSubmissionDate: null,
+        targetedReleaseDate: null,
+        dataTypes: [],
+        imagingDataDeIdentified: null,
+        otherDataTypes: null,
+        clinicalData: {
+          dataTypes: [],
+          otherDataTypes: null,
+          futureDataTypes: null,
+        },
+        files: [],
+        dataDeIdentified: null,
+        cellLines: null,
+        modelSystems: null,
+        submitterComment: null,
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionD();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Data Types")).toEqual(sheet);
+
+      // Target Dates
+      expect(sheet.getCell("A2").value).toBeNull();
+      expect(sheet.getCell("B2").value).toBeNull();
+
+      // Data Types
+      expect(sheet.getCell("C2").value).toEqual("No");
+      expect(sheet.getCell("D2").value).toEqual("No");
+      expect(sheet.getCell("E2").value).toEqual("No");
+      expect(sheet.getCell("F2").value).toBeNull();
+      expect(sheet.getCell("G2").value).toEqual("No");
+      expect(sheet.getCell("H2").value).toBeNull();
+
+      // Clinical Data Types
+      expect(sheet.getCell("I2").value).toEqual("No");
+      expect(sheet.getCell("J2").value).toEqual("No");
+      expect(sheet.getCell("K2").value).toEqual("No");
+      expect(sheet.getCell("L2").value).toEqual("No");
+      expect(sheet.getCell("M2").value).toEqual("No");
+      expect(sheet.getCell("N2").value).toEqual("No");
+      expect(sheet.getCell("O2").value).toBeNull();
+      expect(sheet.getCell("P2").value).toEqual("No");
+
+      const dynamicCols = ["Q", "R", "S", "T"];
+      for (const col of dynamicCols) {
+        const { values } = sheet.getColumn(col);
+
+        expect(values[0]).toBeUndefined();
+        expect(values[1]).toEqual(expect.any(String));
+
+        values.slice(2)?.forEach((value) => {
+          expect(value === null).toBe(true);
+        });
+      }
+
+      // Data de-identified
+      expect(sheet.getCell("U2").value).toBeNull();
+
+      // Cell Lines & Model Systems
+      expect(sheet.getCell("V2").value).toEqual("No");
+      expect(sheet.getCell("W2").value).toEqual("No");
+
+      // Additional Comment
+      expect(sheet.getCell("X2").value).toBeNull();
+    });
   });
 });
 
@@ -2272,5 +2698,340 @@ describe("Parsing", () => {
         status: "Not Started",
       })
     );
+  });
+
+  it("should parse the SectionD sheet correctly", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      program: programInputFactory.build({
+        _id: "Other",
+        name: "Program 1",
+        abbreviation: "P1",
+        description: "Program Description",
+      }),
+      study: studyFactory.build({
+        name: "Test Study",
+        abbreviation: "TS",
+        description: "Test Study Description",
+        funding: [
+          fundingFactory.build({
+            agency: "Test Agency",
+            grantNumbers: "12345",
+            nciProgramOfficer: "John Doe",
+          }),
+          fundingFactory.build({
+            agency: "Test Agency 2",
+            grantNumbers: "6789",
+            nciProgramOfficer: "Jane Smith",
+          }),
+        ],
+        publications: [
+          publicationFactory.build({
+            title: "Test Publication",
+            pubmedID: "12345678",
+            DOI: "10.1234/test",
+          }),
+          publicationFactory.build({
+            title: "Test Publication 2",
+            pubmedID: "87654321",
+            DOI: "10.1234/random2",
+          }),
+        ],
+        plannedPublications: [
+          plannedPublicationFactory.build({
+            title: "Test Planned Publication",
+            expectedDate: "2026-01-01",
+          }),
+          plannedPublicationFactory.build({
+            title: "Test Planned Publication 2",
+            expectedDate: "2027-01-01",
+          }),
+        ],
+        repositories: [
+          repositoryFactory.build({
+            name: "Repository 1",
+            studyID: "02ec12d2-12c2-45b6-b12d-9fd954f696b8",
+            dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics"],
+            otherDataTypesSubmitted: "other 1 | other 2 | other 3",
+          }),
+          repositoryFactory.build({
+            name: "Repository 2",
+            studyID: "03ec12d2-12c2-45b6-b12d-9fd954f696b8",
+            dataTypesSubmitted: [],
+            otherDataTypesSubmitted: "other 1",
+          }),
+        ],
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.program).toEqual(
+      expect.objectContaining({
+        _id: "Other",
+        name: "Program 1",
+        abbreviation: "P1",
+        description: "Program Description",
+      })
+    );
+    expect(output.study).toEqual(
+      expect.objectContaining({
+        name: "Test Study",
+        abbreviation: "TS",
+        description: "Test Study Description",
+      })
+    );
+    expect(output.study.funding).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          agency: "Test Agency",
+          grantNumbers: "12345",
+          nciProgramOfficer: "John Doe",
+        }),
+        expect.objectContaining({
+          agency: "Test Agency 2",
+          grantNumbers: "6789",
+          nciProgramOfficer: "Jane Smith",
+        }),
+      ])
+    );
+
+    expect(output.study.publications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "Test Publication",
+          pubmedID: "12345678",
+          DOI: "10.1234/test",
+        }),
+        expect.objectContaining({
+          title: "Test Publication 2",
+          pubmedID: "87654321",
+          DOI: "10.1234/random2",
+        }),
+      ])
+    );
+
+    expect(output.study.plannedPublications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "Test Planned Publication",
+          expectedDate: "2026/01/01",
+        }),
+        expect.objectContaining({
+          title: "Test Planned Publication 2",
+          expectedDate: "2027/01/01",
+        }),
+      ])
+    );
+
+    expect(output.study.repositories).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "Repository 1",
+          studyID: "02ec12d2-12c2-45b6-b12d-9fd954f696b8",
+          dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics"],
+          otherDataTypesSubmitted: "other 1 | other 2 | other 3",
+        }),
+        expect.objectContaining({
+          name: "Repository 2",
+          studyID: "03ec12d2-12c2-45b6-b12d-9fd954f696b8",
+          dataTypesSubmitted: [],
+          otherDataTypesSubmitted: "other 1",
+        }),
+      ])
+    );
+  });
+
+  it("should parse the YYYY/MM/DD date from target dates", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      targetedSubmissionDate: "2000/01/01",
+      targetedReleaseDate: "2000/01/01",
+      dataTypes: [],
+      imagingDataDeIdentified: null,
+      otherDataTypes: "",
+      clinicalData: {
+        dataTypes: [],
+        otherDataTypes: "",
+        futureDataTypes: null,
+      },
+      files: [],
+      dataDeIdentified: null,
+      cellLines: null,
+      modelSystems: null,
+      submitterComment: null,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionD();
+
+    // @ts-expect-error Private member
+    const wb = middleware.workbook;
+    const sheet = wb.getWorksheet("Data Types");
+    sheet.getCell("A2").value = "2032-02-29";
+    sheet.getCell("B2").value = "2033-12-25";
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionD();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.targetedSubmissionDate).toEqual("2032/02/29");
+    expect(output.targetedReleaseDate).toEqual("2033/12/25");
+  });
+
+  it("should parse all switches as only yes/no values", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      targetedSubmissionDate: null,
+      targetedReleaseDate: null,
+      dataTypes: ["genomics", "imaging"],
+      imagingDataDeIdentified: false,
+      otherDataTypes: "",
+      clinicalData: {
+        dataTypes: [],
+        otherDataTypes: "",
+        futureDataTypes: true,
+      },
+      files: [],
+      dataDeIdentified: false,
+      cellLines: true,
+      modelSystems: false,
+      submitterComment: null,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionD();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionD();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    expect(output.imagingDataDeIdentified).toBe(false);
+    expect(output.clinicalData?.futureDataTypes).toBe(false);
+    expect(output.dataDeIdentified).toBe(false);
+    expect(output.cellLines).toBe(true);
+    expect(output.modelSystems).toBe(false);
+  });
+
+  it("should ignore invalid clinical dataTypes", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      targetedSubmissionDate: null,
+      targetedReleaseDate: null,
+      dataTypes: ["clinicalTrial"],
+      imagingDataDeIdentified: null,
+      otherDataTypes: "",
+      clinicalData: {
+        dataTypes: [
+          "biospecimenData",
+          "diagnosisData",
+          "outcomeData",
+          "INVALID",
+        ] as ClinicalData["dataTypes"],
+        otherDataTypes: "random | treatmentData | extra",
+        futureDataTypes: false,
+      },
+      files: [],
+      dataDeIdentified: null,
+      cellLines: null,
+      modelSystems: null,
+      submitterComment: null,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionD();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionD();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    expect(output.clinicalData?.dataTypes).toEqual(
+      expect.arrayContaining(["biospecimenData", "diagnosisData", "outcomeData"])
+    );
+    expect(output.clinicalData?.dataTypes).toHaveLength(3);
+
+    expect(output.clinicalData?.dataTypes).not.toContain("treatmentData");
+  });
+
+  it("should not include clinical data types if the clinicalTrial data type is not a 'Yes'", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      targetedSubmissionDate: null,
+      targetedReleaseDate: null,
+      // clinicalTrial not selected
+      dataTypes: ["genomics", "imaging"],
+      imagingDataDeIdentified: null,
+      otherDataTypes: "",
+      clinicalData: {
+        dataTypes: [
+          "biospecimenData",
+          "demographicData",
+          "diagnosisData",
+          "outcomeData",
+          "relapseRecurrenceData",
+          "treatmentData",
+        ],
+        otherDataTypes: "ignored because clinicalTrial is No",
+        futureDataTypes: true,
+      },
+      files: [],
+      dataDeIdentified: null,
+      cellLines: null,
+      modelSystems: null,
+      submitterComment: null,
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionD();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionD();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    expect(output.dataTypes).toEqual(expect.arrayContaining(["genomics", "imaging"]));
+    expect(output.clinicalData?.dataTypes ?? []).toHaveLength(0);
   });
 });

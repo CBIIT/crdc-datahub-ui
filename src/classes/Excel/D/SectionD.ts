@@ -3,7 +3,7 @@ import { union, toString, toSafeInteger } from "lodash";
 
 import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
-import { DATE_NOT_BEFORE_TODAY } from "@/utils";
+import { DATE_NOT_BEFORE_TODAY, FormatDate } from "@/utils";
 
 import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
@@ -109,7 +109,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     const startRow = 2;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [A, B, C, D, E, F, G, H, I, J, K, L, M, N, _O, _P, _Q, _R, _S, _T, U, V, W, X] =
+    const [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, _Q, _R, _S, _T, U, V, W, X] =
       this.getRowCells(ws, startRow);
 
     // Targeted Submission Date
@@ -181,42 +181,56 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     // Clinical Data Types
     I.dataValidation = {
       type: "list",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
     };
     J.dataValidation = {
       type: "list",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
     };
     K.dataValidation = {
       type: "list",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
     };
     L.dataValidation = {
       type: "list",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
     };
     M.dataValidation = {
       type: "list",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
     };
     N.dataValidation = {
       type: "list",
-      allowBlank: false,
+      allowBlank: true,
+      showErrorMessage: true,
+      error: "Please select 'Yes' or 'No' from the dropdown",
+      formulae: [YesNoList],
+    };
+    O.dataValidation = {
+      type: "textLength",
+      allowBlank: true,
+      showErrorMessage: true,
+      error: "Required. Max 200 characters.",
+      formulae: [this.CHARACTER_LIMITS["clinicalData.otherDataTypes"]],
+    };
+    P.dataValidation = {
+      type: "list",
+      allowBlank: true,
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
@@ -377,8 +391,16 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     });
 
     return {
-      targetedSubmissionDate: toString(data.get("targetedSubmissionDate")?.[0]).trim(),
-      targetedReleaseDate: toString(data.get("targetedReleaseDate")?.[0]).trim(),
+      targetedSubmissionDate: FormatDate(
+        toString(data.get("targetedSubmissionDate")?.[0]).trim(),
+        "YYYY/MM/DD",
+        ""
+      ),
+      targetedReleaseDate: FormatDate(
+        toString(data.get("targetedReleaseDate")?.[0]).trim(),
+        "YYYY/MM/DD",
+        ""
+      ),
       dataTypes,
       imagingDataDeIdentified,
       clinicalData: {
