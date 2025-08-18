@@ -380,14 +380,12 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     // Extract files
     const files: FileInfo[] = [];
     data.get("files.type")?.forEach((fileType) => {
-      if (fileType === "Other") {
-        files.push({
-          type: fileType,
-          count: toSafeInteger(data.get("files.count")?.[0]),
-          amount: toString(data.get("files.count")?.[0]).trim(),
-          extension: toString(data.get("files.count")?.[0]).trim(),
-        });
-      }
+      files.push({
+        type: toString(fileType)?.trim(),
+        extension: toString(data.get("files.extension")?.[0]).trim(),
+        count: toSafeInteger(data.get("files.count")?.[0]),
+        amount: toString(data.get("files.count")?.[0]).trim(),
+      });
     });
 
     return {

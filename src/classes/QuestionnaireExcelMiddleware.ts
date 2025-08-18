@@ -551,6 +551,7 @@ export class QuestionnaireExcelMiddleware {
     });
     const newMapping = SectionD.mapValues(newData, {
       programSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.programs),
+      fileTypesSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.fileTypes),
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
