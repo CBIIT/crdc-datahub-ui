@@ -70,6 +70,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     header: "Funding Agency/Organization",
     key: "study.funding.agency",
     width: 40,
+    annotation:
+      "If there is more than one, you may utilize additional rows for the details for each entry.",
     protection,
   },
   {
@@ -88,6 +90,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     header: "Publication Title",
     key: "study.publications.title",
     width: 30,
+    annotation:
+      "If there is more than one, you may utilize additional rows for the details for each entry.",
     protection,
   },
   {
@@ -106,6 +110,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     header: "Planned Publication Title",
     key: "study.plannedPublications.title",
     width: 30,
+    annotation:
+      "If there is more than one, you may utilize additional rows for the details for each entry.",
     protection,
   },
   {
@@ -118,6 +124,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     header: "Repository Name",
     key: "study.repositories.name",
     width: 30,
+    annotation:
+      "If there is more than one, you may utilize additional rows for the details for each entry.",
     protection,
   },
   {
@@ -130,6 +138,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     header: "Data Type(s) Submitted",
     key: "study.repositories.dataTypesSubmitted",
     width: 50,
+    annotation:
+      'Pick from the dropdown or type multiple using the pipe ("|") separator (e.g. "clinicalTrial | genomics | imaging").',
     protection,
   },
   {
