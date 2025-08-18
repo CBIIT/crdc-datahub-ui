@@ -406,7 +406,7 @@ export const questionnaireDataSchema = z
      *
      * @see contactSchema
      */
-    primaryContact: contactSchema.optional(),
+    primaryContact: contactSchema.nullable(),
     /**
      * Additional points of contacts.
      *
