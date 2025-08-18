@@ -143,7 +143,7 @@ const ImportApplicationButton = ({ disabled = false }: Props) => {
       }
     );
 
-    await setData(newData);
+    await setData(newData as QuestionnaireData, { skipSave: true });
 
     setOpenDialog(false);
     setIsUploading(false);
