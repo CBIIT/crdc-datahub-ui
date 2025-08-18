@@ -33,6 +33,7 @@ const StyledText = styled(Typography)({
   fontWeight: 600,
   fontSize: "16px",
   lineHeight: "150%",
+  color: "inherit",
 });
 
 const StyledStack = styled(Stack)({
@@ -54,13 +55,13 @@ const StyledExportButton = styled(Button)({
   padding: "12px 14px",
   marginRight: "auto",
   color: "#136071",
-  "&.Mui-disabled": {
-    color: "#BBBBBB",
-    opacity: 1,
-  },
   "&:hover": {
     color: "#00819E",
     background: "transparent",
+  },
+  "&.Mui-disabled": {
+    color: "#BBBBBB",
+    opacity: 1,
   },
 });
 
@@ -82,6 +83,7 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
   const { data } = useFormContext();
 
   const [downloading, setDownloading] = useState<boolean>(false);
+  const isDisabled = disabled || downloading;
 
   const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
     LIST_INSTITUTIONS,
@@ -130,12 +132,12 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
 
   return (
     <StyledStack direction="row" alignItems="center" justifyContent="center">
-      <StyledExportIcon disabled={disabled} />
+      <StyledExportIcon disabled={isDisabled} />
 
       <StyledExportButton
         variant="text"
         onClick={onButtonClick}
-        disabled={disabled || downloading}
+        disabled={isDisabled}
         aria-label="Export application to Excel button"
         data-testid="export-application-excel-button"
         {...rest}
