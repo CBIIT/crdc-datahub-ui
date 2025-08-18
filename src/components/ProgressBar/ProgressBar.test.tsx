@@ -412,3 +412,92 @@ describe("Basic Functionality", () => {
     }
   );
 });
+
+describe("Implementation Requirements", () => {
+  it("should not show the import button in the Review section", () => {
+    const data: Application = {
+      ...BaseApplication,
+      status: "In Progress",
+      applicant: {
+        ...BaseApplication.applicant,
+        applicantID: "current-user",
+      },
+      questionnaireData: {
+        ...BaseApplication.questionnaireData,
+        sections: Object.keys(config)?.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { queryByTestId } = render(
+      <BaseComponent
+        section={config.REVIEW.id}
+        data={data}
+        user={{
+          _id: "current-user",
+          role: "Submitter",
+          permissions: ["submission_request:view", "submission_request:create"],
+        }}
+      />
+    );
+
+    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
+  });
+
+  it("should show the import button when user is the submission owner", () => {
+    const data: Application = {
+      ...BaseApplication,
+      status: "In Progress",
+      applicant: {
+        ...BaseApplication.applicant,
+        applicantID: "current-user",
+      },
+      questionnaireData: {
+        ...BaseApplication.questionnaireData,
+        sections: Object.keys(config)?.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { getByTestId } = render(
+      <BaseComponent
+        section={config.A.id}
+        data={data}
+        user={{
+          _id: "current-user",
+          role: "Admin",
+          permissions: ["submission_request:view", "submission_request:create"],
+        }}
+      />
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeInTheDocument();
+  });
+
+  it("should not show the import button when user is not the submission owner", () => {
+    const data: Application = {
+      ...BaseApplication,
+      status: "In Progress",
+      applicant: {
+        ...BaseApplication.applicant,
+        applicantID: "other-user",
+      },
+      questionnaireData: {
+        ...BaseApplication.questionnaireData,
+        sections: Object.keys(config)?.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { queryByTestId } = render(
+      <BaseComponent
+        section={config.A.id}
+        data={data}
+        user={{
+          _id: "current-user",
+          role: "Admin",
+          permissions: ["submission_request:view", "submission_request:create"],
+        }}
+      />
+    );
+
+    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
+  });
+});
