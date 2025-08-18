@@ -4,6 +4,9 @@ import { GraphQLError } from "graphql";
 import { axe } from "vitest-axe";
 
 import {
+  DOWNLOAD_ALL_RELEASED_NODES,
+  DownloadAllReleasedNodesResp,
+  DownloadAllReleaseNodesInput,
   LIST_RELEASED_DATA_RECORDS,
   ListReleasedDataRecordsInput,
   ListReleasedDataRecordsResponse,
@@ -37,13 +40,29 @@ const BaseProps: DataExplorerStudyExportProps = {
   columns: [],
 };
 
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
 describe("Accessibility", () => {
   it("should have no accessibility violations", async () => {
     const { container, getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: MockParent,
     });
 
-    expect(getByTestId("data-explorer-export-button")).toBeEnabled(); // Sanity check
+    expect(getByTestId("export-study-metadata-toggle")).toBeEnabled(); // Sanity check
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("should have no accessibility violations when open", async () => {
+    const { container, getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: MockParent,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    expect(getByTestId("export-study-metadata-popper")).toBeVisible(); // Sanity check
 
     expect(await axe(container)).toHaveNoViolations();
   });
@@ -53,7 +72,7 @@ describe("Accessibility", () => {
       wrapper: MockParent,
     });
 
-    expect(getByTestId("data-explorer-export-button")).toBeDisabled(); // Sanity check
+    expect(getByTestId("export-study-metadata-toggle")).toBeDisabled(); // Sanity check
 
     expect(await axe(container)).toHaveNoViolations();
   });
@@ -66,7 +85,7 @@ describe("Basic Functionality", () => {
     ).not.toThrow();
   });
 
-  it("should notify the user when starting the download", async () => {
+  it("should notify the user when starting the download (Selected Metadata)", async () => {
     const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
       request: {
         query: LIST_RELEASED_DATA_RECORDS,
@@ -79,11 +98,13 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -95,7 +116,38 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("should gracefully handle API errors (GraphQL)", async () => {
+  it("should notify the user when starting the download (All Metadata)", async () => {
+    const mock: MockedResponse<DownloadAllReleasedNodesResp, DownloadAllReleaseNodesInput> = {
+      request: {
+        query: DOWNLOAD_ALL_RELEASED_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          downloadAllReleasedNodes: null, // This never resolves anyway
+        },
+      },
+    };
+
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download full study metadata"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Downloading the requested metadata file. This may take a moment...",
+        {
+          variant: "default",
+        }
+      );
+    });
+  });
+
+  it("should gracefully handle API errors (GraphQL) (Selected Metadata)", async () => {
     const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
       request: {
         query: LIST_RELEASED_DATA_RECORDS,
@@ -106,11 +158,13 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -122,13 +176,43 @@ describe("Basic Functionality", () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId("data-explorer-export-button")).toBeEnabled();
+      expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
     });
 
     expect(mockDownloadBlob).not.toHaveBeenCalled();
   });
 
-  it("should gracefully handle API errors (Network)", async () => {
+  it("should gracefully handle API errors (GraphQL) (All Metadata)", async () => {
+    const mock: MockedResponse<DownloadAllReleasedNodesResp, DownloadAllReleaseNodesInput> = {
+      request: {
+        query: DOWNLOAD_ALL_RELEASED_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError("Mock error")],
+      },
+    };
+
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download full study metadata"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Mock error", {
+        variant: "error",
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
+    });
+  });
+
+  it("should gracefully handle API errors (Network) (Selected Metadata)", async () => {
     const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
       request: {
         query: LIST_RELEASED_DATA_RECORDS,
@@ -137,11 +221,13 @@ describe("Basic Functionality", () => {
       error: new Error("Network error"),
     };
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -153,13 +239,41 @@ describe("Basic Functionality", () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId("data-explorer-export-button")).toBeEnabled();
+      expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
     });
 
     expect(mockDownloadBlob).not.toHaveBeenCalled();
   });
 
-  it("should gracefully handle API errors (API)", async () => {
+  it("should gracefully handle API errors (Network) (All Metadata)", async () => {
+    const mock: MockedResponse<DownloadAllReleasedNodesResp, DownloadAllReleaseNodesInput> = {
+      request: {
+        query: DOWNLOAD_ALL_RELEASED_NODES,
+      },
+      variableMatcher: () => true,
+      error: new Error("Network error"),
+    };
+
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download full study metadata"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Network error", {
+        variant: "error",
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
+    });
+  });
+
+  it("should gracefully handle API errors (API) (Selected Metadata)", async () => {
     const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
       request: {
         query: LIST_RELEASED_DATA_RECORDS,
@@ -172,11 +286,13 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -188,10 +304,41 @@ describe("Basic Functionality", () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId("data-explorer-export-button")).toBeEnabled();
+      expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
     });
 
     expect(mockDownloadBlob).not.toHaveBeenCalled();
+  });
+
+  it("should gracefully handle API errors (API) (All Metadata)", async () => {
+    const mock: MockedResponse<DownloadAllReleasedNodesResp, DownloadAllReleaseNodesInput> = {
+      request: {
+        query: DOWNLOAD_ALL_RELEASED_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          downloadAllReleasedNodes: null,
+        },
+      },
+    };
+
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download full study metadata"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Oops! The API did not return a download link.",
+        {
+          variant: "error",
+        }
+      );
+    });
   });
 
   it("should gracefully handle API errors (Empty response)", async () => {
@@ -210,11 +357,13 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -226,7 +375,7 @@ describe("Basic Functionality", () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId("data-explorer-export-button")).toBeEnabled();
+      expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
     });
 
     expect(mockDownloadBlob).not.toHaveBeenCalled();
@@ -289,11 +438,13 @@ describe("Basic Functionality", () => {
       },
     ];
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={mocks}>{children}</MockParent>,
     });
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledOnce();
@@ -324,7 +475,7 @@ describe("Basic Functionality", () => {
       wrapper: MockParent,
     });
 
-    expect(getByTestId("data-explorer-export-button")).toBeDisabled();
+    expect(getByTestId("export-study-metadata-toggle")).toBeDisabled();
 
     rerender(
       <MockParent>
@@ -332,10 +483,10 @@ describe("Basic Functionality", () => {
       </MockParent>
     );
 
-    expect(getByTestId("data-explorer-export-button")).toBeEnabled();
+    expect(getByTestId("export-study-metadata-toggle")).toBeEnabled();
   });
 
-  it("should be disabled when downloading the data", async () => {
+  it("should be disabled when downloading the data (Selected Metadata)", async () => {
     vi.useFakeTimers();
 
     const mock: MockedResponse<ListReleasedDataRecordsResponse, ListReleasedDataRecordsInput> = {
@@ -351,45 +502,77 @@ describe("Basic Functionality", () => {
       delay: 1000,
     };
 
-    const { getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
       wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
     });
 
-    expect(getByTestId("data-explorer-export-button")).toBeEnabled(); // Sanity check
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByText("Download selected metadata"));
+
+    userEvent.click(getByTestId("export-study-metadata-toggle")); // Reopen the popper
 
     await waitFor(() => {
-      expect(getByTestId("data-explorer-export-button")).toBeDisabled();
+      expect(getByText("Download selected metadata")).toHaveAttribute("aria-disabled");
+      expect(getByText("Download full study metadata")).toHaveAttribute("aria-disabled");
     });
 
     vi.useRealTimers();
   });
+
+  it("should be disabled when downloading the data (All Metadata)", async () => {
+    vi.useFakeTimers();
+
+    const mock: MockedResponse<DownloadAllReleasedNodesResp, DownloadAllReleaseNodesInput> = {
+      request: {
+        query: DOWNLOAD_ALL_RELEASED_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          downloadAllReleasedNodes: null, // This never resolves anyway
+        },
+      },
+      delay: 1000,
+    };
+
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download full study metadata"));
+
+    userEvent.click(getByTestId("export-study-metadata-toggle")); // Reopen the popper
+
+    await waitFor(() => {
+      expect(getByText("Download selected metadata")).toHaveAttribute("aria-disabled");
+      expect(getByText("Download full study metadata")).toHaveAttribute("aria-disabled");
+    });
+
+    vi.useRealTimers();
+  });
+
+  it("should close the menu when pressing the close button", async () => {
+    const { getByTestId, getByText, queryByText } = render(
+      <DataExplorerStudyExport {...BaseProps} />,
+      {
+        wrapper: ({ children }) => <MockParent mocks={[]}>{children}</MockParent>,
+      }
+    );
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    expect(getByText("Available Downloads")).toBeVisible();
+
+    userEvent.click(getByTestId("menu-popper-close-button"));
+
+    expect(queryByText("Available Downloads")).toBeNull();
+  });
 });
 
 describe("Implementation Requirements", () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("should have a tooltip on the button", async () => {
-    const { getByTestId, findByRole } = render(<DataExplorerStudyExport {...BaseProps} />, {
-      wrapper: MockParent,
-    });
-
-    userEvent.hover(getByTestId("data-explorer-export-button"));
-
-    const tooltip = await findByRole("tooltip");
-
-    expect(tooltip).toHaveTextContent("Download displayed metadata in .tsv format");
-
-    userEvent.unhover(tooltip);
-
-    await waitFor(() => {
-      expect(tooltip).not.toBeInTheDocument();
-    });
-  });
-
   it.each<
     { expected: string; date: Date } & Pick<
       DataExplorerStudyExportProps,
@@ -451,7 +634,7 @@ describe("Implementation Requirements", () => {
         },
       };
 
-      const { getByTestId } = render(
+      const { getByTestId, getByText } = render(
         <DataExplorerStudyExport
           {...BaseProps}
           studyDisplayName={studyDisplayName}
@@ -463,7 +646,9 @@ describe("Implementation Requirements", () => {
         }
       );
 
-      userEvent.click(getByTestId("data-explorer-export-button"));
+      userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+      userEvent.click(getByText("Download selected metadata"));
 
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledOnce();
@@ -508,14 +693,16 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <DataExplorerStudyExport {...BaseProps} columns={mockColumns} />,
       {
         wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
       }
     );
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledOnce();
@@ -550,14 +737,16 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(
+    const { getByTestId, getByText } = render(
       <DataExplorerStudyExport {...BaseProps} columns={mockColumns} />,
       {
         wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
       }
     );
 
-    userEvent.click(getByTestId("data-explorer-export-button"));
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download selected metadata"));
 
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledOnce();
@@ -566,6 +755,38 @@ describe("Implementation Requirements", () => {
     const downloadContent = mockDownloadBlob.mock.calls[0][0].split("\r\n");
     expect(downloadContent[0]).toBe("col1\tcol2");
     expect(downloadContent[1]).toBe("value1\t");
+  });
+
+  it("should open the presigned download link returned by the API", async () => {
+    vi.spyOn(window, "open").mockImplementation(() => null);
+
+    const mock: MockedResponse<DownloadAllReleasedNodesResp, DownloadAllReleaseNodesInput> = {
+      request: {
+        query: DOWNLOAD_ALL_RELEASED_NODES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          downloadAllReleasedNodes: "https://localhost:4010/presigned-url-here",
+        },
+      },
+    };
+
+    const { getByTestId, getByText } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: ({ children }) => <MockParent mocks={[mock]}>{children}</MockParent>,
+    });
+
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
+
+    userEvent.click(getByText("Download full study metadata"));
+
+    await waitFor(() => {
+      expect(window.open).toHaveBeenCalledWith(
+        "https://localhost:4010/presigned-url-here",
+        expect.anything(),
+        expect.anything()
+      );
+    });
   });
 });
 
@@ -586,17 +807,12 @@ describe("Snapshots", () => {
     expect(container).toMatchSnapshot();
   });
 
-  it("should match snapshot when hovered", async () => {
-    const { container, getByTestId, findByRole } = render(
-      <DataExplorerStudyExport {...BaseProps} />,
-      {
-        wrapper: MockParent,
-      }
-    );
+  it("should match snapshot when open", async () => {
+    const { container, getByTestId } = render(<DataExplorerStudyExport {...BaseProps} />, {
+      wrapper: MockParent,
+    });
 
-    userEvent.hover(getByTestId("data-explorer-export-button"));
-
-    await findByRole("tooltip");
+    userEvent.click(getByTestId("export-study-metadata-toggle"));
 
     expect(container).toMatchSnapshot();
   });

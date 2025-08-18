@@ -62,12 +62,18 @@ const StyledIconButton = styled(IconButton)({
 });
 
 const StyledExpandMoreIcon = styled(ExpandMoreIcon)({
+  ".Mui-disabled &": {
+    color: "#BBBBBB",
+  },
   color: "#000",
   fontSize: "18px",
   alignSelf: "flex-end",
 });
 
 const StyledDownloadIcon = styled(DownloadIconSvg)({
+  ".Mui-disabled &": {
+    color: "#BBBBBB",
+  },
   color: "#346798",
   width: "24px",
   height: "24px",
@@ -76,6 +82,10 @@ const StyledDownloadIcon = styled(DownloadIconSvg)({
 const StyledPaper = styled(Paper)({
   border: "1px solid #000000",
   borderRadius: "8px",
+});
+
+const StyledMenuList = styled(MenuList)({
+  paddingBottom: 0,
 });
 
 const StyledMenuHeader = styled(Stack)({
@@ -227,7 +237,7 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
       window.open(data.downloadAllReleasedNodes, "_blank", "noopener,noreferrer");
     } catch (err) {
       Logger.error("Error during study download", err);
-      enqueueSnackbar(err?.message?.trim() || "Oops! Unable to download the study metadata.", {
+      enqueueSnackbar(err?.message, {
         variant: "error",
       });
     } finally {
@@ -250,19 +260,19 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
         </Stack>
       </StyledIconButton>
       <Popper open={menuOpen} anchorEl={anchorRef.current} placement="bottom-end">
-        <StyledPaper>
+        <StyledPaper data-testid="export-study-metadata-popper">
           <StyledMenuHeader direction="row" alignItems="center" justifyContent="space-between">
             <StyledMenuTitle variant="subtitle1">Available Downloads</StyledMenuTitle>
             <StyledPopperCloseButton
               aria-label="close"
-              data-testid="column-visibility-popper-close-button"
+              data-testid="menu-popper-close-button"
               onClick={handleClose}
             >
               <CloseIconSvg />
             </StyledPopperCloseButton>
           </StyledMenuHeader>
           <ClickAwayListener onClickAway={handleClose}>
-            <MenuList autoFocusItem={menuOpen}>
+            <StyledMenuList autoFocusItem={menuOpen}>
               <StyledMenuItem onClick={handleClickSelected} disabled={loading}>
                 Download selected metadata
                 <StyledExportFormat>(TSV)</StyledExportFormat>
@@ -271,7 +281,7 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
                 Download full study metadata
                 <StyledExportFormat>(TSV)</StyledExportFormat>
               </StyledMenuItem>
-            </MenuList>
+            </StyledMenuList>
           </ClickAwayListener>
         </StyledPaper>
       </Popper>

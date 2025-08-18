@@ -1,17 +1,19 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/test";
-import { GraphQLError } from "graphql";
+import { userEvent, within, screen, fn } from "@storybook/test";
 
 import {
   ListReleasedDataRecordsResponse,
   ListReleasedDataRecordsInput,
   LIST_RELEASED_DATA_RECORDS,
+  DOWNLOAD_ALL_RELEASED_NODES,
+  DownloadAllReleasedNodesResp,
+  DownloadAllReleaseNodesInput,
 } from "../../graphql";
 
 import Button, { DataExplorerStudyExportProps } from "./index";
 
-const mockSuccessResponse: MockedResponse<
+const mockListDataRecordsSuccess: MockedResponse<
   ListReleasedDataRecordsResponse,
   ListReleasedDataRecordsInput
 > = {
@@ -36,16 +38,18 @@ const mockSuccessResponse: MockedResponse<
   },
 };
 
-const mockErrorResponse: MockedResponse<
-  ListReleasedDataRecordsResponse,
-  ListReleasedDataRecordsInput
+const mockDownloadNodesResponse: MockedResponse<
+  DownloadAllReleasedNodesResp,
+  DownloadAllReleaseNodesInput
 > = {
   request: {
-    query: LIST_RELEASED_DATA_RECORDS,
+    query: DOWNLOAD_ALL_RELEASED_NODES,
   },
   variableMatcher: () => true,
   result: {
-    errors: [new GraphQLError("Mock error")],
+    data: {
+      downloadAllReleasedNodes: "https://localhost:4010/presigned-url-here",
+    },
   },
 };
 
@@ -82,6 +86,14 @@ const meta: Meta<CustomStoryProps> = {
       },
     ],
   },
+  beforeEach: () => {
+    window.open = fn(window.open).mockImplementation(
+      (_) =>
+        ({
+          close: () => {},
+        }) as Window
+    );
+  },
   tags: ["autodocs"],
 } satisfies Meta<CustomStoryProps>;
 
@@ -95,19 +107,24 @@ export const Default: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [mockSuccessResponse],
+      mocks: [mockListDataRecordsSuccess, mockDownloadNodesResponse],
     },
   },
 };
 
-export const Hovered: Story = {
+export const Toggled: Story = {
   args: {
     ...meta.args,
   },
   play: async ({ canvasElement }) => {
     const button = within(canvasElement).getByRole("button");
 
-    userEvent.hover(button);
+    userEvent.click(button);
+
+    await screen.findByText("Available Downloads");
+  },
+  parameters: {
+    ...Default.parameters,
   },
 };
 
@@ -115,21 +132,5 @@ export const Disabled: Story = {
   args: {
     ...meta.args,
     disabled: true,
-  },
-};
-
-export const ExportError: Story = {
-  args: {
-    ...meta.args,
-  },
-  parameters: {
-    apolloClient: {
-      mocks: [mockErrorResponse],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const button = within(canvasElement).getByRole("button");
-
-    userEvent.click(button);
   },
 };
