@@ -409,7 +409,7 @@ export class QuestionnaireExcelMiddleware {
       );
     });
     const newMapping = SectionB.mapValues(newData, {
-      programSheet: await this.createProgramsSheet(),
+      programSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.programs),
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
@@ -534,7 +534,7 @@ export class QuestionnaireExcelMiddleware {
       );
     });
     const newMapping = SectionD.mapValues(newData, {
-      programSheet: await this.createProgramsSheet(),
+      programSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.programs),
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
