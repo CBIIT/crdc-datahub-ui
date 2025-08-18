@@ -114,7 +114,7 @@ export const contactSchema = z
      *
      * @since 3.4.0
      */
-    institutionID: z.uuidv4(),
+    institutionID: z.uuidv4().nullable(),
   })
   .strict();
 
