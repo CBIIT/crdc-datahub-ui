@@ -17,6 +17,12 @@ export const YesNoList = '"Yes,No"';
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<DKeys> = {
   otherDataTypes: 200,
+  "clinicalData.otherDataTypes": 200,
+  "files.type": 30,
+  "files.extension": 10,
+  "files.count": 10,
+  "files.amount": 50,
+  submitterComment: 500,
 };
 
 type SectionDDeps = {
@@ -81,6 +87,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       dataDeIdentified: toYesNo(data?.dataDeIdentified || null),
       cellLines: toYesNo(data?.cellLines || false),
       modelSystems: toYesNo(data?.modelSystems || false),
+      submitterComment: data?.submitterComment || "",
     });
     rows.add(row);
 
@@ -102,7 +109,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     const startRow = 2;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [A, B, C, D, E, F, G, H, I, J, K, L, M, N, _O, _P, _Q, _R, _S, _T, U, V, W] =
+    const [A, B, C, D, E, F, G, H, I, J, K, L, M, N, _O, _P, _Q, _R, _S, _T, U, V, W, X] =
       this.getRowCells(ws, startRow);
 
     // Targeted Submission Date
@@ -238,12 +245,22 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     });
     this.forEachCellInColumn(ws, "files.count", (cell) => {
       cell.dataValidation = {
-        type: "whole",
-        operator: "greaterThan",
+        type: "textLength",
+        operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be greater than 0.",
-        formulae: [0],
+        error: "Required. Max 10 characters.",
+        formulae: [this.CHARACTER_LIMITS["files.count"]],
+      };
+    });
+    this.forEachCellInColumn(ws, "files.amount", (cell) => {
+      cell.dataValidation = {
+        type: "textLength",
+        operator: "lessThanOrEqual",
+        allowBlank: false,
+        showErrorMessage: true,
+        error: "Required. Max 50 characters.",
+        formulae: [this.CHARACTER_LIMITS["files.amount"]],
       };
     });
 
@@ -271,6 +288,15 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       showErrorMessage: true,
       error: "Please select 'Yes' or 'No' from the dropdown",
       formulae: [YesNoList],
+    };
+
+    X.dataValidation = {
+      type: "textLength",
+      operator: "lessThanOrEqual",
+      allowBlank: false,
+      showErrorMessage: true,
+      error: "Required. Max 500 characters.",
+      formulae: [this.CHARACTER_LIMITS.submitterComment],
     };
   }
 

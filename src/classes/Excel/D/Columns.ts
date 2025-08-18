@@ -169,4 +169,10 @@ export const COLUMNS: ColumnDef<DKeys>[] = [
     width: 15,
     protection,
   },
+  {
+    header: "Additional Comments or Information about this submission.",
+    key: "submitterComment",
+    width: 80,
+    protection,
+  },
 ];
