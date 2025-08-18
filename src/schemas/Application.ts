@@ -247,7 +247,7 @@ export const plannedPublicationSchema = z
     title: z.string().max(500),
     /**
      * Target date for publication release.
-     * Stored as YYYY-MM-DD.
+     * Stored as YYYY/MM/DD.
      */
     expectedDate: z.coerce.date().transform((date) => date.toISOString().slice(0, 10)),
   })
