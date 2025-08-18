@@ -262,7 +262,6 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         agency: "",
         grantNumbers: "",
         nciProgramOfficer: "",
-        nciGPA: "",
       },
     ]);
   };

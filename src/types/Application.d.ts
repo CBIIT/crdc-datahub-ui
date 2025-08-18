@@ -41,6 +41,10 @@ type Application = {
    */
   newInstitutions: Array<{ id: string; name: string }>;
   /**
+   * The name of the Genomic Program Administrator
+   */
+  GPAName: string;
+  /**
    * The current form version
    */
   version: string;
@@ -143,6 +147,7 @@ type Study = {
   funding: Funding[];
   isDbGapRegistered: boolean;
   dbGaPPPHSNumber: string;
+  GPAName: string;
 };
 
 type Repository = {
@@ -174,7 +179,13 @@ type Funding = {
   agency: string;
   grantNumbers: string;
   nciProgramOfficer: string;
-  nciGPA: string;
+  /**
+   * The name of the NCI Genomic Program Administrator
+   *
+   * @deprecated Use `GPAName` instead.
+   * @see Study
+   */
+  nciGPA?: string;
 };
 
 type HistoryEvent = HistoryBase<ApplicationStatus>;

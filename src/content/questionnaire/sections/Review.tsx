@@ -319,12 +319,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
               value={fundingAgency.nciProgramOfficer}
               valuePlacement="bottom"
             />
-            <ReviewDataListingProperty
-              idPrefix={`review-funding-agency-${idx}-nci-genomic-program-administrator`}
-              label="NCI Genomic Program Administrator"
-              value={fundingAgency.nciGPA}
-              valuePlacement="bottom"
-            />
           </ReviewDataListing>
         ))}
 
@@ -454,6 +448,12 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             label="dbGaP PHS NUMBER"
             value={study.isDbGapRegistered ? study.dbGaPPPHSNumber : "NA"}
             textTransform="none"
+          />
+          <ReviewDataListingProperty
+            idPrefix="review-genomic-program-administrator-name"
+            label="Genomic Program Administrator"
+            value={study.GPAName}
+            valuePlacement="bottom"
           />
         </ReviewDataListing>
 
