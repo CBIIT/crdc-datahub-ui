@@ -1,5 +1,3 @@
-import sectionMetadata from "@/config/SectionMetadata";
-
 import { CharacterLimitsMap, ColumnDef } from "../SectionBase";
 
 export type AKeys =
@@ -120,7 +118,8 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
     key: "additionalContacts.firstName",
     width: 25,
     protection: { locked: true },
-    annotation: sectionMetadata.A.sections.ADDITIONAL_CONTACTS.description,
+    annotation:
+      "If there is more than one, you may utilize additional rows for the details for each entry.",
   },
   {
     header: "Additional Contact(s) Last name",

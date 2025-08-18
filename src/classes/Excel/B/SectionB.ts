@@ -350,17 +350,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         formulae: [this.CHARACTER_LIMITS["study.repositories.studyID"]],
       };
     });
-
-    // Add header annotation
-    ws.getCell("R1").dataValidation = {
-      type: "custom",
-      allowBlank: false,
-      showInputMessage: true,
-      promptTitle: "Data Type(s) Submitted",
-      prompt:
-        "Pick from the dropdown or type multiple using the | separator (e.g. 'clinicalTrial | genomics | imaging').",
-      formulae: ["TRUE"],
-    };
     this.forEachCellInColumn(ws, "study.repositories.dataTypesSubmitted", (cell) => {
       cell.dataValidation = {
         type: "list",

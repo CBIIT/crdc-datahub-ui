@@ -129,6 +129,8 @@ export const COLUMNS: ColumnDef<DKeys>[] = [
     header: "File Type",
     key: "files.type",
     width: 30,
+    annotation:
+      "If there is more than one, you may utilize additional rows for the details for each entry.",
     protection,
   },
   {
