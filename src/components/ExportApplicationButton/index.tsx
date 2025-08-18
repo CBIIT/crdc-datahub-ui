@@ -100,8 +100,6 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
     onError: (e) => Logger.error("ExportTemplateButton: listOrgs API error:", e),
   });
 
-  const requestName = "TODO"; // TODO: What is the name of the request??
-
   const onButtonClick = async () => {
     if (!data?.questionnaireData) {
       Logger.error("ExportTemplateButton: No questionnaire data found");
@@ -123,7 +121,7 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
 
     downloadBlob(
       file,
-      `CRDC_Submission_Request_${requestName}_v${data.version}.xlsx`,
+      `CRDC_Submission_Request_${data.studyAbbreviation || ""}_v${data.version || ""}.xlsx`,
       "application/vnd.ms-excel"
     );
 

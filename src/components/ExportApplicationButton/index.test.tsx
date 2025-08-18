@@ -40,6 +40,7 @@ vi.mock("@/components/Contexts/FormContext", async () => ({
     formContextStateFactory.build({
       data: applicationFactory.build({
         questionnaireData: questionnaireDataFactory.build(),
+        studyAbbreviation: "Study-Abbrev",
         version: "3.5",
       }),
     })
@@ -240,7 +241,7 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockDownloadBlob).toHaveBeenCalledWith(
         expect.anything(),
-        "CRDC_Submission_Request_TODO_v3.5.xlsx",
+        "CRDC_Submission_Request_Study-Abbrev_v3.5.xlsx",
         "application/vnd.ms-excel"
       );
     });
