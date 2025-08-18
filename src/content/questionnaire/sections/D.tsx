@@ -257,6 +257,19 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
+  useEffect(() => {
+    setDataTypes(data?.dataTypes || []);
+    setIsClinical(dataTypes.includes("clinicalTrial"));
+  }, [data?.dataTypes]);
+
+  useEffect(() => {
+    setFileTypeData(data.files?.map(mapObjectWithKey) || []);
+  }, [data?.files]);
+
+  useEffect(() => {
+    setCellLineModelSystemCheckboxes(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
+  }, [data?.cellLines, data?.modelSystems]);
+
   return (
     <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Data Delivery and Release Dates Section */}

@@ -142,6 +142,38 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
+  useEffect(() => {
+    setCancerTypes(data?.cancerTypes || []);
+  }, [data?.cancerTypes]);
+
+  useEffect(() => {
+    setOtherCancerTypes(data?.otherCancerTypes);
+  }, [data?.otherCancerTypes]);
+
+  useEffect(() => {
+    setOtherCancerTypesEnabled(data?.otherCancerTypesEnabled);
+  }, [data?.otherCancerTypesEnabled]);
+
+  useEffect(() => {
+    setOtherSpecies(data?.otherSpeciesOfSubjects);
+  }, [data?.otherSpeciesOfSubjects]);
+
+  useEffect(() => {
+    setOtherSpeciesEnabled(data?.otherSpeciesEnabled);
+  }, [data?.otherSpeciesEnabled]);
+
+  useEffect(() => {
+    setIsdbGaPRegistered(data?.study?.isDbGapRegistered);
+  }, [data?.study?.isDbGapRegistered]);
+
+  useEffect(() => {
+    setDbGaPPPHSNumber(data?.study?.dbGaPPPHSNumber);
+  }, [data?.study?.dbGaPPPHSNumber]);
+
+  useEffect(() => {
+    setGPAName(data?.study?.GPAName);
+  }, [data?.study?.GPAName]);
+
   return (
     <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Data Access Section */}

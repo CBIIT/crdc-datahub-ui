@@ -60,7 +60,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { B: SectionBMetadata } = SectionMetadata;
 
   const [program, setProgram] = useState<ProgramInput>(null);
-  const [study] = useState<Study>(data.study);
+  const [study, setStudy] = useState<Study>(data.study);
   const [publications, setPublications] = useState<KeyedPublication[]>(
     data.study?.publications?.map(mapObjectWithKey) || []
   );
@@ -301,6 +301,30 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
+
+  useEffect(() => {
+    setProgram(data?.program);
+  }, [data?.program]);
+
+  useEffect(() => {
+    setStudy(data?.study);
+  }, [data?.study]);
+
+  useEffect(() => {
+    setPublications(data.study?.publications?.map(mapObjectWithKey) || []);
+  }, [data.study?.publications]);
+
+  useEffect(() => {
+    setPlannedPublications(data.study?.plannedPublications?.map(mapObjectWithKey) || []);
+  }, [data.study?.plannedPublications]);
+
+  useEffect(() => {
+    setRepositories(data.study?.repositories?.map(mapObjectWithKey) || []);
+  }, [data.study?.repositories]);
+
+  useEffect(() => {
+    setFundings(data.study?.funding?.map(mapObjectWithKey) || []);
+  }, [data.study?.funding]);
 
   const allProgramOptions = useMemo(() => {
     // Filter out system-managed programs

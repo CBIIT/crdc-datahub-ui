@@ -150,6 +150,22 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
 
+  useEffect(() => {
+    setPi(data?.pi);
+  }, [data?.pi]);
+
+  useEffect(() => {
+    setPrimaryContact(data?.primaryContact);
+  }, [data?.primaryContact]);
+
+  useEffect(() => {
+    setPiAsPrimaryContact(data?.piAsPrimaryContact || false);
+  }, [data?.piAsPrimaryContact]);
+
+  useEffect(() => {
+    setAdditionalContacts(data?.additionalContacts?.map(mapObjectWithKey) || []);
+  }, [data?.additionalContacts]);
+
   return (
     <FormContainer
       ref={formContainerRef}
