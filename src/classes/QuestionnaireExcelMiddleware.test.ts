@@ -1,3 +1,5 @@
+import { Worksheet } from "exceljs";
+
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
 import { InitialQuestionnaire } from "@/config/InitialValues";
 import { InitialSections } from "@/config/SectionConfig";
@@ -1311,7 +1313,7 @@ describe("Serialization", () => {
       expect(sheet.getCell("G2").value).toEqual("Yes");
       expect(sheet.getCell("H2").value).toEqual("other 1 | other 2 | other 3");
 
-      // Clinical Data TYpes
+      // Clinical Data Types
       expect(sheet.getCell("I2").value).toEqual("Yes");
       expect(sheet.getCell("J2").value).toEqual("Yes");
       expect(sheet.getCell("K2").value).toEqual("Yes");
@@ -2442,6 +2444,106 @@ describe("Parsing", () => {
     expect(repo3.dataTypesSubmitted).toEqual([]);
   });
 
+  it("should default to 'Other' when program name is not found", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      program: programInputFactory.build({
+        _id: "INVALID_PROGRAM",
+        name: "Program B",
+        abbreviation: "PB",
+        description: "Program B Desc",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    expect(output.program).toEqual(
+      expect.objectContaining({
+        _id: "Other",
+        name: "Program B",
+        abbreviation: "PB",
+        description: "Program B Desc",
+      })
+    );
+  });
+
+  it("should be graceful when program dependencies are invalid", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      program: programInputFactory.build({
+        _id: "ABC",
+        name: "Program B",
+        abbreviation: "PB",
+        description: "Program B Desc",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {
+      getPrograms: null,
+    });
+
+    const stubProgramSheet = {
+      name: "ProgramList",
+      rowCount: 2,
+      getColumn: vi.fn().mockImplementation((n: number) => {
+        if (n === 1) {
+          return undefined;
+        }
+        return { values: [] };
+      }),
+      getCell: vi.fn(),
+      addRow: vi.fn(),
+      state: "veryHidden",
+    } as unknown as Worksheet;
+
+    // @ts-expect-error Private member
+    const originalCreateProgramsSheet = middleware.createProgramsSheet.bind(middleware);
+    // @ts-expect-error Private member
+    middleware.createProgramsSheet = vi.fn().mockResolvedValue(stubProgramSheet);
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeSectionB();
+
+    expect(sheet.getCell("A2").value).toEqual("Other");
+    expect(sheet.getCell("B2").value).toEqual("Program B");
+    expect(sheet.getCell("C2").value).toEqual("PB");
+    expect(sheet.getCell("D2").value).toEqual("Program B Desc");
+
+    // @ts-expect-error Private member
+    middleware.createProgramsSheet = originalCreateProgramsSheet;
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.program).toEqual(
+      expect.objectContaining({
+        _id: "Other",
+        name: "Program B",
+        abbreviation: "PB",
+        description: "Program B Desc",
+      })
+    );
+  });
+
   it.each<[string, string]>([
     [HIDDEN_SHEET_NAMES.programs, "SectionB.ts: The programs sheet is missing or invalid."],
   ])(
@@ -2702,156 +2804,118 @@ describe("Parsing", () => {
 
   it("should parse the SectionD sheet correctly", async () => {
     const mockForm = questionnaireDataFactory.build({
-      program: programInputFactory.build({
-        _id: "Other",
-        name: "Program 1",
-        abbreviation: "P1",
-        description: "Program Description",
-      }),
-      study: studyFactory.build({
-        name: "Test Study",
-        abbreviation: "TS",
-        description: "Test Study Description",
-        funding: [
-          fundingFactory.build({
-            agency: "Test Agency",
-            grantNumbers: "12345",
-            nciProgramOfficer: "John Doe",
-          }),
-          fundingFactory.build({
-            agency: "Test Agency 2",
-            grantNumbers: "6789",
-            nciProgramOfficer: "Jane Smith",
-          }),
+      targetedSubmissionDate: "2030/03/15",
+      targetedReleaseDate: "2030/03/15",
+      dataTypes: [
+        "clinicalTrial",
+        "genomics",
+        "imaging",
+        "proteomics",
+        "invalid",
+      ] as QuestionnaireData["dataTypes"],
+      imagingDataDeIdentified: true,
+      otherDataTypes: "other 1 | other 2 | other 3",
+      clinicalData: {
+        dataTypes: [
+          "biospecimenData",
+          "demographicData",
+          "diagnosisData",
+          "outcomeData",
+          "relapseRecurrenceData",
+          "treatmentData",
         ],
-        publications: [
-          publicationFactory.build({
-            title: "Test Publication",
-            pubmedID: "12345678",
-            DOI: "10.1234/test",
-          }),
-          publicationFactory.build({
-            title: "Test Publication 2",
-            pubmedID: "87654321",
-            DOI: "10.1234/random2",
-          }),
-        ],
-        plannedPublications: [
-          plannedPublicationFactory.build({
-            title: "Test Planned Publication",
-            expectedDate: "2026-01-01",
-          }),
-          plannedPublicationFactory.build({
-            title: "Test Planned Publication 2",
-            expectedDate: "2027-01-01",
-          }),
-        ],
-        repositories: [
-          repositoryFactory.build({
-            name: "Repository 1",
-            studyID: "02ec12d2-12c2-45b6-b12d-9fd954f696b8",
-            dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics"],
-            otherDataTypesSubmitted: "other 1 | other 2 | other 3",
-          }),
-          repositoryFactory.build({
-            name: "Repository 2",
-            studyID: "03ec12d2-12c2-45b6-b12d-9fd954f696b8",
-            dataTypesSubmitted: [],
-            otherDataTypesSubmitted: "other 1",
-          }),
-        ],
-      }),
+        otherDataTypes: "other 1 | other 2 | other 3",
+        futureDataTypes: true,
+      },
+      files: fileInfoFactory.build(3, (index) => ({
+        type: `type-${index + 1}`,
+        extension: `ext${index + 1}`,
+        count: index + 1,
+        amount: `${(index + 1) * 10} MB`,
+      })),
+      dataDeIdentified: true,
+      cellLines: true,
+      modelSystems: true,
+      submitterComment: "Lorem Ipsum",
     });
 
     const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
 
     // @ts-expect-error Private member
-    await middleware.serializeSectionB();
+    await middleware.serializeSectionD();
 
     // @ts-expect-error Private member
     middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
 
     // @ts-expect-error Private member
-    const result = await middleware.parseSectionB();
+    const result = await middleware.parseSectionD();
 
     // @ts-expect-error Private member
     const output = middleware.data;
 
     expect(result).toEqual(true);
-    expect(output.program).toEqual(
-      expect.objectContaining({
-        _id: "Other",
-        name: "Program 1",
-        abbreviation: "P1",
-        description: "Program Description",
-      })
+
+    // Target Dates
+    expect(output.targetedSubmissionDate).toEqual("2030/03/15");
+    expect(output.targetedReleaseDate).toEqual("2030/03/15");
+
+    // Data Types
+    expect(output.dataTypes).toEqual(
+      expect.arrayContaining(["clinicalTrial", "genomics", "imaging", "proteomics"])
     );
-    expect(output.study).toEqual(
-      expect.objectContaining({
-        name: "Test Study",
-        abbreviation: "TS",
-        description: "Test Study Description",
-      })
+    expect(output.dataTypes?.length).toBe(4);
+    expect(output.imagingDataDeIdentified).toBe(true);
+    expect(output.otherDataTypes).toEqual("other 1 | other 2 | other 3");
+
+    // Clinical Data Types
+    expect(output.clinicalData?.dataTypes).toEqual(
+      expect.arrayContaining([
+        "biospecimenData",
+        "demographicData",
+        "diagnosisData",
+        "outcomeData",
+        "relapseRecurrenceData",
+        "treatmentData",
+      ])
     );
-    expect(output.study.funding).toEqual(
+    expect(output.clinicalData?.dataTypes?.length).toBe(6);
+    expect(output.clinicalData?.otherDataTypes).toEqual("other 1 | other 2 | other 3");
+    expect(output.clinicalData?.futureDataTypes).toBe(true);
+
+    // File Types
+    expect(output.files).toHaveLength(3);
+    expect(output.files).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          agency: "Test Agency",
-          grantNumbers: "12345",
-          nciProgramOfficer: "John Doe",
+          type: "type-1",
+          extension: "ext1",
+          count: 1,
+          amount: "10 MB",
         }),
         expect.objectContaining({
-          agency: "Test Agency 2",
-          grantNumbers: "6789",
-          nciProgramOfficer: "Jane Smith",
+          type: "type-2",
+          extension: "ext2",
+          count: 2,
+          amount: "20 MB",
+        }),
+        expect.objectContaining({
+          type: "type-3",
+          extension: "ext3",
+          count: 3,
+          amount: "30 MB",
         }),
       ])
     );
 
-    expect(output.study.publications).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          title: "Test Publication",
-          pubmedID: "12345678",
-          DOI: "10.1234/test",
-        }),
-        expect.objectContaining({
-          title: "Test Publication 2",
-          pubmedID: "87654321",
-          DOI: "10.1234/random2",
-        }),
-      ])
-    );
+    // Data de-identified
+    expect(output.dataDeIdentified).toBe(true);
 
-    expect(output.study.plannedPublications).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          title: "Test Planned Publication",
-          expectedDate: "2026/01/01",
-        }),
-        expect.objectContaining({
-          title: "Test Planned Publication 2",
-          expectedDate: "2027/01/01",
-        }),
-      ])
-    );
+    // Cell Lines & Model Systems
+    expect(output.cellLines).toBe(true);
+    expect(output.modelSystems).toBe(true);
 
-    expect(output.study.repositories).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          name: "Repository 1",
-          studyID: "02ec12d2-12c2-45b6-b12d-9fd954f696b8",
-          dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics"],
-          otherDataTypesSubmitted: "other 1 | other 2 | other 3",
-        }),
-        expect.objectContaining({
-          name: "Repository 2",
-          studyID: "03ec12d2-12c2-45b6-b12d-9fd954f696b8",
-          dataTypesSubmitted: [],
-          otherDataTypesSubmitted: "other 1",
-        }),
-      ])
-    );
+    // Additional Comment
+    expect(output.submitterComment).toEqual("Lorem Ipsum");
   });
 
   it("should parse the YYYY/MM/DD date from target dates", async () => {
