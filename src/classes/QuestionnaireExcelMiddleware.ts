@@ -16,9 +16,9 @@ import { questionnaireDataSchema } from "@/schemas/Application";
 import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
 
-import { SectionA, SectionAColumns } from "./Excel/A/SectionA";
+import { SectionA, SectionAColumns, SectionASchema } from "./Excel/A/SectionA";
 import { SectionB, SectionBColumns } from "./Excel/B/SectionB";
-import { SectionC, SectionCColumns } from "./Excel/C/SectionC";
+import { SectionC, SectionCColumns, SectionCSchema } from "./Excel/C/SectionC";
 import { SectionD, SectionDColumns } from "./Excel/D/SectionD";
 import { MetaKeys } from "./Excel/Metadata/Columns";
 import { MetadataColumns, MetadataSection } from "./Excel/Metadata/MetadataSection";
@@ -363,12 +363,7 @@ export class QuestionnaireExcelMiddleware {
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      questionnaireDataSchema.pick({
-        pi: true,
-        piAsPrimaryContact: true,
-        primaryContact: true,
-        additionalContacts: true,
-      }),
+      SectionASchema,
       newMapping
     );
 
@@ -487,18 +482,7 @@ export class QuestionnaireExcelMiddleware {
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      questionnaireDataSchema.pick({
-        accessTypes: true,
-        cancerTypes: true,
-        study: true, // TODO: Only partial object
-        otherCancerTypesEnabled: true,
-        otherCancerTypes: true,
-        preCancerTypes: true,
-        species: true,
-        otherSpeciesEnabled: true,
-        otherSpeciesOfSubjects: true,
-        numberOfParticipants: true,
-      }),
+      SectionCSchema,
       newMapping
     );
 

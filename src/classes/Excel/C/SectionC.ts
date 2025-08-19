@@ -6,7 +6,7 @@ import { IF, STR_EQ, AND, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger } from "@/uti
 import { YesNoList } from "../D/SectionD";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { CKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS } from "./Columns";
+import { CKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS, SCHEMA } from "./Columns";
 
 type SectionCDeps = {
   data: QuestionnaireData | null;
@@ -243,4 +243,4 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
   }
 }
 
-export { COLUMNS as SectionCColumns };
+export { COLUMNS as SectionCColumns, SCHEMA as SectionCSchema };

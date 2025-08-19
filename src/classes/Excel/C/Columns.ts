@@ -1,11 +1,26 @@
+import { questionnaireDataSchema } from "@/schemas/Application";
+
 import { CharacterLimitsMap, ColumnDef } from "../SectionBase";
+
+export const SCHEMA = questionnaireDataSchema.pick({
+  accessTypes: true,
+  cancerTypes: true,
+  study: true, // NOTE: Only partial study object
+  otherCancerTypesEnabled: true,
+  otherCancerTypes: true,
+  preCancerTypes: true,
+  species: true,
+  otherSpeciesEnabled: true,
+  otherSpeciesOfSubjects: true,
+  numberOfParticipants: true,
+});
 
 export type CKeys =
   | "accessTypes.openAccess"
   | "accessTypes.controlledAccess"
   | "study.isDbGapRegistered"
   | "study.dbGaPPPHSNumber"
-  | "study.GPAName" // TODO: This is NOT FINALIZED until base is merged
+  | "study.GPAName"
   | "cancerTypes"
   // | "otherCancerTypesEnabled"
   | "otherCancerTypes"

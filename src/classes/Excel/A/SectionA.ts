@@ -5,7 +5,7 @@ import { AND, EMAIL, IF, LIST_FORMULA, Logger, ORCID, REQUIRED, STR_EQ, TEXT_MAX
 import { YesNoList } from "../D/SectionD";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { AKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS } from "./Columns";
+import { AKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS, SCHEMA } from "./Columns";
 
 type SectionADeps = {
   data: QuestionnaireData | null;
@@ -243,4 +243,4 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
   }
 }
 
-export { COLUMNS as SectionAColumns };
+export { COLUMNS as SectionAColumns, SCHEMA as SectionASchema };
