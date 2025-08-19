@@ -224,7 +224,7 @@ const DataExplorerStudyExport: React.FC<DataExplorerStudyExportProps> = ({
 
     try {
       const { data, error } = await downloadAllReleasedNodes({
-        variables: { studyId },
+        variables: { studyId, dataCommonsDisplayName },
       });
 
       if (error) {
