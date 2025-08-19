@@ -1135,6 +1135,73 @@ describe("Serialization", () => {
       }
     });
 
+    it("should generate SectionB sheet with partial data (fully null)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        program: {
+          _id: null,
+          name: null,
+          abbreviation: null,
+          description: null,
+        },
+        study: studyFactory.build({
+          name: null,
+          abbreviation: null,
+          description: null,
+          funding: null,
+          publications: null,
+          plannedPublications: null,
+          repositories: null,
+        }),
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionB();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Program and Study")).toEqual(sheet);
+
+      // Program
+      expect(sheet.getCell("A2").value).toBeNull();
+      expect(sheet.getCell("B2").value).toBeNull();
+      expect(sheet.getCell("C2").value).toBeNull();
+      expect(sheet.getCell("D2").value).toBeNull();
+
+      // Study
+      expect(sheet.getCell("E2").value).toBeNull();
+      expect(sheet.getCell("F2").value).toBeNull();
+      expect(sheet.getCell("G2").value).toBeNull();
+
+      const dynamicCols = [
+        "H",
+        "I",
+        "J", // Funding
+        "K",
+        "L",
+        "M", // Publications
+        "N",
+        "O", // Planned Publications
+        "P",
+        "Q",
+        "R",
+        "S", // Repositories
+      ];
+
+      for (const col of dynamicCols) {
+        const { values } = sheet.getColumn(col);
+
+        // First two entries: 1-index padding + header
+        expect(values[0]).toBeUndefined();
+        expect(values[1]).toEqual(expect.any(String));
+
+        values.slice(2)?.forEach((value) => {
+          expect(value === null).toBe(true);
+        });
+      }
+    });
+
     it("should generate SectionC sheet with all data", async () => {
       const mockForm = questionnaireDataFactory.build({
         accessTypes: ["Open Access"],
