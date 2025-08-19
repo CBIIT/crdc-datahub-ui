@@ -291,6 +291,7 @@ describe("StudyView Component", () => {
           primaryContactID: "dcp-1",
           useProgramPC: false,
           pendingModelChange: false,
+          GPAName: "Test GPA Name",
         },
       },
       result: {
@@ -312,6 +313,7 @@ describe("StudyView Component", () => {
     const studyAbbreviationInput = getByTestId("studyAbbreviation-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const dbGaPIDInput = getByTestId("dbGaPID-input") as HTMLInputElement;
+    const GPANameInput = getByTestId("GPAName-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
     const openAccessCheckbox = getByTestId("openAccess-checkbox");
     const sameAsProgramPrimaryContactCheckbox = getByTestId("sameAsProgramPrimaryContact-checkbox");
@@ -324,6 +326,7 @@ describe("StudyView Component", () => {
     userEvent.type(studyAbbreviationInput, "TSN");
     userEvent.type(PIInput, "John Doe");
     userEvent.type(dbGaPIDInput, "db123456");
+    userEvent.type(GPANameInput, "Test GPA Name");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
     userEvent.click(openAccessCheckbox);
     userEvent.click(sameAsProgramPrimaryContactCheckbox);
@@ -386,6 +389,7 @@ describe("StudyView Component", () => {
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
+            GPAName: "GPA Name",
           }),
         },
       },
@@ -409,6 +413,7 @@ describe("StudyView Component", () => {
           primaryContactID: undefined,
           useProgramPC: true,
           pendingModelChange: false,
+          GPAName: "GPA Name",
         },
       },
       result: {
@@ -463,6 +468,7 @@ describe("StudyView Component", () => {
           primaryContactID: "dcp-1",
           useProgramPC: false,
           pendingModelChange: false,
+          GPAName: "",
         },
       },
       error: new Error("Unable to create approved study."),
@@ -549,6 +555,7 @@ describe("StudyView Component", () => {
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
+            GPAName: "Test GPA Name",
           }),
         },
       },
@@ -572,6 +579,7 @@ describe("StudyView Component", () => {
           primaryContactID: undefined,
           useProgramPC: true,
           pendingModelChange: false,
+          GPAName: "Test GPA Name",
         },
       },
       error: new Error("Unable to save changes"),
@@ -620,6 +628,7 @@ describe("StudyView Component", () => {
           primaryContactID: "dcp-1",
           useProgramPC: false,
           pendingModelChange: false,
+          GPAName: "",
         },
       },
       result: {
@@ -790,6 +799,7 @@ describe("StudyView Component", () => {
           primaryContactID: "dcp-1",
           useProgramPC: false,
           pendingModelChange: false,
+          GPAName: "",
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -876,6 +886,7 @@ describe("StudyView Component", () => {
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
+            GPAName: "Test GPA Name",
           }),
         },
       },
@@ -899,6 +910,7 @@ describe("StudyView Component", () => {
           primaryContactID: undefined,
           useProgramPC: true,
           pendingModelChange: false,
+          GPAName: "Test GPA Name",
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -973,6 +985,7 @@ describe("StudyView Component", () => {
           primaryContactID: "dcp-1",
           useProgramPC: false,
           pendingModelChange: true,
+          GPAName: "",
         },
       },
       result: {
@@ -1053,6 +1066,7 @@ describe("StudyView Component", () => {
             useProgramPC: true,
             createdAt: "",
             pendingModelChange: false,
+            GPAName: "Test GPA Name",
           }),
         },
       },
@@ -1076,6 +1090,7 @@ describe("StudyView Component", () => {
           primaryContactID: undefined,
           useProgramPC: true,
           pendingModelChange: true,
+          GPAName: "Test GPA Name",
         },
       },
       result: {
@@ -1175,5 +1190,63 @@ describe("Implementation Requirements", () => {
 
     expect(pendingDbGaPIDCheckbox.checked).toBe(false);
     expect(pendingDbGaPIDCheckbox).toBeDisabled();
+  });
+
+  it("should check 'Pending on Genomic Program Administrator (GPA)' when controlledAccess is true and GPA is empty", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
+    userEvent.click(controlledAccessCheckbox);
+
+    const gpaInput = getByTestId("GPAName-input") as HTMLInputElement;
+    expect(gpaInput.value).toBe("");
+
+    const pendingGpaCheckbox = getByTestId("pendingConditions-gpa-checkbox") as HTMLInputElement;
+    expect(pendingGpaCheckbox.checked).toBe(true);
+    expect(pendingGpaCheckbox).toBeDisabled();
+  });
+
+  it("should uncheck 'Pending on Genomic Program Administrator (GPA)' when controlledAccess is false", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
+    userEvent.click(controlledAccessCheckbox);
+    expect(controlledAccessCheckbox.checked).toBe(true);
+
+    const pendingGpaCheckbox = getByTestId("pendingConditions-gpa-checkbox") as HTMLInputElement;
+    expect(pendingGpaCheckbox.checked).toBe(true);
+    expect(pendingGpaCheckbox).toBeDisabled();
+
+    userEvent.click(controlledAccessCheckbox);
+    expect(controlledAccessCheckbox.checked).toBe(false);
+
+    expect(pendingGpaCheckbox.checked).toBe(false);
+    expect(pendingGpaCheckbox).toBeDisabled();
+  });
+
+  it("should uncheck 'Pending on Genomic Program Administrator (GPA)' when GPA is filled and controlledAccess is true", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
+    userEvent.click(controlledAccessCheckbox);
+
+    const pendingGpaCheckbox = getByTestId("pendingConditions-gpa-checkbox") as HTMLInputElement;
+    expect(pendingGpaCheckbox.checked).toBe(true);
+    expect(pendingGpaCheckbox).toBeDisabled();
+
+    const gpaInput = getByTestId("GPAName-input") as HTMLInputElement;
+    userEvent.type(gpaInput, "Jane Doe");
+
+    expect(pendingGpaCheckbox.checked).toBe(false);
+    expect(pendingGpaCheckbox).toBeDisabled();
   });
 });
