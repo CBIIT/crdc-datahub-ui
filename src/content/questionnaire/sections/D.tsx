@@ -193,7 +193,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         combinedData.clinicalData?.otherDataTypes !== "")
     ) {
       setClinicalDataTypesErrorMsg("");
-      clinicalDataTypesInputRef.current.setCustomValidity("");
+      clinicalDataTypesInputRef.current?.setCustomValidity("");
     } else if (combinedData.dataTypes.includes("clinicalTrial")) {
       setClinicalDataTypesErrorMsg("At least one clinical data type is required");
       clinicalDataTypesInputRef.current?.setCustomValidity(
