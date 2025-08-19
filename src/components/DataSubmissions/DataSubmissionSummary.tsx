@@ -1,10 +1,15 @@
 import { Button, Divider, Grid, Stack, Typography, styled } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
 import React, { FC, useMemo, useState } from "react";
+
+import EditIconSvg from "@/assets/icons/pencil_icon.svg?react";
 
 import EmailIconSvg from "../../assets/icons/email_icon.svg?react";
 import { SortHistory } from "../../utils";
 import { CollaboratorsDialog } from "../Collaborators";
+import { useAuthContext } from "../Contexts/AuthContext";
 import { CollaboratorsProvider } from "../Contexts/CollaboratorsContext";
 import HistoryDialog from "../HistoryDialog";
 import ReviewCommentsDialog from "../ReviewCommentsDialog";
@@ -12,6 +17,7 @@ import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 import TruncatedText from "../TruncatedText";
 
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
+import EditSubmissionNameDialog from "./EditSubmissionNameDialog";
 import SubmissionHeaderProperty, { StyledValue } from "./SubmissionHeaderProperty";
 
 const StyledSummaryWrapper = styled("div")(() => ({
@@ -138,6 +144,10 @@ const StyledEmailWrapper = styled("a")({
   lineHeight: "19.6px",
 });
 
+const StyledEditIcon = styled(EditIconSvg)({
+  color: "#005999",
+});
+
 const buildReleasedStatusWrapper =
   (dataCommonsDisplayName: string): React.FC<{ children: React.ReactNode }> =>
   ({ children }) => (
@@ -175,6 +185,10 @@ type Props = {
 
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [openDialog, setOpenDialog] = useState<DialogOptions>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuthContext();
+  const isPrimarySubmitter = user?._id === dataSubmission?.submitterID;
 
   const numCollaborators = dataSubmission?.collaborators?.length || 0;
   const lastReview = useMemo(
@@ -227,7 +241,33 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           rowSpacing={2}
           columnSpacing={0}
         >
-          <SubmissionHeaderProperty label="Submission Name" value={dataSubmission?.name} />
+          <SubmissionHeaderProperty
+            label="Submission Name"
+            value={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <StyledValue>
+                  <TruncatedText
+                    text={dataSubmission?.name}
+                    maxCharacters={15}
+                    ellipsis
+                    underline={false}
+                    tooltipText={dataSubmission?.name}
+                  />
+                </StyledValue>
+                {isPrimarySubmitter && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setIsEditing(true)}
+                    aria-label="Edit Submission Name"
+                    sx={{ p: 0 }}
+                    data-testid="edit-submission-name-icon"
+                  >
+                    <StyledEditIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Stack>
+            }
+          />
           <SubmissionHeaderProperty
             label="Submission Type"
             value={dataSubmission?.intention}
@@ -338,6 +378,20 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
           onSave={handleCloseDialog}
         />
       </CollaboratorsProvider>
+
+      <EditSubmissionNameDialog
+        open={isEditing}
+        submissionID={dataSubmission?._id}
+        initialValue={dataSubmission?.name || ""}
+        onCancel={() => setIsEditing(false)}
+        onSave={(newName) => {
+          setIsEditing(false);
+          enqueueSnackbar("The Data Submission name has been successfully changed.", {
+            variant: "success",
+            autoHideDuration: 4000,
+          });
+        }}
+      />
     </StyledSummaryWrapper>
   );
 };
