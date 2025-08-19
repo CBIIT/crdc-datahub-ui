@@ -2,7 +2,6 @@
  * Defines a list of valid user roles that can be assigned to a user.
  *
  * @note This list is rendered in the UI exactly as ordered here, without additional sorting.
- * @see {@link UserRole}
  */
 export const Roles: UserRole[] = [
   "User",
@@ -32,7 +31,6 @@ export const CanDeleteOtherSubmissionRequests: UserRole[] = [
 ];
 
 /**
- * A set of roles that are constrained to only be able to submit their own
- * Submission Request forms and cannot submit on behalf of other users.
+ * A set of roles that are considered external users
  */
-export const CanSubmitOnlyTheirOwnSubmissionRequestRoles: UserRole[] = ["User", "Submitter"];
+export const ExternalRoles: UserRole[] = ["User", "Submitter"];
