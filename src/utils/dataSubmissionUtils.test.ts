@@ -530,7 +530,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: null,
       fileValidationStatus: "Error",
       fileErrors: [
-        {
+        qcResultFactory.build({
           submissionID: "123",
           type: "",
           validationType: "data file",
@@ -542,7 +542,7 @@ describe("Admin Submit", () => {
           severity: "Error",
           submittedID: "123",
           validatedDate: "",
-        },
+        }),
       ],
     };
     const user: User = {
@@ -564,7 +564,7 @@ describe("Admin Submit", () => {
       metadataValidationStatus: "Passed",
       fileValidationStatus: "Passed",
       fileErrors: [
-        {
+        qcResultFactory.build({
           submissionID: "123",
           type: "",
           validationType: "data file",
@@ -576,7 +576,7 @@ describe("Admin Submit", () => {
           severity: "Error",
           submittedID: "123",
           validatedDate: "",
-        },
+        }),
       ],
     };
 

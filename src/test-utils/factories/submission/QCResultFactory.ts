@@ -15,6 +15,7 @@ export const baseQCResult: QCResult = {
   validatedDate: "",
   errors: [],
   warnings: [],
+  issueCount: 0,
 };
 
 /**

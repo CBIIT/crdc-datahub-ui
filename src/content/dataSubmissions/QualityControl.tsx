@@ -1,5 +1,5 @@
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { Box, Button, Stack, styled } from "@mui/material";
+import { Box, Button, Stack, styled, TableCell } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import React, {
@@ -11,6 +11,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+
+import { TOOLTIP_TEXT } from "@/config/DashboardTooltips";
 
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import { ExportValidationButton } from "../../components/DataSubmissions/ExportValidationButton";
@@ -61,6 +63,8 @@ const StyledErrorDetailsButton = styled(Button)({
   padding: 0,
   textDecorationLine: "underline",
   textTransform: "none",
+  marginLeft: "auto",
+  paddingLeft: "8px",
   "&:hover": {
     background: "transparent",
     textDecorationLine: "underline",
@@ -95,6 +99,49 @@ const StyledPvButtonWrapper = styled(Box)({
   marginLeft: "89px",
 });
 
+const StyledOthersText = styled("span")({
+  display: "inline",
+  textDecoration: "underline",
+  cursor: "pointer",
+  color: "#0B6CB1",
+  whiteSpace: "nowrap",
+  fontSize: "14px",
+  fontStyle: "normal",
+  fontWeight: 600,
+  lineHeight: "19px",
+});
+
+const StyledHeaderCell = styled(TableCell)({
+  fontWeight: 700,
+  fontSize: "14px",
+  lineHeight: "16px",
+  color: "#fff !important",
+  padding: "22px 4px",
+  verticalAlign: "top",
+  "&.MuiTableCell-root:first-of-type": {
+    paddingTop: "22px",
+    paddingRight: "4px",
+    paddingBottom: "22px",
+    color: "#fff !important",
+  },
+  "& .MuiSvgIcon-root, & .MuiButtonBase-root": {
+    color: "#fff !important",
+  },
+});
+
+const StyledTableCell = styled(TableCell)({
+  fontSize: "14px",
+  color: "#083A50 !important",
+  "&.MuiTableCell-root": {
+    padding: "14px 4px 12px",
+    overflowWrap: "anywhere",
+    whiteSpace: "nowrap",
+  },
+  "&:last-of-type": {
+    paddingRight: "4px",
+  },
+});
+
 type RowData = QCResult | AggregatedQCResult;
 
 const aggregatedColumns: Column<AggregatedQCResult>[] = [
@@ -113,7 +160,7 @@ const aggregatedColumns: Column<AggregatedQCResult>[] = [
     field: "severity",
   },
   {
-    label: "Count",
+    label: "Record Count",
     renderValue: (data) =>
       Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data.count || 0),
     field: "count",
@@ -152,14 +199,14 @@ const expandedColumns: Column<QCResult>[] = [
     field: "displayID",
     default: true,
     sx: {
-      width: "122px",
+      width: "110px",
     },
   },
   {
     label: "Node Type",
     renderValue: (data) => (
       <StyledNodeType>
-        <TruncatedText text={data?.type} maxCharacters={15} disableInteractiveTooltip={false} />
+        <TruncatedText text={data?.type} maxCharacters={12} disableInteractiveTooltip={false} />
       </StyledNodeType>
     ),
     field: "type",
@@ -184,7 +231,7 @@ const expandedColumns: Column<QCResult>[] = [
     ),
     field: "severity",
     sx: {
-      width: "148px",
+      width: "87px",
     },
   },
   {
@@ -202,34 +249,62 @@ const expandedColumns: Column<QCResult>[] = [
       ),
     field: "validatedDate",
     sx: {
-      width: "193px",
+      width: "132px",
     },
   },
   {
-    label: "Issues",
+    label: "Issue Count",
+    renderValue: (data) =>
+      Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(data.issueCount || 0),
+    field: "issueCount",
+    sx: {
+      width: "110px",
+    },
+  },
+  {
+    label: "Issue(s)",
     renderValue: (data) =>
       (data?.errors?.length > 0 || data?.warnings?.length > 0) && (
         <QCResultsContext.Consumer>
           {({ handleOpenErrorDialog }) => (
-            <Stack direction="row">
+            <Stack direction="row" justifyContent="space-between">
               <StyledIssuesTextWrapper>
                 <TruncatedText
-                  text={`${data.errors?.[0]?.title || data.warnings?.[0]?.title}.`}
-                  maxCharacters={15}
+                  text={data.errors?.[0]?.title || data.warnings?.[0]?.title}
+                  maxCharacters={30}
                   wrapperSx={{ display: "inline" }}
                   labelSx={{ display: "inline" }}
                   disableInteractiveTooltip={false}
-                />{" "}
-                <StyledErrorDetailsButton
-                  onClick={() => handleOpenErrorDialog && handleOpenErrorDialog(data)}
-                  variant="text"
-                  disableRipple
-                  disableTouchRipple
-                  disableFocusRipple
-                >
-                  See details.
-                </StyledErrorDetailsButton>
+                />
+                {data.issueCount > 1 ? (
+                  <>
+                    {" and "}
+                    <StyledTooltip
+                      title={TOOLTIP_TEXT.QUALITY_CONTROL.TABLE.CLICK_TO_VIEW_ALL_ISSUES}
+                      placement="top"
+                      disableInteractive
+                      arrow
+                    >
+                      <StyledOthersText
+                        onClick={() => handleOpenErrorDialog?.(data)}
+                        data-testid="others-text"
+                      >
+                        other {data.issueCount - 1}
+                      </StyledOthersText>
+                    </StyledTooltip>
+                  </>
+                ) : null}
               </StyledIssuesTextWrapper>
+
+              <StyledErrorDetailsButton
+                onClick={() => handleOpenErrorDialog?.(data)}
+                variant="text"
+                disableRipple
+                disableTouchRipple
+                disableFocusRipple
+              >
+                See details.
+              </StyledErrorDetailsButton>
             </Stack>
           )}
         </QCResultsContext.Consumer>
@@ -555,6 +630,8 @@ const QualityControl: FC = () => {
           defaultRowsPerPage={20}
           defaultOrder="desc"
           position="both"
+          CustomTableHeaderCell={StyledHeaderCell}
+          CustomTableBodyCell={StyledTableCell}
           noContentText="No validation issues found. Either no validation has been conducted yet, or all issues have been resolved."
           setItemKey={(item, idx) => `${idx}_${"title" in item ? item?.title : item?.batchID}`}
           onFetchData={handleFetchData}
