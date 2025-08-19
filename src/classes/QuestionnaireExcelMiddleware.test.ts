@@ -2969,7 +2969,7 @@ describe("Parsing", () => {
     const mockForm = questionnaireDataFactory.build({
       targetedSubmissionDate: null,
       targetedReleaseDate: null,
-      dataTypes: ["genomics", "imaging"],
+      dataTypes: ["genomics", "imaging", "proteomics"],
       imagingDataDeIdentified: false,
       otherDataTypes: "",
       clinicalData: {
@@ -3002,6 +3002,7 @@ describe("Parsing", () => {
 
     expect(output.imagingDataDeIdentified).toBe(false);
     expect(output.clinicalData?.futureDataTypes).toBe(false);
+    expect(output.dataTypes).toEqual(["genomics", "imaging", "proteomics"]);
     expect(output.dataDeIdentified).toBe(false);
     expect(output.cellLines).toBe(true);
     expect(output.modelSystems).toBe(false);
@@ -3019,6 +3020,9 @@ describe("Parsing", () => {
           "biospecimenData",
           "diagnosisData",
           "outcomeData",
+          "demographicData",
+          "relapseRecurrenceData",
+          "treatmentData",
           "INVALID",
         ] as ClinicalData["dataTypes"],
         otherDataTypes: "random | treatmentData | extra",
@@ -3048,11 +3052,18 @@ describe("Parsing", () => {
     expect(result).toEqual(true);
 
     expect(output.clinicalData?.dataTypes).toEqual(
-      expect.arrayContaining(["biospecimenData", "diagnosisData", "outcomeData"])
+      expect.arrayContaining([
+        "biospecimenData",
+        "diagnosisData",
+        "outcomeData",
+        "demographicData",
+        "relapseRecurrenceData",
+        "treatmentData",
+      ])
     );
-    expect(output.clinicalData?.dataTypes).toHaveLength(3);
+    expect(output.clinicalData?.dataTypes).toHaveLength(6);
 
-    expect(output.clinicalData?.dataTypes).not.toContain("treatmentData");
+    expect(output.clinicalData?.dataTypes).not.toContain("INVALID");
   });
 
   it("should not include clinical data types if the clinicalTrial data type is not a 'Yes'", async () => {
