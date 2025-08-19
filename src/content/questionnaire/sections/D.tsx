@@ -145,7 +145,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
-  const [isClinical, setIsClinical] = useState<boolean>(dataTypes?.includes("clinicalTrial"));
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
@@ -159,6 +158,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(
     reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
   );
+  const isClinical = dataTypes?.includes("clinicalTrial");
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -259,7 +259,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
   useEffect(() => {
     setDataTypes(data?.dataTypes || []);
-    setIsClinical(dataTypes.includes("clinicalTrial"));
   }, [data?.dataTypes]);
 
   useEffect(() => {
@@ -314,7 +313,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
-          onChange={(e, val) => setIsClinical(val)}
+          onChange={(_e, checked) => handleDataTypesChange(checked, "clinicalTrial")}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
           readOnly={readOnlyInputs}
         />
