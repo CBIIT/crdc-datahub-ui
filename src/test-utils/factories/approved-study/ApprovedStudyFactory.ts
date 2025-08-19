@@ -19,6 +19,7 @@ export const baseApprovedStudy: ApprovedStudy = {
   useProgramPC: false,
   pendingModelChange: false,
   isPendingGPA: false,
+  GPAName: "",
   createdAt: "",
 };
 

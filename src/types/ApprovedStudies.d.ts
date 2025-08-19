@@ -56,6 +56,10 @@ type ApprovedStudy = {
    */
   isPendingGPA: boolean;
   /**
+   * Name of the Genomic Program Administrator (GPA)
+   */
+  GPAName: string;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;
