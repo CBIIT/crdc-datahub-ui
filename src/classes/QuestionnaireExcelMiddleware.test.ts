@@ -3207,3 +3207,62 @@ describe("Parsing", () => {
     expect(output.clinicalData?.dataTypes ?? []).toHaveLength(0);
   });
 });
+
+describe("IO Symmetry", () => {
+  // NOTE: This is currently disabled because the middleware.serialize call never resolves
+  // I tracked it to the writeBuffer promise, but can't figure out what it is beyond that.
+  it.todo("should return the same QuestionnaireObject provided", async () => {
+    const mockForm = questionnaireDataFactory.build(); // Need to fill this out
+
+    const mockInstitutions = vi.fn().mockResolvedValue({
+      data: {
+        listInstitutions: {
+          total: 3,
+          institutions: [
+            ...institutionFactory.build(3, (idx) => ({
+              _id: `f5f76325-7fe9-41df-b419-c6f7bb6e539${idx + 1}`,
+              name: `api-option-${idx + 1}`,
+            })),
+          ],
+        },
+      },
+    });
+
+    const mockPrograms = vi.fn().mockResolvedValue({
+      data: {
+        listPrograms: {
+          programs: [
+            ...programInputFactory.build(3, (idx) => ({
+              _id: `program-${idx + 1}`,
+              name: `Program ${idx + 1}`,
+              abbreviation: `P${idx + 1}`,
+              description: `Description for Program ${idx + 1}`,
+              readOnly: false,
+            })),
+          ],
+        },
+      },
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {
+      application: applicationFactory.build({
+        _id: "mock-uuid-v4-here",
+        applicant: applicantFactory.build({
+          applicantName: "Robert L. Smith",
+          applicantID: "mock-applicant-id",
+        }),
+      }),
+      getInstitutions: mockInstitutions,
+      getPrograms: mockPrograms,
+    });
+
+    const serializedExcel = await middleware.serialize();
+
+    expect(mockInstitutions).toHaveBeenCalled();
+    expect(mockPrograms).toHaveBeenCalled();
+
+    const data = await QuestionnaireExcelMiddleware.parse(serializedExcel, {});
+
+    expect(data).toEqual(mockForm);
+  });
+});
