@@ -261,13 +261,15 @@ describe("Implementation Requirements", () => {
     expect(modelReviewTooltip).toBeInTheDocument();
   });
 
-  it("should render asterisk and both tooltips when both pending conditions are true", async () => {
+  it("should render asterisk and correct tooltip for pending GPA condition", async () => {
     const studies = [
       approvedStudyFactory.build({
-        studyAbbreviation: "BOTH",
+        studyAbbreviation: "ABC",
         controlledAccess: true,
-        dbGaPID: "",
-        pendingModelChange: true,
+        dbGaPID: "phs-001",
+        pendingModelChange: false,
+        GPAName: "",
+        isPendingGPA: true,
       }),
     ];
     const listApprovedStudiesMock: MockedResponse<
@@ -295,19 +297,69 @@ describe("Implementation Requirements", () => {
     );
 
     await waitFor(() => {
-      expect(getByText("BOTH")).toBeInTheDocument();
+      expect(getByText("ABC")).toBeInTheDocument();
     });
 
-    const asterisk = getByTestId("asterisk-BOTH");
+    const asterisk = getByTestId("asterisk-ABC");
+    expect(asterisk).toBeInTheDocument();
+
+    userEvent.hover(asterisk);
+
+    const gpaTooltip = await findByText("Data submission is Pending on GPA info.");
+    expect(gpaTooltip).toBeInTheDocument();
+  });
+
+  it("should render asterisk and all tooltips when all pending conditions are true", async () => {
+    const studies = [
+      approvedStudyFactory.build({
+        studyAbbreviation: "ALL",
+        controlledAccess: true,
+        dbGaPID: "",
+        pendingModelChange: true,
+        GPAName: "",
+        isPendingGPA: true,
+      }),
+    ];
+    const listApprovedStudiesMock: MockedResponse<
+      ListApprovedStudiesResp,
+      ListApprovedStudiesInput
+    > = {
+      request: {
+        query: LIST_APPROVED_STUDIES,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          listApprovedStudies: {
+            studies,
+            total: 1,
+          },
+        },
+      },
+    };
+
+    const { getByText, getByTestId, findByText } = render(
+      <TestParent mocks={[listApprovedStudiesMock, ...programMocks]}>
+        <ListView />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByText("ALL")).toBeInTheDocument();
+    });
+
+    const asterisk = getByTestId("asterisk-ALL");
     expect(asterisk).toBeInTheDocument();
 
     userEvent.hover(asterisk);
 
     const dbGaPIDTooltip = await findByText("Data submission is Pending on dbGaPID Registration.");
     const modelReviewTooltip = await findByText("Data submission is Pending on Data Model Review.");
+    const gpaTooltip = await findByText("Data submission is Pending on GPA info.");
 
     expect(dbGaPIDTooltip).toBeInTheDocument();
     expect(modelReviewTooltip).toBeInTheDocument();
+    expect(gpaTooltip).toBeInTheDocument();
   });
 
   it("should not render asterisk when there are no pending conditions", async () => {
