@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { z } from "zod";
 
 import { repositoryDataTypesOptions } from "@/components/Questionnaire/Repository";
@@ -433,14 +434,14 @@ export const questionnaireDataSchema = z
     accessTypes: z.array(z.enum(accessTypeOptions.map((option) => option.value))),
     /**
      * Targeted date to submit initial data.
-     * Stored as YYYY-MM-DD (coerced from Date).
+     * Stored as MM/DD/YYYY (coerced from Date).
      */
-    targetedSubmissionDate: z.coerce.date().transform((date) => date.toISOString().slice(0, 10)),
+    targetedSubmissionDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
     /**
      * Targeted public release date.
-     * Stored as YYYY-MM-DD (coerced from Date).
+     * Stored as MM/DD/YYYY (coerced from Date).
      */
-    targetedReleaseDate: z.coerce.date().transform((date) => date.toISOString().slice(0, 10)),
+    targetedReleaseDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
     /**
      * The submission time constraints.
      *

@@ -388,12 +388,12 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     return {
       targetedSubmissionDate: FormatDate(
         toString(data.get("targetedSubmissionDate")?.[0]).trim(),
-        "YYYY/MM/DD",
+        "MM/DD/YYYY",
         ""
       ),
       targetedReleaseDate: FormatDate(
         toString(data.get("targetedReleaseDate")?.[0]).trim(),
-        "YYYY/MM/DD",
+        "MM/DD/YYYY",
         ""
       ),
       dataTypes,

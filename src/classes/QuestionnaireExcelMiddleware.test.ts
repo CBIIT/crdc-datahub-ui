@@ -1331,8 +1331,8 @@ describe("Serialization", () => {
 
     it("should generate SectionD sheet with all data", async () => {
       const mockForm = questionnaireDataFactory.build({
-        targetedSubmissionDate: "2030/03/15",
-        targetedReleaseDate: "2030/03/15",
+        targetedSubmissionDate: "03/15/2030",
+        targetedReleaseDate: "03/15/2030",
         dataTypes: ["clinicalTrial", "genomics", "imaging", "proteomics"],
         imagingDataDeIdentified: true,
         otherDataTypes: "other 1 | other 2 | other 3",
@@ -1369,8 +1369,8 @@ describe("Serialization", () => {
       expect(wb.getWorksheet("Data Types")).toEqual(sheet);
 
       // Target Dates
-      expect(sheet.getCell("A2").value).toEqual("2030/03/15");
-      expect(sheet.getCell("B2").value).toEqual("2030/03/15");
+      expect(sheet.getCell("A2").value).toEqual("03/15/2030");
+      expect(sheet.getCell("B2").value).toEqual("03/15/2030");
 
       // Data Types
       expect(sheet.getCell("C2").value).toEqual("Yes");
@@ -1433,8 +1433,8 @@ describe("Serialization", () => {
 
     it("should generate SectionD sheet with partial data (only Target Dates)", async () => {
       const mockForm = questionnaireDataFactory.build({
-        targetedSubmissionDate: "2035/07/04",
-        targetedReleaseDate: "2036/08/15",
+        targetedSubmissionDate: "07/04/2035",
+        targetedReleaseDate: "08/15/2036",
       });
 
       const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
@@ -1447,8 +1447,8 @@ describe("Serialization", () => {
       expect(wb.getWorksheet("Data Types")).toEqual(sheet);
 
       // Target Dates only
-      expect(sheet.getCell("A2").value).toEqual("2035/07/04");
-      expect(sheet.getCell("B2").value).toEqual("2036/08/15");
+      expect(sheet.getCell("A2").value).toEqual("07/04/2035");
+      expect(sheet.getCell("B2").value).toEqual("08/15/2036");
 
       // File Types columns should have only headers
       for (const col of ["Q", "R", "S", "T"]) {
@@ -2871,8 +2871,8 @@ describe("Parsing", () => {
 
   it("should parse the SectionD sheet correctly", async () => {
     const mockForm = questionnaireDataFactory.build({
-      targetedSubmissionDate: "2030/03/15",
-      targetedReleaseDate: "2030/03/15",
+      targetedSubmissionDate: "03/15/2030",
+      targetedReleaseDate: "03/15/2030",
       dataTypes: [
         "clinicalTrial",
         "genomics",
@@ -2923,8 +2923,8 @@ describe("Parsing", () => {
     expect(result).toEqual(true);
 
     // Target Dates
-    expect(output.targetedSubmissionDate).toEqual("2030/03/15");
-    expect(output.targetedReleaseDate).toEqual("2030/03/15");
+    expect(output.targetedSubmissionDate).toEqual("03/15/2030");
+    expect(output.targetedReleaseDate).toEqual("03/15/2030");
 
     // Data Types
     expect(output.dataTypes).toEqual(
@@ -2985,10 +2985,10 @@ describe("Parsing", () => {
     expect(output.submitterComment).toEqual("Lorem Ipsum");
   });
 
-  it("should parse the YYYY/MM/DD date from target dates", async () => {
+  it("should parse the MM/DD/YYYY date from target dates", async () => {
     const mockForm = questionnaireDataFactory.build({
-      targetedSubmissionDate: "2000/01/01",
-      targetedReleaseDate: "2000/01/01",
+      targetedSubmissionDate: "01/01/2000",
+      targetedReleaseDate: "01/01/2000",
       dataTypes: [],
       imagingDataDeIdentified: null,
       otherDataTypes: "",
@@ -3025,8 +3025,8 @@ describe("Parsing", () => {
     const output = middleware.data;
 
     expect(result).toEqual(true);
-    expect(output.targetedSubmissionDate).toEqual("2032/02/29");
-    expect(output.targetedReleaseDate).toEqual("2033/12/25");
+    expect(output.targetedSubmissionDate).toEqual("02/29/2032");
+    expect(output.targetedReleaseDate).toEqual("12/25/2033");
   });
 
   it("should parse all switches as only yes/no values", async () => {
