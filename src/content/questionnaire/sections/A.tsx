@@ -1,7 +1,7 @@
 import { parseForm } from "@jalik/form-parser";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
-import { cloneDeep } from "lodash";
+import { cloneDeep, unset } from "lodash";
 import { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -20,6 +20,7 @@ import TransitionGroupWrapper from "../../../components/Questionnaire/Transition
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import {
+  combineQuestionnaireData,
   filterForNumbers,
   formatORCIDInput,
   isValidORCID,
@@ -82,16 +83,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setPrimaryContact(cloneDeep(InitialQuestionnaire.primaryContact));
   };
 
-  const stripContactKeys = (contacts: Array<Partial<KeyedContact>> = []): Contact[] =>
-    contacts.map(({ key, ...rest }) => rest) as Contact[];
-
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData = combineQuestionnaireData(data, formObject);
 
     if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
       combinedData.additionalContacts = [];
@@ -100,9 +98,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.primaryContact = null;
     }
 
-    if (Array.isArray(combinedData.additionalContacts)) {
-      combinedData.additionalContacts = stripContactKeys(combinedData.additionalContacts);
-    }
+    combinedData.additionalContacts?.forEach((ac) => unset(ac, "key"));
 
     return { ref: formRef, data: combinedData };
   };

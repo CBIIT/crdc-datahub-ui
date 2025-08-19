@@ -3,7 +3,6 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
 import dayjs from "dayjs";
-import { cloneDeep } from "lodash";
 import React, { FC, useEffect, useRef, useState } from "react";
 
 import AddRemoveButton from "../../../components/AddRemoveButton";
@@ -26,6 +25,7 @@ import {
   mapObjectWithKey,
   filterPositiveIntegerString,
   reshapeCheckboxGroupOptions,
+  combineQuestionnaireData,
 } from "../../../utils";
 
 export type KeyedFileTypeData = {
@@ -166,7 +166,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData = combineQuestionnaireData(data, formObject);
     // Remove empty strings from dataType arrays
     combinedData.dataTypes = combinedData.dataTypes.filter((str: string) => str !== "");
     // Handle validity for at dataTypes section

@@ -1,6 +1,5 @@
 import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
-import { cloneDeep, merge } from "lodash";
 import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -18,7 +17,11 @@ import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "../../../config/CancerTy
 import SectionMetadata from "../../../config/SectionMetadata";
 import speciesOptions from "../../../config/SpeciesConfig";
 import useFormMode from "../../../hooks/useFormMode";
-import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
+import {
+  isValidInRange,
+  filterPositiveIntegerString,
+  combineQuestionnaireData,
+} from "../../../utils";
 
 const StyledLink = styled(Link)({
   color: "#005A9E",
@@ -77,7 +80,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
+    const combinedData: QuestionnaireData = combineQuestionnaireData(data, formObject);
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
 
