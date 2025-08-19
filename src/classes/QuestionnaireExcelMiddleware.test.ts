@@ -2271,6 +2271,21 @@ describe("Parsing", () => {
     );
   });
 
+  it("should handle missing SectionB sheet", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeSectionB();
+
+    sheet.destroy();
+
+    // @ts-expect-error Private member
+    await expect(middleware.parseSectionB()).resolves.toEqual(false);
+    expect(Logger.info).toHaveBeenCalledWith(
+      "parseSectionB: No sheet found for Section B. Skipping"
+    );
+  });
+
   it("should ignore program data when program is 'Not Applicable'", async () => {
     const mockForm = questionnaireDataFactory.build({
       program: programInputFactory.build({
@@ -3027,6 +3042,21 @@ describe("Parsing", () => {
     expect(result).toEqual(true);
     expect(output.targetedSubmissionDate).toEqual("02/29/2032");
     expect(output.targetedReleaseDate).toEqual("12/25/2033");
+  });
+
+  it("should handle missing SectionD sheet", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeSectionD();
+
+    sheet.destroy();
+
+    // @ts-expect-error Private member
+    await expect(middleware.parseSectionD()).resolves.toEqual(false);
+    expect(Logger.info).toHaveBeenCalledWith(
+      "parseSectionD: No sheet found for Section D. Skipping"
+    );
   });
 
   it("should parse all switches as only yes/no values", async () => {

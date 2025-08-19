@@ -399,8 +399,8 @@ export class QuestionnaireExcelMiddleware {
   private async parseSectionB(): Promise<boolean> {
     const ws = this.workbook.getWorksheet(SectionB.SHEET_NAME);
     if (!ws) {
-      Logger.info("parseSectionB: No sheet found for Section B");
-      return Promise.resolve(false);
+      Logger.info("parseSectionB: No sheet found for Section B. Skipping");
+      return false;
     }
 
     const data = await this.extractValuesFromWorksheet(ws);
@@ -455,7 +455,7 @@ export class QuestionnaireExcelMiddleware {
       ? "In Progress"
       : "Not Started";
 
-    return Promise.resolve(true);
+    return true;
   }
 
   /**
@@ -535,8 +535,8 @@ export class QuestionnaireExcelMiddleware {
   private async parseSectionD(): Promise<boolean> {
     const ws = this.workbook.getWorksheet(SectionD.SHEET_NAME);
     if (!ws) {
-      Logger.info("parseSectionD: No sheet found for Section D");
-      return Promise.resolve(false);
+      Logger.info("parseSectionD: No sheet found for Section D. Skipping");
+      return false;
     }
 
     const data = await this.extractValuesFromWorksheet(ws);
@@ -585,7 +585,7 @@ export class QuestionnaireExcelMiddleware {
       ? "In Progress"
       : "Not Started";
 
-    return Promise.resolve(true);
+    return true;
   }
 
   /**
