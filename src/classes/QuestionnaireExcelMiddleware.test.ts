@@ -2156,11 +2156,11 @@ describe("Parsing", () => {
         plannedPublications: [
           plannedPublicationFactory.build({
             title: "Test Planned Publication",
-            expectedDate: "2026-01-01",
+            expectedDate: "01/01/2026",
           }),
           plannedPublicationFactory.build({
             title: "Test Planned Publication 2",
-            expectedDate: "2027-01-01",
+            expectedDate: "01/01/2027",
           }),
         ],
         repositories: [
@@ -2244,11 +2244,11 @@ describe("Parsing", () => {
       expect.arrayContaining([
         expect.objectContaining({
           title: "Test Planned Publication",
-          expectedDate: "2026/01/01",
+          expectedDate: "01/01/2026",
         }),
         expect.objectContaining({
           title: "Test Planned Publication 2",
-          expectedDate: "2027/01/01",
+          expectedDate: "01/01/2027",
         }),
       ])
     );
@@ -2369,7 +2369,7 @@ describe("Parsing", () => {
     expect(output.program?.description).toBe(InitialQuestionnaire.program.description);
   });
 
-  it("should parse the YYYY/MM/DD date from Planned Publications", async () => {
+  it("should parse the MM/DD/YYYY date from Planned Publications", async () => {
     const mockForm = questionnaireDataFactory.build({
       program: programInputFactory.build({
         _id: "Other",
@@ -2424,8 +2424,8 @@ describe("Parsing", () => {
     expect(pp1).toBeDefined();
     expect(pp2).toBeDefined();
 
-    expect(pp1.expectedDate).toEqual("2030/02/28");
-    expect(pp2.expectedDate).toEqual("2031/12/31");
+    expect(pp1.expectedDate).toEqual("02/28/2030");
+    expect(pp2.expectedDate).toEqual("12/31/2031");
   });
 
   it("should convert repository data types to an array of only valid options", async () => {

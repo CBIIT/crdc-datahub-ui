@@ -37,9 +37,9 @@ export const timeConstraintSchema = z
     description: z.string().max(100),
     /**
      * First day the constraint applies.
-     * @format YYYY-MM-DD
+     * @format MM/DD/YYYY
      */
-    effectiveDate: z.coerce.date().transform((date) => date.toISOString().slice(0, 10)), // Convert to YYYY-MM-DD format
+    effectiveDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
   })
   .strict();
 
@@ -248,9 +248,9 @@ export const plannedPublicationSchema = z
     title: z.string().max(500),
     /**
      * Target date for publication release.
-     * Stored as YYYY/MM/DD.
+     * Stored as MM/DD/YYYY.
      */
-    expectedDate: z.coerce.date().transform((date) => date.toISOString().slice(0, 10)),
+    expectedDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
   })
   .strict();
 

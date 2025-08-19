@@ -416,7 +416,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         title: toString(title).trim(),
         expectedDate: FormatDate(
           toString(data.get("study.plannedPublications.expectedDate")?.[index]).trim(),
-          "YYYY/MM/DD",
+          "MM/DD/YYYY",
           ""
         ),
       })) as PlannedPublication[]) || [];
