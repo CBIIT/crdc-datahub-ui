@@ -1137,6 +1137,73 @@ describe("Serialization", () => {
       }
     });
 
+    it("should generate SectionB sheet with partial data (fully null)", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        program: {
+          _id: null,
+          name: null,
+          abbreviation: null,
+          description: null,
+        },
+        study: studyFactory.build({
+          name: null,
+          abbreviation: null,
+          description: null,
+          funding: null,
+          publications: null,
+          plannedPublications: null,
+          repositories: null,
+        }),
+      });
+
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionB();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Program and Study")).toEqual(sheet);
+
+      // Program
+      expect(sheet.getCell("A2").value).toBeNull();
+      expect(sheet.getCell("B2").value).toBeNull();
+      expect(sheet.getCell("C2").value).toBeNull();
+      expect(sheet.getCell("D2").value).toBeNull();
+
+      // Study
+      expect(sheet.getCell("E2").value).toBeNull();
+      expect(sheet.getCell("F2").value).toBeNull();
+      expect(sheet.getCell("G2").value).toBeNull();
+
+      const dynamicCols = [
+        "H",
+        "I",
+        "J", // Funding
+        "K",
+        "L",
+        "M", // Publications
+        "N",
+        "O", // Planned Publications
+        "P",
+        "Q",
+        "R",
+        "S", // Repositories
+      ];
+
+      for (const col of dynamicCols) {
+        const { values } = sheet.getColumn(col);
+
+        // First two entries: 1-index padding + header
+        expect(values[0]).toBeUndefined();
+        expect(values[1]).toEqual(expect.any(String));
+
+        values.slice(2)?.forEach((value) => {
+          expect(value === null).toBe(true);
+        });
+      }
+    });
+
     it("should generate SectionC sheet with all data", async () => {
       const mockForm = questionnaireDataFactory.build({
         accessTypes: ["Open Access"],
@@ -2966,7 +3033,7 @@ describe("Parsing", () => {
     const mockForm = questionnaireDataFactory.build({
       targetedSubmissionDate: null,
       targetedReleaseDate: null,
-      dataTypes: ["genomics", "imaging"],
+      dataTypes: ["genomics", "imaging", "proteomics"],
       imagingDataDeIdentified: false,
       otherDataTypes: "",
       clinicalData: {
@@ -2999,6 +3066,7 @@ describe("Parsing", () => {
 
     expect(output.imagingDataDeIdentified).toBe(false);
     expect(output.clinicalData?.futureDataTypes).toBe(false);
+    expect(output.dataTypes).toEqual(["genomics", "imaging", "proteomics"]);
     expect(output.dataDeIdentified).toBe(false);
     expect(output.cellLines).toBe(true);
     expect(output.modelSystems).toBe(false);
@@ -3016,6 +3084,9 @@ describe("Parsing", () => {
           "biospecimenData",
           "diagnosisData",
           "outcomeData",
+          "demographicData",
+          "relapseRecurrenceData",
+          "treatmentData",
           "INVALID",
         ] as ClinicalData["dataTypes"],
         otherDataTypes: "random | treatmentData | extra",
@@ -3045,11 +3116,18 @@ describe("Parsing", () => {
     expect(result).toEqual(true);
 
     expect(output.clinicalData?.dataTypes).toEqual(
-      expect.arrayContaining(["biospecimenData", "diagnosisData", "outcomeData"])
+      expect.arrayContaining([
+        "biospecimenData",
+        "diagnosisData",
+        "outcomeData",
+        "demographicData",
+        "relapseRecurrenceData",
+        "treatmentData",
+      ])
     );
-    expect(output.clinicalData?.dataTypes).toHaveLength(3);
+    expect(output.clinicalData?.dataTypes).toHaveLength(6);
 
-    expect(output.clinicalData?.dataTypes).not.toContain("treatmentData");
+    expect(output.clinicalData?.dataTypes).not.toContain("INVALID");
   });
 
   it("should not include clinical data types if the clinicalTrial data type is not a 'Yes'", async () => {
