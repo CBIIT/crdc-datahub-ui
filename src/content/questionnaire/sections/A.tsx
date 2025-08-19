@@ -82,6 +82,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     setPrimaryContact(cloneDeep(InitialQuestionnaire.primaryContact));
   };
 
+  const stripContactKeys = (contacts: Array<Partial<KeyedContact>> = []): Contact[] =>
+    contacts.map(({ key, ...rest }) => rest) as Contact[];
+
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
       return null;
@@ -97,12 +100,16 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.primaryContact = null;
     }
 
+    if (Array.isArray(combinedData.additionalContacts)) {
+      combinedData.additionalContacts = stripContactKeys(combinedData.additionalContacts);
+    }
+
     return { ref: formRef, data: combinedData };
   };
 
   const addContact = () => {
-    setAdditionalContacts([
-      ...additionalContacts,
+    setAdditionalContacts((prev) => [
+      ...prev,
       {
         key: `${additionalContacts.length}_${new Date().getTime()}`,
         position: "",
@@ -117,7 +124,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const removeContact = (key: string) => {
-    setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
+    setAdditionalContacts((prev) => prev.filter((c) => c.key !== key));
   };
 
   const handlePIInstitutionChange = (value: string) => {
@@ -163,7 +170,13 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [data?.piAsPrimaryContact]);
 
   useEffect(() => {
-    setAdditionalContacts(data?.additionalContacts?.map(mapObjectWithKey) || []);
+    const incoming = data?.additionalContacts ?? [];
+    setAdditionalContacts((prev) =>
+      incoming.map((c, i) => ({
+        ...c,
+        key: prev[i]?.key ?? mapObjectWithKey(c, i).key,
+      }))
+    );
   }, [data?.additionalContacts]);
 
   return (
@@ -409,13 +422,22 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={additionalContacts}
           renderItem={(contact: KeyedContact, idx: number) => (
-            <AdditionalContact
-              idPrefix="section-a"
-              index={idx}
-              contact={contact}
-              onDelete={() => removeContact(contact.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`additionalContacts[${idx}][key]`}
+                value={contact.key}
+                readOnly
+              />
+              <AdditionalContact
+                key={contact.key}
+                idPrefix="section-a"
+                index={idx}
+                contact={contact}
+                onDelete={() => removeContact(contact.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>
