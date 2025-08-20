@@ -486,3 +486,10 @@ type SubmissionAttributes = {
    */
   isAdminSubmit: boolean;
 };
+
+type NodeTypeSummary = {
+  nodeType: string;
+  new: number;
+  updated: number;
+  deleted: number;
+};
