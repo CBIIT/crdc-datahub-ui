@@ -212,6 +212,14 @@ const DataSubmissionActions = ({ onAction }: Props) => {
     setReviewComment(val);
   };
 
+  const submitButtonBodyText = useMemo(() => {
+    if (submission?.status === "Rejected") {
+      return "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection.";
+    }
+
+    return "Once submitted, your submission will be locked and will no longer accept updates. Are you sure you want to proceed?";
+  }, [submission?.status]);
+
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
@@ -305,46 +313,12 @@ const DataSubmissionActions = ({ onAction }: Props) => {
       ) : null}
       {/* Submit Dialog */}
       <SubmitDialog
-        open={
-          currentDialog === "Submit" &&
-          !submitActionButton.isAdminOverride &&
-          submission?.status !== "Rejected"
-        }
+        open={currentDialog === "Submit" && !submitActionButton.isAdminOverride}
+        bodyText={submitButtonBodyText}
         onClose={onCloseDialog}
         onConfirm={() => handleOnAction("Submit")}
         disabled={!!action}
       />
-      {/* Submit while Rejected Dialog */}
-      <StyledDialog
-        open={
-          currentDialog === "Submit" &&
-          !submitActionButton.isAdminOverride &&
-          submission?.status === "Rejected"
-        }
-        onClose={onCloseDialog}
-        title="Submit Data Submission"
-        actions={
-          <>
-            <Button onClick={onCloseDialog} disabled={!!action}>
-              No
-            </Button>
-            <LoadingButton
-              onClick={() => handleOnAction("Submit")}
-              loading={!!action}
-              color="error"
-              autoFocus
-            >
-              Yes
-            </LoadingButton>
-          </>
-        }
-      >
-        <StyledDialogText variant="body2">
-          Are you sure you want to resubmit your data without making any changes? Your previous
-          submission was rejected, and resubmitting without addressing the issues may result in
-          another rejection.
-        </StyledDialogText>
-      </StyledDialog>
       {/* Admin Submit Dialog */}
       <StyledDialog
         open={currentDialog === "Submit" && submitActionButton.isAdminOverride}

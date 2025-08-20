@@ -70,7 +70,7 @@ describe("Accessibility", () => {
   it("should have no violations (open)", async () => {
     const { getByTestId, queryByTestId, container } = render(
       <TestParent mocks={[mock]}>
-        <SubmitDialog open onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -86,7 +86,7 @@ describe("Accessibility", () => {
   it("should have no violations (closed)", async () => {
     const { queryByTestId, container } = render(
       <TestParent mocks={[mock]}>
-        <SubmitDialog open={false} onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open={false} bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -119,7 +119,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, queryByTestId, findByTestId, getByText } = render(
       <TestParent mocks={[basicMock]}>
-        <SubmitDialog open onClose={onClose} onConfirm={onConfirm} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={onClose} onConfirm={onConfirm} />
       </TestParent>
     );
 
@@ -160,7 +160,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={[skeletonMock]} submission={{ intention: undefined }}>
-        <SubmitDialog open onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -178,7 +178,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getAllByTestId } = render(
       <TestParent mocks={[gqlErrorMock]}>
-        <SubmitDialog open onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -207,7 +207,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getAllByTestId } = render(
       <TestParent mocks={[networkErrorMock]}>
-        <SubmitDialog open onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -241,7 +241,7 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getAllByTestId } = render(
       <TestParent mocks={[nullDataMock]}>
-        <SubmitDialog open onClose={onClose} onConfirm={onConfirm} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={onClose} onConfirm={onConfirm} />
       </TestParent>
     );
 
@@ -258,7 +258,7 @@ describe("Basic Functionality", () => {
 
     expect(getAllByTestId("submit-summary-skeleton").length).toBeGreaterThan(0);
 
-    await userEvent.click(getByTestId("submit-dialog-close-icon-button"));
+    userEvent.click(getByTestId("submit-dialog-close-icon-button"));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
@@ -282,7 +282,7 @@ describe("Implementation Requirements", () => {
 
     const { findByText, findByTestId, getByTestId, queryByTestId } = render(
       <TestParent mocks={[newUpdateMock]}>
-        <SubmitDialog open onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -317,7 +317,7 @@ describe("Implementation Requirements", () => {
 
     const { findByText, findByTestId, getByTestId, queryByTestId } = render(
       <TestParent submission={{ intention: "Delete" }} mocks={[deleteMock]}>
-        <SubmitDialog open onClose={() => {}} onConfirm={() => {}} />
+        <SubmitDialog open bodyText="Lorem Ipsum" onClose={() => {}} onConfirm={() => {}} />
       </TestParent>
     );
 
@@ -332,5 +332,15 @@ describe("Implementation Requirements", () => {
     expect(within(tbody).getByText("NodeType 1")).toBeInTheDocument();
     expect(within(tbody).getByText("42")).toBeInTheDocument();
     expect(await findByText("Deleted Nodes")).toBeInTheDocument();
+  });
+
+  it("renders the submit dialog with specified bodyText", async () => {
+    const { getByText } = render(
+      <TestParent mocks={[mock]}>
+        <SubmitDialog open bodyText="Test Body Text" onClose={() => {}} onConfirm={() => {}} />
+      </TestParent>
+    );
+
+    expect(getByText(/Test Body Text/i)).toBeInTheDocument();
   });
 });

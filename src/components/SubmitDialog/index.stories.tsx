@@ -80,6 +80,8 @@ const meta: Meta<typeof SubmitDialog> = {
     open: true,
     onClose: fn(),
     onConfirm: fn(),
+    bodyText:
+      "Once submitted, your submission will be locked and will no longer accept updates. Are you sure you want to proceed?",
   },
 };
 export default meta;

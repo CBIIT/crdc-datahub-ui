@@ -136,6 +136,10 @@ const SKELETON_WIDTHS = {
 
 type Props = {
   /**
+   * The main text content displayed in the dialog body.
+   */
+  bodyText: string;
+  /**
    * Whether the dialog buttons are disabled.
    */
   disabled?: boolean;
@@ -159,7 +163,14 @@ type Props = {
  * @param param Props for the dialog component.
  * @returns JSX.Element
  */
-const SubmitDialog = ({ disabled, onClose, onConfirm, open, ...rest }: Props): JSX.Element => {
+const SubmitDialog = ({
+  bodyText,
+  disabled,
+  onClose,
+  onConfirm,
+  open,
+  ...rest
+}: Props): JSX.Element => {
   const { enqueueSnackbar } = useSnackbar();
   const { data } = useSubmissionContext();
 
@@ -205,8 +216,7 @@ const SubmitDialog = ({ disabled, onClose, onConfirm, open, ...rest }: Props): J
         Please review the content of your data submission before proceeding.
         <br />
         <br />
-        Once submitted, your submission will be locked and will no longer accept updates. Are you
-        sure you want to proceed?
+        {bodyText}
       </StyledDescription>
 
       <StyledIntentionWrapper aria-busy={!intention} aria-live="polite">
