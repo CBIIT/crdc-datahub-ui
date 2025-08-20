@@ -776,7 +776,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                               }
                             />
                           }
-                          label="Pending on Data Model review"
+                          label="Pending on Data Model Update"
                         />
                       )}
                     />
