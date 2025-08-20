@@ -31,6 +31,7 @@ const ExtendedApprovedStudyFragment = gql`
     useProgramPC
     pendingModelChange
     GPAName
+    isPendingGPA
   }
 `;
 

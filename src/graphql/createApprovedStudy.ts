@@ -13,6 +13,7 @@ export const mutation = gql`
     $useProgramPC: Boolean!
     $pendingModelChange: Boolean
     $GPAName: String
+    $isPendingGPA: Boolean
   ) {
     createApprovedStudy(
       name: $name
@@ -26,6 +27,7 @@ export const mutation = gql`
       useProgramPC: $useProgramPC
       pendingModelChange: $pendingModelChange
       GPAName: $GPAName
+      isPendingGPA: $isPendingGPA
     ) {
       _id
     }
@@ -44,6 +46,7 @@ export type Input = {
   useProgramPC: boolean;
   pendingModelChange: boolean;
   GPAName: string;
+  isPendingGPA: boolean;
 };
 
 export type Response = {

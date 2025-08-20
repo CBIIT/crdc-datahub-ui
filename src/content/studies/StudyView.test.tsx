@@ -292,6 +292,7 @@ describe("StudyView Component", () => {
           useProgramPC: false,
           pendingModelChange: false,
           GPAName: "Test GPA Name",
+          isPendingGPA: false,
         },
       },
       result: {
@@ -414,6 +415,7 @@ describe("StudyView Component", () => {
           useProgramPC: true,
           pendingModelChange: false,
           GPAName: "GPA Name",
+          isPendingGPA: false,
         },
       },
       result: {
@@ -469,6 +471,7 @@ describe("StudyView Component", () => {
           useProgramPC: false,
           pendingModelChange: false,
           GPAName: "",
+          isPendingGPA: false,
         },
       },
       error: new Error("Unable to create approved study."),
@@ -580,6 +583,7 @@ describe("StudyView Component", () => {
           useProgramPC: true,
           pendingModelChange: false,
           GPAName: "Test GPA Name",
+          isPendingGPA: false,
         },
       },
       error: new Error("Unable to save changes"),
@@ -629,6 +633,7 @@ describe("StudyView Component", () => {
           useProgramPC: false,
           pendingModelChange: false,
           GPAName: "",
+          isPendingGPA: false,
         },
       },
       result: {
@@ -800,6 +805,7 @@ describe("StudyView Component", () => {
           useProgramPC: false,
           pendingModelChange: false,
           GPAName: "",
+          isPendingGPA: false,
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -911,6 +917,7 @@ describe("StudyView Component", () => {
           useProgramPC: true,
           pendingModelChange: false,
           GPAName: "Test GPA Name",
+          isPendingGPA: false,
         },
       },
       error: new ApolloError({ errorMessage: null }),
@@ -986,6 +993,7 @@ describe("StudyView Component", () => {
           useProgramPC: false,
           pendingModelChange: true,
           GPAName: "",
+          isPendingGPA: false,
         },
       },
       result: {
@@ -1091,6 +1099,7 @@ describe("StudyView Component", () => {
           useProgramPC: true,
           pendingModelChange: true,
           GPAName: "Test GPA Name",
+          isPendingGPA: false,
         },
       },
       result: {

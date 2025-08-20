@@ -397,6 +397,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
         ? undefined
         : rest.primaryContactID || undefined,
       useProgramPC: sameAsProgramPrimaryContact,
+      isPendingGPA: rest.controlledAccess === true && rest.GPAName?.trim().length === 0,
     };
 
     if (_id === "new") {
@@ -805,7 +806,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           }
                         />
                       }
-                      label="Pending on Genomic Program Administrator (GPA)"
+                      label="Pending on GPA Info"
                     />
                   </StyledCheckboxFormGroup>
                 </Stack>
