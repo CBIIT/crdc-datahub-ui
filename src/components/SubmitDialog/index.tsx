@@ -27,7 +27,7 @@ const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     maxWidth: "none",
     width: "702px !important",
-    padding: "38px 46.5px 60px",
+    padding: "38px 53.5px 60px",
     borderRadius: "8px",
     border: "2px solid #6B7294",
     background: "linear-gradient(0deg, #F2F6FA 0%, #F2F6FA 100%), #2E4D7B",
@@ -110,11 +110,21 @@ const StyledIntentionLabel = styled(Typography)({
   fontWeight: 700,
   lineHeight: "19.6px",
 });
+
 const StyledIntentionValue = styled(Typography)({
   color: "#000000",
   fontSize: "13px",
   fontWeight: 700,
   lineHeight: "18px",
+});
+
+const StyledIntentionWrapper = styled(Stack)({
+  marginTop: "57px",
+  marginBottom: "15.5px",
+  gap: "21px",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  flexDirection: "row",
 });
 
 /**
@@ -199,20 +209,12 @@ const SubmitDialog = ({ disabled, onClose, onConfirm, open, ...rest }: Props): J
         sure you want to proceed?
       </StyledDescription>
 
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        gap="21px"
-        mb="15.5px"
-        aria-busy={!intention}
-        aria-live="polite"
-      >
+      <StyledIntentionWrapper aria-busy={!intention} aria-live="polite">
         <StyledIntentionLabel>Data Submission Type:</StyledIntentionLabel>
         <StyledIntentionValue data-testid="submit-dialog-intention">
           {!intention ? <Skeleton variant="text" width={SKELETON_WIDTHS.intention} /> : intention}
         </StyledIntentionValue>
-      </Stack>
+      </StyledIntentionWrapper>
 
       <SubmitSummaryTable
         intention={intention}
