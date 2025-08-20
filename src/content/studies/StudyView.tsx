@@ -626,7 +626,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   required={isControlled === true}
                   disabled={retrievingStudy}
                   readOnly={saving}
-                  inputProps={{ "aria-labelledby": "gpaNameLabel", "data-testid": "GPAName-input" }}
+                  inputProps={{
+                    maxLength: 100,
+                    "aria-labelledby": "gpaNameLabel",
+                    "data-testid": "GPAName-input",
+                  }}
                 />
               </StyledField>
               <StyledField>
