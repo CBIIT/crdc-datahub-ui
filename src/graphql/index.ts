@@ -288,6 +288,12 @@ export type {
   ListReleasedDataRecordsResponse,
 } from "./listReleasedDataRecords";
 
+export { DOWNLOAD_ALL_RELEASED_NODES } from "./downloadAllReleasedNodes";
+export type {
+  DownloadAllReleaseNodesInput,
+  DownloadAllReleasedNodesResp,
+} from "./downloadAllReleasedNodes";
+
 export { GET_RELEASED_NODE_TYPES } from "./getReleasedNodeTypes";
 export type { GetReleasedNodeTypesInput, GetReleasedNodeTypesResp } from "./getReleasedNodeTypes";
 
