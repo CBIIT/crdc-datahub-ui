@@ -3,6 +3,8 @@ import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material"
 import { isEqual } from "lodash";
 import React, { useMemo, useState } from "react";
 
+import SubmitDialog from "@/components/SubmitDialog";
+
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import CustomDialog from "../../components/GenericDialog";
@@ -302,8 +304,23 @@ const DataSubmissionActions = ({ onAction }: Props) => {
         </StyledLoadingButton>
       ) : null}
       {/* Submit Dialog */}
+      <SubmitDialog
+        open={
+          currentDialog === "Submit" &&
+          !submitActionButton.isAdminOverride &&
+          submission?.status !== "Rejected"
+        }
+        onClose={onCloseDialog}
+        onConfirm={() => handleOnAction("Submit")}
+        disabled={!!action}
+      />
+      {/* Submit while Rejected Dialog */}
       <StyledDialog
-        open={currentDialog === "Submit" && !submitActionButton.isAdminOverride}
+        open={
+          currentDialog === "Submit" &&
+          !submitActionButton.isAdminOverride &&
+          submission?.status === "Rejected"
+        }
         onClose={onCloseDialog}
         title="Submit Data Submission"
         actions={
@@ -323,9 +340,9 @@ const DataSubmissionActions = ({ onAction }: Props) => {
         }
       >
         <StyledDialogText variant="body2">
-          {submission?.status === "Rejected"
-            ? "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection."
-            : "This action will lock your submission and it will no longer accept updates to the data. Are you sure you want to proceed?"}
+          Are you sure you want to resubmit your data without making any changes? Your previous
+          submission was rejected, and resubmitting without addressing the issues may result in
+          another rejection.
         </StyledDialogText>
       </StyledDialog>
       {/* Admin Submit Dialog */}
