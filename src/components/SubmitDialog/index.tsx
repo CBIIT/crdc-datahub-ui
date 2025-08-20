@@ -240,7 +240,7 @@ const SubmitDialog = ({
         marginTop="58px"
       >
         <StyledCloseButton
-          id="error-dialog-no-button"
+          id="submit-dialog-no-button"
           variant="contained"
           color="info"
           onClick={onClose}
@@ -251,7 +251,7 @@ const SubmitDialog = ({
           No
         </StyledCloseButton>
         <StyledConfirmButton
-          id="error-dialog-yes-button"
+          id="submit-dialog-yes-button"
           variant="contained"
           color="success"
           onClick={onConfirm}
