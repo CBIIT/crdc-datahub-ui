@@ -161,8 +161,8 @@ const SubmitDialog = ({ disabled, onClose, onConfirm, open, ...rest }: Props): J
   >(GET_SUBMISSION_SUMMARY, {
     variables: { submissionID: data?.getSubmission?._id },
     context: { clientName: "backend" },
-    fetchPolicy: "cache-first",
-    skip: !data?.getSubmission?._id,
+    fetchPolicy: "cache-and-network",
+    skip: !data?.getSubmission?._id || !open,
     onError: () => {
       enqueueSnackbar("Unable to retrieve submission summary data.", { variant: "error" });
     },
