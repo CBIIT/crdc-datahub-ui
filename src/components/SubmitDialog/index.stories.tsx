@@ -58,7 +58,7 @@ const mockSummary = (
 });
 
 const meta: Meta<typeof SubmitDialog> = {
-  title: "Submission/SubmitDialog",
+  title: "Data Submissions / Submit Dialog",
   component: SubmitDialog,
   parameters: {
     layout: "fullscreen",
