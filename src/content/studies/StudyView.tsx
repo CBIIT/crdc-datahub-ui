@@ -144,6 +144,7 @@ const StyledFormControlLabel = styled(FormControlLabel)(() => ({
     lineHeight: "19.6px",
     minHeight: "20px",
     color: "#083A50",
+    whiteSpace: "nowrap",
   },
 }));
 
@@ -216,6 +217,7 @@ type FormInput = Pick<
   | "controlledAccess"
   | "useProgramPC"
   | "pendingModelChange"
+  | "GPAName"
 > & { primaryContactID: string };
 
 type Props = {
@@ -249,9 +251,14 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       openAccess: false,
       controlledAccess: false,
       pendingModelChange: false,
+      GPAName: "",
     },
   });
-  const [isControlled, dbGaPIDFilter] = watch(["controlledAccess", "dbGaPID"]);
+  const [isControlled, dbGaPIDFilter, gpaNameFilter] = watch([
+    "controlledAccess",
+    "dbGaPID",
+    "GPAName",
+  ]);
 
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState(null);
@@ -278,6 +285,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           controlledAccess,
           useProgramPC,
           pendingModelChange,
+          GPAName,
         } = data?.getApprovedStudy || {};
 
         setSameAsProgramPrimaryContact(useProgramPC);
@@ -293,6 +301,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           useProgramPC,
           primaryContactID: primaryContact?._id,
           pendingModelChange,
+          GPAName,
         });
       },
       onError: (error) =>
@@ -345,6 +354,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     ORCID,
     primaryContactID,
     pendingModelChange,
+    GPAName,
   }: FormInput) => {
     reset({
       studyName: studyName || "",
@@ -356,6 +366,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       ORCID: ORCID || "",
       primaryContactID: primaryContactID || "",
       pendingModelChange: pendingModelChange || false,
+      GPAName: GPAName || "",
     });
   };
 
@@ -386,6 +397,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
         ? undefined
         : rest.primaryContactID || undefined,
       useProgramPC: sameAsProgramPrimaryContact,
+      isPendingGPA: rest.controlledAccess === true && rest.GPAName?.trim().length === 0,
     };
 
     if (_id === "new") {
@@ -598,6 +610,29 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                   inputProps={{ "aria-labelledby": "dbGaPIDLabel", "data-testid": "dbGaPID-input" }}
                 />
               </StyledField>
+
+              <StyledField>
+                <StyledLabel id="gpaNameLabel">
+                  GPA
+                  <StyledAsterisk visible={isControlled} />
+                  <Tooltip title="Genomic Program Administrator" />
+                </StyledLabel>
+                <StyledTextField
+                  {...register("GPAName", {
+                    required: isControlled === true,
+                    setValueAs: (val) => val?.trim(),
+                  })}
+                  size="small"
+                  required={isControlled === true}
+                  disabled={retrievingStudy}
+                  readOnly={saving}
+                  inputProps={{
+                    maxLength: 100,
+                    "aria-labelledby": "gpaNameLabel",
+                    "data-testid": "GPAName-input",
+                  }}
+                />
+              </StyledField>
               <StyledField>
                 <StyledLabel id="piLabel">PI Name</StyledLabel>
                 <StyledTextField
@@ -761,6 +796,21 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         />
                       }
                       label="Pending on dbGaPID"
+                    />
+                    <StyledFormControlLabel
+                      control={
+                        <StyledCheckbox
+                          checked={isControlled && !gpaNameFilter?.trim()?.length}
+                          checkedIcon={<CheckedIcon readOnly />}
+                          icon={<UncheckedIcon readOnly />}
+                          readOnly
+                          disabled
+                          inputProps={
+                            { "data-testid": "pendingConditions-gpa-checkbox" } as unknown
+                          }
+                        />
+                      }
+                      label="Pending on GPA Info"
                     />
                   </StyledCheckboxFormGroup>
                 </Stack>

@@ -127,6 +127,10 @@ const columns: Column<ApprovedStudy>[] = [
           check: a.pendingModelChange,
           tooltip: "Data submission is Pending on Data Model Review.",
         },
+        {
+          check: a.isPendingGPA,
+          tooltip: "Data submission is Pending on GPA info.",
+        },
       ]
         .filter((pc) => pc.check)
         .map((pc) => pc.tooltip);
