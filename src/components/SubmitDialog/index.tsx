@@ -256,7 +256,7 @@ const SubmitDialog = ({
           color="success"
           onClick={onConfirm}
           disabled={disabled}
-          aria-label="Confirm to Remove button"
+          aria-label="Confirm button"
           data-testid="submit-dialog-confirm-button"
         >
           Yes
