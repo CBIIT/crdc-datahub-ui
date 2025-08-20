@@ -257,7 +257,7 @@ describe("Implementation Requirements", () => {
 
     userEvent.hover(asterisk);
 
-    const modelReviewTooltip = await findByText("Data submission is Pending on Data Model Review.");
+    const modelReviewTooltip = await findByText("Data submission is Pending on Data Model Update.");
     expect(modelReviewTooltip).toBeInTheDocument();
   });
 
@@ -354,7 +354,7 @@ describe("Implementation Requirements", () => {
     userEvent.hover(asterisk);
 
     const dbGaPIDTooltip = await findByText("Data submission is Pending on dbGaPID Registration.");
-    const modelReviewTooltip = await findByText("Data submission is Pending on Data Model Review.");
+    const modelReviewTooltip = await findByText("Data submission is Pending on Data Model Update.");
     const gpaTooltip = await findByText("Data submission is Pending on GPA info.");
 
     expect(dbGaPIDTooltip).toBeInTheDocument();
