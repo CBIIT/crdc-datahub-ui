@@ -8,6 +8,7 @@ import {
   TableRow,
   styled,
 } from "@mui/material";
+import { visuallyHidden } from "@mui/utils";
 import { memo } from "react";
 
 const StyledTableContainer = styled(TableContainer)({
@@ -98,15 +99,18 @@ const TableRowsLoader = ({ rowsNum, isNewUpdate, type }: TableRowsLoaderProps) =
 
   return [...Array(rowsNum)].map((_, index) => (
     // eslint-disable-next-line react/no-array-index-key
-    <TableRow key={`submit-summary-skeleton-${index}`}>
-      <CellComponent component="th" scope="row">
+    <TableRow key={`submit-summary-skeleton-${index}`} data-testid="submit-summary-skeleton">
+      <CellComponent component="th" scope="row" aria-label="loading-cell">
+        <span style={visuallyHidden}>Loading...</span>
         <Skeleton animation="wave" variant="text" />
       </CellComponent>
-      <CellComponent>
+      <CellComponent component="th" scope="row" aria-label="loading-cell">
+        <span style={visuallyHidden}>Loading...</span>
         <Skeleton animation="wave" variant="text" />
       </CellComponent>
       {isNewUpdate ? (
-        <CellComponent>
+        <CellComponent component="th" scope="row" aria-label="loading-cell">
+          <span style={visuallyHidden}>Loading...</span>
           <Skeleton animation="wave" variant="text" />
         </CellComponent>
       ) : null}
