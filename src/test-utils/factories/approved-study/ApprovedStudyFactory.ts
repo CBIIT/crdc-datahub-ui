@@ -18,6 +18,8 @@ export const baseApprovedStudy: ApprovedStudy = {
   primaryContact: userFactory.build(),
   useProgramPC: false,
   pendingModelChange: false,
+  isPendingGPA: false,
+  GPAName: "",
   createdAt: "",
 };
 

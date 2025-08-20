@@ -298,7 +298,7 @@ describe("Profile View", () => {
     }
   );
 
-  it.each<UserRole>(["User", "Submitter", "Data Commons Personnel", "fake role" as UserRole])(
+  it.each<UserRole>(["Admin", "Federal Lead", "Data Commons Personnel", "fake role" as UserRole])(
     "should return DISABLED for the permissions and notifications panel on the profile page for role %s",
     (role) => {
       const user = userFactory.build({ _id: "User-A", role });
@@ -312,6 +312,23 @@ describe("Profile View", () => {
 
       expect(result.current.permissions).toBe("DISABLED");
       expect(result.current.notifications).toBe("DISABLED");
+    }
+  );
+
+  it.each<UserRole>(["User", "Submitter"])(
+    "should return HIDDEN for the permissions and notifications field on the profile page for role %s",
+    (role) => {
+      const user = userFactory.build({ _id: "User-A", role });
+      const profileOf: Pick<User, "_id" | "role"> = userFactory
+        .pick(["_id", "role"])
+        .build({ _id: "User-A", role });
+
+      vi.spyOn(Auth, "useAuthContext").mockReturnValue(authCtxStateFactory.build({ user }));
+
+      const { result } = renderHook(() => useProfileFields(profileOf, "profile"));
+
+      expect(result.current.permissions).toBe("HIDDEN");
+      expect(result.current.notifications).toBe("HIDDEN");
     }
   );
 

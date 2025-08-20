@@ -30,6 +30,8 @@ const ExtendedApprovedStudyFragment = gql`
     }
     useProgramPC
     pendingModelChange
+    GPAName
+    isPendingGPA
   }
 `;
 
@@ -82,6 +84,7 @@ export type Response<PartialResponse = false> = {
         | "createdAt"
         | "useProgramPC"
         | "pendingModelChange"
+        | "GPAName"
       > & {
         primaryContact: Pick<User, "_id" | "firstName" | "lastName">;
         programs: Pick<Organization, "_id" | "name" | "conciergeID" | "conciergeName">[];

@@ -19,8 +19,7 @@ import {
   buildBaseFilterContainers,
   buildFilterOptionsList,
   Logger,
-  deleteInvalidCDEs,
-  extractAllCDEs,
+  extractSupportedCDEs,
   populateCDEData,
 } from "../utils";
 
@@ -93,21 +92,18 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       return null;
     });
 
-    const response = await getModelExploreData(...assets.model_files)?.catch((e) => {
-      Logger.error(e);
-      return null;
-    });
+    const { data: dictionary, version } =
+      (await getModelExploreData(...assets.model_files)?.catch((e) => {
+        Logger.error(e);
+        return {};
+      })) || {};
 
-    if (!response?.data || !response?.version) {
+    if (!dictionary || !version) {
       setStatus("error");
       return;
     }
 
-    const { data: dictionary } = response as { data: MDFDictionary };
-
-    deleteInvalidCDEs(dictionary);
-
-    const allCDEs = extractAllCDEs(dictionary);
+    const allCDEs = extractSupportedCDEs(dictionary);
     if (allCDEs.length > 0) {
       try {
         const CDEs = await retrieveCDEs({
@@ -121,7 +117,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       }
     }
 
-    store.dispatch({ type: "RECEIVE_VERSION_INFO", data: response.version });
+    store.dispatch({ type: "RECEIVE_VERSION_INFO", data: version });
 
     store.dispatch({
       type: "REACT_FLOW_GRAPH_DICTIONARY",

@@ -2,6 +2,11 @@ import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
 import { userEvent, within, screen, expect } from "@storybook/test";
 
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+
 import { Roles } from "../../config/AuthRoles";
 import {
   LIST_APPROVED_STUDIES,
@@ -11,7 +16,7 @@ import {
   ListInstitutionsInput,
   ListInstitutionsResp,
 } from "../../graphql";
-import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
+import { Context as AuthContext } from "../Contexts/AuthContext";
 
 import Dialog from "./index";
 
@@ -36,7 +41,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
       listApprovedStudies: {
         total: 2,
         studies: [
-          {
+          approvedStudyFactory.build({
             _id: "study-1",
             studyName: "Study-1",
             studyAbbreviation: "S1",
@@ -51,8 +56,8 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             useProgramPC: false,
             createdAt: "",
             pendingModelChange: false,
-          },
-          {
+          }),
+          approvedStudyFactory.build({
             _id: "study-2",
             studyName: "Study-2",
             studyAbbreviation: "S2",
@@ -67,7 +72,7 @@ const studiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesIn
             useProgramPC: false,
             createdAt: "",
             pendingModelChange: false,
-          },
+          }),
         ],
       },
     },
@@ -85,24 +90,24 @@ const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInp
       listInstitutions: {
         total: 3,
         institutions: [
-          {
+          institutionFactory.build({
             _id: "institution-1",
             name: "Institution 1",
             status: "Active",
             submitterCount: 0,
-          },
-          {
+          }),
+          institutionFactory.build({
             _id: "institution-2",
             name: "Institution 2",
             status: "Active",
             submitterCount: 5,
-          },
-          {
+          }),
+          institutionFactory.build({
             _id: "institution-3",
             name: "Institution 3",
             status: "Active",
             submitterCount: 2,
-          },
+          }),
         ],
       },
     },
@@ -145,16 +150,14 @@ export const Default: Story = {
   decorators: [
     (Story, context) => (
       <AuthContext.Provider
-        value={
-          {
-            isLoggedIn: true,
-            user: {
-              firstName: "Example",
-              role: context.args.role,
-              permissions: context.args.permissions,
-            } as User,
-          } as AuthCtxState
-        }
+        value={authCtxStateFactory.build({
+          isLoggedIn: true,
+          user: userFactory.build({
+            firstName: "Example",
+            role: context.args.role,
+            permissions: context.args.permissions,
+          }),
+        })}
       >
         <Story />
       </AuthContext.Provider>
@@ -184,16 +187,14 @@ export const Hovered: Story = {
   decorators: [
     (Story, context) => (
       <AuthContext.Provider
-        value={
-          {
-            isLoggedIn: true,
-            user: {
-              firstName: "Example",
-              role: context.args.role,
-              permissions: context.args.permissions,
-            } as User,
-          } as AuthCtxState
-        }
+        value={authCtxStateFactory.build({
+          isLoggedIn: true,
+          user: userFactory.build({
+            firstName: "Example",
+            role: context.args.role,
+            permissions: context.args.permissions,
+          }),
+        })}
       >
         <Story />
       </AuthContext.Provider>
