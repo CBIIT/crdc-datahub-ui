@@ -273,7 +273,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
       return;
     }
 
-    const { startRow = 2, endRow = 9999 } = options ?? {};
+    const { startRow = 2, endRow = 100 } = options ?? {};
     const column = ws.getColumn(key as string);
 
     Array.from({ length: endRow - startRow + 1 }, (_, i) => i + startRow).forEach((rowNum) => {
