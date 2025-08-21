@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import webpackStats from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 import viteTsConfigPaths from "vite-tsconfig-paths";
@@ -27,6 +28,7 @@ export default defineConfig({
       svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
     }),
     viteTsConfigPaths(),
+    webpackStats(),
   ],
   server: {
     open: true,
