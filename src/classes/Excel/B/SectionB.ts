@@ -168,8 +168,8 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     // Program
     A2.dataValidation = {
       type: "list",
-      allowBlank: true,
-      showErrorMessage: false,
+      allowBlank: false,
+      showErrorMessage: true,
       formulae: [
         LIST_FORMULA(this.deps.programSheet.name, "E", 1, this.deps.programSheet.rowCount || 1),
       ],
