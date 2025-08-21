@@ -1,4 +1,5 @@
 import { Worksheet } from "exceljs";
+import { v4 } from "uuid";
 
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
 import { InitialQuestionnaire } from "@/config/InitialValues";
@@ -2328,9 +2329,10 @@ describe("Parsing", () => {
   });
 
   it("should allow selecting existing program", async () => {
+    const _id = v4();
     const mockForm = questionnaireDataFactory.build({
       program: programInputFactory.build({
-        _id: "ExistingProgram-123",
+        _id,
         name: null,
         abbreviation: null,
         description: null,
@@ -2351,7 +2353,7 @@ describe("Parsing", () => {
         listPrograms: {
           programs: [
             {
-              _id: "ExistingProgram-123",
+              _id,
               name: "Existing Program",
               abbreviation: "EP",
               description: "An existing program.",
@@ -2378,7 +2380,7 @@ describe("Parsing", () => {
     const output = middleware.data;
 
     expect(result).toEqual(true);
-    expect(output.program).toEqual(expect.objectContaining({ _id: "ExistingProgram-123" }));
+    expect(output.program).toEqual(expect.objectContaining({ _id }));
     expect(output.program?.name).toBe(InitialQuestionnaire.program.name);
     expect(output.program?.abbreviation).toBe(InitialQuestionnaire.program.abbreviation);
     expect(output.program?.description).toBe(InitialQuestionnaire.program.description);
