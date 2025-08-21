@@ -10,8 +10,7 @@ on:
       - "*.*.*"
       - "main"
       - "master"
-    paths:
-      - "**/*.{js,jsx,ts,tsx}"
+      - "*" # TODO: Remove this
   pull_request:
       branches: "*"
 
