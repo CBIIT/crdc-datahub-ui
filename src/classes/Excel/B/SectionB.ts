@@ -524,7 +524,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     let cell: ExcelJS.Cell | undefined;
     colA.eachCell((c) => {
       if (!cell && c.value === id) {
-        console.log({ id, c: c.value });
         cell = c;
       }
     });
