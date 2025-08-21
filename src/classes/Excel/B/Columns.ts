@@ -126,7 +126,7 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     protection,
   },
   {
-    header: "Publication Title",
+    header: "Existing Publication Title",
     key: "study.publications.title",
     width: 30,
     annotation:
