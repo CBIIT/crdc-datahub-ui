@@ -1,3 +1,5 @@
+import { cloneDeep, mergeWith } from "lodash";
+
 import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
 
 /**
@@ -325,3 +327,30 @@ export const isValidInRange = (
 
   return true;
 };
+
+/**
+ * Deep-merge questionnaire base data with form values.
+ *
+ * Behavior:
+ * - Recursively merges objects.
+ * - Arrays are replaced (not merged by index).
+ * - The base object is cloned to avoid mutation of inputs.
+ *
+ * @template T - Type of the base questionnaire data.
+ * @template U - Type of the form object.
+ * @param base - Existing questionnaire data to merge into.
+ * @param form - Parsed form values to overlay.
+ * @returns A new object with base and form merged.
+ */
+export const combineQuestionnaireData = <T extends object, U extends object>(
+  base: T,
+  form: U
+): T & U =>
+  mergeWith(cloneDeep(base), form, (objValue, srcValue) => {
+    if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+      return srcValue;
+    }
+
+    // default merge behavior
+    return undefined;
+  }) as T & U;
