@@ -225,8 +225,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const addFileDataType = () => {
-    setFileTypeData([
-      ...fileTypeData,
+    setFileTypeData((prev) => [
+      ...prev,
       {
         key: `${fileTypeData.length}_${new Date().getTime()}`,
         type: ``,
@@ -238,7 +238,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const removeFileDataType = (key: string) => {
-    setFileTypeData(fileTypeData.filter((c) => c.key !== key));
+    setFileTypeData((prev) => prev.filter((c) => c.key !== key));
   };
 
   const handleDataTypesChange = (checked: boolean, value: string) => {
@@ -262,7 +262,13 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [data?.dataTypes]);
 
   useEffect(() => {
-    setFileTypeData(data.files?.map(mapObjectWithKey) || []);
+    const incoming = data?.files ?? [];
+    setFileTypeData((prev) =>
+      incoming.map((c, i) => ({
+        ...c,
+        key: prev[i]?.key ?? mapObjectWithKey(c, i).key,
+      }))
+    );
   }, [data?.files]);
 
   useEffect(() => {
@@ -519,6 +525,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                     options={fileTypeOptions.map((fileType) => fileType)}
                   />
                   <TableCell className="bottomRowMiddle">
+                    <input
+                      type="hidden"
+                      name={`files[${idx}][key]`}
+                      value={fileData.key}
+                      readOnly
+                    />
                     <TableTextInput
                       id={`section-d-file-type-${idx}-number-of-files`}
                       name={`files[${idx}][count]`}
