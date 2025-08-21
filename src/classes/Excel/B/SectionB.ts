@@ -1,4 +1,5 @@
 import type ExcelJS from "exceljs";
+import { Row } from "exceljs";
 import { toString } from "lodash";
 
 import DataTypes from "@/config/DataTypesConfig";
@@ -463,6 +464,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
 
     // Match program name to get the _id
     let programId: string;
+    let programRow: Row | undefined;
     const rawProgramId = toString(data.get("program._id")?.[0]).trim();
     if (rawProgramId === "Not Applicable" || rawProgramId === "Other") {
       programId = rawProgramId;
@@ -472,6 +474,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         const name = toString(cell.value).trim();
         if (name === toString(data.get("program._id")?.[0])) {
           programId = toString(programSheet.getCell(`A${rowNumber}`).value).trim();
+          programRow = programSheet.getRow(rowNumber);
         }
       });
     }
@@ -479,9 +482,15 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     const questionnaireData: RecursivePartial<QuestionnaireData> = {
       program: {
         _id: programId,
-        name: toString(data.get("program.name")?.[0]).trim(),
-        abbreviation: toString(data.get("program.abbreviation")?.[0]).trim(),
-        description: toString(data.get("program.description")?.[0]).trim(),
+        name: programRow
+          ? toString(programRow.getCell(2).value).trim()
+          : toString(data.get("program.name")?.[0]).trim(),
+        abbreviation: programRow
+          ? toString(programRow.getCell(3).value).trim()
+          : toString(data.get("program.abbreviation")?.[0]).trim(),
+        description: programRow
+          ? toString(programRow.getCell(4).value).trim()
+          : toString(data.get("program.description")?.[0]).trim(),
       },
       study: {
         name: toString(data.get("study.name")?.[0]).trim(),
@@ -515,6 +524,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     let cell: ExcelJS.Cell | undefined;
     colA.eachCell((c) => {
       if (!cell && c.value === id) {
+        console.log({ id, c: c.value });
         cell = c;
       }
     });
