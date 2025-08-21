@@ -66,7 +66,7 @@ export const COLUMNS: ColumnDef<CKeys>[] = [
     protection: { locked: true },
   },
   {
-    header: "Genomic Program Administrator",
+    header: "GPA Name",
     key: "study.GPAName",
     width: 30,
     protection: { locked: true },
