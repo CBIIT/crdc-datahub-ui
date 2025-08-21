@@ -1,7 +1,7 @@
 import { useLazyQuery } from "@apollo/client";
 import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
 import { isEqual } from "lodash";
-import { memo, SVGProps, useState } from "react";
+import { memo, useState } from "react";
 
 import ExportIconSvg from "@/assets/icons/export_icon.svg?react";
 import { useFormContext } from "@/components/Contexts/FormContext";
@@ -16,16 +16,14 @@ import {
 } from "@/graphql";
 import { downloadBlob, Logger } from "@/utils";
 
-const StyledExportIcon = styled(ExportIconSvg, {
-  shouldForwardProp: (prop) => prop !== "disabled",
-})<SVGProps<SVGSVGElement> & { disabled: boolean }>(({ disabled }) => ({
+const StyledExportIcon = styled(ExportIconSvg)({
   width: "27px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   marginRight: "16px",
-  color: disabled ? "#BBBBBB" : "currentColor",
-}));
+  color: "currentColor",
+});
 
 const StyledText = styled(Typography)({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
@@ -34,20 +32,12 @@ const StyledText = styled(Typography)({
   fontSize: "16px",
   lineHeight: "150%",
   color: "inherit",
+  paddingLeft: "14px",
 });
 
 const StyledStack = styled(Stack)({
   margin: "0 !important",
   width: "100%",
-  color: "#136071",
-
-  "&:has(> button:hover) svg": {
-    color: "#00819E",
-  },
-
-  "&:has(> button:focus-visible) svg": {
-    color: "#00819E",
-  },
 });
 
 const StyledExportButton = styled(Button)({
@@ -62,6 +52,9 @@ const StyledExportButton = styled(Button)({
   "&.Mui-disabled": {
     color: "#BBBBBB",
     opacity: 1,
+  },
+  "& .MuiButton-startIcon": {
+    marginRight: "0px !important",
   },
 });
 
@@ -132,14 +125,14 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
 
   return (
     <StyledStack direction="row" alignItems="center" justifyContent="center">
-      <StyledExportIcon disabled={isDisabled} />
-
       <StyledExportButton
         variant="text"
         onClick={onButtonClick}
         disabled={isDisabled}
+        startIcon={<StyledExportIcon />}
         aria-label="Export application to Excel button"
         data-testid="export-application-excel-button"
+        disableTouchRipple
         {...rest}
       >
         <StyledTooltip

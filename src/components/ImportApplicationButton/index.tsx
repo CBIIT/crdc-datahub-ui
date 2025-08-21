@@ -1,5 +1,5 @@
 import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
-import { SVGProps, useState } from "react";
+import { useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
 import useFormMode from "@/hooks/useFormMode";
@@ -10,42 +10,28 @@ import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 import ImportDialog from "./ImportDialog";
 
-const StyledImportIcon = styled(ImportIconSvg, {
-  shouldForwardProp: (prop) => prop !== "disabled",
-})<SVGProps<SVGSVGElement> & { disabled: boolean }>(({ disabled }) => ({
+const StyledImportIcon = styled(ImportIconSvg)({
   width: "27px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   marginRight: "16px",
-  color: disabled ? "#BBBBBB" : "currentColor",
-}));
+  color: "currentColor",
+});
 
 const StyledText = styled(Typography)({
   fontFamily: "'Nunito Sans', 'Rubik', sans-serif",
   letterSpacing: "-0.25px",
   fontWeight: 600,
   fontSize: "16px",
-  color: "#136071",
   lineHeight: "150%",
-
-  "&:hover": {
-    color: "#00819E",
-  },
+  color: "inherit",
+  paddingLeft: "14px",
 });
 
 const StyledStack = styled(Stack)({
   margin: "0 !important",
   width: "100%",
-  color: "#136071",
-
-  "&:has(> button:hover) svg": {
-    color: "#00819E",
-  },
-
-  "&:has(> button:focus-visible) svg": {
-    color: "#00819E",
-  },
 });
 
 const StyledImportButton = styled(Button)({
@@ -53,13 +39,16 @@ const StyledImportButton = styled(Button)({
   padding: "12px 14px",
   marginRight: "auto",
   color: "#136071",
+  "&:hover": {
+    color: "#00819E",
+    background: "transparent",
+  },
   "&.Mui-disabled": {
     color: "#BBBBBB",
     opacity: 1,
   },
-  "&:hover": {
-    color: "#00819E",
-    background: "transparent",
+  "& .MuiButton-startIcon": {
+    marginRight: "0px !important",
   },
 });
 
@@ -87,7 +76,7 @@ type Props = Omit<ButtonProps, "onClick">;
  * @param param Props for the button component.
  * @returns JSX.Element
  */
-const ImportApplicationButton = ({ disabled = false }: Props) => {
+const ImportApplicationButton = ({ disabled = false, ...rest }: Props) => {
   const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -152,14 +141,15 @@ const ImportApplicationButton = ({ disabled = false }: Props) => {
   return (
     <>
       <StyledStack direction="row" alignItems="center" justifyContent="center">
-        <StyledImportIcon disabled={disabled} />
-
         <StyledImportButton
           variant="text"
           onClick={onImportClick}
           disabled={shouldDisable}
+          startIcon={<StyledImportIcon />}
           aria-label="Import application from Excel button"
           data-testid="import-application-excel-button"
+          disableTouchRipple
+          {...rest}
         >
           <StyledTooltip
             title="Import the Submission Request from Excel."
