@@ -3,6 +3,7 @@ import type ExcelJS from "exceljs";
 import { AND, EMAIL, IF, LIST_FORMULA, Logger, ORCID, REQUIRED, STR_EQ, TEXT_MAX } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
+import { ErrorCatalog } from "../ErrorCatalog";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { AKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS, SCHEMA } from "./Columns";
@@ -98,14 +99,14 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     D2.dataValidation = {
       type: "custom",
       showErrorMessage: true,
-      error: "Please enter a valid email address.",
+      error: ErrorCatalog.get("email"),
       allowBlank: true,
       formulae: [EMAIL(D2)],
     };
     E2.dataValidation = {
       type: "custom",
       showErrorMessage: true,
-      error: "Please provide a valid ORCID.",
+      error: ErrorCatalog.get("orcid"),
       allowBlank: true,
       formulae: [ORCID(E2)],
     };
@@ -138,7 +139,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
         type: "custom",
         allowBlank: true,
         showErrorMessage: true,
-        error: `Must be less than ${cellLimit} characters.`,
+        error: ErrorCatalog.get("max", { max: cellLimit }),
         formulae: [IF(STR_EQ(H2, "Yes"), "TRUE", AND(REQUIRED(cell), TEXT_MAX(cell, cellLimit)))],
       };
     });
@@ -161,7 +162,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
         type: "custom",
         allowBlank: true,
         showErrorMessage: true,
-        error: "Please enter a valid email address.",
+        error: ErrorCatalog.get("email"),
         formulae: [EMAIL(cell)],
       };
     });

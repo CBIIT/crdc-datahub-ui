@@ -4,6 +4,7 @@ import { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
 import { IF, STR_EQ, AND, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
+import { ErrorCatalog } from "../ErrorCatalog";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { CKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS, SCHEMA } from "./Columns";
@@ -99,28 +100,30 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     B.dataValidation = {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     C.dataValidation = {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     D.dataValidation = {
       type: "custom",
       allowBlank: true,
       showErrorMessage: true,
-      error: `Must be less than ${DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"]} characters.`,
+      error: ErrorCatalog.get("requiredMax", {
+        max: DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"],
+      }),
       formulae: [
         IF(
           STR_EQ(C, "Yes"),
@@ -161,8 +164,8 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       type: "decimal",
       allowBlank: true,
       showErrorMessage: true,
-      error: `Must be between 1 and 2,000,000,000.`,
-      formulae: [1, 2000000000],
+      error: ErrorCatalog.get("between", { min: 1, max: 2_000_000_000 }),
+      formulae: [1, 2_000_000_000],
     };
   }
 

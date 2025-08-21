@@ -6,6 +6,7 @@ import { fileTypeExtensions } from "@/config/FileTypeConfig";
 import { DATE_NOT_BEFORE_TODAY, FormatDate } from "@/utils";
 
 import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
+import { ErrorCatalog } from "../ErrorCatalog";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { COLUMNS, DKeys, SCHEMA } from "./Columns";
@@ -117,7 +118,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "custom",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Enter a valid date (MM/DD/YYYY)",
+      error: ErrorCatalog.get("dateMMDDYYYY"),
       formulae: [DATE_NOT_BEFORE_TODAY(B, { allowBlank: false })],
     };
     // Targeted Release Date
@@ -125,7 +126,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "custom",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Enter a valid date (MM/DD/YYYY)",
+      error: ErrorCatalog.get("dateMMDDYYYY"),
       formulae: [DATE_NOT_BEFORE_TODAY(B, { allowBlank: false })],
     };
 
@@ -134,28 +135,28 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     D.dataValidation = {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     E.dataValidation = {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     F.dataValidation = {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
 
@@ -164,7 +165,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
 
@@ -172,9 +173,9 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     H.dataValidation = {
       type: "textLength",
       operator: "lessThanOrEqual",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
-      error: "Required. Max 200 characters.",
+      error: ErrorCatalog.get("max", { max: this.CHARACTER_LIMITS.otherDataTypes }),
       formulae: [this.CHARACTER_LIMITS.otherDataTypes],
     };
 
@@ -183,56 +184,57 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     J.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     K.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     L.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     M.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     N.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     O.dataValidation = {
       type: "textLength",
+      operator: "lessThanOrEqual",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Required. Max 200 characters.",
+      error: ErrorCatalog.get("max", { max: 200 }),
       formulae: [this.CHARACTER_LIMITS["clinicalData.otherDataTypes"]],
     };
     P.dataValidation = {
       type: "list",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
 
@@ -263,7 +265,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Required. Max 10 characters.",
+        error: ErrorCatalog.get("requiredMax", { max: this.CHARACTER_LIMITS["files.count"] }),
         formulae: [this.CHARACTER_LIMITS["files.count"]],
       };
     });
@@ -273,7 +275,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Required. Max 50 characters.",
+        error: ErrorCatalog.get("requiredMax", { max: this.CHARACTER_LIMITS["files.amount"] }),
         formulae: [this.CHARACTER_LIMITS["files.amount"]],
       };
     });
@@ -283,7 +285,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
 
@@ -292,7 +294,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
     // Model Systems
@@ -300,16 +302,16 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       type: "list",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Please select 'Yes' or 'No' from the dropdown",
+      error: ErrorCatalog.get("yesNo"),
       formulae: [YesNoList],
     };
 
     X.dataValidation = {
       type: "textLength",
       operator: "lessThanOrEqual",
-      allowBlank: false,
+      allowBlank: true,
       showErrorMessage: true,
-      error: "Required. Max 500 characters.",
+      error: ErrorCatalog.get("max", { max: this.CHARACTER_LIMITS.submitterComment }),
       formulae: [this.CHARACTER_LIMITS.submitterComment],
     };
   }

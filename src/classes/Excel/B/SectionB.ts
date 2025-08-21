@@ -14,6 +14,7 @@ import {
   Logger,
 } from "@/utils";
 
+import { ErrorCatalog } from "../ErrorCatalog";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { COLUMNS, BKeys, SCHEMA } from "./Columns";
@@ -180,7 +181,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       allowBlank: true,
       showErrorMessage: true,
       showInputMessage: true,
-      error: "Invalid operation.",
+      error: ErrorCatalog.get("invalidOperation"),
       formulae: [
         IF(
           STR_EQ(A2, "Other"),
@@ -196,7 +197,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       allowBlank: true,
       showErrorMessage: true,
       showInputMessage: true,
-      error: "Invalid operation.",
+      error: ErrorCatalog.get("invalidOperation"),
       formulae: [
         IF(
           STR_EQ(A2, "Other"),
@@ -212,7 +213,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       allowBlank: true,
       showErrorMessage: true,
       showInputMessage: true,
-      error: "Invalid operation.",
+      error: ErrorCatalog.get("invalidOperation"),
       formulae: [
         IF(
           STR_EQ(A2, "Other"),
@@ -228,7 +229,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       operator: "lessThanOrEqual",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Required. Max 100 characters.",
+      error: ErrorCatalog.get("requiredMax", { max: this.CHARACTER_LIMITS["study.name"] }),
       formulae: [this.CHARACTER_LIMITS["study.name"]],
     };
     F2.dataValidation = {
@@ -236,7 +237,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       operator: "lessThanOrEqual",
       allowBlank: true,
       showErrorMessage: true,
-      error: "Max 20 characters.",
+      error: ErrorCatalog.get("max", { max: this.CHARACTER_LIMITS["study.abbreviation"] }),
       formulae: [this.CHARACTER_LIMITS["study.abbreviation"]],
     };
 
@@ -245,7 +246,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       operator: "lessThanOrEqual",
       allowBlank: false,
       showErrorMessage: true,
-      error: "Must be less than or equal to 2500 characters.",
+      error: ErrorCatalog.get("requiredMax", { max: this.CHARACTER_LIMITS["study.description"] }),
       formulae: [this.CHARACTER_LIMITS["study.description"]],
     };
 
@@ -271,7 +272,9 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be less than or equal to 250 characters.",
+        error: ErrorCatalog.get("requiredMax", {
+          max: this.CHARACTER_LIMITS["study.funding.grantNumbers"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.funding.grantNumbers"]],
       };
     });
@@ -281,7 +284,9 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be less than or equal to 50 characters.",
+        error: ErrorCatalog.get("requiredMax", {
+          max: this.CHARACTER_LIMITS["study.funding.nciProgramOfficer"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.funding.nciProgramOfficer"]],
       };
     });
@@ -293,7 +298,9 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be less than or equal to 500 characters.",
+        error: ErrorCatalog.get("requiredMax", {
+          max: this.CHARACTER_LIMITS["study.publications.title"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.publications.title"]],
       };
     });
@@ -301,9 +308,11 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       cell.dataValidation = {
         type: "textLength",
         operator: "lessThanOrEqual",
-        allowBlank: false,
+        allowBlank: true,
         showErrorMessage: true,
-        error: "Must be less than or equal to 20 characters.",
+        error: ErrorCatalog.get("max", {
+          max: this.CHARACTER_LIMITS["study.publications.pubmedID"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.publications.pubmedID"]],
       };
     });
@@ -311,9 +320,11 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       cell.dataValidation = {
         type: "textLength",
         operator: "lessThanOrEqual",
-        allowBlank: false,
+        allowBlank: true,
         showErrorMessage: true,
-        error: "Must be less than or equal to 20 characters.",
+        error: ErrorCatalog.get("max", {
+          max: this.CHARACTER_LIMITS["study.publications.DOI"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.publications.DOI"]],
       };
     });
@@ -325,17 +336,18 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be less than or equal to 500 characters.",
+        error: ErrorCatalog.get("requiredMax", {
+          max: this.CHARACTER_LIMITS["study.plannedPublications.title"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.plannedPublications.title"]],
       };
     });
-
     this.forEachCellInColumn(ws, "study.plannedPublications.expectedDate", (cell) => {
       cell.dataValidation = {
         type: "custom",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Enter a valid date (MM/DD/YYYY)",
+        error: ErrorCatalog.get("dateMMDDYYYY"),
         formulae: [DATE_NOT_BEFORE_TODAY(cell, { allowBlank: false })],
       };
     });
@@ -347,7 +359,9 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be less than or equal to 50 characters.",
+        error: ErrorCatalog.get("requiredMax", {
+          max: this.CHARACTER_LIMITS["study.repositories.name"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.repositories.name"]],
       };
     });
@@ -357,7 +371,9 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
         operator: "lessThanOrEqual",
         allowBlank: false,
         showErrorMessage: true,
-        error: "Must be less than or equal to 50 characters.",
+        error: ErrorCatalog.get("requiredMax", {
+          max: this.CHARACTER_LIMITS["study.repositories.studyID"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.repositories.studyID"]],
       };
     });
@@ -380,9 +396,11 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       cell.dataValidation = {
         type: "textLength",
         operator: "lessThanOrEqual",
-        allowBlank: false,
+        allowBlank: true,
         showErrorMessage: true,
-        error: "Must be less than or equal to 100 characters.",
+        error: ErrorCatalog.get("max", {
+          max: this.CHARACTER_LIMITS["study.repositories.otherDataTypesSubmitted"],
+        }),
         formulae: [this.CHARACTER_LIMITS["study.repositories.otherDataTypesSubmitted"]],
       };
     });

@@ -3,6 +3,8 @@ import { CellValue } from "exceljs";
 
 import { Logger } from "@/utils";
 
+import { ErrorCatalog } from "./ErrorCatalog";
+
 /**
  * Represents the context for a section in the Excel worksheet.
  */
@@ -295,7 +297,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
       type: "textLength",
       operator: "lessThan",
       showErrorMessage: true,
-      error: `Must be less than ${limit} characters.`,
+      error: ErrorCatalog.get("max", { max: limit }),
       allowBlank: false,
       formulae: [limit],
     };
