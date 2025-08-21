@@ -160,6 +160,41 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       formulae: [YesNoList],
     };
 
+    ws.addConditionalFormatting({
+      ref: "F2:F2",
+      rules: [
+        {
+          type: "expression",
+          formulae: ['AND($E2<>"Yes", LEN(TRIM($E2))>0)'],
+          style: {
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              bgColor: { argb: "000000" },
+            },
+          },
+          priority: 1,
+        },
+      ],
+    });
+    ws.addConditionalFormatting({
+      ref: "I2:P2",
+      rules: [
+        {
+          type: "expression",
+          formulae: ['AND($C2<>"Yes", LEN(TRIM($C2))>0)'],
+          style: {
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              bgColor: { argb: "000000" },
+            },
+          },
+          priority: 1,
+        },
+      ],
+    });
+
     // Imaging Data De-identified
     G.dataValidation = {
       type: "list",
