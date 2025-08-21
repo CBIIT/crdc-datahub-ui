@@ -3,6 +3,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
 import dayjs from "dayjs";
+import { unset } from "lodash";
 import React, { FC, useEffect, useRef, useState } from "react";
 
 import AddRemoveButton from "../../../components/AddRemoveButton";
@@ -220,6 +221,8 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
       return file;
     });
+
+    combinedData.files?.forEach((f) => unset(f, "key"));
 
     return { ref: formRef, data: combinedData };
   };
