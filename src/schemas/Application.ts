@@ -39,7 +39,7 @@ export const timeConstraintSchema = z
      * First day the constraint applies.
      * @format MM/DD/YYYY
      */
-    effectiveDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
+    effectiveDate: z.string().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
   })
   .strict();
 
@@ -250,7 +250,7 @@ export const plannedPublicationSchema = z
      * Target date for publication release.
      * Stored as MM/DD/YYYY.
      */
-    expectedDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
+    expectedDate: z.string().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
   })
   .strict();
 
@@ -436,12 +436,12 @@ export const questionnaireDataSchema = z
      * Targeted date to submit initial data.
      * Stored as MM/DD/YYYY (coerced from Date).
      */
-    targetedSubmissionDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
+    targetedSubmissionDate: z.string().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
     /**
      * Targeted public release date.
      * Stored as MM/DD/YYYY (coerced from Date).
      */
-    targetedReleaseDate: z.iso.date().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
+    targetedReleaseDate: z.string().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
     /**
      * The submission time constraints.
      *

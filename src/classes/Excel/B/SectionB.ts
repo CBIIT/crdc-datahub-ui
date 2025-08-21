@@ -16,7 +16,7 @@ import {
 
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { COLUMNS, BKeys } from "./Columns";
+import { COLUMNS, BKeys, SCHEMA } from "./Columns";
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.name": 100,
@@ -505,4 +505,4 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
   }
 }
 
-export { COLUMNS as SectionBColumns };
+export { COLUMNS as SectionBColumns, SCHEMA as SectionBSchema };

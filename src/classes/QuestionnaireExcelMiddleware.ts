@@ -12,14 +12,13 @@ import { InitialSections } from "@/config/SectionConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
-import { questionnaireDataSchema } from "@/schemas/Application";
 import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
 
 import { SectionA, SectionAColumns, SectionASchema } from "./Excel/A/SectionA";
-import { SectionB, SectionBColumns } from "./Excel/B/SectionB";
+import { SectionB, SectionBColumns, SectionBSchema } from "./Excel/B/SectionB";
 import { SectionC, SectionCColumns, SectionCSchema } from "./Excel/C/SectionC";
-import { SectionD, SectionDColumns } from "./Excel/D/SectionD";
+import { SectionD, SectionDColumns, SectionDSchema } from "./Excel/D/SectionD";
 import { MetaKeys } from "./Excel/Metadata/Columns";
 import { MetadataColumns, MetadataSection } from "./Excel/Metadata/MetadataSection";
 import { SectionCtxBase } from "./Excel/SectionBase";
@@ -413,7 +412,7 @@ export class QuestionnaireExcelMiddleware {
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      questionnaireDataSchema,
+      SectionBSchema,
       newMapping
     );
 
@@ -539,7 +538,7 @@ export class QuestionnaireExcelMiddleware {
     });
 
     const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      questionnaireDataSchema,
+      SectionDSchema,
       newMapping
     );
 

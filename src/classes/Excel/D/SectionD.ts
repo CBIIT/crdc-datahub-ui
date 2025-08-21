@@ -8,7 +8,7 @@ import { DATE_NOT_BEFORE_TODAY, FormatDate } from "@/utils";
 import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { COLUMNS, DKeys } from "./Columns";
+import { COLUMNS, DKeys, SCHEMA } from "./Columns";
 
 /**
  * List of options for Yes/No validation.
@@ -415,4 +415,4 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
   }
 }
 
-export { COLUMNS as SectionDColumns };
+export { COLUMNS as SectionDColumns, SCHEMA as SectionDSchema };
