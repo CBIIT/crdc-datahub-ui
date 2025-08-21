@@ -1,4 +1,4 @@
-name: Relative CI
+name: Build
 
 permissions:
   contents: read
