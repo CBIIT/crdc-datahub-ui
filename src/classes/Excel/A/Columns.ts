@@ -116,9 +116,9 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
     protection: { locked: true },
   },
   {
-    header: "Primary Contact Phone",
+    header: "Primary Contact Phone number",
     key: "primaryContact.phone",
-    width: 20,
+    width: 30,
     protection: { locked: true },
   },
   // Additional Contact(s)
@@ -128,7 +128,7 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
     width: 25,
     protection: { locked: true },
     annotation:
-      "If there is more than one, you may utilize additional rows for the details for each entry.",
+      "If there is more than one entry, you may use additional rows for the details of each entry.",
   },
   {
     header: "Additional Contact(s) Last name",

@@ -150,7 +150,7 @@ export const COLUMNS: ColumnDef<DKeys>[] = [
     key: "files.type",
     width: 30,
     annotation:
-      "If there is more than one, you may utilize additional rows for the details for each entry.",
+      "If there is more than one entry, you may use additional rows for the details of each entry.",
     protection,
   },
   {

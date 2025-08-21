@@ -142,7 +142,6 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
           disableInteractive
           arrow
         >
-          {/* TODO: Rename based on US */}
           <StyledText variant="body2" data-testid="export-application-excel-button-text">
             Export
           </StyledText>
