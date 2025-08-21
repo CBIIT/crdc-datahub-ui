@@ -128,7 +128,7 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
     width: 25,
     protection: { locked: true },
     annotation:
-      "If there is more than one, you may utilize additional rows for the details for each entry.",
+      "If there is more than one entry, you may use additional rows for the details of each entry.",
   },
   {
     header: "Additional Contact(s) Last name",

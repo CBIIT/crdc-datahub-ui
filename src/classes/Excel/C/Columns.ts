@@ -77,7 +77,7 @@ export const COLUMNS: ColumnDef<CKeys>[] = [
     width: 30,
     protection: { locked: true },
     annotation:
-      "If there is more than one, you may utilize additional rows for the details for each entry.",
+      "If there is more than one entry, you may use additional rows for the details of each entry.",
   },
   {
     header: "Other cancer type(s)",
@@ -99,7 +99,7 @@ export const COLUMNS: ColumnDef<CKeys>[] = [
     width: 30,
     protection: { locked: true },
     annotation:
-      "If there is more than one, you may utilize additional rows for the details for each entry.",
+      "If there is more than one entry, you may use additional rows for the details of each entry.",
   },
   {
     header: "Other Specie(s) involved",
