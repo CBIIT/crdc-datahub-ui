@@ -2381,9 +2381,9 @@ describe("Parsing", () => {
 
     expect(result).toEqual(true);
     expect(output.program).toEqual(expect.objectContaining({ _id }));
-    expect(output.program?.name).toBe(InitialQuestionnaire.program.name);
-    expect(output.program?.abbreviation).toBe(InitialQuestionnaire.program.abbreviation);
-    expect(output.program?.description).toBe(InitialQuestionnaire.program.description);
+    expect(output.program?.name).toBe("Existing Program");
+    expect(output.program?.abbreviation).toBe("EP");
+    expect(output.program?.description).toBe("An existing program.");
   });
 
   it("should parse the MM/DD/YYYY date from Planned Publications", async () => {
