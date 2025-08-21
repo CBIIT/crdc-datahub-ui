@@ -116,9 +116,9 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
     protection: { locked: true },
   },
   {
-    header: "Primary Contact Phone",
+    header: "Primary Contact Phone number",
     key: "primaryContact.phone",
-    width: 20,
+    width: 30,
     protection: { locked: true },
   },
   // Additional Contact(s)
