@@ -10,12 +10,12 @@ on:
       - "*.*.*"
       - "main"
       - "master"
-      - "*" # TODO: Remove this
   pull_request:
       branches: "*"
 
 jobs:
-  chromatic:
+  build:
+    name: Relative CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -46,5 +46,5 @@ jobs:
       - name: Send to RelativeCI
         uses: relative-ci/agent-action@v3
         with:
-          webpackStatsFile: ./webpack-stats.json # TODO: Correct path
+          webpackStatsFile: ./build/webpack-stats.json
           key: ${{ secrets.RELATIVE_CI_KEY }}
