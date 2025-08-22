@@ -104,7 +104,8 @@ describe("Serialization", () => {
       // Pre-filled data
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
-      expect(sheet.getCell("J2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
+      expect(sheet.getCell("J2").value).toEqual("N/A"); // App Version
+      expect(sheet.getCell("K2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
     });
 
     it("should generate SectionA sheet with all dependent sheets", async () => {
@@ -224,7 +225,8 @@ describe("Serialization", () => {
       expect(sheet.getCell("G2").value).toEqual("2025-02-16T22:36:00Z");
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
-      expect(sheet.getCell("J2").value).toEqual(new Date("2025-03-15T22:36:00Z").toISOString());
+      expect(sheet.getCell("J2").value).toEqual("N/A"); // App Version
+      expect(sheet.getCell("K2").value).toEqual(new Date("2025-03-15T22:36:00Z").toISOString());
     });
 
     it("should generate SectionA sheet with all data", async () => {
@@ -1800,6 +1802,60 @@ describe("Parsing", () => {
 
     // @ts-expect-error Private member
     await expect(middleware.parseMetadata()).resolves.toEqual(false);
+  });
+
+  it("should log info message when app version differs between import and current", async () => {
+    const mockedEnv = await import("@/env");
+    vi.mocked(mockedEnv.default).VITE_FE_VERSION = "3.4.0.100";
+
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeMetadata();
+
+    // Modify the App Version column to have a different version
+    sheet.getCell("J2").value = "3.3.0"; // Different from current 3.4.0
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseMetadata();
+
+    await waitFor(() => {
+      expect(Logger.info).toHaveBeenCalled();
+    });
+
+    expect(result).toEqual(true);
+
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("Import is from a different app version."),
+      expect.objectContaining({
+        currentVersion: "3.4.0",
+        importedVersion: "3.3.0",
+      })
+    );
+  });
+
+  it("should not log when app versions match", async () => {
+    const mockedEnv = await import("@/env");
+    vi.mocked(mockedEnv.default).VITE_FE_VERSION = "3.4.0.100";
+
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeMetadata();
+
+    // App Version column should have the same version (3.4.0)
+    expect(sheet.getCell("J2").value).toEqual("3.4.0");
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseMetadata();
+
+    expect(result).toEqual(true);
+
+    // Should not log any app version mismatch
+    expect(Logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining("Import is from a different app version."),
+      expect.any(Object)
+    );
   });
 
   it("should parse the SectionA sheet correctly", async () => {

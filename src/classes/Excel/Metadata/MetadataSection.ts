@@ -1,5 +1,7 @@
 import type ExcelJS from "exceljs";
 
+import { parseReleaseVersion } from "@/utils/envUtils";
+
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { MetaKeys, COLUMNS } from "./Columns";
@@ -36,6 +38,7 @@ export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
       updatedAt: application?.updatedAt,
       devTier,
       templateVersion,
+      appVersion: parseReleaseVersion(),
       exportedAt: new Date().toISOString(),
     };
 
