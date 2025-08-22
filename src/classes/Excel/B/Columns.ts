@@ -65,6 +65,8 @@ const protection = { locked: true };
 export const COLUMNS: ColumnDef<BKeys>[] = [
   {
     header: "Program",
+    annotation:
+      "The name of the broad administrative group that manages the data collection.  Example - Clinical Proteomic Tumor Analysis Consortium.",
     key: "program._id",
     width: 30,
     protection,
@@ -89,18 +91,22 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
   },
   {
     header: "Study Title",
+    annotation: "A descriptive name that will be used to identify the study.",
     key: "study.name",
     width: 30,
     protection,
   },
   {
     header: "Study Abbreviation",
+    annotation: "Provide a short abbreviation or acronym (e.g., NCI-MATCH) for the study.",
     key: "study.abbreviation",
     width: 20,
     protection,
   },
   {
     header: "Study Description",
+    annotation:
+      "Describe your study and the data being submitted. Include objectives of the study and provide a brief description of the scientific value of the study.",
     key: "study.description",
     width: 50,
     protection,
@@ -115,6 +121,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
   },
   {
     header: "Grant or Contract Number(s)",
+    annotation:
+      "For US federally funded studies, include: Grant or Contract number(s), for example, R01CAXXXX.",
     key: "study.funding.grantNumbers",
     width: 30,
     protection,
@@ -155,6 +163,8 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
   },
   {
     header: "Expected Publication Date",
+    annotation:
+      "Data made available for secondary research only after investigators have obtained approval from NIH to use the requested data for a particular project.",
     key: "study.plannedPublications.expectedDate",
     width: 30,
     protection,
@@ -164,11 +174,12 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
     key: "study.repositories.name",
     width: 30,
     annotation:
-      "If there is more than one entry, you may use additional rows for the details of each entry.",
+      "If there is more than one entry, you may use additional rows for the details of each entry. Name of the repository (e.g., GEO, EGA, etc.).",
     protection,
   },
   {
     header: "Study ID",
+    annotation: "Associated repository study identifier.",
     key: "study.repositories.studyID",
     width: 30,
     protection,
@@ -183,6 +194,7 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
   },
   {
     header: "Other Data Type(s)",
+    annotation: 'Enter additional Data Types, separated by pipes ("|").',
     key: "study.repositories.otherDataTypesSubmitted",
     width: 50,
     protection,
