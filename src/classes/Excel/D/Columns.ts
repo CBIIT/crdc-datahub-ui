@@ -93,6 +93,8 @@ export const COLUMNS: ColumnDef<DKeys>[] = [
   },
   {
     header: "Other Data Type(s)",
+    annotation:
+      'Data that do not fit in any of the other categories. Enter additional Data Types, separated by pipes ("|").',
     key: "otherDataTypes",
     width: 50,
     protection,
@@ -135,6 +137,8 @@ export const COLUMNS: ColumnDef<DKeys>[] = [
   },
   {
     header: "Other Clinical Data Types",
+    annotation:
+      'If there are any additional types of data included with the study not already specified above, describe here. Enter additional Clinical Data Types, separated by pipes ("|").',
     key: "clinicalData.otherDataTypes",
     width: 50,
     protection,
