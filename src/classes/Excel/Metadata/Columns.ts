@@ -10,6 +10,7 @@ export type MetaKeys =
   | "updatedAt"
   | "devTier"
   | "templateVersion"
+  | "appVersion"
   | "exportedAt";
 
 export const COLUMNS: ColumnDef<MetaKeys>[] = [
@@ -27,5 +28,6 @@ export const COLUMNS: ColumnDef<MetaKeys>[] = [
     width: 15,
     protection: { locked: true },
   },
+  { header: "App Version", key: "appVersion", width: 15, protection: { locked: true } },
   { header: "Export Date", key: "exportedAt", width: 30, protection: { locked: true } },
 ];
