@@ -167,10 +167,19 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       };
     });
     this.forEachCellInColumn(ws, "additionalContacts.institution", (cell) => {
-      this.applyTextLengthValidation(
-        cell,
-        DEFAULT_CHARACTER_LIMITS["additionalContacts.institution"]
-      );
+      cell.dataValidation = {
+        type: "list",
+        allowBlank: true,
+        showErrorMessage: false,
+        formulae: [
+          LIST_FORMULA(
+            this.deps.institutionSheet.name,
+            "B",
+            1,
+            this.deps.institutionSheet.rowCount || 0
+          ),
+        ],
+      };
     });
     this.forEachCellInColumn(ws, "additionalContacts.phone", (cell) => {
       this.applyTextLengthValidation(cell, DEFAULT_CHARACTER_LIMITS["additionalContacts.phone"]);
