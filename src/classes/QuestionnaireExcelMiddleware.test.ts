@@ -1826,7 +1826,7 @@ describe("Parsing", () => {
     expect(result).toEqual(true);
 
     expect(Logger.info).toHaveBeenCalledWith(
-      expect.stringContaining("Import is from a different app version."),
+      expect.stringContaining("Received mismatched appVersion."),
       expect.objectContaining({
         currentVersion: "3.4.0",
         importedVersion: "3.3.0",
@@ -1853,7 +1853,7 @@ describe("Parsing", () => {
 
     // Should not log any app version mismatch
     expect(Logger.info).not.toHaveBeenCalledWith(
-      expect.stringContaining("Import is from a different app version."),
+      expect.stringContaining("Received mismatched appVersion."),
       expect.any(Object)
     );
   });

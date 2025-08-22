@@ -337,7 +337,7 @@ export class QuestionnaireExcelMiddleware {
     const importedAppVersion = newData?.get("appVersion")?.[0] as string;
     const currentAppVersion = parseReleaseVersion();
     if (importedAppVersion && importedAppVersion !== currentAppVersion) {
-      Logger.info("QuestionnaireExcelMiddleware: Import is from a different app version.", {
+      Logger.info("QuestionnaireExcelMiddleware: Received mismatched appVersion.", {
         currentVersion: currentAppVersion,
         importedVersion: importedAppVersion,
       });
