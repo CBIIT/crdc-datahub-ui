@@ -79,6 +79,8 @@ const ExportRequestButton = forwardRef<HTMLButtonElement, ExportRequestButtonPro
         data-testid="export-submission-request-tooltip"
         disableInteractive
         arrow
+        enterDelay={500}
+        leaveDelay={200}
       >
         <span>
           <StyledButton

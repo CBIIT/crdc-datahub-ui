@@ -1,5 +1,6 @@
 import { Stack } from "@mui/material";
 import type { Meta, StoryObj } from "@storybook/react";
+import { userEvent, within } from "@storybook/test";
 
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
@@ -87,11 +88,28 @@ export const Hovered: Story = {
   args: {
     ...Default.args,
   },
-  parameters: {
-    pseudo: {
-      hover: true,
-      selectors: "MuiButtonBase-root",
-    },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Find the button and hover over it
+    const button = await canvas.findByTestId("export-submission-request-button");
+    await userEvent.hover(button);
+
+    // Wait for the enterDelay (500ms) plus some buffer time
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 700);
+    });
+
+    // Check for tooltip in the document since MUI tooltips use portals
+    const tooltip = document.querySelector('[role="tooltip"]');
+    if (!tooltip) {
+      throw new Error("Unable to find role='tooltip'");
+    }
+
+    // Verify the tooltip content
+    if (!tooltip.textContent?.includes("Click to export this Submission Request as a PDF")) {
+      throw new Error("Tooltip content is incorrect");
+    }
   },
 };
 
