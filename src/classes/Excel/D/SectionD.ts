@@ -119,7 +119,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       allowBlank: false,
       showErrorMessage: true,
       error: ErrorCatalog.get("dateMMDDYYYY"),
-      formulae: [DATE_NOT_BEFORE_TODAY(B, { allowBlank: false })],
+      formulae: [DATE_NOT_BEFORE_TODAY(A, { allowBlank: false })],
     };
     // Targeted Release Date
     B.dataValidation = {
