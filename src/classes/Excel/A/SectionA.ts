@@ -131,7 +131,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     };
 
     // Primary Contact
-    [I2, J2, K2, L2, M2, N2].forEach((cell) => {
+    [I2, J2, K2, L2, N2].forEach((cell) => {
       const columnKey = ws.getColumn(cell.col).key;
       const cellLimit = DEFAULT_CHARACTER_LIMITS[columnKey as AKeys] ?? 0;
 
@@ -143,6 +143,19 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
         formulae: [IF(STR_EQ(H2, "Yes"), "TRUE", AND(REQUIRED(cell), TEXT_MAX(cell, cellLimit)))],
       };
     });
+    M2.dataValidation = {
+      type: "list",
+      allowBlank: true,
+      showErrorMessage: false,
+      formulae: [
+        LIST_FORMULA(
+          this.deps.institutionSheet.name,
+          "B",
+          1,
+          this.deps.institutionSheet.rowCount || 0
+        ),
+      ],
+    };
 
     // Additional Contacts
     this.forEachCellInColumn(ws, "additionalContacts.firstName", (cell) => {
