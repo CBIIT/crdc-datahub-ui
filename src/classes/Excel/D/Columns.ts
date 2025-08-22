@@ -213,13 +213,13 @@ export const COLUMNS: ColumnDef<DKeys>[] = [
   },
   {
     header: "Model systems",
+    annotation: "An experimental system that shows similarity to human tumors.",
     key: "modelSystems",
     width: 15,
     protection,
   },
   {
     header: "Additional Comments or Information about this submission.",
-    annotation: "An experimental system that shows similarity to human tumors.",
     key: "submitterComment",
     width: 80,
     protection,
