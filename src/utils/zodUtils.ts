@@ -1,5 +1,5 @@
 import { cloneDeep, has, unset } from "lodash";
-import z from "zod";
+import type * as z from "zod";
 
 import { Logger } from "./logger";
 
