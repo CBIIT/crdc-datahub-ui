@@ -1,7 +1,5 @@
 import type ExcelJS from "exceljs";
 
-import { parseReleaseVersion } from "@/utils/envUtils";
-
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
 import { MetaKeys, COLUMNS } from "./Columns";
@@ -10,6 +8,7 @@ type SectionADeps = {
   application: Omit<Application, "QuestionnaireData">;
   templateVersion: string;
   devTier: string;
+  appVersion: string;
 };
 
 export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
@@ -26,7 +25,7 @@ export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
   }
 
   protected write(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row[] {
-    const { application, templateVersion, devTier } = this.deps;
+    const { application, templateVersion, devTier, appVersion } = this.deps;
 
     ws.getRow(2).values = {
       submissionId: application?._id,
@@ -38,7 +37,7 @@ export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
       updatedAt: application?.updatedAt,
       devTier,
       templateVersion,
-      appVersion: parseReleaseVersion(),
+      appVersion,
       exportedAt: new Date().toISOString(),
     };
 

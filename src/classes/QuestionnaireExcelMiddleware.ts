@@ -176,6 +176,7 @@ export class QuestionnaireExcelMiddleware {
       application: this.dependencies.application,
       templateVersion: TEMPLATE_VERSION,
       devTier: env.VITE_DEV_TIER || "N/A",
+      appVersion: parseReleaseVersion(),
     });
 
     return metaSection.serialize(ctx);
