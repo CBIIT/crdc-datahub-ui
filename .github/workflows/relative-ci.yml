@@ -1,4 +1,4 @@
-name: Bundle Analysis
+name: Relative CI
 
 permissions:
   contents: read
@@ -15,8 +15,8 @@ on:
         - "*"
 
 jobs:
-  relative:
-    name: Relative CI
+  bundle_analysis:
+    name: Bundle Analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
