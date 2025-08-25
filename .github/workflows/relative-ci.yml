@@ -1,4 +1,4 @@
-name: Build
+name: Bundle Analysis
 
 permissions:
   contents: read
@@ -11,10 +11,11 @@ on:
       - "main"
       - "master"
   pull_request:
-      branches: "*"
+      branches: 
+        - "*"
 
 jobs:
-  build:
+  relative:
     name: Relative CI
     runs-on: ubuntu-latest
     steps:
