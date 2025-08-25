@@ -2,6 +2,7 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
 import { cloneDeep, merge, union, some, values } from "lodash";
 
+import { arrayBufferToBase64 } from "@/components/ExportRequestButton/pdf/utils";
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
@@ -19,6 +20,7 @@ import { SectionA, SectionAColumns, SectionASchema } from "./Excel/A/SectionA";
 import { SectionB, SectionBColumns, SectionBSchema } from "./Excel/B/SectionB";
 import { SectionC, SectionCColumns, SectionCSchema } from "./Excel/C/SectionC";
 import { SectionD, SectionDColumns, SectionDSchema } from "./Excel/D/SectionD";
+import { InstructionsSection } from "./Excel/Instructions/InstructionsSection";
 import { MetaKeys } from "./Excel/Metadata/Columns";
 import { MetadataColumns, MetadataSection } from "./Excel/Metadata/MetadataSection";
 import { SectionCtxBase } from "./Excel/SectionBase";
@@ -98,6 +100,7 @@ export class QuestionnaireExcelMiddleware {
     this.setMetadataProperties();
 
     await this.serializeMetadata();
+    await this.serializeInstructions();
     await this.serializeSectionA();
     await this.serializeSectionB();
     await this.serializeSectionC();
@@ -178,6 +181,25 @@ export class QuestionnaireExcelMiddleware {
     });
 
     return metaSection.serialize(ctx);
+  }
+
+  private async serializeInstructions(): Promise<Readonly<ExcelJS.Worksheet>> {
+    const ctx: SectionCtxBase = {
+      workbook: this.workbook,
+      u: {
+        header: (ws: ExcelJS.Worksheet, color?: string) => {
+          const r1 = ws.getRow(1);
+          r1.font = { bold: true };
+          r1.alignment = { horizontal: "center" };
+          r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+          ws.state = "veryHidden";
+        },
+      },
+    };
+
+    const instructionsSection = new InstructionsSection();
+
+    return instructionsSection.serialize(ctx);
   }
 
   /**
