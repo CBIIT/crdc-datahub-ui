@@ -183,6 +183,7 @@ export const COLUMNS: ColumnDef<BKeys>[] = [
   },
   {
     header: "Other Data Type(s)",
+    annotation: 'Enter additional Data Types, separated by pipes ("|").',
     key: "study.repositories.otherDataTypesSubmitted",
     width: 50,
     protection,
