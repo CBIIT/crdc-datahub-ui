@@ -9,6 +9,9 @@ import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { Roles } from "../../config/AuthRoles";
 import {
+  LIST_POTENTIAL_COLLABORATORS,
+  ListPotentialCollaboratorsInput,
+  ListPotentialCollaboratorsResp,
   UPDATE_MODEL_VERSION,
   UpdateModelVersionInput,
   UpdateModelVersionResp,
@@ -27,7 +30,7 @@ type CustomStoryProps = React.ComponentProps<typeof Button> & {
 };
 
 const meta: Meta<CustomStoryProps> = {
-  title: "Data Submissions / Model Selection",
+  title: "Data Submissions / Update Submission Dialog",
   component: Button,
   tags: ["autodocs"],
   argTypes: {
@@ -70,7 +73,7 @@ const meta: Meta<CustomStoryProps> = {
             getSubmission: submissionFactory.build({
               _id: "",
               submitterID: "current-user",
-              organization: null,
+              submitterName: "Test User",
               dataCommons: mockDC,
               dataCommonsDisplayName: "A Mock Data Commons",
               crossSubmissionStatus: null,
@@ -116,7 +119,7 @@ const meta: Meta<CustomStoryProps> = {
 
 type Story = StoryObj<CustomStoryProps>;
 
-const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+const mockUpdateQuery: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
   request: {
     query: UPDATE_MODEL_VERSION,
   },
@@ -131,6 +134,27 @@ const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
   },
 };
 
+const mockListCollaborators: MockedResponse<
+  ListPotentialCollaboratorsResp,
+  ListPotentialCollaboratorsInput
+> = {
+  request: {
+    query: LIST_POTENTIAL_COLLABORATORS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listPotentialCollaborators: userFactory
+        .pick(["_id", "firstName", "lastName"])
+        .build(5, (idx) => ({
+          _id: `user-${idx + 1}`,
+          firstName: `First ${idx + 1}`,
+          lastName: `Last ${idx + 1}`,
+        })),
+    },
+  },
+};
+
 export const Default: Story = {
   args: {
     userRole: "Data Commons Personnel",
@@ -139,7 +163,7 @@ export const Default: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [mock],
+      mocks: [mockUpdateQuery, mockListCollaborators],
     },
   },
 };
@@ -158,7 +182,7 @@ export const Hovered: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [mock],
+      mocks: [mockUpdateQuery, mockListCollaborators],
     },
   },
   play: async ({ canvasElement }) => {

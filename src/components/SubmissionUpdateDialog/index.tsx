@@ -4,17 +4,12 @@ import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import { FC, memo, useCallback, useMemo, useState } from "react";
 
-import CogIcon from "../../assets/icons/cog_icon.svg?react";
-import { hasPermission } from "../../config/AuthPermissions";
-import {
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
-} from "../../graphql";
-import { Logger } from "../../utils";
-import { useAuthContext } from "../Contexts/AuthContext";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import { useAuthContext } from "@/components/Contexts/AuthContext";
+import { useSubmissionContext } from "@/components/Contexts/SubmissionContext";
+import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
+import { hasPermission } from "@/config/AuthPermissions";
+import { UPDATE_MODEL_VERSION, UpdateModelVersionInput, UpdateModelVersionResp } from "@/graphql";
+import { Logger } from "@/utils";
 
 import FormDialog, { InputForm } from "./FormDialog";
 
@@ -26,21 +21,22 @@ const StyledTooltip = styled(StyledFormTooltip)({
 
 const StyledIconButton = styled(IconButton)(({ disabled }) => ({
   cursor: disabled ? "not-allowed" : "pointer",
-  padding: "4px",
-  minWidth: "unset",
-  marginTop: "-3px",
-  borderRadius: "5px",
-  "&:hover": {
-    backgroundColor: "#BDDDEB",
-  },
+  opacity: disabled ? 0.5 : 1,
+  padding: "0px",
+  margin: "0px",
 }));
 
 /**
- * The statuses of the Data Submission that qualify for model version change.
+ * The statuses of the Data Submission that qualify for updating
  */
-const ENABLED_STATUSES: SubmissionStatus[] = ["New", "In Progress"];
+const ENABLED_STATUSES: SubmissionStatus[] = ["New", "In Progress", "Rejected", "Withdrawn"];
 
-type Props = Omit<IconButtonProps, "onClick">;
+type Props = {
+  /**
+   * The icon to display in the button
+   */
+  icon: React.ReactNode;
+} & Omit<IconButtonProps, "onClick">;
 
 /**
  * Provides functionality to adjust the Data Model Version of a data submission.
@@ -50,15 +46,15 @@ type Props = Omit<IconButtonProps, "onClick">;
  * - Changing the Data Model Version
  * - Updating the local cache state
  *
- * @returns The ModelSelection component
+ * @returns The SubmissionUpdate component
  */
-const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
+const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   const { data, updateQuery } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
 
   const { getSubmission } = data || {};
-  const { _id, status, dataCommons, modelVersion } = getSubmission || {};
+  const { _id, status } = getSubmission || {};
 
   const [updateVersion] = useMutation<UpdateModelVersionResp, UpdateModelVersionInput>(
     UPDATE_MODEL_VERSION,
@@ -72,12 +68,13 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
   const canSeeButton = useMemo<boolean>(
-    () =>
-      hasPermission(user, "data_submission", "review", getSubmission, true) &&
-      ENABLED_STATUSES.includes(status) &&
-      user?.dataCommons?.includes(dataCommons) &&
-      user?.role === "Data Commons Personnel",
-    [user, getSubmission, status, dataCommons]
+    () => hasPermission(user, "data_submission", "review", getSubmission, true),
+    [user, getSubmission]
+  );
+
+  const isDisabled = useMemo<boolean>(
+    () => !ENABLED_STATUSES.includes(status) || disabled,
+    [status, disabled]
   );
 
   const onClickIcon = async () => {
@@ -100,6 +97,9 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
           throw new Error(errors?.[0]?.message || "Unknown API error");
         }
 
+        // TODO: Change submitter name and ID
+
+        // TODO: Only reset validation if the model version changed
         updateQuery((prev) => ({
           ...prev,
           getSubmission: {
@@ -118,8 +118,10 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
             })),
           },
         }));
+
+        // TODO: success snackbar
       } catch (err) {
-        Logger.error("ModelSelection: API error received", err);
+        Logger.error("SubmissionUpdate: API error received", err);
         enqueueSnackbar("Oops! An error occurred while changing the model version", {
           variant: "error",
         });
@@ -137,35 +139,30 @@ const ModelSelection: FC<Props> = ({ disabled, ...rest }: Props) => {
   return (
     <>
       <StyledTooltip
-        title="Change Data Model Version"
+        title="Changes are not allowed in the current submission state."
         placement="top"
-        aria-label="Change model version tooltip"
-        data-testid="change-model-version-tooltip"
+        aria-label="Update submission button tooltip"
+        data-testid="update-submission-tooltip"
+        disableHoverListener={!isDisabled}
         disableInteractive
         arrow
       >
         <span>
           <StyledIconButton
             onClick={onClickIcon}
-            disabled={loading || disabled}
-            aria-label="Change model version"
-            data-testid="change-model-version-button"
+            disabled={loading || isDisabled}
+            aria-label="Update submission button"
+            data-testid="update-submission-button"
             disableRipple
             {...rest}
           >
-            <CogIcon />
+            {icon}
           </StyledIconButton>
         </span>
       </StyledTooltip>
-      <FormDialog
-        open={confirmOpen}
-        modelVersion={modelVersion}
-        dataCommons={dataCommons}
-        onSubmitForm={onConfirmDialog}
-        onClose={onCloseDialog}
-      />
+      <FormDialog open={confirmOpen} onSubmitForm={onConfirmDialog} onClose={onCloseDialog} />
     </>
   );
 };
 
-export default memo<Props>(ModelSelection, isEqual);
+export default memo<Props>(SubmissionUpdate, isEqual);

@@ -23,7 +23,7 @@ import {
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
 
-import ModelSelection from "./index";
+import SubmissionUpdate from "./index";
 
 const mockListAvailableModelVersions = vi.fn();
 vi.mock("../../utils", async () => ({
@@ -83,7 +83,7 @@ describe("Accessibility", () => {
   });
 
   it("should have no violations for the button", async () => {
-    const { container, getByTestId } = render(<ModelSelection />, {
+    const { container, getByTestId } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           submission={{ status: "New" }}
@@ -99,12 +99,12 @@ describe("Accessibility", () => {
       ),
     });
 
-    expect(getByTestId("change-model-version-button")).toBeEnabled();
+    expect(getByTestId("update-submission-button")).toBeEnabled();
     expect(await axe(container)).toHaveNoViolations();
   });
 
   it("should have no violations for the button (disabled)", async () => {
-    const { container, getByTestId } = render(<ModelSelection disabled />, {
+    const { container, getByTestId } = render(<SubmissionUpdate disabled />, {
       wrapper: ({ children }) => (
         <MockParent
           submission={{ status: "New" }}
@@ -120,7 +120,7 @@ describe("Accessibility", () => {
       ),
     });
 
-    expect(getByTestId("change-model-version-button")).toBeDisabled();
+    expect(getByTestId("update-submission-button")).toBeDisabled();
     expect(await axe(container)).toHaveNoViolations();
   });
 });
@@ -132,7 +132,7 @@ describe("Basic Functionality", () => {
 
   it("should render without crashing", () => {
     expect(() =>
-      render(<ModelSelection />, {
+      render(<SubmissionUpdate />, {
         wrapper: ({ children }) => (
           <MockParent submission={null} user={null}>
             {children}
@@ -155,7 +155,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -172,7 +172,7 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
       expect(getByTestId("model-version-dialog")).toBeVisible();
@@ -201,7 +201,7 @@ describe("Basic Functionality", () => {
       error: new Error("Simulated network error"),
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -218,7 +218,7 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
       expect(getByTestId("model-version-dialog")).toBeVisible();
@@ -254,7 +254,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -271,7 +271,7 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
       expect(getByTestId("model-version-dialog")).toBeVisible();
@@ -296,7 +296,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should have a tooltip present on the button", async () => {
-    const { getByTestId, findByRole } = render(<ModelSelection />, {
+    const { getByTestId, findByRole } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           submission={{ status: "New" }}
@@ -312,14 +312,14 @@ describe("Implementation Requirements", () => {
       ),
     });
 
-    userEvent.hover(getByTestId("change-model-version-button"));
+    userEvent.hover(getByTestId("update-submission-button"));
 
     const tooltip = await findByRole("tooltip");
 
     expect(tooltip).toBeVisible();
     expect(tooltip).toHaveTextContent("Change Data Model Version");
 
-    userEvent.unhover(getByTestId("change-model-version-button"));
+    userEvent.unhover(getByTestId("update-submission-button"));
 
     await waitFor(() => {
       expect(tooltip).not.toBeVisible();
@@ -337,11 +337,11 @@ describe("Implementation Requirements", () => {
           dataCommonsDisplayNames: [mockDC],
         }}
       >
-        <ModelSelection />
+        <SubmissionUpdate />
       </MockParent>
     );
 
-    expect(() => getByTestId("change-model-version-button")).toThrow();
+    expect(() => getByTestId("update-submission-button")).toThrow();
 
     rerender(
       <MockParent
@@ -353,11 +353,11 @@ describe("Implementation Requirements", () => {
           dataCommonsDisplayNames: [mockDC],
         }}
       >
-        <ModelSelection />
+        <SubmissionUpdate />
       </MockParent>
     );
 
-    expect(getByTestId("change-model-version-button")).toBeVisible();
+    expect(getByTestId("update-submission-button")).toBeVisible();
   });
 
   it.each<UserRole>(["Admin", "Federal Lead", "Submitter", "User", "fake role" as UserRole])(
@@ -374,11 +374,11 @@ describe("Implementation Requirements", () => {
             dataCommonsDisplayNames: [mockDC],
           }}
         >
-          <ModelSelection />
+          <SubmissionUpdate />
         </MockParent>
       );
 
-      expect(() => getByTestId("change-model-version-button")).toThrow(); // Button should not be rendered
+      expect(() => getByTestId("update-submission-button")).toThrow(); // Button should not be rendered
 
       rerender(
         <MockParent
@@ -390,11 +390,11 @@ describe("Implementation Requirements", () => {
             dataCommonsDisplayNames: [mockDC],
           }}
         >
-          <ModelSelection />
+          <SubmissionUpdate />
         </MockParent>
       );
 
-      expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered
+      expect(getByTestId("update-submission-button")).toBeVisible(); // Button should be rendered
     }
   );
 
@@ -409,11 +409,11 @@ describe("Implementation Requirements", () => {
           dataCommonsDisplayNames: [mockDC],
         }}
       >
-        <ModelSelection />
+        <SubmissionUpdate />
       </MockParent>
     );
 
-    expect(() => getByTestId("change-model-version-button")).toThrow();
+    expect(() => getByTestId("update-submission-button")).toThrow();
 
     rerender(
       <MockParent
@@ -425,11 +425,11 @@ describe("Implementation Requirements", () => {
           dataCommonsDisplayNames: ["a different dc"],
         }}
       >
-        <ModelSelection />
+        <SubmissionUpdate />
       </MockParent>
     );
 
-    expect(getByTestId("change-model-version-button")).toBeVisible();
+    expect(getByTestId("update-submission-button")).toBeVisible();
   });
 
   it.each<SubmissionStatus>([
@@ -442,7 +442,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should not be rendered when the submission is not in a valid status (%s)",
     (submissionStatus) => {
-      const { getByTestId } = render(<ModelSelection />, {
+      const { getByTestId } = render(<SubmissionUpdate />, {
         wrapper: ({ children }) => (
           <MockParent
             submission={{ status: submissionStatus }}
@@ -458,7 +458,7 @@ describe("Implementation Requirements", () => {
         ),
       });
 
-      expect(() => getByTestId("change-model-version-button")).toThrow();
+      expect(() => getByTestId("update-submission-button")).toThrow();
     }
   );
 
@@ -482,7 +482,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -500,7 +500,7 @@ describe("Implementation Requirements", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
       expect(getByTestId("model-version-dialog")).toBeVisible();
@@ -556,7 +556,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -576,7 +576,7 @@ describe("Implementation Requirements", () => {
 
     expect(updateQueryResult).toBeUndefined();
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
       expect(getByTestId("model-version-dialog")).toBeVisible();

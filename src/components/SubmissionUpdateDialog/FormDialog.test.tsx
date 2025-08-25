@@ -55,7 +55,7 @@ describe("Basic Functionality", () => {
 
     expect(mockOnClose).not.toHaveBeenCalled();
 
-    userEvent.click(getByTestId("model-version-dialog-cancel-button"));
+    userEvent.click(getByTestId("update-submission-dialog-cancel-button"));
 
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -79,7 +79,7 @@ describe("Basic Functionality", () => {
 
     expect(mockOnClose).not.toHaveBeenCalled();
 
-    userEvent.click(getByTestId("model-version-dialog-close-icon"));
+    userEvent.click(getByTestId("update-submission-dialog-close-icon"));
 
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -103,7 +103,7 @@ describe("Basic Functionality", () => {
 
     expect(mockOnClose).not.toHaveBeenCalled();
 
-    userEvent.click(getByTestId("model-version-dialog").firstChild as HTMLElement);
+    userEvent.click(getByTestId("update-submission-dialog").firstChild as HTMLElement);
 
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -162,7 +162,7 @@ describe("Basic Functionality", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockOnSubmitForm).toHaveBeenCalledTimes(1);
@@ -193,14 +193,14 @@ describe("Implementation Requirements", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    expect(getByTestId("model-version-version-field")).toHaveTextContent("1.0.0");
+    expect(getByTestId("update-submission-version-field")).toHaveTextContent("1.0.0");
   });
 
   it("should populate with all available model versions", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => [
-      "MODEL-VERSION-ABC",
-      "MODEL-VERSION-123",
-      "MODEL-VERSION-XXZ",
+      "update-submission-ABC",
+      "update-submission-123",
+      "update-submission-XXZ",
       "1.2.0",
     ]);
 
@@ -208,7 +208,7 @@ describe("Implementation Requirements", () => {
       <FormDialog
         open
         dataCommons="MOCK-DC-TEST"
-        modelVersion="MODEL-VERSION-ABC"
+        modelVersion="update-submission-ABC"
         onSubmitForm={vi.fn()}
         onClose={vi.fn()}
       />
@@ -218,7 +218,7 @@ describe("Implementation Requirements", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    userEvent.click(within(getByTestId("model-version-version-field")).getByRole("button"));
+    userEvent.click(within(getByTestId("update-submission-version-field")).getByRole("button"));
 
     expect(getAllByText("vMODEL-VERSION-ABC")).toHaveLength(2); // Input field and dropdown
     expect(getByText("vMODEL-VERSION-123")).toBeInTheDocument();
@@ -248,7 +248,7 @@ describe("Implementation Requirements", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    userEvent.click(within(getByTestId("model-version-version-field")).getByRole("button"));
+    userEvent.click(within(getByTestId("update-submission-version-field")).getByRole("button"));
 
     expect(getAllByText("v6.1.1")).toHaveLength(2); // Input field and dropdown
     expect(getByText("v3.9.0-WO-VERSION")).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe("Implementation Requirements", () => {
       <FormDialog
         open
         dataCommons="MOCK-DC-TEST"
-        modelVersion="MODEL-VERSION-1.2.3"
+        modelVersion="update-submission-1.2.3"
         onSubmitForm={vi.fn()}
         onClose={vi.fn()}
       />
@@ -273,7 +273,9 @@ describe("Implementation Requirements", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    expect(getByTestId("model-version-version-field")).toHaveTextContent("MODEL-VERSION-1.2.3");
+    expect(getByTestId("update-submission-version-field")).toHaveTextContent(
+      "update-submission-1.2.3"
+    );
   });
 
   it("should have the correct title, description, and button text", async () => {
@@ -293,13 +295,13 @@ describe("Implementation Requirements", () => {
       expect(mockListAvailableModelVersions).toHaveBeenCalledTimes(1);
     });
 
-    expect(getByTestId("model-version-dialog-header")).toHaveTextContent(
+    expect(getByTestId("update-submission-dialog-header")).toHaveTextContent(
       "Change Data Model Version"
     );
-    expect(getByTestId("model-version-dialog-body")).toHaveTextContent(
+    expect(getByTestId("update-submission-dialog-body")).toHaveTextContent(
       "Changing the model version for an in-progress submission will reset all validation results. The submitter will need to re-run the validation to ensure alignment with the new model version."
     );
-    expect(getByTestId("model-version-dialog-submit-button")).toHaveTextContent("Save");
-    expect(getByTestId("model-version-dialog-cancel-button")).toHaveTextContent("Cancel");
+    expect(getByTestId("update-submission-dialog-submit-button")).toHaveTextContent("Save");
+    expect(getByTestId("update-submission-dialog-cancel-button")).toHaveTextContent("Cancel");
   });
 });
