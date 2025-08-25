@@ -4,6 +4,8 @@ import { isEqual } from "lodash";
 import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import ExportTemplateButton from "@/components/ExportTemplateButton";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
@@ -33,7 +35,7 @@ import ListFilters, { defaultValues, FilterForm } from "./ListFilters";
 type T = ListApplicationsResp["listApplications"]["applications"][number];
 
 const StyledBannerBody = styled(Stack)({
-  marginTop: "-20px",
+  marginTop: "-46px",
 });
 
 const StyledContainer = styled(Container)({
@@ -400,7 +402,13 @@ const ListingView: FC = () => {
         subTitle="Below is a list of submission requests that are associated with your account. Please click on any of the submission requests to review or continue work."
         padding="57px 25px 0 25px"
         body={
-          <StyledBannerBody direction="row" alignItems="center" justifyContent="flex-end">
+          <StyledBannerBody
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+            columnGap="40px"
+          >
+            <ExportTemplateButton />
             <CreateApplicationButton onCreate={handleCreate} />
           </StyledBannerBody>
         }
