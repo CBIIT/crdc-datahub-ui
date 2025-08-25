@@ -275,15 +275,15 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     skip: fieldset.studies !== "UNLOCKED",
   });
 
-  const { data: listInstitutions } = useQuery<ListInstitutionsResp, ListInstitutionsInput>(
-    LIST_INSTITUTIONS,
-    {
-      variables: { first: -1, orderBy: "name", sortDirection: "asc", status: "Active" },
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-      skip: fieldset.institution !== "UNLOCKED",
-    }
-  );
+  const { data: listInstitutions, refetch: refetchInstitutions } = useQuery<
+    ListInstitutionsResp,
+    ListInstitutionsInput
+  >(LIST_INSTITUTIONS, {
+    variables: { first: -1, orderBy: "name", sortDirection: "asc", status: "Active" },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    skip: fieldset.institution !== "UNLOCKED",
+  });
 
   const { data: isPrimaryContact } = useQuery<UserIsPrimaryContactResp, UserIsPrimaryContactInput>(
     USER_IS_PRIMARY_CONTACT,
@@ -464,6 +464,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return;
     }
 
+    if (typeof refetchInstitutions === "function") {
+      refetchInstitutions();
+    }
     sortStudyOptions();
 
     // If the user is a Federal Lead with no studies assigned, default to selecting "All" studies
@@ -601,7 +604,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     <Controller
                       name="institution"
                       control={control}
-                      rules={{ required: false }}
+                      rules={{ required: true }}
                       render={({ field }) => (
                         <StyledAutocomplete
                           {...field}
@@ -622,6 +625,7 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                               inputProps={{
                                 "aria-labelledby": "userInstitution",
                                 "data-testid": "institution-input",
+                                required: true,
                                 ...inputProps,
                               }}
                               placeholder="Select an Institution"
