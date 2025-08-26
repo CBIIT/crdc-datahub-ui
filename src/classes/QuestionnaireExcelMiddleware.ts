@@ -332,14 +332,13 @@ export class QuestionnaireExcelMiddleware {
         received: newData?.get("submissionId")?.[0],
       });
     }
-
-    // Compare App Version for traceability
-    const importedAppVersion = newData?.get("appVersion")?.[0] as string;
-    const currentAppVersion = parseReleaseVersion();
-    if (importedAppVersion && importedAppVersion !== currentAppVersion) {
+    if (
+      newData?.get("appVersion")?.[0] &&
+      newData?.get("appVersion")?.[0] !== parseReleaseVersion()
+    ) {
       Logger.info("QuestionnaireExcelMiddleware: Received mismatched appVersion.", {
-        currentVersion: currentAppVersion,
-        importedVersion: importedAppVersion,
+        expected: parseReleaseVersion(),
+        received: newData?.get("appVersion")?.[0],
       });
     }
 

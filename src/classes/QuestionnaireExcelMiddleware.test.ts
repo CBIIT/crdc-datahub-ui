@@ -38,6 +38,7 @@ vi.mock(import("@/env"), async (importOriginal) => {
     default: {
       ...mod.default,
       VITE_DEV_TIER: "mock-dev-tier",
+      VITE_FE_VERSION: "5.5.0.959",
     },
   };
 });
@@ -104,7 +105,7 @@ describe("Serialization", () => {
       // Pre-filled data
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
-      expect(sheet.getCell("J2").value).toEqual("N/A"); // App Version
+      expect(sheet.getCell("J2").value).toEqual("5.5.0");
       expect(sheet.getCell("K2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
     });
 
@@ -225,7 +226,7 @@ describe("Serialization", () => {
       expect(sheet.getCell("G2").value).toEqual("2025-02-16T22:36:00Z");
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
-      expect(sheet.getCell("J2").value).toEqual("N/A"); // App Version
+      expect(sheet.getCell("J2").value).toEqual("5.5.0");
       expect(sheet.getCell("K2").value).toEqual(new Date("2025-03-15T22:36:00Z").toISOString());
     });
 
@@ -1805,16 +1806,13 @@ describe("Parsing", () => {
   });
 
   it("should log info message when app version differs between import and current", async () => {
-    const mockedEnv = await import("@/env");
-    vi.mocked(mockedEnv.default).VITE_FE_VERSION = "3.4.0.100";
-
     const middleware = new QuestionnaireExcelMiddleware(null, {});
 
     // @ts-expect-error Private member
     const sheet = await middleware.serializeMetadata();
 
     // Modify the App Version column to have a different version
-    sheet.getCell("J2").value = "3.3.0"; // Different from current 3.4.0
+    sheet.getCell("J2").value = "2.5.6";
 
     // @ts-expect-error Private member
     const result = await middleware.parseMetadata();
@@ -1828,23 +1826,20 @@ describe("Parsing", () => {
     expect(Logger.info).toHaveBeenCalledWith(
       expect.stringContaining("Received mismatched appVersion."),
       expect.objectContaining({
-        currentVersion: "3.4.0",
-        importedVersion: "3.3.0",
+        expected: "5.5.0",
+        received: "2.5.6",
       })
     );
   });
 
   it("should not log when app versions match", async () => {
-    const mockedEnv = await import("@/env");
-    vi.mocked(mockedEnv.default).VITE_FE_VERSION = "3.4.0.100";
-
     const middleware = new QuestionnaireExcelMiddleware(null, {});
 
     // @ts-expect-error Private member
     const sheet = await middleware.serializeMetadata();
 
-    // App Version column should have the same version (3.4.0)
-    expect(sheet.getCell("J2").value).toEqual("3.4.0");
+    // App Version column should have the same version (5.5.0)
+    expect(sheet.getCell("J2").value).toEqual("5.5.0");
 
     // @ts-expect-error Private member
     const result = await middleware.parseMetadata();
