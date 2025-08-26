@@ -185,6 +185,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const formContentRef = useRef(null);
   const lastSectionRef = useRef(null);
   const hasReopenedFormRef = useRef(false);
+  const requestCanceledRef = useRef<boolean>(false);
   const shouldShowToolTip = isSectionD && !allSectionsComplete;
 
   const refs: FormSectionProps["refs"] = {
@@ -456,7 +457,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     ) {
       return false;
     }
-    if (!isDirty() || readOnlyInputs) {
+    if (!isDirty() || readOnlyInputs || requestCanceledRef.current) {
       return false;
     }
 
@@ -602,6 +603,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   };
 
   const handleOnCancel = useCallback(() => {
+    requestCanceledRef.current = true;
     enqueueSnackbar("Successfully canceled that Submission Request.", {
       variant: "success",
     });
@@ -611,7 +613,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   // Intercept browser navigation actions (e.g. closing the tab) with unsaved changes
   useEffect(() => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
-      if (!isDirty()) {
+      if (!isDirty() || requestCanceledRef.current) {
         return;
       }
 

@@ -296,12 +296,12 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     });
     this.forEachCellInColumn(ws, "files.count", (cell) => {
       cell.dataValidation = {
-        type: "textLength",
-        operator: "lessThanOrEqual",
+        type: "whole",
+        operator: "greaterThan",
         allowBlank: false,
         showErrorMessage: true,
-        error: ErrorCatalog.get("requiredMax", { max: this.CHARACTER_LIMITS["files.count"] }),
-        formulae: [this.CHARACTER_LIMITS["files.count"]],
+        error: ErrorCatalog.get("min", { min: 0 }),
+        formulae: [0],
       };
     });
     this.forEachCellInColumn(ws, "files.amount", (cell) => {
