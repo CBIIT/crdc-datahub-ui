@@ -1,7 +1,7 @@
 import { parseForm } from "@jalik/form-parser";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
-import { cloneDeep } from "lodash";
+import { cloneDeep, unset } from "lodash";
 import { FC, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -20,6 +20,7 @@ import TransitionGroupWrapper from "../../../components/Questionnaire/Transition
 import { InitialQuestionnaire } from "../../../config/InitialValues";
 import SectionMetadata from "../../../config/SectionMetadata";
 import {
+  combineQuestionnaireData,
   filterForNumbers,
   formatORCIDInput,
   isValidORCID,
@@ -88,7 +89,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData = combineQuestionnaireData(data, formObject);
 
     if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
       combinedData.additionalContacts = [];
@@ -97,12 +98,14 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.primaryContact = null;
     }
 
+    combinedData.additionalContacts?.forEach((ac) => unset(ac, "key"));
+
     return { ref: formRef, data: combinedData };
   };
 
   const addContact = () => {
-    setAdditionalContacts([
-      ...additionalContacts,
+    setAdditionalContacts((prev) => [
+      ...prev,
       {
         key: `${additionalContacts.length}_${new Date().getTime()}`,
         position: "",
@@ -117,7 +120,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const removeContact = (key: string) => {
-    setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
+    setAdditionalContacts((prev) => prev.filter((c) => c.key !== key));
   };
 
   const handlePIInstitutionChange = (value: string) => {
@@ -149,6 +152,28 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
+
+  useEffect(() => {
+    setPi(data?.pi);
+  }, [data?.pi]);
+
+  useEffect(() => {
+    setPrimaryContact(data?.primaryContact);
+  }, [data?.primaryContact]);
+
+  useEffect(() => {
+    setPiAsPrimaryContact(data?.piAsPrimaryContact || false);
+  }, [data?.piAsPrimaryContact]);
+
+  useEffect(() => {
+    const incoming = data?.additionalContacts ?? [];
+    setAdditionalContacts((prev) =>
+      incoming.map((c, i) => ({
+        ...c,
+        key: prev[i]?.key ?? mapObjectWithKey(c, i).key,
+      }))
+    );
+  }, [data?.additionalContacts]);
 
   return (
     <FormContainer
@@ -393,13 +418,22 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={additionalContacts}
           renderItem={(contact: KeyedContact, idx: number) => (
-            <AdditionalContact
-              idPrefix="section-a"
-              index={idx}
-              contact={contact}
-              onDelete={() => removeContact(contact.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`additionalContacts[${idx}][key]`}
+                value={contact.key}
+                readOnly
+              />
+              <AdditionalContact
+                key={contact.key}
+                idPrefix="section-a"
+                index={idx}
+                contact={contact}
+                onDelete={() => removeContact(contact.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>

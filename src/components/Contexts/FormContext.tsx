@@ -44,7 +44,10 @@ export type ContextState = {
   approveForm?: (data: ApproveFormInput, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
-  setData?: (Application) => Promise<SetDataReturnType>;
+  setData?: (
+    questionnaire: QuestionnaireData,
+    opts?: { skipSave?: boolean }
+  ) => Promise<SetDataReturnType>;
   error?: string;
 };
 
@@ -157,7 +160,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
+  const setData = async (
+    data: QuestionnaireData,
+    opts?: { skipSave?: boolean }
+  ): Promise<SetDataReturnType> => {
     const newState = {
       ...state,
       data: {
@@ -189,6 +195,14 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         contact.institutionID = newId;
       }
     });
+
+    if (opts?.skipSave) {
+      setState({ ...newState, status: Status.LOADED, error: null });
+      return {
+        status: "success",
+        id: newState.data._id,
+      };
+    }
 
     const { data: d, errors } = await saveApp({
       variables: {
