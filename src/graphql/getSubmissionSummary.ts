@@ -2,7 +2,7 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const query: TypedDocumentNode<Response, Input> = gql`
-  query getSubmissionSummary($submissionID: String!) {
+  query getSubmissionSummary($submissionID: ID!) {
     getSubmissionSummary(submissionID: $submissionID) {
       nodeType
       new
