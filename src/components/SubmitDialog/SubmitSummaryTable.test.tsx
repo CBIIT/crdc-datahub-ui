@@ -93,6 +93,51 @@ describe("Basic Functionality", () => {
     const tbody = getByTestId("submit-summary-table-body");
     expect(within(tbody).queryByText("NodeType 1")).toBeNull();
   });
+
+  it.each([null, undefined, "", NaN])(
+    "should default values to 0 when values are %s (New/Update)",
+    (invalidValue) => {
+      const rows = nodeTypeSummaryFactory.build(1, (i) => ({
+        nodeType: `NodeType ${i + 1}`,
+        new: invalidValue as unknown as number,
+        updated: invalidValue as unknown as number,
+        deleted: 0,
+      }));
+
+      const { getByTestId, getByText } = render(
+        <SubmitSummaryTable intention="New/Update" data={rows} loading={false} />
+      );
+
+      expect(getByText("Node Type")).toBeInTheDocument();
+      expect(getByText("New Nodes")).toBeInTheDocument();
+      expect(getByText("Updated Nodes")).toBeInTheDocument();
+
+      const tbody = getByTestId("submit-summary-table-body");
+      expect(within(tbody).getByTestId("submit-summary-new")).toHaveTextContent("0");
+      expect(within(tbody).getByTestId("submit-summary-updated")).toHaveTextContent("0");
+    }
+  );
+
+  it.each([null, undefined, "", NaN])(
+    "should default values to 0 when values are %s (Delete)",
+    (invalidValue) => {
+      const rows = nodeTypeSummaryFactory.build(1, (i) => ({
+        nodeType: `NodeType ${i + 1}`,
+        new: 0,
+        updated: 0,
+        deleted: invalidValue as unknown as number,
+      }));
+
+      const { getByTestId, getByText } = render(
+        <SubmitSummaryTable intention="Delete" data={rows} loading={false} />
+      );
+
+      expect(getByText("Deleted Nodes")).toBeInTheDocument();
+
+      const tbody = getByTestId("submit-summary-table-body");
+      expect(within(tbody).getByTestId("submit-summary-deleted")).toHaveTextContent("0");
+    }
+  );
 });
 
 describe("Implementation Requirements", () => {
