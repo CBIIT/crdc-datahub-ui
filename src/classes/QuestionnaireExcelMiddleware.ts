@@ -2,7 +2,6 @@ import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
 import { cloneDeep, merge, union, some, values } from "lodash";
 
-import { arrayBufferToBase64 } from "@/components/ExportRequestButton/pdf/utils";
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
@@ -183,6 +182,11 @@ export class QuestionnaireExcelMiddleware {
     return metaSection.serialize(ctx);
   }
 
+  /**
+   * Serializes the instructions section into the Excel workbook.
+   *
+   * @returns A readonly reference to the created worksheet.
+   */
   private async serializeInstructions(): Promise<Readonly<ExcelJS.Worksheet>> {
     const ctx: SectionCtxBase = {
       workbook: this.workbook,
@@ -192,7 +196,6 @@ export class QuestionnaireExcelMiddleware {
           r1.font = { bold: true };
           r1.alignment = { horizontal: "center" };
           r1.fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
-          ws.state = "veryHidden";
         },
       },
     };

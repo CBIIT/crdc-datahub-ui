@@ -8,11 +8,6 @@ export type InstructionsKeys = "margin" | "left" | "right";
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type InstructionsDeps = {};
 
-const toARGB = (hex: string) => {
-  const clean = hex.replace(/^#/, "").toUpperCase();
-  return (clean.length === 8 ? clean : `FF${clean}`) as string;
-};
-
 const LAYOUT = {
   sheetName: "Instructions",
   rows: {
@@ -68,10 +63,6 @@ export const COLUMNS: ColumnDef<InstructionsKeys>[] = [
 export class InstructionsSection extends SectionBase<InstructionsKeys, InstructionsDeps> {
   static SHEET_NAME = LAYOUT.sheetName;
 
-  private ACCENT = toARGB("#2F5597");
-
-  private WHITE = toARGB("#FFFFFF");
-
   constructor(deps: InstructionsDeps = {}) {
     super({
       id: "Instructions",
@@ -82,7 +73,6 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected create(ctx: SectionCtxBase): ExcelJS.Worksheet {
     const existing = ctx.workbook.worksheets.find(
       (ws) => ws.name === InstructionsSection.SHEET_NAME
@@ -92,7 +82,7 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     }
 
     const ws = ctx.workbook.addWorksheet(InstructionsSection.SHEET_NAME, {
-      views: [{ showGridLines: false }], // TODO: Only remove on cells with content
+      views: [{ showGridLines: false }],
       pageSetup: { fitToPage: true, fitToWidth: 1, fitToHeight: 0, orientation: "portrait" },
     });
 
@@ -124,8 +114,8 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     const marginCell = ws.getCell(`A${LAYOUT.rows.title}`);
     const title = ws.getCell(`B${LAYOUT.rows.title}`);
     title.value = CONTENT.title;
-    title.font = { bold: true, size: 24, color: { argb: "FFFFFFFF" } };
-    title.alignment = { horizontal: "left", vertical: "bottom" };
+    title.font = { bold: true, size: 26, color: { argb: "FFFFFFFF" } };
+    title.alignment = { horizontal: "left", vertical: "middle" };
     title.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "000000" } };
     marginCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "000000" } };
     ws.getRow(LAYOUT.rows.title).height = 60;
@@ -140,7 +130,7 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     ws.mergeCells(`B${row}:L${row}`);
     const headerCell = ws.getCell(`B${row}`);
     headerCell.value = text;
-    headerCell.font = { bold: true, size: 18, color: { argb: "FFFFFFFF" } };
+    headerCell.font = { bold: true, size: 20, color: { argb: "FFFFFFFF" } };
     headerCell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
     headerCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "627EB6" } };
     ws.getRow(row).height = 40;
@@ -153,7 +143,7 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     ws.mergeCells(`B${row}:L${row}`);
     const introCell = ws.getCell(`B${row}`);
     introCell.value = CONTENT.sections.intro.description;
-    introCell.font = { size: 12, color: { argb: "000000" } };
+    introCell.font = { size: 14, color: { argb: "000000" } };
     introCell.alignment = { horizontal: "left", vertical: "top", wrapText: true };
     ws.getRow(row).height = 60;
   };
@@ -165,7 +155,7 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     ws.mergeCells(`B${row}:L${row}`);
     const introCell = ws.getCell(`B${row}`);
     introCell.value = CONTENT.sections.getStarted.description;
-    introCell.font = { size: 12, color: { argb: "000000" } };
+    introCell.font = { size: 14, color: { argb: "000000" } };
     introCell.alignment = { horizontal: "left", vertical: "top", wrapText: true };
     ws.getRow(row).height = 60;
 
@@ -185,20 +175,20 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     const blockedCell = ws.getCell(`C${row}`);
     const textCell = ws.getCell(`L${row}`);
     textCell.value = "- Indicates a derived or dependent field. You do not need to fill it out.";
-    textCell.font = { size: 12, color: { argb: "000000" } };
+    textCell.font = { size: 14, color: { argb: "000000" } };
     textCell.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 1 };
     blockedCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "000000" } };
 
     ws.mergeCells(`D${row + 1}:L${row + 1}`);
     const textCell2 = ws.getCell(`D${row + 1}`);
     textCell2.value = "If you type in a blocked cell, your input will be ignored.";
-    textCell2.font = { size: 12, color: { argb: "000000" } };
+    textCell2.font = { size: 14, color: { argb: "000000" } };
     textCell2.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 2 };
 
     ws.mergeCells(`D${row + 2}:L${row + 2}`);
     const textCell3 = ws.getCell(`D${row + 2}`);
     textCell3.value = "To unblock a blocked cell, update the field(s) it depends on.";
-    textCell3.font = { size: 12, color: { argb: "000000" } };
+    textCell3.font = { size: 14, color: { argb: "000000" } };
     textCell3.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 2 };
   };
 
@@ -215,16 +205,18 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
 
     this.createQuestion(
       ws,
-      "Q: How do I unblock a cell?",
-      "To unblock a cell, you need to update the field(s) it depends on. This will refresh the cell's status and make it editable.",
-      row + 3
+      "Q: How can I tell when a field is 'Multiple Entries' or 'Multiple Records'?",
+      "Hovering over the header cell will display an annotation indicating the field type. If no header annotation is present, then the field is Single Entry.",
+      row + 3,
+      { rowHeight: 40 }
     );
 
     this.createQuestion(
       ws,
       "Q: What is the Date format?",
       "Dates should be entered in the format MM/DD/YYYY.",
-      row + 6
+      row + 6,
+      { rowHeight: 20 }
     );
   };
 
@@ -232,20 +224,21 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     ws: ExcelJS.Worksheet,
     question: string,
     answer: string,
-    startRow: number
+    startRow: number,
+    opts?: { rowHeight?: number }
   ) => {
     ws.mergeCells(`B${startRow}:L${startRow}`);
     ws.mergeCells(`B${startRow + 1}:L${startRow + 1}`);
     const questionCell = ws.getCell(`B${startRow}`);
     const answerCell = ws.getCell(`B${startRow + 1}`);
     questionCell.value = question;
-    questionCell.font = { size: 14, color: { argb: "000000" }, bold: true };
+    questionCell.font = { size: 16, color: { argb: "000000" }, bold: true };
     questionCell.alignment = { horizontal: "left", vertical: "top", wrapText: true };
 
     answerCell.value = answer;
-    answerCell.font = { size: 12, color: { argb: "000000" } };
+    answerCell.font = { size: 14, color: { argb: "000000" } };
     answerCell.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 2 };
-    ws.getRow(startRow + 1).height = 60;
+    ws.getRow(startRow + 1).height = opts?.rowHeight || 60;
   };
 
   private createGetStartedTable = async (
@@ -269,13 +262,13 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     rows.forEach((row, rowIndex) => {
       ws.mergeCells(`C${startRow + rowIndex}:D${startRow + rowIndex}`);
       ws.mergeCells(`E${startRow + rowIndex}:L${startRow + rowIndex}`);
-      ws.getRow(startRow + rowIndex).height = 40;
+      ws.getRow(startRow + rowIndex).height = 60;
 
       Array.from({ length: cols }).forEach((_, colIndex) => {
         const letter = colIndex === 0 ? "C" : "E";
         const cell = ws.getCell(`${letter}${startRow + rowIndex}`);
         cell.value = row[colIndex];
-        cell.font = { size: 12, color: { argb: "000000" } };
+        cell.font = { size: 14, color: { argb: "000000" } };
         cell.alignment = { horizontal: "left", vertical: "middle", wrapText: true };
 
         const isLastRow = rowIndex === rows.length - 1;
