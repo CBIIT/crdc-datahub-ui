@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { z } from "zod";
+import * as z from "zod";
 
 import { repositoryDataTypesOptions } from "@/components/Questionnaire/Repository";
 import accessTypeOptions from "@/config/AccessTypesConfig";
