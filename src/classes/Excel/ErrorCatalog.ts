@@ -11,6 +11,7 @@ type ErrorEntry = {
  */
 const T = {
   // length
+  min: ({ min }: { min: number }) => `Must be greater than ${min}.`,
   max: ({ max }: { max: number }) => `Must be less than or equal to ${max} characters.`,
   requiredMax: ({ max }: { max: number }) =>
     `This field is required. ${max} characters are allowed.`,

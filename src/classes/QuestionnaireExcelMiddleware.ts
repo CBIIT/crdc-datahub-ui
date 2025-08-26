@@ -12,6 +12,7 @@ import { InitialSections } from "@/config/SectionConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
+import { parseReleaseVersion } from "@/utils/envUtils";
 import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
 
@@ -175,6 +176,7 @@ export class QuestionnaireExcelMiddleware {
       application: this.dependencies.application,
       templateVersion: TEMPLATE_VERSION,
       devTier: env.VITE_DEV_TIER || "N/A",
+      appVersion: parseReleaseVersion(),
     });
 
     return metaSection.serialize(ctx);
@@ -328,6 +330,15 @@ export class QuestionnaireExcelMiddleware {
       Logger.info("QuestionnaireExcelMiddleware: Received mismatched submissionId.", {
         expected: this.dependencies?.application?._id,
         received: newData?.get("submissionId")?.[0],
+      });
+    }
+    if (
+      newData?.get("appVersion")?.[0] &&
+      newData?.get("appVersion")?.[0] !== parseReleaseVersion()
+    ) {
+      Logger.info("QuestionnaireExcelMiddleware: Received mismatched appVersion.", {
+        expected: parseReleaseVersion(),
+        received: newData?.get("appVersion")?.[0],
       });
     }
 

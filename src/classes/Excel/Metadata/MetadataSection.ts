@@ -8,6 +8,7 @@ type SectionADeps = {
   application: Omit<Application, "QuestionnaireData">;
   templateVersion: string;
   devTier: string;
+  appVersion: string;
 };
 
 export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
@@ -24,7 +25,7 @@ export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
   }
 
   protected write(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): ExcelJS.Row[] {
-    const { application, templateVersion, devTier } = this.deps;
+    const { application, templateVersion, devTier, appVersion } = this.deps;
 
     ws.getRow(2).values = {
       submissionId: application?._id,
@@ -36,6 +37,7 @@ export class MetadataSection extends SectionBase<MetaKeys, SectionADeps> {
       updatedAt: application?.updatedAt,
       devTier,
       templateVersion,
+      appVersion,
       exportedAt: new Date().toISOString(),
     };
 
