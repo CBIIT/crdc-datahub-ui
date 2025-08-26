@@ -173,11 +173,23 @@ const SubmitSummaryTable = ({ intention, data = [], loading }: Props) => {
                   <StyledTableCell>{item.nodeType}</StyledTableCell>
                   {isNewUpdate ? (
                     <>
-                      <StyledTableCell>{item.new}</StyledTableCell>
-                      <StyledTableCell>{item.updated}</StyledTableCell>
+                      <StyledTableCell data-testid="submit-summary-new">
+                        {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+                          item?.new || 0
+                        )}
+                      </StyledTableCell>
+                      <StyledTableCell data-testid="submit-summary-updated">
+                        {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+                          item?.updated || 0
+                        )}
+                      </StyledTableCell>
                     </>
                   ) : (
-                    <StyledTableCell>{item.deleted}</StyledTableCell>
+                    <StyledTableCell data-testid="submit-summary-deleted">
+                      {Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+                        item?.deleted || 0
+                      )}
+                    </StyledTableCell>
                   )}
                 </TableRow>
               ))
