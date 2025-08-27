@@ -811,6 +811,7 @@ describe("Implementation Requirements", () => {
         dbGaPID: null,
         controlledAccess: true,
         pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
@@ -867,6 +868,7 @@ describe("Implementation Requirements", () => {
         dbGaPID: null,
         controlledAccess: true,
         pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
@@ -934,6 +936,7 @@ describe("Implementation Requirements", () => {
         dbGaPID: "phsTEST",
         controlledAccess: true,
         pendingModelChange: false,
+        isPendingGPA: false,
       },
       {
         _id: "non-controlled",
@@ -942,6 +945,7 @@ describe("Implementation Requirements", () => {
         dbGaPID: null,
         controlledAccess: false,
         pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
@@ -1012,6 +1016,7 @@ describe("Implementation Requirements", () => {
         dbGaPID: null,
         controlledAccess: true,
         pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
