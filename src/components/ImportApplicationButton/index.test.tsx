@@ -271,4 +271,54 @@ describe("Implementation Requirements", () => {
       expect(getByTestId("import-dialog-confirm-button")).toBeDisabled();
     });
   });
+
+  it("should disable button when active section is REVIEW", () => {
+    const { getByTestId } = render(
+      <TestParent formCtxState={{ data: { status: "In Progress" }, setData: vi.fn() }}>
+        <ImportApplicationButton activeSection="REVIEW" />
+      </TestParent>
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeDisabled();
+  });
+
+  it("should disable button when user is not the form owner", () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={authCtxStateFactory.build({ user: userFactory.build({ _id: "other-user" }) })}
+        formCtxState={{
+          data: {
+            status: "In Progress",
+            applicant: applicantFactory.build({ applicantID: "some-user" }),
+          },
+          setData: vi.fn(),
+        }}
+      >
+        <ImportApplicationButton />
+      </TestParent>
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeDisabled();
+  });
+
+  it("should enable button when user is the form owner", () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ _id: "current-user" }),
+        })}
+        formCtxState={{
+          data: {
+            status: "In Progress",
+            applicant: applicantFactory.build({ applicantID: "current-user" }),
+          },
+          setData: vi.fn(),
+        }}
+      >
+        <ImportApplicationButton />
+      </TestParent>
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeEnabled();
+  });
 });

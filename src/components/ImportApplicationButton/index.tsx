@@ -2,9 +2,11 @@ import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
 import { useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
+import config from "@/config/SectionConfig";
 import useFormMode from "@/hooks/useFormMode";
 import { Logger } from "@/utils";
 
+import { useAuthContext } from "../Contexts/AuthContext";
 import { useFormContext } from "../Contexts/FormContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
@@ -67,7 +69,12 @@ const disableImportStatuses: ApplicationStatus[] = [
   "Deleted",
 ];
 
-type Props = Omit<ButtonProps, "onClick">;
+type Props = {
+  /**
+   * The active section of the form.
+   */
+  activeSection?: string;
+} & Omit<ButtonProps, "onClick">;
 
 /**
  * ImportApplicationButton component for handling the import of application data
@@ -76,12 +83,20 @@ type Props = Omit<ButtonProps, "onClick">;
  * @param param Props for the button component.
  * @returns JSX.Element
  */
-const ImportApplicationButton = ({ disabled = false, ...rest }: Props) => {
+const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: Props) => {
+  const { user } = useAuthContext();
   const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const shouldDisable = disabled || disableImportStatuses.includes(data?.status) || readOnlyInputs;
+  const isFormOwner = user?._id === data?.applicant?.applicantID;
+  const isReviewSection = activeSection?.toUpperCase() === config.REVIEW.id.toUpperCase();
+  const shouldDisable =
+    disabled ||
+    disableImportStatuses.includes(data?.status) ||
+    readOnlyInputs ||
+    !isFormOwner ||
+    isReviewSection;
 
   /**
    * Triggers the file input dialog.
