@@ -1901,9 +1901,11 @@ describe("Parsing", () => {
     const output = middleware.data;
 
     expect(result).toEqual(true);
-    expect(output.pi).toEqual(mockForm.pi);
-    expect(output.primaryContact).toEqual(mockForm.primaryContact);
-    expect(output.additionalContacts).toEqual(mockForm.additionalContacts);
+    expect(output.pi).toEqual({ ...mockForm.pi, institutionID: "" });
+    expect(output.primaryContact).toEqual({ ...mockForm.primaryContact, institutionID: "" });
+    expect(output.additionalContacts).toEqual(
+      mockForm.additionalContacts?.map((c) => ({ ...c, institutionID: "" }))
+    );
   });
 
   it("should handle missing SectionA sheet", async () => {
@@ -2013,7 +2015,7 @@ describe("Parsing", () => {
     expect(output.primaryContact).toEqual(
       expect.objectContaining({
         institution: "This one is new",
-        institutionID: null, // No match from API
+        institutionID: "", // No match from API
       })
     );
     expect(output.additionalContacts).toEqual(
@@ -2028,7 +2030,7 @@ describe("Parsing", () => {
         }),
         expect.objectContaining({
           institution: "api-option-4",
-          institutionID: null,
+          institutionID: "",
         }),
       ])
     );
