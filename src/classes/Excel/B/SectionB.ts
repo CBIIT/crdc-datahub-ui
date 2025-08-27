@@ -463,12 +463,12 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       })) as Repository[]) || [];
 
     // Match program name to get the _id
-    let programId: string;
+    let programId = "";
     let programRow: Row | undefined;
     const rawProgramId = toString(data.get("program._id")?.[0]).trim();
     if (rawProgramId === "Not Applicable" || rawProgramId === "Other") {
       programId = rawProgramId;
-    } else if (programSheet) {
+    } else if (programSheet && rawProgramId?.length > 0) {
       const programColB = programSheet.getColumn(2);
       programColB.eachCell((cell, rowNumber) => {
         const name = toString(cell.value).trim();
