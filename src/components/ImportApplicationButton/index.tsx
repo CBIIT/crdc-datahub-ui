@@ -159,7 +159,7 @@ const ImportApplicationButton = ({ disabled = false, ...rest }: Props) => {
             arrow
           >
             <StyledText variant="body2" data-testid="import-application-excel-tooltip-text">
-              Import
+              Import Form
             </StyledText>
           </StyledTooltip>
         </StyledImportButton>
