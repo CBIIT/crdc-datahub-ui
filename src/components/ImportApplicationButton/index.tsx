@@ -1,4 +1,5 @@
 import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
@@ -84,6 +85,7 @@ type Props = {
  * @returns JSX.Element
  */
 const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: Props) => {
+  const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
@@ -147,7 +149,14 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
       }
     );
 
-    await setData(newData as QuestionnaireData, { skipSave: true });
+    const res = await setData(newData as QuestionnaireData, { skipSave: false });
+
+    if (res?.status === "success") {
+      enqueueSnackbar(
+        "Your data for this Submission Request has been imported. Please review each page and confirm all fields before submitting.",
+        { variant: "success" }
+      );
+    }
 
     setOpenDialog(false);
     setIsUploading(false);

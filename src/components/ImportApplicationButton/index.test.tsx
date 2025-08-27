@@ -143,7 +143,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call setData with parsed data and close dialog on import", async () => {
-    const setData = vi.fn();
+    const setData = vi.fn().mockReturnValue({ status: "success", id: "success-id" });
     const parsedData = { some: "data" };
     const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
     (QuestionnaireExcelMiddleware.parse as Mock).mockResolvedValue(parsedData);
@@ -183,7 +183,14 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(QuestionnaireExcelMiddleware.parse).toHaveBeenCalled();
-      expect(setData).toHaveBeenCalledWith(parsedData, { skipSave: true });
+      expect(setData).toHaveBeenCalledWith(parsedData, { skipSave: false });
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Your data for this Submission Request has been imported. Please review each page and confirm all fields before submitting.",
+        { variant: "success" }
+      );
     });
   });
 
