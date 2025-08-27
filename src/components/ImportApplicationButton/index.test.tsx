@@ -110,14 +110,15 @@ describe("Basic Functionality", () => {
     (useFormMode as Mock).mockReturnValue({ readOnlyInputs: false });
   });
 
-  it("should render without crashing", () => {
-    const { getByTestId } = render(
+  it("should render a button with the correct text", () => {
+    const { getByText, getByTestId } = render(
       <TestParent formCtxState={{ data: {}, setData: vi.fn() }}>
         <ImportApplicationButton />
       </TestParent>
     );
 
     expect(getByTestId("import-application-excel-button")).toBeVisible();
+    expect(getByText("Import Form")).toBeInTheDocument();
   });
 
   it("should open dialog when button is clicked", () => {
