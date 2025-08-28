@@ -8,7 +8,11 @@ import { useAuthContext } from "@/components/Contexts/AuthContext";
 import { useSubmissionContext } from "@/components/Contexts/SubmissionContext";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import { hasPermission } from "@/config/AuthPermissions";
-import { UPDATE_MODEL_VERSION, UpdateModelVersionInput, UpdateModelVersionResp } from "@/graphql";
+import {
+  UPDATE_SUBMISSION_INFO,
+  UpdateSubmissionInfoInput,
+  UpdateSubmissionInfoResp,
+} from "@/graphql";
 import { Logger } from "@/utils";
 
 import FormDialog, { InputForm } from "./FormDialog";
@@ -56,8 +60,8 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   const { getSubmission } = data || {};
   const { _id, status } = getSubmission || {};
 
-  const [updateVersion] = useMutation<UpdateModelVersionResp, UpdateModelVersionInput>(
-    UPDATE_MODEL_VERSION,
+  const [updateSubmission] = useMutation<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput>(
+    UPDATE_SUBMISSION_INFO,
     {
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
@@ -68,7 +72,7 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
   const canSeeButton = useMemo<boolean>(
-    () => hasPermission(user, "data_submission", "review", getSubmission, true),
+    () => hasPermission(user, "data_submission", "review", getSubmission, false),
     [user, getSubmission]
   );
 
@@ -86,50 +90,55 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   };
 
   const onConfirmDialog = useCallback(
-    async ({ version }: InputForm) => {
+    async ({ version, submitterId }: InputForm) => {
       setLoading(true);
       try {
-        const { data: d, errors } = await updateVersion({
-          variables: { _id, version },
+        const { data: d, errors } = await updateSubmission({
+          variables: { _id, version, submitterID: submitterId },
         });
 
-        if (errors || !d?.updateSubmissionModelVersion?.modelVersion) {
+        if (errors || !d?.updateSubmissionInfo?._id) {
           throw new Error(errors?.[0]?.message || "Unknown API error");
         }
 
-        // TODO: Change submitter name and ID
+        updateQuery((prev) => {
+          const newData = { ...prev };
 
-        // TODO: Only reset validation if the model version changed
-        updateQuery((prev) => ({
-          ...prev,
-          getSubmission: {
-            ...prev.getSubmission,
-            metadataValidationStatus: "New",
-            fileValidationStatus: "New",
-            modelVersion: d.updateSubmissionModelVersion.modelVersion,
-          },
-          submissionStats: {
-            stats: prev.submissionStats?.stats?.map((stat) => ({
-              ...stat,
-              new: stat?.total || 0,
-              error: 0,
-              passed: 0,
-              warning: 0,
-            })),
-          },
-        }));
+          // Update submitter information if changed
+          if (newData?.getSubmission?.submitterID !== submitterId) {
+            newData.getSubmission.submitterID = d.updateSubmissionInfo.submitterID;
+            newData.getSubmission.submitterName = d.updateSubmissionInfo.submitterName;
+          }
 
-        // TODO: success snackbar
+          // Update model version if changed
+          if (newData?.getSubmission?.modelVersion !== version) {
+            newData.getSubmission.modelVersion = d.updateSubmissionInfo.modelVersion;
+            newData.getSubmission.metadataValidationStatus = "New";
+            newData.getSubmission.fileValidationStatus = "New";
+            newData.submissionStats = {
+              ...prev.submissionStats,
+              stats: prev.submissionStats?.stats?.map((stat) => ({
+                ...stat,
+                new: stat?.total || 0,
+                error: 0,
+                passed: 0,
+                warning: 0,
+              })),
+            };
+          }
+
+          return newData;
+        });
+
+        enqueueSnackbar("Changes applied successfully to the submission.", { variant: "default" });
       } catch (err) {
         Logger.error("SubmissionUpdate: API error received", err);
-        enqueueSnackbar("Oops! An error occurred while changing the model version", {
-          variant: "error",
-        });
+        enqueueSnackbar(err.message, { variant: "error" });
       } finally {
         setLoading(false);
       }
     },
-    [_id, updateVersion, enqueueSnackbar, updateQuery]
+    [_id, updateSubmission, enqueueSnackbar, updateQuery]
   );
 
   if (!canSeeButton) {
