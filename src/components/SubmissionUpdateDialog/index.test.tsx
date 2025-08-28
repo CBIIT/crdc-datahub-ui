@@ -11,9 +11,9 @@ import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   GetSubmissionResp,
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
+  UPDATE_SUBMISSION_INFO,
+  UpdateSubmissionInfoInput,
+  UpdateSubmissionInfoResp,
 } from "../../graphql";
 import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
@@ -145,9 +145,9 @@ describe("Basic Functionality", () => {
   it("should show a snackbar when the change operation fails (GraphQL Error)", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
@@ -193,9 +193,9 @@ describe("Basic Functionality", () => {
   it("should show a snackbar when the change operation fails (Network Error)", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       error: new Error("Simulated network error"),
@@ -239,9 +239,9 @@ describe("Basic Functionality", () => {
   it("should show a snackbar when the change operation fails (API Error)", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
@@ -467,9 +467,9 @@ describe("Implementation Requirements", () => {
 
     const mockUpdateQuery = vi.fn();
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
@@ -541,9 +541,9 @@ describe("Implementation Requirements", () => {
       updateQueryResult = updater(prevState);
     });
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {

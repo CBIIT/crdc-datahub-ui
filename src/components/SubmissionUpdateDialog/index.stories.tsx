@@ -1,7 +1,8 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, userEvent, within } from "@storybook/test";
+import { fn, userEvent, within, screen } from "@storybook/test";
 
+import EditIconSvg from "@/assets/icons/pencil_icon.svg?react";
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
@@ -12,9 +13,9 @@ import {
   LIST_POTENTIAL_COLLABORATORS,
   ListPotentialCollaboratorsInput,
   ListPotentialCollaboratorsResp,
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
+  UPDATE_SUBMISSION_INFO,
+  UpdateSubmissionInfoInput,
+  UpdateSubmissionInfoResp,
 } from "../../graphql";
 import { Context as AuthContext } from "../Contexts/AuthContext";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
@@ -33,6 +34,9 @@ const meta: Meta<CustomStoryProps> = {
   title: "Data Submissions / Update Submission Dialog",
   component: Button,
   tags: ["autodocs"],
+  args: {
+    icon: <EditIconSvg />,
+  },
   argTypes: {
     status: {
       description: "Status of the submission",
@@ -72,21 +76,13 @@ const meta: Meta<CustomStoryProps> = {
           data: {
             getSubmission: submissionFactory.build({
               _id: "",
-              submitterID: "current-user",
+              submitterID: "test-user",
               submitterName: "Test User",
               dataCommons: mockDC,
-              dataCommonsDisplayName: "A Mock Data Commons",
-              crossSubmissionStatus: null,
-              otherSubmissions: null,
               intention: "New/Update",
               dataType: "Metadata and Data Files",
-              validationStarted: "",
-              validationEnded: "",
-              validationScope: "New",
-              validationType: ["metadata", "file"],
               metadataValidationStatus: "New",
               fileValidationStatus: "New",
-              dataFileSize: null,
               modelVersion: "3.0.0",
               status: context.args.status,
             }),
@@ -119,19 +115,22 @@ const meta: Meta<CustomStoryProps> = {
 
 type Story = StoryObj<CustomStoryProps>;
 
-const mockUpdateQuery: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+const mockUpdateQuery: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
   request: {
-    query: UPDATE_MODEL_VERSION,
+    query: UPDATE_SUBMISSION_INFO,
   },
   variableMatcher: () => true,
   result: {
     data: {
-      updateSubmissionModelVersion: {
-        _id: "",
+      updateSubmissionInfo: {
+        _id: "mock-uuid-here",
         modelVersion: "API RESPONSE VERSION",
+        submitterID: "mock-user-id",
+        submitterName: "Mock User",
       },
     },
   },
+  maxUsageCount: Infinity,
 };
 
 const mockListCollaborators: MockedResponse<
@@ -153,6 +152,7 @@ const mockListCollaborators: MockedResponse<
         })),
     },
   },
+  maxUsageCount: Infinity,
 };
 
 export const Default: Story = {
@@ -169,12 +169,30 @@ export const Default: Story = {
 };
 
 /**
- * A story to cover the hover state of the button.
- *
- * Note: The :hover state cannot truly be simulated programmatically, so the background won't be visible
- * until you hover over the button.
+ * A story to cover the hover state of the disabled button with the tooltip present.
  */
 export const Hovered: Story = {
+  args: {
+    userRole: "Data Commons Personnel",
+    permissions: ["data_submission:review"],
+    status: "In Progress",
+    disabled: true,
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [mockUpdateQuery, mockListCollaborators],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const button = await canvas.findByRole("button");
+
+    await userEvent.hover(button, { pointerEventsCheck: 0 });
+  },
+};
+
+export const Dialog: Story = {
   args: {
     userRole: "Data Commons Personnel",
     permissions: ["data_submission:review"],
@@ -190,7 +208,9 @@ export const Hovered: Story = {
 
     const button = await canvas.findByRole("button");
 
-    await userEvent.hover(button);
+    await userEvent.click(button);
+
+    await screen.findByRole("dialog");
   },
 };
 
