@@ -2381,6 +2381,32 @@ describe("Parsing", () => {
     expect(output.program.description).toBe(InitialQuestionnaire.program.description);
   });
 
+  it("should allow empty program when program is not specified", async () => {
+    const mockForm = questionnaireDataFactory.build();
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // Reset data before parsing
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    expect(output.program._id).toBe(InitialQuestionnaire.program._id);
+    expect(output.program.name).toBe(InitialQuestionnaire.program.name);
+    expect(output.program.abbreviation).toBe(InitialQuestionnaire.program.abbreviation);
+    expect(output.program.description).toBe(InitialQuestionnaire.program.description);
+  });
+
   it("should allow selecting existing program", async () => {
     const _id = v4();
     const mockForm = questionnaireDataFactory.build({
