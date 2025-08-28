@@ -3272,7 +3272,7 @@ describe("Parsing", () => {
     expect(call("hello")).toBe("hello");
     expect(call(123 as unknown as ExcelJS.CellValue)).toBe(123);
     expect(call(true as unknown as ExcelJS.CellValue)).toBe(true);
-    expect(call(d as unknown as ExcelJS.CellValue)).toBe(d);
+    expect(call(d as unknown as ExcelJS.CellValue)).toBe("1/1/2024");
 
     // nullish
     expect(call(null as unknown as ExcelJS.CellValue)).toBeNull();
