@@ -290,8 +290,8 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("import-application-excel-button")).toBeDisabled();
   });
 
-  it("should disable button when user is not the form owner", () => {
-    const { getByTestId } = render(
+  it("should not show button when user is not the form owner", () => {
+    const { queryByTestId } = render(
       <TestParent
         authCtxState={authCtxStateFactory.build({ user: userFactory.build({ _id: "other-user" }) })}
         formCtxState={{
@@ -306,7 +306,7 @@ describe("Implementation Requirements", () => {
       </TestParent>
     );
 
-    expect(getByTestId("import-application-excel-button")).toBeDisabled();
+    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
   });
 
   it("should enable button when user is the form owner", () => {

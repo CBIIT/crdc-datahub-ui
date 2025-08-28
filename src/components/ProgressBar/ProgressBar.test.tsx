@@ -472,7 +472,7 @@ describe("Implementation Requirements", () => {
     expect(getByTestId("import-application-excel-button")).toBeInTheDocument();
   });
 
-  it("should disable the import button when user is not the submission owner", () => {
+  it("should not show the import button when user is not the submission owner", () => {
     const data: Application = {
       ...BaseApplication,
       status: "In Progress",
@@ -486,7 +486,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { getByTestId } = render(
+    const { queryByTestId } = render(
       <BaseComponent
         section={config.A.id}
         data={data}
@@ -498,6 +498,6 @@ describe("Implementation Requirements", () => {
       />
     );
 
-    expect(getByTestId("import-application-excel-button")).toBeDisabled();
+    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
   });
 });

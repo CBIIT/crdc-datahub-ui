@@ -94,11 +94,7 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
   const isFormOwner = user?._id === data?.applicant?.applicantID;
   const isReviewSection = activeSection?.toUpperCase() === config.REVIEW.id.toUpperCase();
   const shouldDisable =
-    disabled ||
-    disableImportStatuses.includes(data?.status) ||
-    readOnlyInputs ||
-    !isFormOwner ||
-    isReviewSection;
+    disabled || disableImportStatuses.includes(data?.status) || readOnlyInputs || isReviewSection;
 
   /**
    * Triggers the file input dialog.
@@ -161,6 +157,10 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
     setOpenDialog(false);
     setIsUploading(false);
   };
+
+  if (!isFormOwner) {
+    return null;
+  }
 
   return (
     <>
