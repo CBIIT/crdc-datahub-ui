@@ -131,7 +131,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     };
 
     // Primary Contact
-    [I2, J2, K2, L2, N2].forEach((cell) => {
+    [I2, J2, K2, N2].forEach((cell) => {
       const columnKey = ws.getColumn(cell.col).key;
       const cellLimit = DEFAULT_CHARACTER_LIMITS[columnKey as AKeys] ?? 0;
 
@@ -155,6 +155,14 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
           this.deps.institutionSheet.rowCount || 0
         ),
       ],
+    };
+
+    L2.dataValidation = {
+      type: "custom",
+      showErrorMessage: true,
+      error: ErrorCatalog.get("email"),
+      allowBlank: true,
+      formulae: [EMAIL(L2)],
     };
 
     // Additional Contacts
