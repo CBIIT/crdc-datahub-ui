@@ -798,7 +798,7 @@ export class QuestionnaireExcelMiddleware {
       return value;
     }
     if (value instanceof Date) {
-      return value;
+      return new Intl.DateTimeFormat("en-US", { timeZone: "UTC" }).format(value);
     }
 
     if (isHyperlinkValue(value)) {
