@@ -75,7 +75,7 @@ const meta: Meta<CustomStoryProps> = {
         value={submissionCtxStateFactory.build({
           data: {
             getSubmission: submissionFactory.build({
-              _id: "",
+              _id: "a-mock-submission-id",
               submitterID: "test-user",
               submitterName: "Test User",
               dataCommons: mockDC,
@@ -149,7 +149,8 @@ const mockListCollaborators: MockedResponse<
           _id: `user-${idx + 1}`,
           firstName: `First ${idx + 1}`,
           lastName: `Last ${idx + 1}`,
-        })),
+        }))
+        .withTypename("User"),
     },
   },
   maxUsageCount: Infinity,
@@ -163,7 +164,7 @@ export const Default: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [mockUpdateQuery, mockListCollaborators],
+      mocks: [mockListCollaborators, mockUpdateQuery],
     },
   },
 };

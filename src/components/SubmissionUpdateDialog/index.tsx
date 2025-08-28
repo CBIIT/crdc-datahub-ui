@@ -90,11 +90,11 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   };
 
   const onConfirmDialog = useCallback(
-    async ({ version, submitterId }: InputForm) => {
+    async ({ version, submitterID }: InputForm) => {
       setLoading(true);
       try {
         const { data: d, errors } = await updateSubmission({
-          variables: { _id, version, submitterID: submitterId },
+          variables: { _id, version, submitterID },
         });
 
         if (errors || !d?.updateSubmissionInfo?._id) {
@@ -105,7 +105,7 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
           const newData = { ...prev };
 
           // Update submitter information if changed
-          if (newData?.getSubmission?.submitterID !== submitterId) {
+          if (newData?.getSubmission?.submitterID !== submitterID) {
             newData.getSubmission.submitterID = d.updateSubmissionInfo.submitterID;
             newData.getSubmission.submitterName = d.updateSubmissionInfo.submitterName;
           }

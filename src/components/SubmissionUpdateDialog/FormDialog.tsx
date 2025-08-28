@@ -1,4 +1,4 @@
-import { useLazyQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import { Box, DialogProps, MenuItem, styled } from "@mui/material";
 import React, { FC, useEffect, useState } from "react";
@@ -15,14 +15,14 @@ import StyledAsterisk from "@/components/StyledFormComponents/StyledAsterisk";
 import StyledHelperText from "@/components/StyledFormComponents/StyledHelperText";
 import StyledLabel from "@/components/StyledFormComponents/StyledLabel";
 import StyledSelect from "@/components/StyledFormComponents/StyledSelect";
+import Tooltip from "@/components/Tooltip";
 import {
   ListPotentialCollaboratorsResp,
   ListPotentialCollaboratorsInput,
   LIST_POTENTIAL_COLLABORATORS,
+  UpdateSubmissionInfoInput,
 } from "@/graphql";
 import { listAvailableModelVersions, Logger } from "@/utils";
-
-import Tooltip from "../Tooltip";
 
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {
@@ -58,11 +58,7 @@ const StyledButton = styled(LoadingButton)({
   letterSpacing: "0.32px",
 });
 
-// TODO: Pick from input type
-export type InputForm = {
-  submitterId: string;
-  version: string;
-};
+export type InputForm = Pick<UpdateSubmissionInfoInput, "submitterID" | "version">;
 
 type Props = {
   /**
@@ -85,21 +81,28 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
   const { data } = useSubmissionContext();
   const { _id, dataCommons, modelVersion, submitterName, submitterID } = data?.getSubmission || {};
 
-  const { handleSubmit, reset, control, formState } = useForm<InputForm>({});
+  const { handleSubmit, reset, control, formState } = useForm<InputForm>({
+    defaultValues: {
+      submitterID,
+      version: modelVersion,
+    },
+    mode: "onSubmit",
+  });
   const { errors, isSubmitting } = formState;
 
-  const [listPotentialCollaborators] = useLazyQuery<
+  const { data: submitters } = useQuery<
     ListPotentialCollaboratorsResp,
     ListPotentialCollaboratorsInput
   >(LIST_POTENTIAL_COLLABORATORS, {
     variables: { submissionID: _id },
     fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+    skip: !rest?.open || !_id,
     onError: (err) => {
       Logger.error("Error fetching submitter options", err);
     },
   });
 
-  const [submitters, setSubmitters] = useState<Partial<User>[]>([]);
   const [versions, setVersions] = useState<string[]>([]);
 
   const onSubmit: SubmitHandler<InputForm> = async (form: InputForm) => {
@@ -112,10 +115,6 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
       return;
     }
 
-    listPotentialCollaborators().then((result) => {
-      setSubmitters(result?.data?.listPotentialCollaborators || []);
-    });
-
     listAvailableModelVersions(dataCommons).then((versions) => {
       setVersions(versions);
     });
@@ -127,7 +126,7 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
     }
 
     reset({
-      submitterId: submitterID,
+      submitterID,
       version: modelVersion,
     });
   }, [submitterID, modelVersion]);
@@ -160,10 +159,13 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
             <StyledLabel id="submitter-input-label">
               Submitter
               <StyledAsterisk />
-              <Tooltip title="Transfers data submission ownership; previous Submitter may lose access." />
+              <Tooltip
+                title="Transfers data submission ownership; previous Submitter may lose access."
+                data-testid="submitter-input-tooltip"
+              />
             </StyledLabel>
             <Controller
-              name="submitterId"
+              name="submitterID"
               control={control}
               rules={{ required: "This field is required" }}
               render={({ field }) => (
@@ -175,7 +177,7 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
                   inputProps={{ "aria-labelledby": "submitter-input-label" }}
                 >
                   <MenuItem value={submitterID}>{submitterName}</MenuItem>
-                  {submitters.map(({ _id, firstName, lastName }) => (
+                  {submitters?.listPotentialCollaborators?.map(({ _id, firstName, lastName }) => (
                     <MenuItem key={_id} value={_id}>
                       {firstName} {lastName}
                     </MenuItem>
@@ -184,14 +186,17 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
               )}
             />
             <StyledHelperText data-testid="update-submission-dialog-error-submitter">
-              {errors?.submitterId?.message}
+              {errors?.submitterID?.message}
             </StyledHelperText>
           </Box>
           <Box>
             <StyledLabel id="version-input-label">
               Data Model Version
               <StyledAsterisk />
-              <Tooltip title="Changing the model version for an in-progress submission will reset all validation results. The submitter must re-run validation to align with the new model version." />
+              <Tooltip
+                title="Changing the model version for an in-progress submission will reset all validation results. The submitter must re-run validation to align with the new model version."
+                data-testid="version-input-tooltip"
+              />
             </StyledLabel>
             <Controller
               name="version"
