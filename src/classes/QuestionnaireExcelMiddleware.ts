@@ -547,7 +547,7 @@ export class QuestionnaireExcelMiddleware {
       const colKey = SectionDColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
-        values.map((value) => String(value).trim())
+        values.map((value) => toString(value).trim())
       );
     });
     const newMapping = SectionD.mapValues(newData, {
