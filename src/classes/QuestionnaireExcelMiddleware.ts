@@ -1,6 +1,6 @@
 import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
-import { cloneDeep, merge, union, some, values } from "lodash";
+import { cloneDeep, merge, union, some, values, toString } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import DataTypes from "@/config/DataTypesConfig";
@@ -12,6 +12,13 @@ import { InitialSections } from "@/config/SectionConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
+import {
+  isErrorValue,
+  isFormulaValue,
+  isHyperlinkValue,
+  isRichTextValue,
+  isSharedFormulaValue,
+} from "@/utils";
 import { parseReleaseVersion } from "@/utils/envUtils";
 import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
@@ -776,7 +783,71 @@ export class QuestionnaireExcelMiddleware {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  /**
+   * Normalizes the cell value for consistent processing.
+   *
+   * @param value The cell value to normalize.
+   * @returns The normalized value.
+   */
+  private normalizeCellValue(value: ExcelJS.CellValue | undefined): unknown {
+    if (value === undefined || value === null) {
+      return null;
+    }
+
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      return value;
+    }
+    if (value instanceof Date) {
+      return value;
+    }
+
+    if (isHyperlinkValue(value)) {
+      return value.text;
+    }
+    if (isFormulaValue(value)) {
+      return value.result !== undefined ? this.normalizeCellValue(value.result) : null;
+    }
+    if (isSharedFormulaValue(value)) {
+      return value.result !== undefined ? this.normalizeCellValue(value.result) : null;
+    }
+    if (isRichTextValue(value)) {
+      return value.richText.map((seg) => seg.text).join("");
+    }
+    if (isErrorValue(value)) {
+      Logger.error(
+        `QuestionnaireExcelMiddleware: Found error value while normalizing data: ${value.error}`
+      );
+      return null;
+    }
+
+    // Unknown object type, keeping as-is
+    Logger.error(
+      `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${value}`
+    );
+    return null;
+  }
+
+  /**
+   * Extracts the header key from a cell value.
+   *
+   * @param value The cell value to extract the header key from.
+   * @returns The extracted header key or null if not found.
+   */
+  private headerKey(value: ExcelJS.CellValue | undefined): string | null {
+    const normalized = this.normalizeCellValue(value);
+    if (normalized === null || normalized === undefined) {
+      return null;
+    }
+
+    return toString(normalized);
+  }
+
+  /**
+   * Extracts values from the specified worksheet.
+   *
+   * @param ws The worksheet to extract values from.
+   * @returns A map of header names to their corresponding cell values.
+   */
   private async extractValuesFromWorksheet(
     ws: ExcelJS.Worksheet
   ): Promise<Map<string, Array<unknown>>> {
@@ -790,14 +861,15 @@ export class QuestionnaireExcelMiddleware {
       }
 
       row.eachCell((cell, colNumber) => {
-        const header = headers[colNumber];
+        const header = this.headerKey(headers[colNumber]);
         if (!header) {
           // Invalid data, ignore
           return;
         }
 
         const existingValues = data.get(header) || [];
-        data.set(header, [...existingValues, cell.value]);
+        const normalizedValue = this.normalizeCellValue(cell.value);
+        data.set(header, [...existingValues, normalizedValue]);
       });
     });
 

@@ -1,4 +1,4 @@
-import { Worksheet } from "exceljs";
+import ExcelJS, { Worksheet } from "exceljs";
 import { v4 } from "uuid";
 
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
@@ -3258,6 +3258,120 @@ describe("Parsing", () => {
 
     expect(output.dataTypes).toEqual(expect.arrayContaining(["genomics", "imaging"]));
     expect(output.clinicalData?.dataTypes ?? []).toHaveLength(0);
+  });
+
+  it("normalizeCellValue handles primitives, Date, nullish, hyperlink, formula, shared formula, rich text, and error", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+    const call = (v: ExcelJS.CellValue | undefined) =>
+      // @ts-expect-error Private member
+      middleware.normalizeCellValue(v);
+
+    const d = new Date("2024-01-01T00:00:00Z");
+
+    // primitives and Date
+    expect(call("hello")).toBe("hello");
+    expect(call(123 as unknown as ExcelJS.CellValue)).toBe(123);
+    expect(call(true as unknown as ExcelJS.CellValue)).toBe(true);
+    expect(call(d as unknown as ExcelJS.CellValue)).toBe(d);
+
+    // nullish
+    expect(call(null as unknown as ExcelJS.CellValue)).toBeNull();
+    expect(call(undefined)).toBeNull();
+
+    // hyperlink
+    const hyperlink: ExcelJS.CellHyperlinkValue = {
+      text: "example@example.com",
+      hyperlink: "mailto:example@example.com",
+    };
+    expect(call(hyperlink)).toBe("example@example.com");
+
+    // formula (with/without result)
+    const formulaWithResult: ExcelJS.CellFormulaValue = { formula: "1+1", result: 2 };
+    const formulaNoResult: ExcelJS.CellFormulaValue = { formula: "A1+B1" };
+    expect(call(formulaWithResult)).toBe(2);
+    expect(call(formulaNoResult)).toBeNull();
+
+    // shared formula (with/without result)
+    const sharedWithResult: ExcelJS.CellSharedFormulaValue = {
+      sharedFormula: "A1",
+      result: "ok",
+    };
+    const sharedNoResult: ExcelJS.CellSharedFormulaValue = { sharedFormula: "B2" };
+    expect(call(sharedWithResult)).toBe("ok");
+    expect(call(sharedNoResult)).toBeNull();
+
+    // rich text
+    const rich: ExcelJS.CellRichTextValue = { richText: [{ text: "Hello " }, { text: "World" }] };
+    expect(call(rich)).toBe("Hello World");
+
+    // error
+    expect(Logger.error).toHaveBeenCalledTimes(0);
+    const err: ExcelJS.CellErrorValue = { error: "#DIV/0!" };
+    expect(call(err)).toBe(null);
+    await waitFor(() => {
+      expect(Logger.error).toHaveBeenCalledWith(
+        "QuestionnaireExcelMiddleware: Found error value while normalizing data: #DIV/0!"
+      );
+    });
+
+    // unknown object shape
+    const unknownObj = { foo: "bar", nested: { a: 1 } } as unknown as ExcelJS.CellValue;
+    expect(call(unknownObj)).toBe(null);
+    await waitFor(() => {
+      expect(Logger.error).toHaveBeenCalledWith(
+        `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${unknownObj.toString()}`
+      );
+    });
+  });
+
+  it("headerKey returns normalized string keys and null for nullish", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+    const call = (v: ExcelJS.CellValue | undefined) =>
+      // @ts-expect-error Private member
+      middleware.headerKey(v);
+
+    const hyperlinkHeader: ExcelJS.CellHyperlinkValue = {
+      text: "Email",
+      hyperlink: "mailto:x@y.com",
+    };
+    expect(call(hyperlinkHeader)).toBe("Email");
+
+    const richHeader: ExcelJS.CellRichTextValue = {
+      richText: [{ text: "Col" }, { text: " Name" }],
+    };
+    expect(call(richHeader)).toBe("Col Name");
+
+    expect(call("Status")).toBe("Status");
+    expect(call(123 as unknown as ExcelJS.CellValue)).toBe("123");
+
+    expect(call(null as unknown as ExcelJS.CellValue)).toBeNull();
+    expect(call(undefined)).toBeNull();
+  });
+
+  it("extractValuesFromWorksheet skips columns with invalid headers", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const wb = middleware.workbook;
+    const ws = wb.addWorksheet("Tmp Extract Test");
+
+    // Row 1 headers (1-indexed). Column B header is null -> should be skipped.
+    // eslint-disable-next-line no-sparse-arrays
+    ws.getRow(1).values = [, "ColA", null, "ColC"];
+
+    // Data row
+    // eslint-disable-next-line no-sparse-arrays
+    ws.getRow(2).values = [, "A2", "SHOULD_SKIP", "C2"];
+
+    // @ts-expect-error Private member
+    const map = await middleware.extractValuesFromWorksheet(ws);
+
+    expect(map.size).toBe(2);
+    expect(map.get("ColA")).toEqual(["A2"]);
+    expect(map.get("ColC")).toEqual(["C2"]);
+
+    const allValues = Array.from(map.values()).flat();
+    expect(allValues).not.toContain("SHOULD_SKIP");
   });
 });
 
