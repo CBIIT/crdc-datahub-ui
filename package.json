@@ -36,6 +36,7 @@
     "amazon-quicksight-embedding-sdk": "^2.8.0",
     "data-model-navigator": "github:CBIIT/Data-Model-Navigator#CRDC-DH",
     "dayjs": "^1.11.8",
+    "exceljs": "^4.4.0",
     "graphql": "^16.7.1",
     "graphql-tag": "^2.12.6",
     "jspdf": "^2.5.2",
@@ -56,10 +57,12 @@
     "vite": "^6.3.5",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@aws-sdk/client-quicksight": "^3.637.0",
+    "@relative-ci/agent": "^4.3.1",
     "@storybook/addon-a11y": "^8.6.14",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
@@ -106,6 +109,7 @@
     "husky": "^8.0.3",
     "jsdom": "^26.1.0",
     "prettier": "^3.1.1",
+    "rollup-plugin-webpack-stats": "^2.1.4",
     "storybook": "^8.6.14",
     "storybook-addon-apollo-client": "^8.1.2",
     "storybook-addon-pseudo-states": "^4.0.3",
