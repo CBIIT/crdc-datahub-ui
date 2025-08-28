@@ -437,12 +437,12 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       imagingDataDeIdentified,
       clinicalData: {
         dataTypes: clinicalDataTypes,
-        otherDataTypes: toString(data.get("otherDataTypes")?.[0]).trim(),
+        otherDataTypes: hasClinicalDataType
+          ? toString(data.get("clinicalData.otherDataTypes")?.[0]).trim()
+          : "",
         futureDataTypes,
       },
-      otherDataTypes: hasClinicalDataType
-        ? toString(data.get("otherDataTypes")?.[0] as string).trim()
-        : "",
+      otherDataTypes: toString(data.get("otherDataTypes")?.[0]).trim(),
       files,
       dataDeIdentified: toString(data.get("dataDeIdentified")?.[0]) === "Yes",
       cellLines: toString(data.get("cellLines")?.[0]) === "Yes",
