@@ -198,7 +198,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             data-testid="edit-submission-name-dialog-input"
-            inputProps={{ maxLength: 100 }}
+            inputProps={{ maxLength: 25 }}
             error={!!error}
             required
           />
