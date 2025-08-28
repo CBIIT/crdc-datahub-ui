@@ -314,7 +314,7 @@ export class QuestionnaireExcelMiddleware {
       const colKey = MetadataColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
-        values.map((value) => String(value).trim())
+        values.map((value) => toString(value).trim())
       );
     });
 
@@ -371,7 +371,7 @@ export class QuestionnaireExcelMiddleware {
       const colKey = SectionAColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
-        values.map((value) => String(value).trim())
+        values.map((value) => toString(value).trim())
       );
     });
 
@@ -422,7 +422,7 @@ export class QuestionnaireExcelMiddleware {
       const colKey = SectionBColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
-        values.map((value) => String(value).trim())
+        values.map((value) => toString(value).trim())
       );
     });
     const newMapping = SectionB.mapValues(newData, {
@@ -489,7 +489,7 @@ export class QuestionnaireExcelMiddleware {
       const colKey = SectionCColumns.find((col) => col.header === key)?.key;
       newData.set(
         colKey,
-        values.map((value) => String(value).trim())
+        values.map((value) => toString(value).trim())
       );
     });
 
@@ -855,21 +855,24 @@ export class QuestionnaireExcelMiddleware {
     const headerRow = ws.getRow(1);
     const headers = headerRow.values;
 
-    ws.eachRow((row, rowNumber) => {
+    ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
       if (rowNumber === 1) {
         return;
       }
 
-      row.eachCell((cell, colNumber) => {
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
         const header = this.headerKey(headers[colNumber]);
         if (!header) {
           // Invalid data, ignore
           return;
         }
 
-        const existingValues = data.get(header) || [];
+        const allValues = data.get(header) || [];
         const normalizedValue = this.normalizeCellValue(cell.value);
-        data.set(header, [...existingValues, normalizedValue]);
+
+        allValues[rowNumber - 2] = normalizedValue;
+
+        data.set(header, allValues);
       });
     });
 
