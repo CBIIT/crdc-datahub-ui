@@ -415,12 +415,27 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     }
 
     // Extract files
-    const files: FileInfo[] = data.get("files.type")?.map((fileType, index) => ({
-      type: toString(fileType)?.trim(),
-      extension: toString(data.get("files.extension")?.[index]).trim(),
-      count: toSafeInteger(data.get("files.count")?.[index]),
-      amount: toString(data.get("files.amount")?.[index]).trim(),
-    }));
+    const fileTypes = data.get("files.type") || [];
+    const fileExtensions = data.get("files.extension") || [];
+    const fileCounts = data.get("files.count") || [];
+    const fileAmounts = data.get("files.amount") || [];
+    const filesMax = Math.max(
+      fileTypes.length,
+      fileExtensions.length,
+      fileCounts.length,
+      fileAmounts.length
+    );
+    const files: FileInfo[] = [];
+    Array.from({ length: filesMax }).forEach((_, i) => {
+      const type = toString(fileTypes[i]).trim();
+      const extension = toString(fileExtensions[i]).trim();
+      const count = toSafeInteger(fileCounts[i]);
+      const amount = toString(fileAmounts[i]).trim();
+
+      if (type || extension || count || amount) {
+        files.push({ type, extension, count, amount });
+      }
+    });
 
     return {
       targetedSubmissionDate: FormatDate(
