@@ -504,3 +504,50 @@ export const toYesNo = (value: boolean | null | undefined) => {
 
   return null;
 };
+
+/**
+ * Checks if a cell contains a valid hyperlink.
+ *
+ * @param v The cell value to check.
+ * @returns True if the cell contains a hyperlink, false otherwise.
+ */
+export const isHyperlinkValue = (v: ExcelJS.CellValue): v is ExcelJS.CellHyperlinkValue =>
+  typeof v === "object" && v !== null && "hyperlink" in v && "text" in v;
+
+/**
+ * Checks if a cell contains a valid formula.
+ *
+ * @param v The cell value to check.
+ * @returns True if the cell contains a formula, false otherwise.
+ */
+export const isFormulaValue = (v: ExcelJS.CellValue): v is ExcelJS.CellFormulaValue =>
+  typeof v === "object" && v !== null && "formula" in v;
+
+/**
+ * Checks if a cell contains a valid shared formula.
+ *
+ * @param v The cell value to check.
+ * @returns True if the cell contains a shared formula, false otherwise.
+ */
+export const isSharedFormulaValue = (v: ExcelJS.CellValue): v is ExcelJS.CellSharedFormulaValue =>
+  typeof v === "object" && v !== null && "sharedFormula" in v;
+
+/**
+ * Checks if a cell contains a valid rich text value.
+ *
+ * @param v The cell value to check.
+ * @returns True if the cell contains a rich text value, false otherwise.
+ */
+export const isRichTextValue = (v: ExcelJS.CellValue): v is ExcelJS.CellRichTextValue =>
+  typeof v === "object" &&
+  v !== null &&
+  "richText" in v &&
+  Array.isArray((v as { richText: unknown }).richText);
+
+/**
+ * Checks if a cell contains a valid error value.
+ * @param v The cell value to check.
+ * @returns True if the cell contains an error value, false otherwise.
+ */
+export const isErrorValue = (v: ExcelJS.CellValue): v is ExcelJS.CellErrorValue =>
+  typeof v === "object" && v !== null && "error" in v;
