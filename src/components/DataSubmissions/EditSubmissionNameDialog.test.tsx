@@ -106,11 +106,11 @@ describe("Implementation Requirements", () => {
     });
   });
 
-  it("should not allow the input to exceed 100 characters", async () => {
+  it("should not allow the input to exceed 25 characters", async () => {
     const { getByTestId } = renderDialog();
     const input = getInput(getByTestId);
     userEvent.clear(input);
-    userEvent.type(input, "a".repeat(150));
-    expect(input.value.length).toBe(100);
+    userEvent.type(input, "a".repeat(30));
+    expect(input.value.length).toBe(25);
   });
 });
