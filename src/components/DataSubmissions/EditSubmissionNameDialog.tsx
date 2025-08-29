@@ -7,9 +7,9 @@ import React, { useState, useEffect } from "react";
 
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import {
-  mutation as UPDATE_SUBMISSION_NAME,
-  Input as UpdateNameInput,
-  Response as UpdateNameResponse,
+  mutation as EDIT_SUBMISSION,
+  Input as EditSubmissionInput,
+  Response as EditSubmissionResponse,
 } from "../../graphql/updateSubmissionName";
 import DefaultDialog from "../StyledDialogComponents/StyledDialog";
 import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
@@ -50,7 +50,7 @@ const StyledTitle = styled(Typography)({
 const StyledDialogActions = styled(DialogActions)({
   padding: "0 !important",
   justifyContent: "center",
-  marginTop: "55px !important",
+  marginTop: "20px !important",
   gap: "10px",
 });
 
@@ -104,8 +104,8 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
   const [error, setError] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
-  const [updateSubmissionName] = useMutation<UpdateNameResponse, UpdateNameInput>(
-    UPDATE_SUBMISSION_NAME,
+  const [editSubmission] = useMutation<EditSubmissionResponse, EditSubmissionInput>(
+    EDIT_SUBMISSION,
     {
       context: { clientName: "backend" },
       fetchPolicy: "no-cache",
@@ -120,30 +120,26 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
   }, [open, initialValue]);
 
   const handleSave = async () => {
-    let errorMsg = "";
     if (!newName.trim()) {
-      errorMsg = "Submission name is required.";
-    }
-    if (errorMsg) {
-      setError(errorMsg);
-      enqueueSnackbar(errorMsg, { variant: "error", autoHideDuration: 4000 });
+      setError("Submission name is required.");
       return;
     }
 
     try {
-      await updateSubmissionName({
-        variables: {
-          _id: submissionID,
-          name: newName.trim(),
-        },
+      const { data: d, errors } = await editSubmission({
+        variables: { _id: submissionID, newName: newName.trim() },
       });
+      if (errors || !d?.editSubmission?._id) {
+        throw new Error(errors?.[0]?.message || "Unknown API error");
+      }
+
       onSave(newName.trim());
     } catch (err) {
-      enqueueSnackbar("An error occurred while changing the submission name.", {
+      enqueueSnackbar(err.message, {
         variant: "error",
         autoHideDuration: 4000,
       });
-      setError("Failed to update submission name.");
+      setError(err.message);
     }
   };
 
@@ -164,49 +160,63 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
       <DefaultDialogContent>
         <Box
           sx={{
-            width: "484px",
-            height: "86px",
-            mb: "45px",
-          }}
-        >
-          <StyledTitle data-testid="edit-submission-name-dialog-title">DATA SUBMISSION</StyledTitle>
-          <DefaultDialogHeader
-            id="edit-submission-name-dialog-header"
-            variant="h1"
-            sx={{ mt: "5px" }}
-            data-testid="edit-submission-name-dialog-header"
-          >
-            Update
-            <br />
-            Data Submission Name
-          </DefaultDialogHeader>
-        </Box>
-        <Box
-          sx={{
-            width: "484px",
-            height: "68px",
             display: "flex",
             flexDirection: "column",
-            gap: "4px",
+            alignItems: "center", // Center children horizontally in the dialog
+            width: "100%",
+            height: "100%",
           }}
         >
-          <StyledLabel sx={{ textAlign: "left" }} htmlFor="edit-submission-name-dialog-input">
-            Submission Name
-          </StyledLabel>
-          <StyledOutlinedInput
-            id="edit-submission-name-dialog-input"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            data-testid="edit-submission-name-dialog-input"
-            inputProps={{ maxLength: 100 }}
-            error={!!error}
-            required
-          />
-          {error && (
-            <StyledHelperText error={!!error} data-testid="edit-submission-name-dialog-error">
-              {error}
-            </StyledHelperText>
-          )}
+          <Box
+            sx={{
+              width: "484px",
+              height: "86px",
+              mb: "45px",
+            }}
+          >
+            <StyledTitle data-testid="edit-submission-name-dialog-title">
+              DATA SUBMISSION
+            </StyledTitle>
+            <DefaultDialogHeader
+              id="edit-submission-name-dialog-header"
+              variant="h1"
+              sx={{ mt: "5px" }}
+              data-testid="edit-submission-name-dialog-header"
+            >
+              Update
+              <br />
+              Data Submission Name
+            </DefaultDialogHeader>
+          </Box>
+          <Box
+            sx={{
+              width: "484px",
+              minHeight: "68px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            <StyledLabel sx={{ textAlign: "left" }} htmlFor="edit-submission-name-dialog-input">
+              Submission Name
+            </StyledLabel>
+            <StyledOutlinedInput
+              id="edit-submission-name-dialog-input"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              data-testid="edit-submission-name-dialog-input"
+              inputProps={{ maxLength: 25 }}
+              error={!!error}
+              required
+            />
+            <Box sx={{ height: "30px" }}>
+              {error && (
+                <StyledHelperText error={!!error} data-testid="edit-submission-name-dialog-error">
+                  {error}
+                </StyledHelperText>
+              )}
+            </Box>
+          </Box>
         </Box>
       </DefaultDialogContent>
       <StyledDialogActions>

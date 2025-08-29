@@ -11,6 +11,7 @@ import { SortHistory } from "../../utils";
 import { CollaboratorsDialog } from "../Collaborators";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { CollaboratorsProvider } from "../Contexts/CollaboratorsContext";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import HistoryDialog from "../HistoryDialog";
 import ReviewCommentsDialog from "../ReviewCommentsDialog";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
@@ -187,10 +188,11 @@ type Props = {
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [openDialog, setOpenDialog] = useState<DialogOptions>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const { updateQuery, data } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const isPrimarySubmitter = user?._id === dataSubmission?.submitterID;
-
+  const displayName = data?.getSubmission?.name ?? dataSubmission?.name;
   const numCollaborators = dataSubmission?.collaborators?.length || 0;
   const lastReview = useMemo(
     () =>
@@ -246,13 +248,13 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             label="Submission Name"
             value={
               <Stack direction="row" alignItems="center" spacing={1}>
-                <StyledValue>
+                <StyledValue data-testid="submission-name-display">
                   <TruncatedText
-                    text={dataSubmission?.name}
+                    text={displayName}
                     maxCharacters={15}
                     ellipsis
                     underline={false}
-                    tooltipText={dataSubmission?.name}
+                    tooltipText={displayName}
                   />
                 </StyledValue>
                 {isPrimarySubmitter && (
@@ -399,10 +401,17 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
       <EditSubmissionNameDialog
         open={isEditing}
         submissionID={dataSubmission?._id}
-        initialValue={dataSubmission?.name || ""}
+        initialValue={dataSubmission?.name}
         onCancel={() => setIsEditing(false)}
         onSave={(newName) => {
           setIsEditing(false);
+          updateQuery((prev) => ({
+            ...prev,
+            getSubmission: {
+              ...prev.getSubmission,
+              name: newName, // Use the new name from the mutation response
+            },
+          }));
           enqueueSnackbar("The Data Submission name has been successfully changed.", {
             variant: "success",
             autoHideDuration: 4000,
