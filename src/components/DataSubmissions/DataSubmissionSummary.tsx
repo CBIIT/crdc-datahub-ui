@@ -283,7 +283,7 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
                 <StyledValue>
                   <TruncatedText
                     text={dataSubmission?.submitterName}
-                    maxCharacters={15}
+                    maxCharacters={16}
                     underline={false}
                     tooltipText={dataSubmission?.submitterName}
                     ellipsis
