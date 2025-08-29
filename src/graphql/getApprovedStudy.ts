@@ -23,6 +23,7 @@ export const query = gql`
         conciergeID
         conciergeName
       }
+      useProgramPC
     }
   }
 `;
@@ -32,5 +33,20 @@ export type Input = {
 };
 
 export type Response = {
-  getApprovedStudy: ApprovedStudy;
+  getApprovedStudy: Pick<
+    ApprovedStudy,
+    | "_id"
+    | "studyName"
+    | "studyAbbreviation"
+    | "dbGaPID"
+    | "controlledAccess"
+    | "openAccess"
+    | "PI"
+    | "ORCID"
+    | "createdAt"
+    | "useProgramPC"
+  > & {
+    primaryContact: Pick<User, "_id" | "firstName" | "lastName">;
+    programs: Pick<Organization, "_id" | "name" | "conciergeID" | "conciergeName">[];
+  };
 };

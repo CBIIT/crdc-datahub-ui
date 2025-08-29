@@ -6,6 +6,39 @@ import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import ApprovedStudyFilters from "./ApprovedStudyFilters";
 import { SearchParamsProvider, useSearchParamsContext } from "../../Contexts/SearchParamsContext";
+import { OrganizationProvider } from "../../Contexts/OrganizationListContext";
+import { LIST_ORGS, ListOrgsInput, ListOrgsResp } from "../../../graphql";
+
+const listOrgMocks: MockedResponse<ListOrgsResp, ListOrgsInput>[] = [
+  {
+    request: {
+      query: LIST_ORGS,
+    },
+    variableMatcher: () => true,
+    result: {
+      data: {
+        listPrograms: {
+          total: 1,
+          programs: [
+            {
+              _id: "option-1",
+              name: "Option 1",
+              abbreviation: "O1",
+              conciergeName: "primary-contact-1",
+              createdAt: "",
+              description: "",
+              status: "Active",
+              studies: [],
+              readOnly: false,
+              updateAt: "",
+            },
+          ],
+        },
+      },
+    },
+    maxUsageCount: Infinity,
+  },
+];
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -13,10 +46,16 @@ type ParentProps = {
   children: React.ReactNode;
 };
 
-const TestParent: FC<ParentProps> = ({ mocks, initialEntries = ["/"], children }: ParentProps) => (
-  <MockedProvider mocks={mocks}>
+const TestParent: FC<ParentProps> = ({
+  mocks = [],
+  initialEntries = ["/"],
+  children,
+}: ParentProps) => (
+  <MockedProvider mocks={[...listOrgMocks, ...mocks]}>
     <MemoryRouter initialEntries={initialEntries}>
-      <SearchParamsProvider>{children}</SearchParamsProvider>
+      <OrganizationProvider preload>
+        <SearchParamsProvider>{children}</SearchParamsProvider>
+      </OrganizationProvider>
     </MemoryRouter>
   </MockedProvider>
 );
@@ -27,31 +66,44 @@ describe("ApprovedStudyFilters Component", () => {
     jest.useRealTimers();
   });
 
-  it("renders without crashing", () => {
+  it("renders without crashing", async () => {
     const { getByTestId } = render(
       <TestParent>
         <ApprovedStudyFilters />
       </TestParent>
     );
-    expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = render(
+    const { getByTestId, container } = render(
       <TestParent>
         <ApprovedStudyFilters />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it("renders all input fields correctly", () => {
+  it("renders all input fields correctly", async () => {
     const { getByTestId } = render(
       <TestParent>
         <ApprovedStudyFilters />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     expect(getByTestId("study-input")).toBeInTheDocument();
     expect(getByTestId("dbGaPID-input")).toBeInTheDocument();
     expect(getByTestId("accessType-select")).toBeInTheDocument();
@@ -64,6 +116,10 @@ describe("ApprovedStudyFilters Component", () => {
         <ApprovedStudyFilters onChange={mockOnChange} />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
 
     const accessTypeSelect = within(getByTestId("accessType-select")).getByRole("button");
 
@@ -97,6 +153,10 @@ describe("ApprovedStudyFilters Component", () => {
         <ApprovedStudyFilters onChange={mockOnChange} />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
 
     const accessTypeSelect = within(getByTestId("accessType-select")).getByRole("button");
 
@@ -138,6 +198,10 @@ describe("ApprovedStudyFilters Component", () => {
     );
 
     await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
       expect(getByTestId("search-params")).toHaveTextContent("accessType=Controlled");
     });
 
@@ -172,6 +236,11 @@ describe("ApprovedStudyFilters Component", () => {
         <ApprovedStudyFilters />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const studyInput = getByTestId("study-input");
 
     userEvent.type(studyInput, "Cancer Study");
@@ -185,6 +254,10 @@ describe("ApprovedStudyFilters Component", () => {
         <ApprovedStudyFilters />
       </TestParent>
     );
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const dbGaPIDInput = getByTestId("dbGaPID-input");
 
     userEvent.type(dbGaPIDInput, "DB12345");
@@ -201,10 +274,15 @@ describe("ApprovedStudyFilters Component", () => {
       </TestParent>
     );
 
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     expect(mockOnChange).toHaveBeenCalledWith({
       study: "",
       dbGaPID: "",
       accessType: "All",
+      programID: "All",
     });
 
     const studyInput = getByTestId("study-input");
@@ -230,6 +308,7 @@ describe("ApprovedStudyFilters Component", () => {
         study: "Can",
         dbGaPID: "DB1",
         accessType: "All",
+        programID: "All",
       });
     });
 
@@ -244,6 +323,10 @@ describe("ApprovedStudyFilters Component", () => {
       </TestParent>
     );
 
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const studyInput = getByTestId("study-input");
     const dbGaPIDInput = getByTestId("dbGaPID-input");
 
@@ -255,6 +338,7 @@ describe("ApprovedStudyFilters Component", () => {
         study: "",
         dbGaPID: "",
         accessType: "All",
+        programID: "All",
       });
     });
   });
@@ -267,6 +351,10 @@ describe("ApprovedStudyFilters Component", () => {
         <ApprovedStudyFilters onChange={mockOnChange} />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
 
     const studyInput = getByTestId("study-input");
 
@@ -282,6 +370,7 @@ describe("ApprovedStudyFilters Component", () => {
         study: "Test Study",
         dbGaPID: "",
         accessType: "All",
+        programID: "All",
       });
     });
 
@@ -300,6 +389,10 @@ describe("ApprovedStudyFilters Component", () => {
       </TestParent>
     );
 
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const dbGaPIDInput = getByTestId("dbGaPID-input");
 
     await waitFor(() => {
@@ -310,6 +403,7 @@ describe("ApprovedStudyFilters Component", () => {
       study: "",
       dbGaPID: "DB123",
       accessType: "All",
+      programID: "All",
     });
   });
 
@@ -322,6 +416,10 @@ describe("ApprovedStudyFilters Component", () => {
       </TestParent>
     );
 
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const accessTypeSelect = getByTestId("accessType-select");
 
     await waitFor(() => {
@@ -332,6 +430,7 @@ describe("ApprovedStudyFilters Component", () => {
       study: "",
       dbGaPID: "",
       accessType: "Controlled",
+      programID: "All",
     });
   });
 
@@ -343,6 +442,10 @@ describe("ApprovedStudyFilters Component", () => {
         <ApprovedStudyFilters onChange={mockOnChange} />
       </TestParent>
     );
+
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
 
     const studyInput = getByTestId("study-input");
     const accessTypeSelect = getByTestId("accessType-select");
@@ -357,6 +460,7 @@ describe("ApprovedStudyFilters Component", () => {
       study: "Study1",
       dbGaPID: "",
       accessType: "All",
+      programID: "All",
     });
   });
 
@@ -369,6 +473,10 @@ describe("ApprovedStudyFilters Component", () => {
       </TestParent>
     );
 
+    await waitFor(() => {
+      expect(getByTestId("approved-study-filters")).toBeInTheDocument();
+    });
+
     const accessTypeSelect = getByTestId("accessType-select");
 
     expect(accessTypeSelect).toHaveTextContent("All");
@@ -376,6 +484,7 @@ describe("ApprovedStudyFilters Component", () => {
       study: "Study1",
       dbGaPID: "",
       accessType: "All",
+      programID: "All",
     });
   });
 });

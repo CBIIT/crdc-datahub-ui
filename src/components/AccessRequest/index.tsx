@@ -3,6 +3,7 @@ import { Button, styled } from "@mui/material";
 import FormDialog from "./FormDialog";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { hasPermission } from "../../config/AuthPermissions";
+import { InstitutionProvider } from "../Contexts/InstitutionListContext";
 
 const StyledButton = styled(Button)({
   marginLeft: "42px",
@@ -19,6 +20,8 @@ const StyledButton = styled(Button)({
     backgroundColor: "transparent",
   },
 });
+
+const MemoizedProvider = memo(InstitutionProvider);
 
 /**
  * A component to handle profile-based role change requests.
@@ -53,7 +56,11 @@ const AccessRequest: FC = (): React.ReactNode => {
       >
         Request Access
       </StyledButton>
-      {dialogOpen && <FormDialog open onClose={handleClose} />}
+      {dialogOpen && (
+        <MemoizedProvider filterInactive>
+          <FormDialog open onClose={handleClose} />
+        </MemoizedProvider>
+      )}
     </>
   );
 };

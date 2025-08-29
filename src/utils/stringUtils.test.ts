@@ -471,3 +471,89 @@ describe("extractVersion", () => {
     expect(utils.extractVersion(123 as unknown as string)).toBe("");
   });
 });
+
+describe("coerceToString", () => {
+  it.each<[undefined | null, string]>([
+    [null, ""],
+    [undefined, ""],
+  ])("should return an empty string when value is %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<string>(["123", "abc", "lorem ipsum", "mock".repeat(1000)])(
+    "should return the string itself",
+    (value) => {
+      expect(utils.coerceToString(value)).toBe(value);
+    }
+  );
+
+  it.each<[Date, string]>([
+    [new Date("2023-01-02"), "2023-01-02T00:00:00.000Z"],
+    [new Date("2000-11-25"), "2000-11-25T00:00:00.000Z"],
+    [new Date("1999-07-04"), "1999-07-04T00:00:00.000Z"],
+    [new Date("2026-01-01T13:00:00Z"), "2026-01-01T13:00:00.000Z"],
+    [new Date("bad date object"), ""],
+    [new Date(NaN), ""],
+  ])("should return the string representation of date value %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<[object, string]>([
+    [{}, "{}"],
+    [{ key: "value" }, '{"key":"value"}'],
+    [{ a: 1, b: 2 }, '{"a":1,"b":2}'],
+    [{ nested: { key: "value" } }, '{"nested":{"key":"value"}}'],
+    [{ arr: [1, 2, 3] }, '{"arr":[1,2,3]}'],
+  ])("should return the string representation of object value %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<[Array<unknown>, string]>([
+    [[], "[]"],
+    [[1, 2, 3], "[1,2,3]"],
+    [["a", "b", "c"], '["a","b","c"]'],
+    [[{ key: "value" }], '[{"key":"value"}]'],
+    [[1, "two", { three: 3 }], '[1,"two",{"three":3}]'],
+  ])("should return the string representation of array value %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<[number, string]>([
+    [123, "123"],
+    [0, "0"],
+    [-123, "-123"],
+    [Infinity, "Infinity"],
+    [NaN, "NaN"],
+    [100.5, "100.5"],
+    [0.001, "0.001"],
+    [1e6, "1000000"],
+    [1e-6, "0.000001"],
+    [1.7976931348623157, "1.7976931348623157"],
+  ])("should return the string representation of numeric value %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<[boolean, string]>([
+    [true, "true"],
+    [false, "false"],
+  ])("should return the string representation of boolean value %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<[bigint, string]>([
+    [BigInt(123), "123"],
+    [BigInt(0), "0"],
+    [BigInt(-123), "-123"],
+    [BigInt(1000000000), "1000000000"],
+    [BigInt(100), "100"],
+  ])("should return the string representation of bigint value %p", (value, expected) => {
+    expect(utils.coerceToString(value)).toBe(expected);
+  });
+
+  it.each<unknown>([Symbol("symbol"), function mock() {}, () => {}])(
+    "should return an empty string for unsupported type %p",
+    (value) => {
+      expect(utils.coerceToString(value)).toBe("");
+    }
+  );
+});

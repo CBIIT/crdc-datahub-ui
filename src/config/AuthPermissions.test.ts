@@ -38,6 +38,7 @@ const baseSubmission: Submission = {
   organization: undefined,
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -61,6 +62,7 @@ const baseSubmission: Submission = {
   nodeCount: 0,
   createdAt: "",
   updatedAt: "",
+  dataFileSize: null,
 };
 
 const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User => ({
@@ -74,6 +76,7 @@ const createUser = (role: UserRole, permissions: AuthPermissions[] = []): User =
   dataCommons: [],
   dataCommonsDisplayNames: [],
   studies: [],
+  institution: null,
   IDP: "nih",
   userStatus: "Active",
   updateAt: "",

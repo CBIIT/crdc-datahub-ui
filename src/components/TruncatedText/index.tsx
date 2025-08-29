@@ -3,7 +3,7 @@ import { styled, SxProps } from "@mui/material";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledText = styled("span")(() => ({
-  display: "block",
+  display: "inline",
   textDecoration: "none",
   whiteSpace: "nowrap",
   overflow: "hidden",
@@ -11,9 +11,9 @@ const StyledText = styled("span")(() => ({
 }));
 
 const StyledTextWrapper = styled("span", {
-  shouldForwardProp: (p) => p !== "truncated" && p !== "underline",
+  shouldForwardProp: (p) => p !== "truncated" && p !== "underline" && p !== "sx",
 })<{ truncated: boolean; underline: boolean }>(({ truncated, underline }) => ({
-  display: "block",
+  display: "inline",
   textDecoration: truncated && underline ? "underline" : "none",
   textDecorationStyle: "dashed",
   textUnderlineOffset: "4px",
@@ -48,10 +48,19 @@ type Props = {
    */
   ellipsis?: boolean;
   /**
+   * A boolean indicating whether or not the tooltip
+   * should disable the hover listener
+   */
+  disableHoverListener?: boolean;
+  /**
    * A boolean indicating whether or not the user
    * can hover over the tooltip
    */
   disableInteractiveTooltip?: boolean;
+  /**
+   * Indicates whether or not to show an arrow with the tooltip
+   */
+  arrow?: boolean;
   /**
    * Optional custom styling to apply on the wrapper element
    */
@@ -75,9 +84,11 @@ const TruncatedText: FC<Props> = ({
   maxCharacters = 10,
   underline = true,
   ellipsis = true,
+  disableHoverListener,
   disableInteractiveTooltip = true,
-  wrapperSx,
-  labelSx,
+  arrow = false,
+  wrapperSx = {},
+  labelSx = {},
 }: Props) => {
   const isTruncated = text?.length > maxCharacters;
   const displayText = isTruncated
@@ -88,9 +99,13 @@ const TruncatedText: FC<Props> = ({
     <StyledTooltip
       placement="top"
       title={tooltipText || text || ""}
-      disableHoverListener={!isTruncated}
+      disableHoverListener={
+        disableHoverListener !== undefined ? disableHoverListener : !isTruncated
+      }
       disableInteractive={disableInteractiveTooltip}
       data-testid="truncated-text-tooltip"
+      arrow={arrow}
+      dynamic
     >
       <StyledTextWrapper
         truncated={isTruncated}

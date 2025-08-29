@@ -10,7 +10,7 @@ import {
   GetRelatedNodesRespPropsOnly,
 } from "../../graphql";
 import GenericTable, { Column } from "../GenericTable";
-import { capitalizeFirstLetter, moveToFrontOfArray, safeParse } from "../../utils";
+import { capitalizeFirstLetter, coerceToString, moveToFrontOfArray, safeParse } from "../../utils";
 import { ReactComponent as ChevronLeft } from "../../assets/icons/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "../../assets/icons/chevron_right.svg";
 
@@ -185,7 +185,7 @@ const RelatedNodes = ({ submissionID, nodeType, nodeID, parentNodes, childNodes 
 
     const cols: Column<T>[] = columnsClone.map((prop: string, idx: number) => ({
       label: prop,
-      renderValue: (d) => d?.props?.[prop],
+      renderValue: (d) => coerceToString(d?.props?.[prop]),
       fieldKey: prop,
       default: idx === 0 ? true : undefined,
     }));

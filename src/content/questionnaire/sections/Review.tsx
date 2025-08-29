@@ -19,6 +19,7 @@ import DataTypes from "../../../config/DataTypesConfig";
 import SectionMetadata from "../../../config/SectionMetadata";
 import { repositoryDataTypesOptions } from "../../../components/Questionnaire/Repository";
 import { StyledDescription } from "../../../components/Questionnaire/SectionGroup";
+import ExportRequestButton from "../../../components/ExportRequestButton";
 
 const StyledAddress = styled(Stack)(() => ({
   display: "flex",
@@ -96,8 +97,8 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
     <FormContainer
       ref={formContainerRef}
       description={showReviewTitle ? "Review" : SectionOption.title}
+      descriptionAdornment={<ExportRequestButton />}
       formRef={formRef}
-      hideReturnToSubmissions={false}
     >
       {/* Principal Investigator and Contact Information Section */}
       <ReviewSection idPrefix="review-section-a" title={SectionMetadata.A.title}>
@@ -541,11 +542,6 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             value={data.dataTypes?.includes(DataTypes.clinicalTrial.name) ? "Yes" : "No"}
           />
           <ReviewDataListingProperty
-            idPrefix="review-data-types-proteomics"
-            label={DataTypes.proteomics.label}
-            value={data.dataTypes?.includes(DataTypes.proteomics.name) ? "Yes" : "No"}
-          />
-          <ReviewDataListingProperty
             idPrefix="review-data-types-genomics"
             label={DataTypes.genomics.label}
             value={data.dataTypes?.includes(DataTypes.genomics.name) ? "Yes" : "No"}
@@ -554,6 +550,11 @@ const FormSectionReview: FC<FormSectionProps> = ({ SectionOption, refs }: FormSe
             idPrefix="review-data-types-imaging"
             label={DataTypes.imaging.label}
             value={data.dataTypes?.includes(DataTypes.imaging.name) ? "Yes" : "No"}
+          />
+          <ReviewDataListingProperty
+            idPrefix="review-data-types-proteomics"
+            label={DataTypes.proteomics.label}
+            value={data.dataTypes?.includes(DataTypes.proteomics.name) ? "Yes" : "No"}
           />
           {data.dataTypes?.includes(DataTypes.imaging.name) &&
             data.imagingDataDeIdentified !== null && (

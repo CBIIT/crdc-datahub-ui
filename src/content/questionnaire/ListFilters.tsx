@@ -296,7 +296,7 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
                 size="small"
                 placeholder="Minimum 3 characters required"
                 inputProps={{
-                  "aria-labelledby": "submitter-name-filter",
+                  id: "submitter-name-filter",
                   "data-testid": "submitter-name-input",
                 }}
                 required
@@ -319,12 +319,12 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
                         {...params}
                         placeholder="Select programs"
                         inputProps={{
-                          "aria-labelledby": "programName-filter",
                           required: !programNameFilter?.length,
                           ...inputProps,
                         }}
                       />
                     )}
+                    id="programName-filter"
                     onChange={(_, value) => {
                       handleFilterChange("programName");
                       field.onChange(value);
@@ -346,7 +346,7 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
 
           <Grid item xs={3}>
             <StyledFormControl>
-              <StyledInlineLabel htmlFor="study-filter">Study</StyledInlineLabel>
+              <StyledInlineLabel htmlFor="study-name-filter">Study</StyledInlineLabel>
               <StyledTextField
                 {...register("studyName", {
                   setValueAs: (val) => val?.trim(),
@@ -357,7 +357,7 @@ const ListFilters = ({ applicationData, onChange }: FilterProps) => {
                 size="small"
                 placeholder="Minimum 3 characters required"
                 inputProps={{
-                  "aria-labelledby": "study-name-filter",
+                  id: "study-name-filter",
                   "data-testid": "study-name-input",
                 }}
                 required

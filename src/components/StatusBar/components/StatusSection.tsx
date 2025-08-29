@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import { useFormContext } from "../../Contexts/FormContext";
 import { StatusIconMap } from "./SubmissionRequestIconMap";
 import { SortHistory } from "../../../utils";
-import ReviewCommentsDialog from "../../Shared/ReviewCommentsDialog";
+import ReviewCommentsDialog from "../../ReviewCommentsDialog";
 
 /**
  * Returns the styling for a component based on the Questionnaire Status
@@ -103,17 +103,18 @@ const StatusSection: FC = () => {
             id="status-bar-review-comments-button"
             variant="contained"
             onClick={() => setOpen(true)}
-            aria-label="Review Comments"
+            aria-label="View Comments"
             status={status}
           >
-            Review Comments
+            View Comments
           </StyledButton>
           <ReviewCommentsDialog
             open={open}
             onClose={() => setOpen(false)}
             status={status}
             lastReview={lastReview}
-            title="CRDC Submission Request"
+            preTitle="CRDC Submission Request"
+            title="Comments"
           />
         </>
       )}

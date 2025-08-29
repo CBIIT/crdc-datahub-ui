@@ -239,3 +239,49 @@ export const extractVersion = (version: string): string => {
 
   return `${major}.${minor}`;
 };
+
+/**
+ * A utility function to safely convert an unknown value to a string.
+ *
+ * Notes on handling:
+ * - Objects and arrays are converted to JSON strings.
+ * - Dates are converted to ISO strings.
+ * - Other types are converted using their `toString` method if available.
+ * - `null` and `undefined` are converted to empty strings.
+ *
+ * @note This handles a wider range of types than `lodash.toString`
+ * @param value The unknown value to coerce
+ * @returns The coerced string or empty if unhandled type
+ */
+export const coerceToString = (value: unknown): string => {
+  // Handle null or undefined values
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  // Short-circuit for strings
+  if (typeof value === "string") {
+    return value;
+  }
+
+  // Handle valid date objects
+  if (value instanceof Date && isFinite(+value)) {
+    return value.toISOString();
+  }
+
+  // Handle arrays or objects by converting to JSON
+  if (typeof value === "object" && !(value instanceof Date)) {
+    return JSON.stringify(value);
+  }
+
+  // Handle other native types with toString method
+  if (
+    ["boolean", "number", "bigint"].includes(typeof value) &&
+    typeof value?.toString === "function"
+  ) {
+    return value.toString();
+  }
+
+  Logger.error(`coerceToString: Unhandled type received '${typeof value}'`);
+  return "";
+};

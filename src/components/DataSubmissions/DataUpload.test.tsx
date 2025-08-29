@@ -34,6 +34,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   dataCommonsDisplayName: "",
   modelVersion: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -59,6 +60,7 @@ const baseSubmission: Omit<Submission, "_id"> = {
   deletingData: false,
   nodeCount: 0,
   collaborators: [],
+  dataFileSize: null,
 };
 
 const baseUser: Omit<User, "permissions"> = {
@@ -70,6 +72,7 @@ const baseUser: Omit<User, "permissions"> = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [],
   dataCommonsDisplayNames: [],
   createdAt: "",

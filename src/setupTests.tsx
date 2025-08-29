@@ -1,5 +1,4 @@
 /* eslint-disable max-classes-per-file */
-/* eslint-disable import/no-extraneous-dependencies */
 import "@testing-library/jest-dom";
 import "jest-axe/extend-expect";
 import "jest-canvas-mock";

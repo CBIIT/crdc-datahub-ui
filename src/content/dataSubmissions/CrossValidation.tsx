@@ -82,7 +82,7 @@ const columns: Column<CrossValidationResult>[] = [
     label: "Conflicting Submission",
     renderValue: ({ conflictingSubmission: _id }) => (
       <span key={_id} data-testid={`conflicting-submission-${_id}`}>
-        <StyledFormTooltip title={_id}>
+        <StyledFormTooltip title={_id} dynamic>
           <Link
             to={`/data-submission/${_id}`}
             target="_blank"

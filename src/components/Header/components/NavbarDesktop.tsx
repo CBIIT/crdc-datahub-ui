@@ -1,11 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
-import { Button, styled } from "@mui/material";
+import { ClickAwayListener, styled } from "@mui/material";
+import { flatMap } from "lodash";
+import { useSnackbar } from "notistack";
 import { useAuthContext } from "../../Contexts/AuthContext";
-import GenericAlert from "../../GenericAlert";
-import { HeaderLinks, HeaderSubLinks } from "../../../config/HeaderConfig";
+import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
 import APITokenDialog from "../../APITokenDialog";
 import UploaderToolDialog from "../../UploaderToolDialog";
+import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
+import { Logger } from "../../../utils";
+import { hasPermission, Permissions } from "../../../config/AuthPermissions";
 
 const Nav = styled("div")({
   top: 0,
@@ -83,6 +87,7 @@ const LiSection = styled("li")({
   },
   "&.name-dropdown-li": {
     marginLeft: "auto",
+    marginRight: "12px",
   },
   "&.login-button": {
     lineHeight: "48px",
@@ -102,6 +107,7 @@ const LiSection = styled("li")({
     borderTop: "4px solid transparent",
     borderLeft: "4px solid transparent",
     borderRight: "4px solid transparent",
+    height: "100%",
     "&:hover": {
       cursor: "pointer",
     },
@@ -109,6 +115,7 @@ const LiSection = styled("li")({
   "& .navText": {
     borderBottom: "4px solid transparent",
     width: "fit-content",
+    height: "100%",
     margin: "auto",
     "&:hover": {
       cursor: "pointer",
@@ -191,57 +198,13 @@ const LiSection = styled("li")({
     borderTop: "4px solid #5786FF",
     borderLeft: "4px solid #5786FF",
     borderRight: "4px solid #5786FF",
+    height: "100%",
+    "& .shouldBeUnderlined": {
+      borderBottom: "0 !important",
+    },
   },
   "& .invisible": {
     visibility: "hidden",
-  },
-});
-
-const Dropdown = styled("div")({
-  top: "60.5px",
-  left: 0,
-  width: "100%",
-  background: "#1F4671",
-  zIndex: 1100,
-  position: "absolute",
-});
-
-const NameDropdownContainer = styled("div")({
-  margin: "0 auto",
-  textAlign: "left",
-  position: "relative",
-  maxWidth: "1400px",
-  "& .dropdownList": {
-    background: "#1F4671",
-    display: "inline-flex",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    padding: "32px 32px 0 32px",
-  },
-  "& .dropdownItem": {
-    padding: "0 10px 52px 10px",
-    textAlign: "left",
-    fontFamily: "'Poppins', sans-serif",
-    fontStyle: "normal",
-    fontWeight: 600,
-    fontSize: "20px",
-    lineHeight: "110%",
-    color: "#FFFFFF",
-    textDecoration: "none",
-    cursor: "pointer",
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
-  "& .dropdownItemButton": {
-    textTransform: "none",
-    paddingLeft: "20px",
-    paddingRight: "20px",
-    "&:hover": {
-      background: "transparent",
-    },
-  },
-  "#navbar-dropdown-item-name-logout": {
-    maxWidth: "200px",
   },
 });
 
@@ -289,79 +252,47 @@ const NavBar = () => {
   const { isLoggedIn, user, logout } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [clickedTitle, setClickedTitle] = useState("");
   const [openAPITokenDialog, setOpenAPITokenDialog] = useState<boolean>(false);
   const [uploaderToolOpen, setUploaderToolOpen] = useState<boolean>(false);
-  const [showLogoutAlert, setShowLogoutAlert] = useState<boolean>(false);
   const [restorePath, setRestorePath] = useState<string>(null);
   const dropdownSelection = useRef<HTMLDivElement>(null);
 
   const clickableObject = HeaderLinks.filter(
     (item) => item.className === "navMobileItem clickable"
   );
-  const clickableTitle = clickableObject.map((item) => item.name);
+  const clickableTitle = clickableObject.map((item) => item.name) as string[];
   const displayName = user?.firstName?.toUpperCase() || "N/A";
 
   clickableTitle.push(displayName);
-
-  HeaderSubLinks[displayName] = [
-    {
-      name: "User Profile",
-      link: `/profile/${user?._id}`,
-      id: "navbar-dropdown-item-user-profile",
-      className: "navMobileSubItem",
-    },
-    {
-      name: "Uploader CLI Tool",
-      onClick: () => setUploaderToolOpen(true),
-      id: "navbar-dropdown-item-uploader-tool",
-      className: "navMobileSubItem action",
-    },
-    {
-      name: "API Token",
-      onClick: () => setOpenAPITokenDialog(true),
-      id: "navbar-dropdown-item-api-token",
-      className: "navMobileSubItem action",
-      permissions: ["data_submission:create"],
-    },
-    {
-      name: "Manage Studies",
-      link: "/studies",
-      id: "navbar-dropdown-item-studies-manage",
-      className: "navMobileSubItem",
-      permissions: ["study:manage"],
-    },
-    {
-      name: "Manage Programs",
-      link: "/programs",
-      id: "navbar-dropdown-item-program-manage",
-      className: "navMobileSubItem",
-      permissions: ["program:manage"],
-    },
-    {
-      name: "Manage Users",
-      link: "/users",
-      id: "navbar-dropdown-item-user-manage",
-      className: "navMobileSubItem",
-      permissions: ["user:manage"],
-    },
-    {
-      name: "Logout",
-      onClick: () => handleLogout(),
-      id: "navbar-dropdown-item-logout",
-      className: "navMobileSubItem action",
-    },
-  ];
 
   const handleLogout = async () => {
     setClickedTitle("");
     const logoutStatus = await logout();
     if (logoutStatus) {
       navigate("/");
-      setShowLogoutAlert(true);
-      setTimeout(() => setShowLogoutAlert(false), 10000);
+      enqueueSnackbar("You have been logged out.", { variant: "success" });
     }
+  };
+
+  const actionHandlers: ActionHandlers = useMemo(
+    () => ({
+      logout: handleLogout,
+      openAPITokenDialog: () => setOpenAPITokenDialog(true),
+      openCLIToolDialog: () => setUploaderToolOpen(true),
+    }),
+    [logout]
+  );
+
+  const handleItemClick = (item: ActionId) => {
+    if (!item) {
+      Logger.error(`NavbarDesktop.tsx: No action found for actionId '${item}'`);
+      return;
+    }
+
+    actionHandlers[item]?.();
   };
 
   const handleMenuClick = (e) => {
@@ -370,6 +301,10 @@ const NavBar = () => {
     } else {
       setClickedTitle(e.target.textContent);
     }
+  };
+
+  const handleUserClick = () => {
+    setClickedTitle("User");
   };
 
   const onKeyPressHandler = (e) => {
@@ -384,11 +319,37 @@ const NavBar = () => {
     if (item.className === "navMobileItem") {
       return correctPath === item.link;
     }
-    if (HeaderSubLinks[linkName] === undefined) {
+    const tab = HeaderLinks.find((link) => link.name === linkName);
+    if (!tab) {
       return false;
     }
-    const linkNames = Object.values(HeaderSubLinks[linkName]).map((e: NavBarSubItem) => e.link);
-    return linkNames.includes(correctPath);
+
+    if ("columns" in tab) {
+      // Current path is within sub-navigation links
+      const linkNames = flatMap(tab.columns).map((item) => item.link);
+      return linkNames.includes(correctPath);
+    }
+
+    return false;
+  };
+
+  const checkPermissions = (permissions: AuthPermissions[]) => {
+    if (!permissions?.length) {
+      return true; // No permissions required
+    }
+
+    return permissions.every((permission) => {
+      const [entityRaw, actionRaw] = permission.split(":", 2);
+
+      if (!entityRaw || !actionRaw) {
+        return false;
+      }
+
+      const entity = entityRaw as keyof Permissions;
+      const action = actionRaw as Permissions[keyof Permissions]["action"];
+
+      return hasPermission(user, entity, action, null, true);
+    });
   };
 
   useOutsideAlerter(dropdownSelection);
@@ -412,154 +373,105 @@ const NavBar = () => {
     setRestorePath(location?.pathname);
   }, [location]);
 
-  return (
-    <Nav>
-      <GenericAlert open={showLogoutAlert}>
-        <span>You have been logged out.</span>
-      </GenericAlert>
-      <NavContainer>
-        <UlContainer>
-          {HeaderLinks.map((navItem: NavBarItem) => {
-            if (
-              navItem?.permissions?.length > 0 &&
-              !navItem?.permissions?.every(
-                (permission: AuthPermissions) => user?.permissions?.includes(permission)
-              )
-            ) {
-              return null;
-            }
+  const headerLinksWithoutUser = useMemo(
+    () => HeaderLinks.filter((headerLinks) => headerLinks.name !== "User"),
+    [HeaderLinks]
+  );
 
-            return (
-              <LiSection key={navItem.id}>
-                {navItem.className === "navMobileItem" ? (
-                  <div className="navTitle directLink">
-                    <NavLink
-                      to={navItem.link}
-                      target={navItem.link.startsWith("https://") ? "_blank" : "_self"}
-                    >
+  return (
+    <ClickAwayListener onClickAway={() => setClickedTitle("")}>
+      <Nav>
+        <NavContainer>
+          <UlContainer>
+            {headerLinksWithoutUser?.map((navItem: NavBarItem) => {
+              const hasEveryPermission = checkPermissions(navItem.permissions);
+              if (!hasEveryPermission) {
+                return null;
+              }
+
+              return (
+                <LiSection key={navItem.id}>
+                  {navItem.className === "navMobileItem" ? (
+                    <div className="navTitle directLink">
+                      <NavLink
+                        to={navItem.link}
+                        target={navItem.link.startsWith("https://") ? "_blank" : "_self"}
+                      >
+                        <div
+                          id={navItem.id}
+                          role="button"
+                          tabIndex={0}
+                          className={`navText directLink ${
+                            shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""
+                          }`}
+                          onKeyDown={onKeyPressHandler}
+                          onClick={handleMenuClick}
+                        >
+                          {navItem.name}
+                        </div>
+                      </NavLink>
+                    </div>
+                  ) : (
+                    <div className={clickedTitle === navItem.name ? "navTitleClicked" : "navTitle"}>
                       <div
                         id={navItem.id}
                         role="button"
                         tabIndex={0}
-                        className={`navText directLink ${
-                          shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""
-                        }`}
+                        className={`${
+                          clickedTitle === navItem.name ? "navText clicked" : "navText"
+                        } ${shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""}`}
                         onKeyDown={onKeyPressHandler}
                         onClick={handleMenuClick}
                       >
                         {navItem.name}
                       </div>
-                    </NavLink>
-                  </div>
-                ) : (
-                  <div className={clickedTitle === navItem.name ? "navTitleClicked" : "navTitle"}>
-                    <div
-                      id={navItem.id}
-                      role="button"
-                      tabIndex={0}
-                      className={`${
-                        clickedTitle === navItem.name ? "navText clicked" : "navText"
-                      } ${shouldBeUnderlined(navItem) ? "shouldBeUnderlined" : ""}`}
-                      onKeyDown={onKeyPressHandler}
-                      onClick={handleMenuClick}
-                    >
-                      {navItem.name}
                     </div>
-                  </div>
-                )}
-              </LiSection>
-            );
-          })}
-          <LiSection className={`name-dropdown-li${isLoggedIn ? "" : " login-button"}`}>
-            {isLoggedIn ? (
-              <div
-                id="navbar-dropdown-name-container"
-                className={clickedTitle === displayName ? "navTitleClicked" : "navTitle"}
-              >
+                  )}
+                </LiSection>
+              );
+            })}
+            <LiSection className={`name-dropdown-li${isLoggedIn ? "" : " login-button"}`}>
+              {isLoggedIn ? (
                 <div
-                  id="navbar-dropdown-name"
-                  role="button"
-                  tabIndex={0}
-                  className={
-                    clickedTitle === displayName
-                      ? "navText displayName clicked"
-                      : "navText displayName"
-                  }
-                  onKeyDown={onKeyPressHandler}
-                  onClick={handleMenuClick}
+                  id="navbar-dropdown-name-container"
+                  className={clickedTitle === "User" ? "navTitleClicked" : "navTitle"}
                 >
-                  {displayName}
+                  <div
+                    id="navbar-dropdown-name"
+                    role="button"
+                    tabIndex={0}
+                    className={
+                      clickedTitle === "User"
+                        ? "navText displayName clicked"
+                        : "navText displayName"
+                    }
+                    onKeyDown={onKeyPressHandler}
+                    onClick={handleUserClick}
+                  >
+                    {displayName}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <StyledLoginLink
-                id="header-navbar-login-button"
-                to="/login"
-                state={{ redirectState: restorePath }}
-              >
-                Login
-              </StyledLoginLink>
-            )}
-          </LiSection>
-        </UlContainer>
-      </NavContainer>
-      <Dropdown ref={dropdownSelection} className={clickedTitle === "" ? "invisible" : ""}>
-        <NameDropdownContainer>
-          <div className="dropdownList">
-            {clickedTitle !== ""
-              ? HeaderSubLinks[clickedTitle]?.map((dropItem) => {
-                  if (
-                    dropItem?.permissions?.length > 0 &&
-                    !dropItem?.permissions?.every(
-                      (permission: AuthPermissions) => user?.permissions?.includes(permission)
-                    )
-                  ) {
-                    return null;
-                  }
-
-                  if (dropItem.link) {
-                    return (
-                      <span className="dropdownItem" key={dropItem.id}>
-                        <Link
-                          target={
-                            dropItem.link.startsWith("https://") || dropItem.link.endsWith(".pdf")
-                              ? "_blank"
-                              : "_self"
-                          }
-                          id={dropItem.id}
-                          to={dropItem.link}
-                          className="dropdownItem"
-                          onClick={() => setClickedTitle("")}
-                        >
-                          {dropItem.name}
-                          {dropItem.text && <div className="dropdownItemText">{dropItem.text}</div>}
-                        </Link>
-                      </span>
-                    );
-                  }
-
-                  if (dropItem.onClick) {
-                    return (
-                      <Button
-                        id={dropItem.id}
-                        key={dropItem.id}
-                        className="dropdownItem dropdownItemButton"
-                        onClick={dropItem.onClick}
-                      >
-                        {dropItem.name}
-                      </Button>
-                    );
-                  }
-
-                  return null;
-                })
-              : null}
-          </div>
-        </NameDropdownContainer>
-      </Dropdown>
-      <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
-      <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
-    </Nav>
+              ) : (
+                <StyledLoginLink
+                  id="header-navbar-login-button"
+                  to="/login"
+                  state={{ redirectState: restorePath }}
+                >
+                  Login
+                </StyledLoginLink>
+              )}
+            </LiSection>
+          </UlContainer>
+        </NavContainer>
+        <NavbarDesktopDropdown
+          clickedTitle={clickedTitle}
+          onTitleClick={(title) => setClickedTitle(title)}
+          onItemClick={(item) => handleItemClick(item)}
+        />
+        <APITokenDialog open={openAPITokenDialog} onClose={() => setOpenAPITokenDialog(false)} />
+        <UploaderToolDialog open={uploaderToolOpen} onClose={() => setUploaderToolOpen(false)} />
+      </Nav>
+    </ClickAwayListener>
   );
 };
 

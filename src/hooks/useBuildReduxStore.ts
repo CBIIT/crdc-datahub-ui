@@ -5,6 +5,7 @@ import {
   moduleReducers as submission,
   versionInfo,
   changelogInfo,
+  iconMapInfo,
   getModelExploreData,
   getChangelog,
 } from "data-model-navigator";
@@ -19,17 +20,25 @@ import {
   Logger,
 } from "../utils";
 import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
+import logo from "../assets/header/Logo.jpg";
 
 export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
 
-export type ReduxStoreResult = [
-  { status: ReduxStoreStatus; store: Store },
-  () => void,
-  (assets: DataCommon, modelVersion: string) => void,
-];
+export type ReduxStoreData = {
+  /**
+   * The current status of the Redux store.
+   */
+  status: ReduxStoreStatus;
+  /**
+   * The Redux store instance.
+   */
+  store: Store;
+};
+
+export type ReduxStoreResult = [ReduxStoreData, (assets: DataCommon, modelVersion: string) => void];
 
 const makeStore = (): Store => {
-  const reducers = { ddgraph, versionInfo, submission, changelogInfo };
+  const reducers = { ddgraph, versionInfo, submission, changelogInfo, iconMapInfo };
   const newStore = createStore(combineReducers(reducers));
 
   // @ts-ignore
@@ -47,8 +56,8 @@ const makeStore = (): Store => {
  * @params {void}
  */
 const useBuildReduxStore = (): ReduxStoreResult => {
+  const [store] = useState<Store>(makeStore());
   const [status, setStatus] = useState<ReduxStoreStatus>("waiting");
-  const [store, setStore] = useState<Store>(makeStore());
 
   const [retrieveCDEs, { error: retrieveCDEsError }] = useLazyQuery<
     RetrieveCDEsResp,
@@ -57,16 +66,6 @@ const useBuildReduxStore = (): ReduxStoreResult => {
     context: { clientName: "backend" },
     fetchPolicy: "cache-and-network",
   });
-
-  /**
-   * Rebuilds the store from scratch
-   *
-   * @params {void}
-   */
-  const resetStore = () => {
-    setStatus("loading");
-    setStore(makeStore());
-  };
 
   /**
    * Injects the Data Model into the store
@@ -79,7 +78,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       !datacommon?.name ||
       !datacommon?.assets ||
       !datacommon?.assets["current-version"] ||
-      !datacommon.configuration?.pdfConfig
+      !datacommon?.assets["model-navigator-config"]
     ) {
       setStatus("error");
       return;
@@ -88,6 +87,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
     setStatus("loading");
 
     const assets = buildAssetUrls(datacommon, modelVersion);
+    const dmnConfig = datacommon.assets["model-navigator-config"];
 
     const changelogMD = await getChangelog(assets?.changelog)?.catch((e) => {
       Logger.error(e);
@@ -98,6 +98,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       Logger.error(e);
       return null;
     });
+
     if (!response?.data || !response?.version) {
       setStatus("error");
       return;
@@ -133,7 +134,10 @@ const useBuildReduxStore = (): ReduxStoreResult => {
     store.dispatch({
       type: "REACT_FLOW_GRAPH_DICTIONARY",
       dictionary,
-      pdfDownloadConfig: datacommon.configuration.pdfConfig,
+      pdfDownloadConfig: {
+        iconSrc: logo,
+        ...dmnConfig.pdfConfig,
+      },
       graphViewConfig,
     });
 
@@ -143,27 +147,26 @@ const useBuildReduxStore = (): ReduxStoreResult => {
         data: dictionary,
         facetfilterConfig: {
           ...baseConfiguration,
-          facetSearchData: datacommon.configuration.facetFilterSearchData,
-          facetSectionVariables: datacommon.configuration.facetFilterSectionVariables,
-          baseFilters: buildBaseFilterContainers(datacommon),
-          filterSections: datacommon.configuration.facetFilterSearchData.map((s) => s?.datafield),
-          filterOptions: buildFilterOptionsList(datacommon),
+          facetSearchData: dmnConfig.facetFilterSearchData,
+          facetSectionVariables: dmnConfig.facetFilterSectionVariables,
+          baseFilters: buildBaseFilterContainers(dmnConfig),
+          filterSections: dmnConfig.facetFilterSearchData.map((s) => s?.datafield),
+          filterOptions: buildFilterOptionsList(dmnConfig),
         },
         pageConfig: {
-          title: datacommon.configuration.pageTitle,
+          title: dmnConfig.pageTitle,
           iconSrc: assets.navigator_icon,
         },
         readMeConfig: {
           readMeUrl: assets.readme,
-          readMeTitle: datacommon.configuration?.readMeTitle || defaultReadMeTitle,
+          readMeTitle: dmnConfig?.readMeTitle || defaultReadMeTitle,
           allowDownload: false,
         },
-        pdfDownloadConfig: datacommon.configuration.pdfConfig,
+        pdfDownloadConfig: dmnConfig.pdfConfig,
         loadingExampleConfig: {
           type: "static",
           url: assets.loading_file,
         },
-        graphViewConfig,
       },
     });
 
@@ -175,6 +178,13 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       },
     });
 
+    if (datacommon?.assets?.["model-navigator-config"]?.iconMap) {
+      store.dispatch({
+        type: "RECEIVE_ICON_MAP",
+        data: datacommon?.assets?.["model-navigator-config"]?.iconMap,
+      });
+    }
+
     // MVP-2 M2 NOTE: This resets the search history to prevent the data models
     // from overlapping on searches. A future improvement would be to isolate
     // the localStorage history key to the data model based on a config option.
@@ -183,7 +193,7 @@ const useBuildReduxStore = (): ReduxStoreResult => {
     setStatus("success");
   };
 
-  return [{ status, store }, resetStore, populateStore];
+  return [{ status, store }, populateStore];
 };
 
 export default useBuildReduxStore;

@@ -40,9 +40,13 @@ type ApprovedStudy = {
    */
   programs: Organization[];
   /**
-   * The User object of the Primary contact associcated with the study
+   * The User object of the Primary contact associated with the study
    */
   primaryContact: User;
+  /**
+   * Indicates whether the study should use the program Primary Contact
+   */
+  useProgramPC: boolean;
   /**
    * Submission Request approval date or manual record creation date
    */
