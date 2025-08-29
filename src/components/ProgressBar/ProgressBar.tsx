@@ -98,7 +98,6 @@ const ProgressBar: FC<Props> = ({ section }) => {
 
   const sectionKeys = Object.keys(config);
   const sectionStatuses = questionnaireData?.sections;
-  const isFormOwner = user?._id === data?.applicant?.applicantID;
 
   const [sections, setSections] = useState<ProgressSection[]>([]);
 
@@ -172,9 +171,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
       <StyledDivider />
 
       <Stack flexDirection="column" gap="11px">
-        {section?.toUpperCase() !== config.REVIEW.id.toUpperCase() && isFormOwner ? (
-          <ImportApplicationButton />
-        ) : null}
+        <ImportApplicationButton activeSection={section} />
         <ExportApplicationButton />
       </Stack>
     </Stack>
