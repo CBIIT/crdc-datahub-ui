@@ -44,6 +44,9 @@ export type {
   Input as ListApplicationsInput,
 } from "./listApplications";
 
+export { GET_APPLICATION_FORM_VERSION } from "./getApplicationFormVersion";
+export type { GetApplicationFormVersionResp } from "./getApplicationFormVersion";
+
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
 export type {
@@ -162,6 +165,12 @@ export type {
   Input as DownloadMetadataFileInput,
   Response as DownloadMetadataFileResp,
 } from "./downloadMetadataFile";
+
+export { query as GET_SUBMISSION_SUMMARY } from "./getSubmissionSummary";
+export type {
+  Input as GetSubmissionSummaryInput,
+  Response as GetSubmissionSummaryResp,
+} from "./getSubmissionSummary";
 
 export { DOWNLOAD_DB_GAP_SHEET } from "./downloadDBGaPLoadSheet";
 export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./downloadDBGaPLoadSheet";

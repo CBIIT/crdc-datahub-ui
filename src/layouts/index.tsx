@@ -11,7 +11,6 @@ import OverlayWindow from "../components/SystemUseWarningOverlay/OverlayWindow";
 
 const StyledWrapper = styled("main")({
   minHeight: "400px",
-  overflowX: "hidden",
 });
 
 type LayoutProps = {

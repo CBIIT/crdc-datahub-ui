@@ -7,6 +7,7 @@ The CRDC Submission Portal is a React application that facilitates the data subm
 [![Test](https://github.com/CBIIT/crdc-datahub-ui/actions/workflows/test.yml/badge.svg)](https://github.com/CBIIT/crdc-datahub-ui/actions/workflows/test.yml)
 [![TypeScript](https://github.com/CBIIT/crdc-datahub-ui/actions/workflows/typescript.yml/badge.svg)](https://github.com/CBIIT/crdc-datahub-ui/actions/workflows/typescript.yml)
 [![ESLint](https://github.com/CBIIT/crdc-datahub-ui/actions/workflows/lint.yml/badge.svg)](https://github.com/CBIIT/crdc-datahub-ui/actions/workflows/lint.yml)
+[![RelativeCI](https://badges.relative-ci.com/badges/p2qQXzCN2OFcUUd75LYV?branch=main&style=flat)](https://app.relative-ci.com/projects/p2qQXzCN2OFcUUd75LYV)
 
 ## Installation
 

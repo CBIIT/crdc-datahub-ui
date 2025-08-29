@@ -1,3 +1,9 @@
+import { cloneDeep } from "lodash";
+
+import { fundingFactory } from "@/factories/application/FundingFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+import { studyFactory } from "@/factories/application/StudyFactory";
+
 import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
 
 import * as utils from "./formUtils";
@@ -486,4 +492,106 @@ describe("validateUTF8 cases", () => {
       expect(utils.validateUTF8(value)).toEqual(expect.any(String));
     }
   );
+});
+
+describe("combineQuestionnaireData cases", () => {
+  it("should recursively merge plain objects", () => {
+    const base = { a: 1, nested: { x: 1 } };
+    const form = { b: 2, nested: { y: 2 } };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(result).toEqual({ a: 1, b: 2, nested: { x: 1, y: 2 } });
+  });
+
+  it("should replace arrays rather than merging by index (questionnaire data)", () => {
+    const base = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: [fundingFactory.build({ agency: "1" }), fundingFactory.build({ agency: "2" })],
+      }),
+    });
+
+    const form = { study: { funding: [fundingFactory.build({ agency: "3" })] } };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(result.study.funding).toEqual([expect.objectContaining({ agency: "3" })]);
+  });
+
+  it("should replace nested arrays with empty arrays (questionnaire data)", () => {
+    const base = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: [fundingFactory.build({ agency: "1" }), fundingFactory.build({ agency: "2" })],
+      }),
+    });
+
+    const form = { study: { funding: [] as Array<unknown> } };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(result.study.funding).toEqual([]);
+  });
+
+  it("should not mutate the base object (deep clone first)", () => {
+    const base = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: [fundingFactory.build(), fundingFactory.build()],
+      }),
+    });
+    const baseSnapshot = cloneDeep(base);
+
+    const form = { study: { description: "Updated" } };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(base).toEqual(baseSnapshot);
+
+    expect(result).not.toBe(base);
+    expect(result.study).not.toBe(base.study);
+    expect(result.study.funding).not.toBe(base.study.funding);
+    expect(result.study.description).toBe("Updated");
+  });
+
+  it("should keep base value when form has undefined", () => {
+    const base = { a: { x: 1 } };
+    const form = { a: undefined as unknown as object };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(result).toEqual({ a: { x: 1 } });
+  });
+
+  it("should overwrite with null when form sets null", () => {
+    const base = { a: { x: 1 } };
+    const form = { a: null as unknown as object };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(result.a).toBeNull();
+  });
+
+  it("should return an equivalent value when form is empty, without sharing references (questionnaire data)", () => {
+    const base = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        funding: [fundingFactory.build()],
+      }),
+    });
+    const baseSnapshot = cloneDeep(base);
+
+    const result = utils.combineQuestionnaireData(base, {});
+
+    expect(result).toEqual(baseSnapshot);
+    expect(result).not.toBe(base);
+    expect(result.study).not.toBe(base.study);
+    expect(result.study.funding).not.toBe(base.study.funding);
+  });
+
+  it("should handle top-level arrays by replacement", () => {
+    const base = { tags: ["a", "b"] };
+    const form = { tags: [] as string[] };
+
+    const result = utils.combineQuestionnaireData(base, form);
+
+    expect(result.tags).toEqual([]);
+  });
 });

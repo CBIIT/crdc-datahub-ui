@@ -31,6 +31,7 @@ export const query: TypedDocumentNode<Response> = gql`
       questionnaireData
       conditional
       pendingConditions
+      version
     }
   }
 `;

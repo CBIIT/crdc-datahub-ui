@@ -3,6 +3,8 @@ import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material"
 import { isEqual } from "lodash";
 import React, { useMemo, useState } from "react";
 
+import SubmitDialog from "@/components/SubmitDialog";
+
 import { useAuthContext } from "../../components/Contexts/AuthContext";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
 import CustomDialog from "../../components/GenericDialog";
@@ -210,6 +212,14 @@ const DataSubmissionActions = ({ onAction }: Props) => {
     setReviewComment(val);
   };
 
+  const submitButtonBodyText = useMemo(() => {
+    if (submission?.status === "Rejected") {
+      return "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection.";
+    }
+
+    return "Once submitted, your submission will be locked and will no longer accept updates. Are you sure you want to proceed?";
+  }, [submission?.status]);
+
   return (
     <StyledActionWrapper direction="row" spacing={2}>
       {/* Action Buttons */}
@@ -302,32 +312,13 @@ const DataSubmissionActions = ({ onAction }: Props) => {
         </StyledLoadingButton>
       ) : null}
       {/* Submit Dialog */}
-      <StyledDialog
+      <SubmitDialog
         open={currentDialog === "Submit" && !submitActionButton.isAdminOverride}
+        bodyText={submitButtonBodyText}
         onClose={onCloseDialog}
-        title="Submit Data Submission"
-        actions={
-          <>
-            <Button onClick={onCloseDialog} disabled={!!action}>
-              No
-            </Button>
-            <LoadingButton
-              onClick={() => handleOnAction("Submit")}
-              loading={!!action}
-              color="error"
-              autoFocus
-            >
-              Yes
-            </LoadingButton>
-          </>
-        }
-      >
-        <StyledDialogText variant="body2">
-          {submission?.status === "Rejected"
-            ? "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection."
-            : "This action will lock your submission and it will no longer accept updates to the data. Are you sure you want to proceed?"}
-        </StyledDialogText>
-      </StyledDialog>
+        onConfirm={() => handleOnAction("Submit")}
+        disabled={!!action}
+      />
       {/* Admin Submit Dialog */}
       <StyledDialog
         open={currentDialog === "Submit" && submitActionButton.isAdminOverride}
