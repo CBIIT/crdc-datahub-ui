@@ -232,7 +232,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       email: data.get("pi.email")?.[0] as string,
       ORCID: data.get("pi.ORCID")?.[0] as string,
       institution: piInstitution,
-      institutionID: institutionMap.get(piInstitution) || null,
+      institutionID: institutionMap.get(piInstitution) || "",
       address: data.get("pi.address")?.[0] as string,
     };
 
@@ -244,7 +244,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       position: data.get("primaryContact.position")?.[0] as string,
       email: data.get("primaryContact.email")?.[0] as string,
       institution: pcInstitution,
-      institutionID: institutionMap.get(pcInstitution) || null,
+      institutionID: institutionMap.get(pcInstitution) || "",
       phone: data.get("primaryContact.phone")?.[0] as string,
     };
 
@@ -269,7 +269,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       const position = toString(additionalContactPositions?.[i]).trim();
       const email = toString(additionalContactEmails?.[i]).trim();
       const institution = toString(additionalContactInstitutions?.[i]).trim();
-      const institutionID = institutionMap.get(institution) || null;
+      const institutionID = institutionMap.get(institution) || "";
       const phone = toString(additionalContactPhones?.[i]).trim();
 
       if (firstName || lastName || position || email || institution || phone) {

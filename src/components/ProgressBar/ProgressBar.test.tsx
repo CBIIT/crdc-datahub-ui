@@ -414,7 +414,7 @@ describe("Basic Functionality", () => {
 });
 
 describe("Implementation Requirements", () => {
-  it("should not show the import button in the Review section", () => {
+  it("should disable the import button in the Review section", () => {
     const data: Application = {
       ...BaseApplication,
       status: "In Progress",
@@ -428,7 +428,7 @@ describe("Implementation Requirements", () => {
       },
     };
 
-    const { queryByTestId } = render(
+    const { getByTestId } = render(
       <BaseComponent
         section={config.REVIEW.id}
         data={data}
@@ -440,7 +440,7 @@ describe("Implementation Requirements", () => {
       />
     );
 
-    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
+    expect(getByTestId("import-application-excel-button")).toBeDisabled();
   });
 
   it("should show the import button when user is the submission owner", () => {

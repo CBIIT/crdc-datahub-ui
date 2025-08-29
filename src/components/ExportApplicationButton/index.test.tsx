@@ -187,7 +187,7 @@ describe("Implementation Requirements", () => {
       ),
     });
 
-    expect(getByText("Export")).toBeInTheDocument();
+    expect(getByText("Export Form")).toBeInTheDocument();
   });
 
   it("should have a tooltip with the correct text", async () => {
