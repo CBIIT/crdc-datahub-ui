@@ -2,6 +2,7 @@ import { MockedProvider } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 
+import { mutation as EDIT_SUBMISSION } from "../../graphql/updateSubmissionName";
 import { render, waitFor } from "../../test-utils";
 
 import EditSubmissionNameDialog from "./EditSubmissionNameDialog";
@@ -12,6 +13,21 @@ const defaultProps = {
   initialValue: "Test Submission Name",
   onCancel: vi.fn(),
   onSave: vi.fn(),
+};
+
+const editSubmissionMock = {
+  request: {
+    query: EDIT_SUBMISSION,
+    variables: { _id: "12345", newName: "Updated Submission Name" },
+  },
+  result: {
+    data: {
+      editSubmission: {
+        _id: "12345",
+        name: "Updated Submission Name",
+      },
+    },
+  },
 };
 
 function renderDialog(overrideProps = {}) {
@@ -75,10 +91,15 @@ describe("Basic Functionality", () => {
     expect(input.value).toBe("New Name");
   });
 
-  it.skip("should call onSave with the new name when the 'Save' button is clicked", async () => {
+  it("should call onSave with the new name when the 'Save' button is clicked", async () => {
     const mockOnSave = vi.fn();
-    const { getByTestId } = renderDialog({ onSave: mockOnSave });
+    const { getByTestId } = render(
+      <MockedProvider mocks={[editSubmissionMock]}>
+        <EditSubmissionNameDialog {...defaultProps} onSave={mockOnSave} />
+      </MockedProvider>
+    );
     const input = getInput(getByTestId);
+    userEvent.clear(input);
     userEvent.type(input, "Updated Submission Name");
     userEvent.click(getByTestId("edit-submission-name-dialog-save-button"));
     await waitFor(() => {

@@ -2,8 +2,8 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const mutation: TypedDocumentNode<Response, Input> = gql`
-  mutation updateSubmissionName($_id: String!, $name: String!) {
-    updateSubmissionName(_id: $_id, name: $name) {
+  mutation editSubmission($_id: String!, $newName: String!) {
+    editSubmission(_id: $_id, newName: $newName) {
       _id
       name
     }
@@ -12,9 +12,9 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
 
 export type Input = {
   _id: string;
-  name: string;
+  newName: string;
 };
 
 export type Response = {
-  updateSubmissionName: Pick<Submission, "_id" | "name">;
+  editSubmission: Pick<Submission, "_id" | "name">;
 };
