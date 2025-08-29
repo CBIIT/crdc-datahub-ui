@@ -96,7 +96,11 @@ const meta: Meta<CustomStoryProps> = {
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    disabled: false,
+  },
+};
 
 export const Disabled: Story = {
   args: {
@@ -111,7 +115,7 @@ export const Hovered: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const button = canvas.getByTestId("export-application-excel-button");
+    const button = canvas.getByTestId("export-application-excel-button-text");
 
     await userEvent.hover(button);
 

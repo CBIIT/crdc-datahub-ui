@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
+import { fn, screen, userEvent, within } from "@storybook/test";
 
 import { applicantFactory } from "@/factories/application/ApplicantFactory";
 import { applicationFactory } from "@/factories/application/ApplicationFactory";
@@ -123,6 +123,21 @@ export const DisabledProp: Story = {
   args: {
     ...Default.args,
     disabled: true,
+  },
+};
+
+export const Hovered: Story = {
+  args: {
+    ...Default.args,
+    disabled: false,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByTestId("import-application-excel-tooltip-text");
+
+    await userEvent.hover(button);
+
+    await screen.findByRole("tooltip");
   },
 };
 
