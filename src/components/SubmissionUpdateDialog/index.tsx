@@ -57,8 +57,7 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
 
-  const { getSubmission } = data || {};
-  const { _id, status } = getSubmission || {};
+  const { _id, status } = data?.getSubmission || {};
 
   const [updateSubmission] = useMutation<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput>(
     UPDATE_SUBMISSION_INFO,
@@ -72,8 +71,8 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
   const canSeeButton = useMemo<boolean>(
-    () => hasPermission(user, "data_submission", "review", getSubmission, false),
-    [user, getSubmission]
+    () => hasPermission(user, "data_submission", "review", data?.getSubmission, false),
+    [user, data?.getSubmission]
   );
 
   const isDisabled = useMemo<boolean>(

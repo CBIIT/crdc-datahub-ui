@@ -94,7 +94,7 @@ beforeEach(() => {
 });
 
 describe("Accessibility", () => {
-  // TODO: This causes all kinds of issues
+  // NOTE: This is disabled due to nonstop act warnings
   it.skip("should have no violations", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
