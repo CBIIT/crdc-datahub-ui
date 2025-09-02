@@ -191,7 +191,6 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const isPrimarySubmitter = user?._id === dataSubmission?.submitterID;
-  const displayName = data?.getSubmission?.name ?? dataSubmission?.name;
   const numCollaborators = dataSubmission?.collaborators?.length || 0;
   const lastReview = useMemo(
     () =>
@@ -249,11 +248,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
               <Stack direction="row" alignItems="center" spacing={1}>
                 <StyledValue data-testid="submission-name-display">
                   <TruncatedText
-                    text={displayName}
+                    text={data?.getSubmission?.name}
                     maxCharacters={15}
                     ellipsis
                     underline={false}
-                    tooltipText={displayName}
+                    tooltipText={data?.getSubmission?.name}
                   />
                 </StyledValue>
                 {isPrimarySubmitter && (

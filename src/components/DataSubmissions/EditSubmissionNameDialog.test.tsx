@@ -2,7 +2,8 @@ import { MockedProvider } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { axe } from "vitest-axe";
 
-import { mutation as EDIT_SUBMISSION } from "../../graphql/updateSubmissionName";
+import { EDIT_SUBMISSION } from "@/graphql";
+
 import { render, waitFor } from "../../test-utils";
 
 import EditSubmissionNameDialog from "./EditSubmissionNameDialog";
