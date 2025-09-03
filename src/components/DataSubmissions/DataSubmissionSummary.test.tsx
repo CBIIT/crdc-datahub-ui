@@ -1,4 +1,5 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { isEqual } from "lodash";
 import React, { FC, useMemo } from "react";
@@ -12,8 +13,8 @@ import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory"
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 import { submissionHistoryEventFactory } from "@/factories/submission/SubmissionHistoryEvent";
+import { EDIT_SUBMISSION } from "@/graphql";
 
-import { mutation as EDIT_SUBMISSION } from "../../graphql/updateSubmissionName";
 import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
 import {
@@ -885,9 +886,7 @@ describe("Edit Submission Name", () => {
     );
 
     userEvent.click(getByTestId("edit-submission-name-icon"));
-    const inputWrapper = getByTestId("edit-submission-name-dialog-input");
-    const input = inputWrapper.querySelector("input");
-    if (!input) throw new Error("Input not found in edit-submission-name-dialog-input");
+    const input = within(getByTestId("edit-submission-name-dialog-input")).getByRole("textbox");
     userEvent.clear(input);
     userEvent.type(input, "New Name");
     userEvent.click(getByTestId("edit-submission-name-dialog-save-button"));

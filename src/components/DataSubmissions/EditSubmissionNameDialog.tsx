@@ -5,12 +5,9 @@ import DialogActions from "@mui/material/DialogActions";
 import { useSnackbar } from "notistack";
 import React, { useState, useEffect } from "react";
 
+import { EDIT_SUBMISSION, EditSubmissionNameInput, EditSubmissionNameResp } from "@/graphql";
+
 import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
-import {
-  mutation as EDIT_SUBMISSION,
-  Input as EditSubmissionInput,
-  Response as EditSubmissionResponse,
-} from "../../graphql/updateSubmissionName";
 import DefaultDialog from "../StyledDialogComponents/StyledDialog";
 import StyledCloseDialogButton from "../StyledDialogComponents/StyledDialogCloseButton";
 import DefaultDialogContent from "../StyledDialogComponents/StyledDialogContent";
@@ -22,18 +19,7 @@ import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
 const StyledDialog = styled(DefaultDialog)({
   "& .MuiDialog-paper": {
     width: "577px !important",
-    height: "402.86px",
-    borderRadius: "8px",
-    borderWidth: "2px",
-    borderStyle: "solid",
     borderColor: "#5AB8FF",
-    paddingTop: "28px",
-    paddingRight: "34px",
-    paddingBottom: "60px",
-    paddingLeft: "34px",
-    boxSizing: "border-box",
-    background: "#F2F6FA",
-    boxShadow: "0px 4px 45px 0px rgba(0,0,0,0.4)",
   },
 });
 
@@ -66,9 +52,6 @@ const baseButtonStyles: object = {
   letterSpacing: "0.32px",
   textTransform: "none" as const,
   margin: "0 15px",
-  "&:hover": {
-    background: "transparent",
-  },
 };
 
 const StyledButton = styled(LoadingButton)({
@@ -80,9 +63,6 @@ const StyledButton = styled(LoadingButton)({
 
 const StyledGreenButton = styled(LoadingButton)({
   ...baseButtonStyles,
-  color: "#fff",
-  borderColor: "#26B893",
-  background: "#1B8369",
 });
 
 type Props = {
@@ -104,7 +84,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
   const [error, setError] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
-  const [editSubmission] = useMutation<EditSubmissionResponse, EditSubmissionInput>(
+  const [editSubmission] = useMutation<EditSubmissionNameResp, EditSubmissionNameInput>(
     EDIT_SUBMISSION,
     {
       context: { clientName: "backend" },
@@ -158,22 +138,8 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
         <CloseIconSvg />
       </StyledCloseDialogButton>
       <DefaultDialogContent>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center", // Center children horizontally in the dialog
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <Box
-            sx={{
-              width: "484px",
-              height: "86px",
-              mb: "45px",
-            }}
-          >
+        <Box sx={{}}>
+          <Box sx={{}}>
             <StyledTitle data-testid="edit-submission-name-dialog-title">
               DATA SUBMISSION
             </StyledTitle>
@@ -188,15 +154,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
               Data Submission Name
             </DefaultDialogHeader>
           </Box>
-          <Box
-            sx={{
-              width: "484px",
-              minHeight: "68px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px",
-            }}
-          >
+          <Box sx={{}}>
             <StyledLabel sx={{ textAlign: "left" }} htmlFor="edit-submission-name-dialog-input">
               Submission Name
             </StyledLabel>
@@ -211,7 +169,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
             />
             <Box sx={{ height: "30px" }}>
               {error && (
-                <StyledHelperText error={!!error} data-testid="edit-submission-name-dialog-error">
+                <StyledHelperText error data-testid="edit-submission-name-dialog-error">
                   {error}
                 </StyledHelperText>
               )}
@@ -231,6 +189,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
           variant="contained"
           onClick={handleSave}
           data-testid="edit-submission-name-dialog-save-button"
+          color="success"
         >
           Save
         </StyledGreenButton>
