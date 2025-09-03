@@ -23,11 +23,11 @@ export type UpdateSubmissionInfoInput = {
   /**
    * The version of the Data Model to change to
    */
-  version: string;
+  version?: string;
   /**
    * The UUID of the user to reassign the submission to
    */
-  submitterID: string;
+  submitterID?: string;
 };
 
 export type UpdateSubmissionInfoResp = {
