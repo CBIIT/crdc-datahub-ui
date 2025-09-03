@@ -822,7 +822,9 @@ export class QuestionnaireExcelMiddleware {
 
     // Unknown object type, keeping as-is
     Logger.error(
-      `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${value}`
+      `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${JSON.stringify(
+        value
+      )}`
     );
     return null;
   }

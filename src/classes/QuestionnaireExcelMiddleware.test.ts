@@ -3347,7 +3347,9 @@ describe("Parsing", () => {
     expect(call(unknownObj)).toBe(null);
     await waitFor(() => {
       expect(Logger.error).toHaveBeenCalledWith(
-        `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${unknownObj.toString()}`
+        `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${JSON.stringify(
+          unknownObj
+        )}`
       );
     });
   });
