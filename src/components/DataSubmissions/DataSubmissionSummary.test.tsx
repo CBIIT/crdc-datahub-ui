@@ -893,18 +893,11 @@ describe("Edit Submission Name", () => {
 
     await waitFor(() => expect(updateQuery).toHaveBeenCalled());
 
-    const updatedCtxState = {
-      ...submissionCtxState,
-      data: {
-        ...submissionCtxState.data,
-        getSubmission: { ...dataSubmission, name: "New Name" },
-        getSubmissionAttributes: submissionCtxState.data.getSubmissionAttributes,
-      },
-    };
+    const updatedDataSubmission = { ...dataSubmission, name: "New Name" } as Submission;
 
     rerender(
-      <BaseComponent mocks={[editSubmissionMock]} submissionCtxState={updatedCtxState}>
-        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      <BaseComponent mocks={[editSubmissionMock]} submissionCtxState={submissionCtxState}>
+        <DataSubmissionSummary dataSubmission={updatedDataSubmission} />
       </BaseComponent>
     );
 
