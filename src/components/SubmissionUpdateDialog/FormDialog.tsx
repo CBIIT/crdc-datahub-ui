@@ -211,7 +211,7 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
                   inputProps={{ "aria-labelledby": "version-input-label" }}
                 >
                   {versions.length === 0 && (
-                    <MenuItem value={modelVersion}>{modelVersion}</MenuItem>
+                    <MenuItem value={modelVersion}>v{modelVersion}</MenuItem>
                   )}
                   {versions.map((version) => (
                     <MenuItem key={version} value={version}>

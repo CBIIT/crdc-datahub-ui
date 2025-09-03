@@ -578,7 +578,7 @@ describe("Implementation Requirements", () => {
     });
 
     expect(getByTestId("update-submission-version-field")).toHaveTextContent(
-      "update-submission-1.2.3"
+      "vupdate-submission-1.2.3"
     );
   });
 
