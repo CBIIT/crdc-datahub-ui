@@ -427,10 +427,10 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     );
     const files: FileInfo[] = [];
     Array.from({ length: filesMax }).forEach((_, i) => {
-      const type = toString(fileTypes[i]).trim();
-      const extension = toString(fileExtensions[i]).trim();
-      const count = toSafeInteger(fileCounts[i]);
-      const amount = toString(fileAmounts[i]).trim();
+      const type = toString(fileTypes?.[i]).trim() || "";
+      const extension = toString(fileExtensions?.[i]).trim() || "";
+      const count = toSafeInteger(fileCounts?.[i]) || null;
+      const amount = toString(fileAmounts?.[i]).trim() || "";
 
       if (type || extension || count || amount) {
         files.push({ type, extension, count, amount });

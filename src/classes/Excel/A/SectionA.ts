@@ -264,13 +264,13 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     );
     const additionalContacts: Contact[] = [];
     Array.from({ length: additionalContactsMax }).forEach((_, i) => {
-      const firstName = toString(additionalContactFirstNames?.[i]).trim();
-      const lastName = toString(additionalContactLastNames?.[i]).trim();
-      const position = toString(additionalContactPositions?.[i]).trim();
-      const email = toString(additionalContactEmails?.[i]).trim();
-      const institution = toString(additionalContactInstitutions?.[i]).trim();
+      const firstName = toString(additionalContactFirstNames?.[i]).trim() || "";
+      const lastName = toString(additionalContactLastNames?.[i]).trim() || "";
+      const position = toString(additionalContactPositions?.[i]).trim() || "";
+      const email = toString(additionalContactEmails?.[i]).trim() || "";
+      const institution = toString(additionalContactInstitutions?.[i]).trim() || "";
       const institutionID = institutionMap.get(institution) || "";
-      const phone = toString(additionalContactPhones?.[i]).trim();
+      const phone = toString(additionalContactPhones?.[i]).trim() || "";
 
       if (firstName || lastName || position || email || institution || phone) {
         additionalContacts.push({
