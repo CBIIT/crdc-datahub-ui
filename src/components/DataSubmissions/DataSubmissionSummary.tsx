@@ -187,7 +187,7 @@ type Props = {
 const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
   const [openDialog, setOpenDialog] = useState<DialogOptions>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const { updateQuery, data } = useSubmissionContext();
+  const { updateQuery } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
   const isPrimarySubmitter = user?._id === dataSubmission?.submitterID;
@@ -248,11 +248,11 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
               <Stack direction="row" alignItems="center" spacing={1}>
                 <StyledValue data-testid="submission-name-display">
                   <TruncatedText
-                    text={data?.getSubmission?.name}
+                    text={dataSubmission?.name}
                     maxCharacters={15}
                     ellipsis
                     underline={false}
-                    tooltipText={data?.getSubmission?.name}
+                    tooltipText={dataSubmission?.name}
                   />
                 </StyledValue>
                 {isPrimarySubmitter && (
