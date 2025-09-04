@@ -314,3 +314,9 @@ export type {
 
 export { RETRIEVE_OMB_DETAILS } from "./retrieveOMBDetails";
 export type { RetrieveOMBDetailsResp } from "./retrieveOMBDetails";
+
+export { mutation as EDIT_SUBMISSION } from "./editSubmission";
+export type {
+  Input as EditSubmissionNameInput,
+  Response as EditSubmissionNameResp,
+} from "./editSubmission";
