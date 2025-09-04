@@ -80,7 +80,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
   onCancel,
   onSave,
 }) => {
-  const [newName, setNewName] = useState<string>(initialValue ?? "");
+  const [newName, setNewName] = useState<string>(initialValue);
   const [error, setError] = useState<string>("");
   const { enqueueSnackbar } = useSnackbar();
 
