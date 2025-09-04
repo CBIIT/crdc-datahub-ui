@@ -17,7 +17,7 @@ const QuestionnaireController = () => {
   if (appId) {
     return (
       <OrganizationProvider preload>
-        <InstitutionProvider>
+        <InstitutionProvider filterInactive>
           <FormProvider id={appId}>
             <FormView section={section} />
           </FormProvider>

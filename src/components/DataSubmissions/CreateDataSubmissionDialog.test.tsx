@@ -75,6 +75,7 @@ const baseUser: Omit<User, "role"> = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [],
   dataCommonsDisplayNames: [],
   createdAt: "",
@@ -144,7 +145,7 @@ describe("Basic Functionality", () => {
   });
 
   it("submits the form successfully", async () => {
-    const { getByTestId, getByRole, getByText } = render(
+    const { getByTestId, getByRole } = render(
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
@@ -179,7 +180,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
+
+    userEvent.click(getByTestId("study-option-study1"));
 
     expect(studySelectButton).toHaveTextContent("SN");
 
@@ -207,7 +209,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should only show the dbGaP ID if study is controlled access", async () => {
-    const { getByText, getByRole, getByTestId } = render(
+    const { getByRole, getByTestId } = render(
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
@@ -242,7 +244,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
+
+    userEvent.click(getByTestId("study-option-study1"));
 
     // Non-Controlled study selected
     expect(studySelectButton).toHaveTextContent("SN");
@@ -254,7 +257,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("CS"));
+
+    userEvent.click(getByTestId("study-option-study2"));
 
     // Controlled study selected
     expect(studySelectButton).toHaveTextContent("CS");
@@ -263,7 +267,7 @@ describe("Basic Functionality", () => {
   });
 
   it("sets dbGaPID to an empty string and isDbGapRequired to false when studyID is not found", async () => {
-    const { getByText, getByRole, getByTestId } = render(
+    const { getByRole, getByTestId } = render(
       <TestParent
         authCtxState={{
           ...baseAuthCtx,
@@ -298,7 +302,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("DB"));
+
+    userEvent.click(getByTestId("study-option-no-dbGaP-ID"));
 
     expect(studySelectButton).toHaveTextContent("DB");
 
@@ -363,7 +368,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
+
+    userEvent.click(getByTestId("study-option-study1"));
 
     expect(studySelectButton).toHaveTextContent("SN");
 
@@ -445,7 +451,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
+
+    userEvent.click(getByTestId("study-option-study1"));
 
     expect(studySelectButton).toHaveTextContent("SN");
 
@@ -508,7 +515,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
+
+    userEvent.click(getByTestId("study-option-study1"));
 
     expect(studySelectButton).toHaveTextContent("SN");
 
@@ -706,7 +714,8 @@ describe("Basic Functionality", () => {
     await waitFor(() => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
-    userEvent.click(getByText("SN"));
+
+    userEvent.click(getByTestId("study-option-study1"));
 
     expect(studySelectButton).toHaveTextContent("SN");
 
@@ -736,21 +745,18 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, getByText } = render(
-      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
-      {
-        wrapper: (p) => (
-          <TestParent
-            mocks={[]}
-            authCtxState={{
-              ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-            }}
-            {...p}
-          />
-        ),
-      }
-    );
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      wrapper: (p) => (
+        <TestParent
+          mocks={[]}
+          authCtxState={{
+            ...baseAuthCtx,
+            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+          }}
+          {...p}
+        />
+      ),
+    });
 
     // Simulate opening dialog
     const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
@@ -773,7 +779,7 @@ describe("Implementation Requirements", () => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
 
-    userEvent.click(getByText("CS"));
+    userEvent.click(getByTestId("study-option-controlled"));
 
     await waitFor(() => {
       expect(getByTestId("create-data-submission-dialog-create-button")).toBeDisabled();
@@ -791,21 +797,18 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, getByText } = render(
-      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
-      {
-        wrapper: (p) => (
-          <TestParent
-            mocks={[]}
-            authCtxState={{
-              ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-            }}
-            {...p}
-          />
-        ),
-      }
-    );
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      wrapper: (p) => (
+        <TestParent
+          mocks={[]}
+          authCtxState={{
+            ...baseAuthCtx,
+            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+          }}
+          {...p}
+        />
+      ),
+    });
 
     // Simulate opening dialog
     const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
@@ -828,7 +831,7 @@ describe("Implementation Requirements", () => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
 
-    userEvent.click(getByText("CS"));
+    userEvent.click(getByTestId("study-option-controlled"));
 
     await waitFor(() => {
       expect(getByTestId("pending-conditions-icon")).toBeInTheDocument();
@@ -864,21 +867,18 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, getByText } = render(
-      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
-      {
-        wrapper: (p) => (
-          <TestParent
-            mocks={[]}
-            authCtxState={{
-              ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-            }}
-            {...p}
-          />
-        ),
-      }
-    );
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      wrapper: (p) => (
+        <TestParent
+          mocks={[]}
+          authCtxState={{
+            ...baseAuthCtx,
+            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+          }}
+          {...p}
+        />
+      ),
+    });
 
     // Simulate opening dialog
     const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
@@ -902,7 +902,8 @@ describe("Implementation Requirements", () => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
 
-    userEvent.click(getByText("CS"));
+    userEvent.click(getByTestId("study-option-controlled"));
+
     await waitFor(() => {
       expect(getByTestId("create-data-submission-dialog-dbgap-id-input")).toBeVisible();
     });
@@ -914,7 +915,7 @@ describe("Implementation Requirements", () => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
 
-    userEvent.click(getByText("NCS"));
+    userEvent.click(getByTestId("study-option-non-controlled"));
 
     await waitFor(() => {
       expect(getByTestId("create-data-submission-dialog-dbgap-id-input")).not.toBeVisible();
@@ -932,21 +933,18 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, getByText } = render(
-      <CreateDataSubmissionDialog onCreate={jest.fn()} />,
-      {
-        wrapper: (p) => (
-          <TestParent
-            mocks={[]}
-            authCtxState={{
-              ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-            }}
-            {...p}
-          />
-        ),
-      }
-    );
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      wrapper: (p) => (
+        <TestParent
+          mocks={[]}
+          authCtxState={{
+            ...baseAuthCtx,
+            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
+          }}
+          {...p}
+        />
+      ),
+    });
 
     // Simulate opening dialog
     const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
@@ -969,7 +967,7 @@ describe("Implementation Requirements", () => {
       expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
     });
 
-    userEvent.click(getByText("CS"));
+    userEvent.click(getByTestId("study-option-controlled"));
 
     userEvent.hover(getByTestId("create-data-submission-dialog-dbgap-id-input"));
 

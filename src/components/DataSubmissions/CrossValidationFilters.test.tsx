@@ -30,6 +30,7 @@ const baseSubmission: Submission = {
   modelVersion: "",
   studyID: "",
   studyAbbreviation: "",
+  studyName: "",
   dbGaPID: "",
   bucketName: "",
   rootPath: "",
@@ -54,6 +55,7 @@ const baseSubmission: Submission = {
   createdAt: "",
   updatedAt: "",
   collaborators: [],
+  dataFileSize: null,
 };
 
 const baseBatch = {

@@ -17,7 +17,7 @@ describe("Accessibility", () => {
   it("should have no violations (no errors)", async () => {
     const { container } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={jest.fn} />
+        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} />
       </TestParent>
     );
 
@@ -29,7 +29,7 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={jest.fn} />
+        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} />
       </TestParent>
     );
 
@@ -40,7 +40,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={mockOnClose} />
+        <Dialog open onConfirm={jest.fn()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -57,7 +57,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={mockOnClose} />
+        <Dialog open onConfirm={jest.fn()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -74,7 +74,7 @@ describe("Basic Functionality", () => {
     const mockOnClose = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={mockOnClose} />
+        <Dialog open onConfirm={jest.fn()} onClose={mockOnClose} />
       </TestParent>
     );
 
@@ -91,7 +91,7 @@ describe("Basic Functionality", () => {
     const mockOnConfirm = jest.fn();
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={mockOnConfirm} onClose={jest.fn} />
+        <Dialog open onConfirm={mockOnConfirm} onClose={jest.fn()} />
       </TestParent>
     );
 
@@ -103,13 +103,64 @@ describe("Basic Functionality", () => {
       expect(mockOnConfirm).toHaveBeenCalledTimes(1);
     });
   });
+
+  it("should forward button props to the close button", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <Dialog
+          open
+          onConfirm={jest.fn()}
+          onClose={jest.fn()}
+          closeButtonProps={{ disabled: true }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("delete-dialog-cancel-button")).toBeDisabled();
+  });
+
+  it("should forward button props to the confirm button", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <Dialog
+          open
+          onConfirm={jest.fn()}
+          onClose={jest.fn()}
+          confirmButtonProps={{ disabled: true }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("delete-dialog-confirm-button")).toBeDisabled();
+  });
+
+  it("should forward the header props to the header element", () => {
+    const mockOnHeaderClick = jest.fn();
+
+    const { getByTestId } = render(
+      <TestParent>
+        <Dialog
+          open
+          onConfirm={jest.fn()}
+          onClose={jest.fn()}
+          headerProps={{ className: "xyz-custom-prop", onClick: mockOnHeaderClick }}
+        />
+      </TestParent>
+    );
+
+    expect(getByTestId("delete-dialog-header")).toHaveClass("xyz-custom-prop");
+
+    userEvent.click(getByTestId("delete-dialog-header"));
+
+    expect(mockOnHeaderClick).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("Implementation Requirements", () => {
   it("should render the dialog with the correct header", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={jest.fn} header="custom header" />
+        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} header="custom header" />
       </TestParent>
     );
 
@@ -119,7 +170,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct description", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={jest.fn} description="custom description" />
+        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} description="custom description" />
       </TestParent>
     );
 
@@ -129,7 +180,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct close button text", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={jest.fn} closeText="custom dismiss" />
+        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} closeText="custom dismiss" />
       </TestParent>
     );
 
@@ -139,7 +190,7 @@ describe("Implementation Requirements", () => {
   it("should render the dialog with the correct confirm button text", () => {
     const { getByTestId } = render(
       <TestParent>
-        <Dialog open onConfirm={jest.fn} onClose={jest.fn} confirmText="custom confirm" />
+        <Dialog open onConfirm={jest.fn()} onClose={jest.fn()} confirmText="custom confirm" />
       </TestParent>
     );
 

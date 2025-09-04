@@ -1,4 +1,14 @@
-import { Button, Dialog, DialogProps, IconButton, Stack, Typography, styled } from "@mui/material";
+import {
+  Button,
+  ButtonProps,
+  Dialog,
+  DialogProps,
+  IconButton,
+  Stack,
+  Typography,
+  TypographyProps,
+  styled,
+} from "@mui/material";
 import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog)({
@@ -29,7 +39,6 @@ const StyledCloseButton = styled(Button)({
     minWidth: "101px",
     padding: "10px",
     color: "#000000",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 500,
@@ -37,7 +46,7 @@ const StyledCloseButton = styled(Button)({
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-    border: "1px solid #AEAEAE",
+    border: "1.5px solid #AEAEAE",
   },
 });
 
@@ -45,7 +54,6 @@ const StyledConfirmButton = styled(Button)({
   "&.MuiButton-root": {
     minWidth: "137px",
     padding: "10px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
     fontSize: "16px",
     fontStyle: "normal",
     fontWeight: 700,
@@ -66,7 +74,7 @@ const StyledHeader = styled(Typography)({
   marginBottom: "50px",
 });
 
-const StyledDescription = styled(Typography)({
+const StyledDescription = styled("div")({
   fontFamily: "'Public Sans', sans-serif",
   fontSize: "16px",
   fontStyle: "normal",
@@ -76,19 +84,25 @@ const StyledDescription = styled(Typography)({
 
 type Props = {
   header?: string;
+  headerProps?: Omit<TypographyProps, "children">;
   description?: string | JSX.Element;
   closeText?: string;
-  confirmText?: string;
+  closeButtonProps?: Omit<ButtonProps, "children" | "onClick">;
   onClose: () => void;
+  confirmText?: string;
+  confirmButtonProps?: Omit<ButtonProps, "children" | "onClick">;
   onConfirm: () => void;
 } & Omit<DialogProps, "onClose" | "title">;
 
 const DeleteDialog = ({
   header = "Remove Data",
+  headerProps = {},
   description,
   closeText = "Cancel",
-  confirmText = "Confirm to Remove",
+  closeButtonProps = {},
   onClose,
+  confirmText = "Confirm to Remove",
+  confirmButtonProps = {},
   onConfirm,
   open,
   ...rest
@@ -101,7 +115,7 @@ const DeleteDialog = ({
     >
       <CloseIconSvg />
     </StyledCloseDialogButton>
-    <StyledHeader variant="h3" data-testid="delete-dialog-header">
+    <StyledHeader variant="h3" data-testid="delete-dialog-header" {...headerProps}>
       {header}
     </StyledHeader>
     <StyledDescription data-testid="delete-dialog-description">
@@ -123,6 +137,7 @@ const DeleteDialog = ({
         onClick={onClose}
         aria-label="Cancel button"
         data-testid="delete-dialog-cancel-button"
+        {...closeButtonProps}
       >
         {closeText}
       </StyledCloseButton>
@@ -133,6 +148,7 @@ const DeleteDialog = ({
         onClick={onConfirm}
         aria-label="Confirm to Remove button"
         data-testid="delete-dialog-confirm-button"
+        {...confirmButtonProps}
       >
         {confirmText}
       </StyledConfirmButton>

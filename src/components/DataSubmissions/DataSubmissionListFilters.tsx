@@ -148,6 +148,7 @@ const DataSubmissionListFilters = ({
   ] = watch(["status", "organization", "dataCommons", "name", "dbGaPID", "submitterName"]);
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
+  const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
 
   const debounceAfter3CharsInputs: FilterFormKey[] = ["name", "dbGaPID"];
   const debouncedOnChangeRef = useRef(
@@ -367,7 +368,13 @@ const DataSubmissionListFilters = ({
                         ? field.value
                         : "All"
                     }
-                    MenuProps={{ disablePortal: true }}
+                    onOpen={(event) =>
+                      setSelectMinWidth((event.currentTarget as HTMLElement)?.offsetWidth || null)
+                    }
+                    MenuProps={{
+                      disablePortal: true,
+                      sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                    }}
                     inputProps={{
                       id: "organization-filter",
                       "data-testid": "organization-select-input",
@@ -528,7 +535,13 @@ const DataSubmissionListFilters = ({
                   <StyledSelect
                     {...field}
                     value={submitterNames?.includes(field.value) ? field.value : "All"}
-                    MenuProps={{ disablePortal: true }}
+                    onOpen={(event) => {
+                      setSelectMinWidth((event.currentTarget as HTMLElement)?.offsetWidth || null);
+                    }}
+                    MenuProps={{
+                      disablePortal: true,
+                      sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                    }}
                     inputProps={{
                       id: "submitter-name-filter",
                       "data-testid": "submitter-name-select-input",

@@ -8,6 +8,7 @@ export const query = gql`
         _id
         group
         name
+        inherited
         order
         checked
         disabled
@@ -16,6 +17,7 @@ export const query = gql`
         _id
         group
         name
+        inherited @client
         order
         checked
         disabled

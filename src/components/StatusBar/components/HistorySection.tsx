@@ -62,7 +62,7 @@ const StyledButton = styled(Button)({
 const StyledBellIcon = styled(BellIcon)({
   width: "18px",
   marginLeft: "5px",
-  color: "#D82F00",
+  color: "#C94313",
 });
 
 /**

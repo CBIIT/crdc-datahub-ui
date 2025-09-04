@@ -48,7 +48,7 @@ const StyledTableContainer = styled(TableContainer)({
     background: "#FFF",
   },
   "& .MuiTableBody-root .MuiTableRow-root:nth-of-type(even)": {
-    background: "#E3EEF9",
+    background: "#EDF7FF",
   },
   "& .MuiTableCell-root:first-of-type": {
     paddingLeft: "24px",
@@ -104,14 +104,46 @@ const StyledTableCell = styled(TableCell)({
 });
 
 export type Column<T> = {
+  /**
+   * The display label for the column
+   */
   label: string | React.ReactNode;
+  /**
+   * A function that renders the value for a given row of data in this column
+   */
   renderValue: (a: T) => React.ReactNode;
+  /**
+   * The key of the field in the data object that this column represents
+   */
   field?: keyof T;
-  fieldKey?: string; // optional, used for custom unique identifier while sorting
+  /**
+   * An optional custom unique identifier used for sorting when 'field' is not available
+   */
+  fieldKey?: string;
+  /**
+   * Indicates whether this columns is the default column for sorting
+   */
   default?: true;
+  /**
+   * Indicates whether sorting is disabled for this column
+   */
   sortDisabled?: boolean;
-  hideable?: boolean; // Indicates whether or not the column can be hidden or not
+  /**
+   * Indicates whether or not the column can be hidden or not
+   */
+  hideable?: boolean;
+  /**
+   * Indicates if the column should be hidden by default
+   */
+  defaultHidden?: boolean;
+  /**
+   * A comparator function for sorting rows based on the column values.
+   * Primarily used when server-side sorting is unavailable
+   */
   comparator?: (a: T, b: T) => number;
+  /**
+   * Custom styling for the header table cell of the column
+   */
   sx?: TableCellProps["sx"];
 };
 

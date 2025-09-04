@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   Alert,
@@ -7,7 +7,6 @@ import {
   Container,
   FormControl,
   MenuItem,
-  Select,
   Stack,
   TableCell,
   TableHead,
@@ -22,6 +21,8 @@ import { compareStrings, formatIDP, sortData } from "../../utils";
 import usePageTitle from "../../hooks/usePageTitle";
 import GenericTable, { Column } from "../../components/GenericTable";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 
 type T = ListUsersResp["listUsers"][number];
 
@@ -55,38 +56,6 @@ const StyledFormControl = styled(FormControl)({
 const StyledInlineLabel = styled("label")({
   padding: "0 10px",
   fontWeight: "700",
-});
-
-const StyledSelect = styled(Select)({
-  borderRadius: "8px",
-  "& .MuiInputBase-input": {
-    fontWeight: 400,
-    fontSize: "16px",
-    fontFamily: "'Nunito', 'Rubik', sans-serif",
-    padding: "10px",
-    height: "20px",
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "#6B7294",
-  },
-  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "1px solid #209D7D",
-    boxShadow:
-      "2px 2px 4px 0px rgba(38, 184, 147, 0.10), -1px -1px 6px 0px rgba(38, 184, 147, 0.20)",
-  },
-  "& .Mui-disabled": {
-    cursor: "not-allowed",
-  },
-  "& .MuiList-root": {
-    padding: "0 !important",
-  },
-  "& .MuiMenuItem-root.Mui-selected": {
-    background: "#3E7E6D !important",
-    color: "#FFFFFF !important",
-  },
-  "& .MuiMenuItem-root:hover": {
-    background: "#D5EDE5",
-  },
 });
 
 const StyledHeaderCell = styled(TableCell)({
@@ -183,7 +152,7 @@ const columns: Column<T>[] = [
     comparator: (a, b) => a.role.localeCompare(b.role),
     field: "role",
     sx: {
-      width: "13%",
+      width: "15%",
     },
   },
   {
@@ -214,6 +183,7 @@ const columns: Column<T>[] = [
 const ListingView: FC = () => {
   usePageTitle("Manage Users");
 
+  const { user } = useAuthContext();
   const { state } = useLocation();
   const { searchParams, setSearchParams } = useSearchParamsContext();
   const [dataset, setDataset] = useState<T[]>([]);
@@ -222,7 +192,7 @@ const ListingView: FC = () => {
 
   const { watch, setValue, control } = useForm<FilterForm>({
     defaultValues: {
-      role: "All",
+      role: user?.role === "Federal Lead" ? "Federal Lead" : "All",
       status: "All",
     },
   });
@@ -230,6 +200,14 @@ const ListingView: FC = () => {
   const roleFilter = watch("role");
   const statusFilter = watch("status");
   const tableRef = useRef<TableMethods>(null);
+
+  const filteredRoles: UserRole[] = useMemo(() => {
+    if (user?.role === "Federal Lead") {
+      return ["Federal Lead"];
+    }
+
+    return Roles;
+  }, [user?.role]);
 
   const { data, loading, error } = useQuery<ListUsersResp>(LIST_USERS, {
     context: { clientName: "backend" },
@@ -260,7 +238,7 @@ const ListingView: FC = () => {
   };
 
   const isRoleFilterOption = (role: string): role is FilterForm["role"] =>
-    ["All", ...Roles].includes(role);
+    ["All", ...filteredRoles].includes(role);
   const isStatusFilterOption = (status: string): status is FilterForm["status"] =>
     ["All", "Inactive", "Active"].includes(status);
 
@@ -285,9 +263,16 @@ const ListingView: FC = () => {
 
     const newSearchParams = new URLSearchParams(searchParams);
 
-    if (roleFilter && roleFilter !== "All") {
+    if (
+      roleFilter &&
+      ((user?.role === "Federal Lead" && roleFilter !== "Federal Lead") ||
+        (user?.role !== "Federal Lead" && roleFilter !== "All"))
+    ) {
       newSearchParams.set("role", roleFilter);
-    } else if (roleFilter === "All") {
+    } else if (
+      roleFilter === "All" ||
+      (user?.role === "Federal Lead" && roleFilter === "Federal Lead")
+    ) {
       newSearchParams.delete("role");
     }
     if (statusFilter && statusFilter !== "All") {
@@ -330,6 +315,7 @@ const ListingView: FC = () => {
                 <StyledSelect
                   {...field}
                   value={field.value}
+                  disabled={user?.role === "Federal Lead"}
                   MenuProps={{ disablePortal: true }}
                   inputProps={{ id: "role-filter" }}
                   onChange={(e) => {
@@ -338,7 +324,7 @@ const ListingView: FC = () => {
                   }}
                 >
                   <MenuItem value="All">All</MenuItem>
-                  {Roles.map((role) => (
+                  {filteredRoles.map((role) => (
                     <MenuItem key={role} value={role}>
                       {role}
                     </MenuItem>

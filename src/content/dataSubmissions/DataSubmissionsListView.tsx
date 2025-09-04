@@ -133,7 +133,7 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "DM Version",
+    label: "Model Version",
     renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,
@@ -170,17 +170,27 @@ const columns: Column<T>[] = [
     },
   },
   {
-    label: "Primary Contact",
+    label: "Data Concierge",
     renderValue: (a) => <TruncatedText text={a.conciergeName} />,
     field: "conciergeName",
     hideable: true,
   },
-
   {
     label: "Record Count",
     renderValue: (a) =>
       Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
     field: "nodeCount",
+  },
+  {
+    label: "Data File Size",
+    renderValue: (a) => a.dataFileSize.formatted || 0,
+    hideable: true,
+    defaultHidden: true,
+    fieldKey: "dataFileSize.size",
+    sx: {
+      minWidth: "90px",
+      width: "90px",
+    },
   },
   {
     label: "Created Date",
@@ -218,7 +228,7 @@ const columns: Column<T>[] = [
 ];
 
 /**
- * View for List of Questionnaire/Submissions
+ * View for List of Data Submissions
  *
  * @returns {JSX.Element}
  */

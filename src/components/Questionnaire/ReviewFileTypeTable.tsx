@@ -29,7 +29,7 @@ const StyledTableHeaderRow = styled(TableRow)(() => ({
 
 const StyledTableRow = styled(TableRow)(() => ({
   "&.MuiTableRow-root": {
-    height: "40px",
+    height: "55px",
     padding: 0,
     justifyContent: "space-between",
     alignItems: "center",

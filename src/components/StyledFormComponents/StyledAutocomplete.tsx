@@ -7,6 +7,12 @@ const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: bool
       padding: 0,
       color: "#083A50",
     },
+
+    ...(readOnly && {
+      "& *": {
+        cursor: "not-allowed",
+      },
+    }),
   },
 
   // Base input

@@ -129,6 +129,7 @@ const DashboardView: FC<DashboardViewProps> = ({
 
     const toolbarOptions: ToolbarOptions = {
       export: true,
+      reset: true,
     };
 
     const contentConfig: DashboardContentOptions = {

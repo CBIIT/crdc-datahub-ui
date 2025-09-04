@@ -33,6 +33,7 @@ const baseUser: User = {
   IDP: "nih",
   email: "",
   studies: null,
+  institution: null,
   dataCommons: [],
   dataCommonsDisplayNames: [],
   createdAt: "",
@@ -129,12 +130,13 @@ describe("Basic Functionality", () => {
           permission: "Can Edit",
         },
       ],
-      studyAbbreviation: "AAAAAAAAAAAAAAAAA",
+      studyAbbreviation: "AAAAAAAAAAAAAAAAAAAAAAAAAA",
       dataCommons: "Test Commons AAAAAA",
       dataCommonsDisplayName: "A Display Name of TC AAAAAA",
       organization: {
         _id: "",
         name: "Test Program AAAAAA",
+        abbreviation: "Test Program Abbreviation",
       },
       conciergeName: "Test Concierge AAAAAA",
       conciergeEmail: "concierge@test.com",
@@ -154,20 +156,20 @@ describe("Basic Functionality", () => {
     expect(getByText("Study")).toBeVisible();
     expect(getByText("Data Commons")).toBeVisible();
     expect(getByText("Program")).toBeVisible();
-    expect(getByText("Primary Contact")).toBeVisible();
+    expect(getByText("Data Concierge")).toBeVisible();
 
     // Check values
     expect(getByText("Test Submission...")).toBeVisible();
     expect(getByText("Test Intention AAAAAA")).toBeVisible(); // Not truncated
     expect(getByText("Submitter Test A...")).toBeVisible();
-    expect(getByText("AAAAAAAAAAAAAAAA...")).toBeVisible();
+    expect(getByText("AAAAAAAAAAAAAAAAAAAAAAAAA...")).toBeVisible();
     expect(getByText("A Display Name of TC AAAAAA")).toBeVisible(); // Not truncated
-    expect(getByText("Test Program AAA...")).toBeVisible();
+    expect(getByText("Test Program Abbreviati...")).toBeVisible();
     expect(getByText("Test Concierge A...")).toBeVisible();
 
     expect(getByText("2")).toBeVisible();
 
-    const emailLink = getByLabelText("Email Primary Contact");
+    const emailLink = getByLabelText("Email Data Concierge");
     expect(emailLink).toBeVisible();
     expect(emailLink).toHaveAttribute("href", "mailto:concierge@test.com");
   });
@@ -210,7 +212,7 @@ describe("Basic Functionality", () => {
     });
   });
 
-  it("renders the Primary Contact with name and email link when email is provided", () => {
+  it("renders the Data Concierge with name and email link when email is provided", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       conciergeName: "Test Concierge",
       conciergeEmail: "concierge@test.com",
@@ -222,15 +224,15 @@ describe("Basic Functionality", () => {
       </BaseComponent>
     );
 
-    expect(getByText("Primary Contact")).toBeVisible();
+    expect(getByText("Data Concierge")).toBeVisible();
     expect(getByText("Test Concierge")).toBeVisible();
 
-    const emailLink = getByLabelText("Email Primary Contact");
+    const emailLink = getByLabelText("Email Data Concierge");
     expect(emailLink).toBeVisible();
     expect(emailLink).toHaveAttribute("href", "mailto:concierge@test.com");
   });
 
-  it("renders the Primary Contact with name only when email is not provided", () => {
+  it("renders the Data Concierge with name only when email is not provided", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       conciergeName: "Test Concierge",
       conciergeEmail: null,
@@ -242,16 +244,17 @@ describe("Basic Functionality", () => {
       </BaseComponent>
     );
 
-    expect(getByText("Primary Contact")).toBeVisible();
+    expect(getByText("Data Concierge")).toBeVisible();
     expect(getByText("Test Concierge")).toBeVisible();
 
-    const emailLink = queryByLabelText("Email Primary Contact");
+    const emailLink = queryByLabelText("Email Data Concierge");
     expect(emailLink).toBeNull();
   });
 
-  it("renders the Program as NA when no program is assigned", () => {
+  it("renders the Program as NA when no program abbreviation is assigned", () => {
     const dataSubmission: RecursivePartial<Submission> = {
       organization: null,
+      studyAbbreviation: "some-study",
     };
 
     const { getByText } = render(
@@ -261,6 +264,25 @@ describe("Basic Functionality", () => {
     );
 
     expect(getByText("Program")).toBeVisible();
+    expect(getByText("NA")).toBeVisible();
+  });
+
+  it("renders the Study as NA when no study abbreviation is assigned", () => {
+    const dataSubmission: RecursivePartial<Submission> = {
+      organization: {
+        _id: "org-1",
+        abbreviation: "some-org",
+      },
+      studyAbbreviation: null,
+    };
+
+    const { getByText } = render(
+      <BaseComponent>
+        <DataSubmissionSummary dataSubmission={dataSubmission as Submission} />
+      </BaseComponent>
+    );
+
+    expect(getByText("Study")).toBeVisible();
     expect(getByText("NA")).toBeVisible();
   });
 });

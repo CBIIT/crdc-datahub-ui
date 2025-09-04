@@ -28,6 +28,32 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
 };
 
 /**
+ * List the available Data Model versions for a given Data Model
+ *
+ * @param model The Data Model (DataCommon) to list versions for (e.g. "CDS")
+ * @returns An array of version strings or empty if none are found
+ */
+export const listAvailableModelVersions = async (model: string): Promise<string[]> => {
+  try {
+    const manifest = await fetchManifest();
+    if (!manifest || !manifest[model]) {
+      throw new Error(`Unable to find manifest for ${model}`);
+    }
+
+    const { versions } = manifest[model];
+    if (!Array.isArray(versions) || versions.length === 0) {
+      throw new Error(`No versions found for ${model}`);
+    }
+
+    return versions;
+  } catch (e) {
+    Logger.error("listDataModelVersions: An exception was thrown", e);
+  }
+
+  return [];
+};
+
+/**
  * Builds the asset URLs for the Data Model Navigator to import from
  *
  * @param model The Data Model (DataCommon) to build asset URLs for
@@ -63,21 +89,18 @@ export const buildAssetUrls = (model: DataCommon, modelVersion: string): ModelAs
  * Helper function to SAFELY build a set of base filter containers for the Data Model Navigator
  *
  * @example { category: [], uiDisplay: [], ... }
- * @param dc The data common to build the base filters for
+ * @param config The Data Model Navigator configuration to build the base filters from
  * @returns An array of base filters used by Data Model Navigator
  */
-export const buildBaseFilterContainers = (dc: DataCommon): { [key: string]: [] } => {
-  if (!dc || !dc?.configuration?.facetFilterSearchData) {
+export const buildBaseFilterContainers = (config: ModelNavigatorConfig): { [key: string]: [] } => {
+  if (!config || !config?.facetFilterSearchData) {
     return {};
   }
-  if (
-    !Array.isArray(dc.configuration.facetFilterSearchData) ||
-    dc.configuration.facetFilterSearchData.length === 0
-  ) {
+  if (!Array.isArray(config.facetFilterSearchData) || config.facetFilterSearchData.length === 0) {
     return {};
   }
 
-  return dc.configuration.facetFilterSearchData.reduce(
+  return config.facetFilterSearchData.reduce(
     (o, searchData) => ({
       ...o,
       [searchData?.datafield || "base"]: [],
@@ -90,21 +113,18 @@ export const buildBaseFilterContainers = (dc: DataCommon): { [key: string]: [] }
  * Helper function to build an array of possible filter options for the Data Model Navigator
  *
  * @example [ 'administrative', 'case', ... ]
- * @param dc The data common to build the filter options list for
+ * @param config The data common to build the filter options list for
  * @returns An array of filter options used by Data Model Navigator
  */
-export const buildFilterOptionsList = (dc: DataCommon): string[] => {
-  if (!dc || !dc?.configuration?.facetFilterSearchData) {
+export const buildFilterOptionsList = (config: ModelNavigatorConfig): string[] => {
+  if (!config || !config?.facetFilterSearchData) {
     return [];
   }
-  if (
-    !Array.isArray(dc.configuration.facetFilterSearchData) ||
-    dc.configuration.facetFilterSearchData.length === 0
-  ) {
+  if (!Array.isArray(config.facetFilterSearchData) || config.facetFilterSearchData.length === 0) {
     return [];
   }
 
-  return dc.configuration.facetFilterSearchData.reduce((a, searchData) => {
+  return config.facetFilterSearchData.reduce((a, searchData) => {
     if (!Array.isArray(searchData?.checkboxItems) || searchData.checkboxItems.length === 0) {
       return a;
     }
