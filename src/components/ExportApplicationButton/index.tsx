@@ -143,7 +143,7 @@ const ExportApplicationButton = ({ disabled, ...rest }: Props) => {
           arrow
         >
           <StyledText variant="body2" data-testid="export-application-excel-button-text">
-            Export
+            Export Form
           </StyledText>
         </StyledTooltip>
       </StyledExportButton>
