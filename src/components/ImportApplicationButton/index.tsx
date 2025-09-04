@@ -1,10 +1,13 @@
 import { Button, ButtonProps, Stack, styled, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { useState } from "react";
 
 import ImportIconSvg from "@/assets/icons/import_icon.svg?react";
+import config from "@/config/SectionConfig";
 import useFormMode from "@/hooks/useFormMode";
 import { Logger } from "@/utils";
 
+import { useAuthContext } from "../Contexts/AuthContext";
 import { useFormContext } from "../Contexts/FormContext";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
@@ -67,7 +70,12 @@ const disableImportStatuses: ApplicationStatus[] = [
   "Deleted",
 ];
 
-type Props = Omit<ButtonProps, "onClick">;
+type Props = {
+  /**
+   * The active section of the form.
+   */
+  activeSection?: string;
+} & Omit<ButtonProps, "onClick">;
 
 /**
  * ImportApplicationButton component for handling the import of application data
@@ -76,12 +84,17 @@ type Props = Omit<ButtonProps, "onClick">;
  * @param param Props for the button component.
  * @returns JSX.Element
  */
-const ImportApplicationButton = ({ disabled = false, ...rest }: Props) => {
+const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: Props) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuthContext();
   const { data, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const shouldDisable = disabled || disableImportStatuses.includes(data?.status) || readOnlyInputs;
+  const isFormOwner = user?._id === data?.applicant?.applicantID;
+  const isReviewSection = activeSection?.toUpperCase() === config.REVIEW.id.toUpperCase();
+  const shouldDisable =
+    disabled || disableImportStatuses.includes(data?.status) || readOnlyInputs || isReviewSection;
 
   /**
    * Triggers the file input dialog.
@@ -132,11 +145,22 @@ const ImportApplicationButton = ({ disabled = false, ...rest }: Props) => {
       }
     );
 
-    await setData(newData as QuestionnaireData, { skipSave: true });
+    const res = await setData(newData as QuestionnaireData, { skipSave: false });
+
+    if (res?.status === "success") {
+      enqueueSnackbar(
+        "Your data for this Submission Request has been imported. Please review each page and confirm all fields before submitting.",
+        { variant: "success" }
+      );
+    }
 
     setOpenDialog(false);
     setIsUploading(false);
   };
+
+  if (!isFormOwner) {
+    return null;
+  }
 
   return (
     <>
@@ -159,7 +183,7 @@ const ImportApplicationButton = ({ disabled = false, ...rest }: Props) => {
             arrow
           >
             <StyledText variant="body2" data-testid="import-application-excel-tooltip-text">
-              Import
+              Import Form
             </StyledText>
           </StyledTooltip>
         </StyledImportButton>

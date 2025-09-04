@@ -397,26 +397,28 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
         />
       </CollaboratorsProvider>
 
-      <EditSubmissionNameDialog
-        open={isEditing}
-        submissionID={dataSubmission?._id}
-        initialValue={dataSubmission?.name}
-        onCancel={() => setIsEditing(false)}
-        onSave={(newName) => {
-          setIsEditing(false);
-          updateQuery((prev) => ({
-            ...prev,
-            getSubmission: {
-              ...prev.getSubmission,
-              name: newName, // Use the new name from the mutation response
-            },
-          }));
-          enqueueSnackbar("The Data Submission name has been successfully changed.", {
-            variant: "success",
-            autoHideDuration: 4000,
-          });
-        }}
-      />
+      {isEditing && (
+        <EditSubmissionNameDialog
+          open={isEditing}
+          submissionID={dataSubmission?._id}
+          initialValue={dataSubmission?.name}
+          onCancel={() => setIsEditing(false)}
+          onSave={(newName) => {
+            setIsEditing(false);
+            updateQuery((prev) => ({
+              ...prev,
+              getSubmission: {
+                ...prev.getSubmission,
+                name: newName, // Use the new name from the mutation response
+              },
+            }));
+            enqueueSnackbar("The Data Submission name has been successfully changed.", {
+              variant: "success",
+              autoHideDuration: 4000,
+            });
+          }}
+        />
+      )}
     </StyledSummaryWrapper>
   );
 };

@@ -110,14 +110,15 @@ describe("Basic Functionality", () => {
     (useFormMode as Mock).mockReturnValue({ readOnlyInputs: false });
   });
 
-  it("should render without crashing", () => {
-    const { getByTestId } = render(
+  it("should render a button with the correct text", () => {
+    const { getByText, getByTestId } = render(
       <TestParent formCtxState={{ data: {}, setData: vi.fn() }}>
         <ImportApplicationButton />
       </TestParent>
     );
 
     expect(getByTestId("import-application-excel-button")).toBeVisible();
+    expect(getByText("Import Form")).toBeInTheDocument();
   });
 
   it("should open dialog when button is clicked", () => {
@@ -143,7 +144,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call setData with parsed data and close dialog on import", async () => {
-    const setData = vi.fn();
+    const setData = vi.fn().mockReturnValue({ status: "success", id: "success-id" });
     const parsedData = { some: "data" };
     const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
     (QuestionnaireExcelMiddleware.parse as Mock).mockResolvedValue(parsedData);
@@ -183,7 +184,14 @@ describe("Basic Functionality", () => {
 
     await waitFor(() => {
       expect(QuestionnaireExcelMiddleware.parse).toHaveBeenCalled();
-      expect(setData).toHaveBeenCalledWith(parsedData, { skipSave: true });
+      expect(setData).toHaveBeenCalledWith(parsedData, { skipSave: false });
+    });
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Your data for this Submission Request has been imported. Please review each page and confirm all fields before submitting.",
+        { variant: "success" }
+      );
     });
   });
 
@@ -270,5 +278,55 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(getByTestId("import-dialog-confirm-button")).toBeDisabled();
     });
+  });
+
+  it("should disable button when active section is REVIEW", () => {
+    const { getByTestId } = render(
+      <TestParent formCtxState={{ data: { status: "In Progress" }, setData: vi.fn() }}>
+        <ImportApplicationButton activeSection="REVIEW" />
+      </TestParent>
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeDisabled();
+  });
+
+  it("should not show button when user is not the form owner", () => {
+    const { queryByTestId } = render(
+      <TestParent
+        authCtxState={authCtxStateFactory.build({ user: userFactory.build({ _id: "other-user" }) })}
+        formCtxState={{
+          data: {
+            status: "In Progress",
+            applicant: applicantFactory.build({ applicantID: "some-user" }),
+          },
+          setData: vi.fn(),
+        }}
+      >
+        <ImportApplicationButton />
+      </TestParent>
+    );
+
+    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
+  });
+
+  it("should enable button when user is the form owner", () => {
+    const { getByTestId } = render(
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ _id: "current-user" }),
+        })}
+        formCtxState={{
+          data: {
+            status: "In Progress",
+            applicant: applicantFactory.build({ applicantID: "current-user" }),
+          },
+          setData: vi.fn(),
+        }}
+      >
+        <ImportApplicationButton />
+      </TestParent>
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeEnabled();
   });
 });

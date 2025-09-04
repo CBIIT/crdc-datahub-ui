@@ -81,7 +81,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
   onSave,
 }) => {
   const [newName, setNewName] = useState<string>(initialValue);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
   const { enqueueSnackbar } = useSnackbar();
 
   const [editSubmission] = useMutation<EditSubmissionNameResp, EditSubmissionNameInput>(
