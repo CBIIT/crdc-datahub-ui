@@ -1,4 +1,5 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import { within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { isEqual } from "lodash";
 import React, { FC, useMemo } from "react";
@@ -12,6 +13,7 @@ import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory"
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 import { submissionHistoryEventFactory } from "@/factories/submission/SubmissionHistoryEvent";
+import { EDIT_SUBMISSION } from "@/graphql";
 
 import { render, waitFor } from "../../test-utils";
 import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
@@ -43,21 +45,23 @@ type Props = {
   mocks?: MockedResponse[];
   role?: UserRole;
   submissionCtxState?: SubmissionCtxState;
+  user?: User;
 };
 
 const BaseComponent: FC<Props> = ({
   role = "Submitter",
   submissionCtxState = baseSubmissionCtx,
   mocks = [],
+  user,
   children,
 }) => {
   const authState = useMemo<AuthContextState>(
     () =>
       authCtxStateFactory.build({
         isLoggedIn: true,
-        user: userFactory.build({ role, permissions: ["data_submission:view"] }),
+        user: user ?? userFactory.build({ role, permissions: ["data_submission:view"] }),
       }),
-    [role]
+    [role, user]
   );
 
   return (
@@ -792,5 +796,139 @@ describe("Implementation Requirements", () => {
       expect(queryByText(/Released to/i)).not.toBeInTheDocument();
       expect(queryByRole("tooltip")).not.toBeInTheDocument();
     });
+  });
+});
+
+describe("Edit Submission Name", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    sessionStorage.clear();
+  });
+
+  it("A snackbar is displayed after successful name change", async () => {
+    const dataSubmission = submissionFactory.build({ _id: "submission-id", name: "Old Name" });
+
+    const editSubmissionMock: MockedResponse = {
+      request: {
+        query: EDIT_SUBMISSION,
+        variables: { _id: "submission-id", newName: "New Name" },
+      },
+      result: {
+        data: {
+          editSubmission: {
+            _id: "submission-id",
+            name: "New Name",
+            __typename: "Submission",
+          },
+        },
+      },
+    };
+
+    const { getByTestId } = render(
+      <BaseComponent mocks={[editSubmissionMock]}>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+
+    userEvent.click(getByTestId("edit-submission-name-icon"));
+    const inputWrapper = getByTestId("edit-submission-name-dialog-input");
+    const input = inputWrapper.querySelector("input");
+    if (!input) throw new Error("Input not found in edit-submission-name-dialog-input");
+    userEvent.clear(input);
+    userEvent.type(input, "New Name");
+    userEvent.click(getByTestId("edit-submission-name-dialog-save-button"));
+
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "The Data Submission name has been successfully changed.",
+        expect.objectContaining({ variant: "success" })
+      );
+    });
+  });
+
+  it("The new name is displayed in summary after edits", async () => {
+    const dataSubmission = submissionFactory.build({ _id: "submission-id", name: "Old Name" });
+
+    const editSubmissionMock: MockedResponse = {
+      request: {
+        query: EDIT_SUBMISSION,
+        variables: { _id: "submission-id", newName: "New Name" },
+      },
+      result: {
+        data: {
+          editSubmission: {
+            _id: "submission-id",
+            name: "New Name",
+            __typename: "Submission",
+          },
+        },
+      },
+    };
+    const updateQuery = vi.fn((updater: (state: typeof submissionCtxState.data) => unknown) =>
+      updater({ getSubmission: { ...dataSubmission }, getSubmissionAttributes: null })
+    );
+
+    const submissionCtxState = {
+      ...submissionCtxStateFactory.build(),
+      data: {
+        getSubmission: dataSubmission,
+        getSubmissionAttributes: null,
+      },
+      updateQuery,
+      status: SubmissionCtxStatus.LOADED,
+      error: null,
+    };
+
+    const { getByTestId, rerender } = render(
+      <BaseComponent mocks={[editSubmissionMock]} submissionCtxState={submissionCtxState}>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+
+    userEvent.click(getByTestId("edit-submission-name-icon"));
+    const input = within(getByTestId("edit-submission-name-dialog-input")).getByRole("textbox");
+    userEvent.clear(input);
+    userEvent.type(input, "New Name");
+    userEvent.click(getByTestId("edit-submission-name-dialog-save-button"));
+
+    await waitFor(() => expect(updateQuery).toHaveBeenCalled());
+
+    const updatedDataSubmission = { ...dataSubmission, name: "New Name" } as Submission;
+
+    rerender(
+      <BaseComponent mocks={[editSubmissionMock]} submissionCtxState={submissionCtxState}>
+        <DataSubmissionSummary dataSubmission={updatedDataSubmission} />
+      </BaseComponent>
+    );
+
+    await waitFor(() =>
+      expect(getByTestId("submission-name-display")).toHaveTextContent("New Name")
+    );
+  });
+
+  it("shows edit icon for primary submitter", () => {
+    const dataSubmission = submissionFactory.build({ name: "Test", submitterID: "user1" });
+    const user = userFactory.build({ _id: "user1" });
+    const submissionCtxState = submissionCtxStateFactory.build();
+
+    const { getByTestId } = render(
+      <BaseComponent submissionCtxState={submissionCtxState} user={user}>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+    expect(getByTestId("edit-submission-name-icon")).toBeInTheDocument();
+  });
+
+  it("does not show edit icon for non-primary submitter", () => {
+    const dataSubmission = submissionFactory.build({ name: "Test", submitterID: "user1" });
+    const user = userFactory.build({ _id: "user2" });
+    const submissionCtxState = submissionCtxStateFactory.build();
+
+    const { queryByTestId } = render(
+      <BaseComponent submissionCtxState={submissionCtxState} user={user}>
+        <DataSubmissionSummary dataSubmission={dataSubmission} />
+      </BaseComponent>
+    );
+    expect(queryByTestId("edit-submission-name-icon")).not.toBeInTheDocument();
   });
 });
