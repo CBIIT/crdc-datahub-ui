@@ -282,3 +282,115 @@ describe("toYesNo", () => {
     expect(utils.toYesNo(undefined)).toBeNull();
   });
 });
+
+describe("isHyperlinkValue", () => {
+  it("returns true for { text, hyperlink } shape", () => {
+    const v: ExcelJS.CellHyperlinkValue = {
+      text: "example@example.com",
+      hyperlink: "mailto:example@example.com",
+    };
+
+    expect(utils.isHyperlinkValue(v)).toBe(true);
+  });
+
+  it("returns false for primitives and null", () => {
+    expect(utils.isHyperlinkValue("hello" as unknown as ExcelJS.CellValue)).toBe(false);
+    expect(utils.isHyperlinkValue(123 as unknown as ExcelJS.CellValue)).toBe(false);
+    expect(utils.isHyperlinkValue(null as unknown as ExcelJS.CellValue)).toBe(false);
+  });
+
+  it("returns false for objects missing required keys", () => {
+    const missingText = { hyperlink: "mailto:x@y.com" } as unknown as ExcelJS.CellValue;
+    const missingLink = { text: "x@y.com" } as unknown as ExcelJS.CellValue;
+
+    expect(utils.isHyperlinkValue(missingText)).toBe(false);
+    expect(utils.isHyperlinkValue(missingLink)).toBe(false);
+  });
+});
+
+describe("isFormulaValue", () => {
+  it("returns true for { formula } shape (with/without result)", () => {
+    const v1: ExcelJS.CellFormulaValue = { formula: "A1+B1" };
+    const v2: ExcelJS.CellFormulaValue = {
+      formula: "SUM(A1:A3)",
+      result: 6,
+    };
+
+    expect(utils.isFormulaValue(v1)).toBe(true);
+    expect(utils.isFormulaValue(v2)).toBe(true);
+  });
+
+  it("returns false for shared formula", () => {
+    const v: ExcelJS.CellSharedFormulaValue = {
+      sharedFormula: "A1",
+      result: 1,
+    };
+
+    expect(utils.isFormulaValue(v)).toBe(false);
+  });
+
+  it("returns false for non-formula objects and primitives", () => {
+    const hyperlink: ExcelJS.CellHyperlinkValue = { text: "x@y.com", hyperlink: "mailto:x@y.com" };
+
+    expect(utils.isFormulaValue(hyperlink)).toBe(false);
+    expect(utils.isFormulaValue("=A1" as unknown as ExcelJS.CellValue)).toBe(false);
+  });
+});
+
+describe("isSharedFormulaValue", () => {
+  it("returns true for { sharedFormula } shape (with/without result)", () => {
+    const v1: ExcelJS.CellSharedFormulaValue = { sharedFormula: "A1" };
+    const v2: ExcelJS.CellSharedFormulaValue = {
+      sharedFormula: "B2",
+      result: 42,
+    };
+
+    expect(utils.isSharedFormulaValue(v1)).toBe(true);
+    expect(utils.isSharedFormulaValue(v2)).toBe(true);
+  });
+
+  it("returns false for regular formula", () => {
+    const v: ExcelJS.CellFormulaValue = { formula: "A1+B1" };
+    expect(utils.isSharedFormulaValue(v)).toBe(false);
+  });
+
+  it("returns false for other shapes", () => {
+    expect(utils.isSharedFormulaValue({} as unknown as ExcelJS.CellValue)).toBe(false);
+    expect(utils.isSharedFormulaValue("foo" as unknown as ExcelJS.CellValue)).toBe(false);
+  });
+});
+
+describe("isRichTextValue", () => {
+  it("returns true for { richText: Array<{ text: string }> }", () => {
+    const v: ExcelJS.CellRichTextValue = { richText: [{ text: "Hello" }, { text: "World" }] };
+
+    expect(utils.isRichTextValue(v)).toBe(true);
+  });
+
+  it("returns false when richText is not an array", () => {
+    const bad = { richText: "Hello" } as unknown as ExcelJS.CellValue;
+
+    expect(utils.isRichTextValue(bad)).toBe(false);
+  });
+
+  it("returns false for primitives and null", () => {
+    expect(utils.isRichTextValue("Hello" as unknown as ExcelJS.CellValue)).toBe(false);
+    expect(utils.isRichTextValue(null as unknown as ExcelJS.CellValue)).toBe(false);
+  });
+});
+
+describe("isErrorValue", () => {
+  it("returns true for { error } shape", () => {
+    const v: ExcelJS.CellErrorValue = { error: "#DIV/0!" };
+
+    expect(utils.isErrorValue(v)).toBe(true);
+  });
+
+  it("returns false for non-error values", () => {
+    const date = new Date();
+
+    expect(utils.isErrorValue(date as unknown as ExcelJS.CellValue)).toBe(false);
+    expect(utils.isErrorValue({} as unknown as ExcelJS.CellValue)).toBe(false);
+    expect(utils.isErrorValue("error" as unknown as ExcelJS.CellValue)).toBe(false);
+  });
+});

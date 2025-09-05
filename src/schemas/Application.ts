@@ -98,7 +98,7 @@ export const contactSchema = z
     /**
      * Primary email used for contact follow-ups.
      */
-    email: z.email(),
+    email: z.union([z.email(), z.literal("")]),
     /**
      * The contact's phone number.
      */
@@ -374,7 +374,7 @@ export const fileInfoSchema = z
      *
      * @note Must be a non-negative integer.
      */
-    count: z.number().int().nonnegative(),
+    count: z.number().int().nonnegative().nullable(),
     /**
      * Approximate total data volume for this file type.
      *
