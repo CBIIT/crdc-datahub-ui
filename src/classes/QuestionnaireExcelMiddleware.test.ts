@@ -3336,9 +3336,13 @@ describe("Parsing", () => {
     expect(Logger.error).toHaveBeenCalledTimes(0);
     const err: ExcelJS.CellErrorValue = { error: "#DIV/0!" };
     expect(call(err)).toBe(null);
+
     await waitFor(() => {
       expect(Logger.error).toHaveBeenCalledWith(
-        "QuestionnaireExcelMiddleware: Found error value while normalizing data: #DIV/0!"
+        "QuestionnaireExcelMiddleware: Found unknown value while normalizing data:",
+        expect.objectContaining({
+          error: "#DIV/0!",
+        })
       );
     });
 
@@ -3347,9 +3351,8 @@ describe("Parsing", () => {
     expect(call(unknownObj)).toBe(null);
     await waitFor(() => {
       expect(Logger.error).toHaveBeenCalledWith(
-        `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${JSON.stringify(
-          unknownObj
-        )}`
+        "QuestionnaireExcelMiddleware: Found unknown value while normalizing data:",
+        unknownObj
       );
     });
   });
