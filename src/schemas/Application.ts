@@ -102,7 +102,7 @@ export const contactSchema = z
     /**
      * The contact's phone number.
      */
-    phone: z.string().max(15).optional(),
+    phone: z.string().max(25).optional(),
     /**
      * The institution name for the contact.
      *
