@@ -18,7 +18,7 @@ on:
         type: boolean
         default: true
       unit_test:
-        description: "Run Unit Test"
+        description: "Run Unit Tests"
         required: true
         type: boolean
         default: true
@@ -72,7 +72,7 @@ jobs:
         run: |
           echo "Running unit tests..."
           npm ci
-          npm test:ci
+          npm run test:ci
       
       - name: Build Frontend Docker Image
         id: build-image
