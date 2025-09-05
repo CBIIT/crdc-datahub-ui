@@ -5,6 +5,8 @@ import { isEqual } from "lodash";
 import { VariantType } from "notistack";
 import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 
+import CogIcon from "@/assets/icons/cog_icon.svg?react";
+
 import { hasPermission } from "../../config/AuthPermissions";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import {
@@ -17,7 +19,7 @@ import {
 import { Logger } from "../../utils";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import ModelSelection from "../ModelSelection";
+import SubmissionUpdate from "../SubmissionUpdateDialog";
 import Tooltip from "../Tooltip";
 
 import FlowWrapper from "./FlowWrapper";
@@ -353,7 +355,7 @@ const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
             <NavigatorLink submission={getSubmission} />
           </StyledModelVersionText>
         )}
-        <ModelSelection />
+        <SubmissionUpdate icon={<CogIcon />} />
       </Stack>
     ),
     [getSubmission]

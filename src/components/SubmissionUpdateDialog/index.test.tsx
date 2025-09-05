@@ -11,11 +11,14 @@ import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   GetSubmissionResp,
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
+  LIST_POTENTIAL_COLLABORATORS,
+  ListPotentialCollaboratorsInput,
+  ListPotentialCollaboratorsResp,
+  UPDATE_SUBMISSION_INFO,
+  UpdateSubmissionInfoInput,
+  UpdateSubmissionInfoResp,
 } from "../../graphql";
-import { render, waitFor } from "../../test-utils";
+import { render, waitFor, within } from "../../test-utils";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import {
   SubmissionContext,
@@ -23,7 +26,7 @@ import {
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
 
-import ModelSelection from "./index";
+import SubmissionUpdate from "./index";
 
 const mockListAvailableModelVersions = vi.fn();
 vi.mock("../../utils", async () => ({
@@ -77,13 +80,18 @@ const MockParent: FC<{
   );
 };
 
+beforeEach(() => {
+  mockListAvailableModelVersions.mockReset();
+  sessionStorage.clear();
+});
+
 describe("Accessibility", () => {
   afterEach(() => {
     vi.resetAllMocks();
   });
 
   it("should have no violations for the button", async () => {
-    const { container, getByTestId } = render(<ModelSelection />, {
+    const { container, getByTestId } = render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           submission={{ status: "New" }}
@@ -99,12 +107,12 @@ describe("Accessibility", () => {
       ),
     });
 
-    expect(getByTestId("change-model-version-button")).toBeEnabled();
+    expect(getByTestId("update-submission-button")).toBeEnabled();
     expect(await axe(container)).toHaveNoViolations();
   });
 
   it("should have no violations for the button (disabled)", async () => {
-    const { container, getByTestId } = render(<ModelSelection disabled />, {
+    const { container, getByTestId } = render(<SubmissionUpdate icon={<span />} disabled />, {
       wrapper: ({ children }) => (
         <MockParent
           submission={{ status: "New" }}
@@ -120,7 +128,7 @@ describe("Accessibility", () => {
       ),
     });
 
-    expect(getByTestId("change-model-version-button")).toBeDisabled();
+    expect(getByTestId("update-submission-button")).toBeDisabled();
     expect(await axe(container)).toHaveNoViolations();
   });
 });
@@ -132,7 +140,7 @@ describe("Basic Functionality", () => {
 
   it("should render without crashing", () => {
     expect(() =>
-      render(<ModelSelection />, {
+      render(<SubmissionUpdate icon={<span />} />, {
         wrapper: ({ children }) => (
           <MockParent submission={null} user={null}>
             {children}
@@ -145,9 +153,9 @@ describe("Basic Functionality", () => {
   it("should show a snackbar when the change operation fails (GraphQL Error)", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
@@ -155,7 +163,7 @@ describe("Basic Functionality", () => {
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -172,36 +180,33 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
-      expect(getByTestId("model-version-dialog")).toBeVisible();
+      expect(getByTestId("update-submission-dialog")).toBeVisible();
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! An error occurred while changing the model version",
-        {
-          variant: "error",
-        }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Simulated GraphQL error", {
+        variant: "error",
+      });
     });
   });
 
   it("should show a snackbar when the change operation fails (Network Error)", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       error: new Error("Simulated network error"),
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -218,43 +223,37 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
-      expect(getByTestId("model-version-dialog")).toBeVisible();
+      expect(getByTestId("update-submission-dialog")).toBeVisible();
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! An error occurred while changing the model version",
-        {
-          variant: "error",
-        }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Simulated network error", {
+        variant: "error",
+      });
     });
   });
 
   it("should show a snackbar when the change operation fails (API Error)", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          updateSubmissionModelVersion: {
-            _id: null,
-            modelVersion: null,
-          },
+          updateSubmissionInfo: null,
         },
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -271,21 +270,18 @@ describe("Basic Functionality", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
-      expect(getByTestId("model-version-dialog")).toBeVisible();
+      expect(getByTestId("update-submission-dialog")).toBeVisible();
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
 
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Oops! An error occurred while changing the model version",
-        {
-          variant: "error",
-        }
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unknown API error", {
+        variant: "error",
+      });
     });
   });
 });
@@ -295,14 +291,14 @@ describe("Implementation Requirements", () => {
     vi.resetAllMocks();
   });
 
-  it("should have a tooltip present on the button", async () => {
-    const { getByTestId, findByRole } = render(<ModelSelection />, {
+  it("should not be rendered when the user is missing the required permission", () => {
+    render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           submission={{ status: "New" }}
           user={{
             role: "Data Commons Personnel",
-            permissions: ["data_submission:review"],
+            permissions: [],
             dataCommons: [mockDC],
             dataCommonsDisplayNames: [mockDC],
           }}
@@ -312,177 +308,52 @@ describe("Implementation Requirements", () => {
       ),
     });
 
-    userEvent.hover(getByTestId("change-model-version-button"));
-
-    const tooltip = await findByRole("tooltip");
-
-    expect(tooltip).toBeVisible();
-    expect(tooltip).toHaveTextContent("Change Data Model Version");
-
-    userEvent.unhover(getByTestId("change-model-version-button"));
-
-    await waitFor(() => {
-      expect(tooltip).not.toBeVisible();
-    });
+    expect(() => within(document.body).getByTestId("update-submission-button")).toThrow();
   });
 
-  it("should not be rendered when the user is missing the required permission", () => {
-    const { rerender, getByTestId } = render(
-      <MockParent
-        submission={{ status: "New" }}
-        user={{
-          role: "Data Commons Personnel",
-          permissions: [],
-          dataCommons: [mockDC],
-          dataCommonsDisplayNames: [mockDC],
-        }}
-      >
-        <ModelSelection />
-      </MockParent>
-    );
-
-    expect(() => getByTestId("change-model-version-button")).toThrow();
-
-    rerender(
-      <MockParent
-        submission={{ status: "New" }}
-        user={{
-          role: "Data Commons Personnel",
-          permissions: ["data_submission:review"],
-          dataCommons: [mockDC],
-          dataCommonsDisplayNames: [mockDC],
-        }}
-      >
-        <ModelSelection />
-      </MockParent>
-    );
-
-    expect(getByTestId("change-model-version-button")).toBeVisible();
-  });
-
-  it.each<UserRole>(["Admin", "Federal Lead", "Submitter", "User", "fake role" as UserRole])(
-    "should not be rendered when the user is not a valid role (%s)",
-    async (userRole) => {
-      const { rerender, getByTestId } = render(
+  it("should not be rendered when the user is not assigned to the same data commons", () => {
+    render(<SubmissionUpdate icon={<span />} />, {
+      wrapper: ({ children }) => (
         <MockParent
-          submission={{ status: "New" }}
-          user={{
-            role: userRole,
-            permissions: ["data_submission:review"],
-            // NOTE: Technically other roles don't have DC assigned, but this is required to test this scenario
-            dataCommons: [mockDC],
-            dataCommonsDisplayNames: [mockDC],
-          }}
-        >
-          <ModelSelection />
-        </MockParent>
-      );
-
-      expect(() => getByTestId("change-model-version-button")).toThrow(); // Button should not be rendered
-
-      rerender(
-        <MockParent
-          submission={{ status: "New" }}
+          submission={{ dataCommons: "a different dc", status: "New" }}
           user={{
             role: "Data Commons Personnel",
             permissions: ["data_submission:review"],
-            dataCommons: [mockDC],
+            dataCommons: ["A fake data commons that is not definitely not MOCK-DC"],
             dataCommonsDisplayNames: [mockDC],
           }}
         >
-          <ModelSelection />
+          {children}
         </MockParent>
-      );
+      ),
+    });
 
-      expect(getByTestId("change-model-version-button")).toBeVisible(); // Button should be rendered
-    }
-  );
-
-  it("should not be rendered when the user is not assigned to the same data commons", () => {
-    const { rerender, getByTestId } = render(
-      <MockParent
-        submission={{ dataCommons: "a different dc", status: "New" }}
-        user={{
-          role: "Data Commons Personnel",
-          permissions: ["data_submission:review"],
-          dataCommons: ["A fake data commons that is not definitely not MOCK-DC"],
-          dataCommonsDisplayNames: [mockDC],
-        }}
-      >
-        <ModelSelection />
-      </MockParent>
-    );
-
-    expect(() => getByTestId("change-model-version-button")).toThrow();
-
-    rerender(
-      <MockParent
-        submission={{ dataCommons: "a different dc", status: "New" }}
-        user={{
-          role: "Data Commons Personnel",
-          permissions: ["data_submission:review"],
-          dataCommons: ["a different dc"], // Change to the same data commons
-          dataCommonsDisplayNames: ["a different dc"],
-        }}
-      >
-        <ModelSelection />
-      </MockParent>
-    );
-
-    expect(getByTestId("change-model-version-button")).toBeVisible();
+    expect(() => within(document.body).getByTestId("update-submission-button")).toThrow();
   });
-
-  it.each<SubmissionStatus>([
-    "Submitted",
-    "Released",
-    "Completed",
-    "Deleted",
-    "Withdrawn",
-    "mock" as SubmissionStatus,
-  ])(
-    "should not be rendered when the submission is not in a valid status (%s)",
-    (submissionStatus) => {
-      const { getByTestId } = render(<ModelSelection />, {
-        wrapper: ({ children }) => (
-          <MockParent
-            submission={{ status: submissionStatus }}
-            user={{
-              role: "Data Commons Personnel",
-              permissions: ["data_submission:review"],
-              dataCommons: [mockDC],
-              dataCommonsDisplayNames: [mockDC],
-            }}
-          >
-            {children}
-          </MockParent>
-        ),
-      });
-
-      expect(() => getByTestId("change-model-version-button")).toThrow();
-    }
-  );
 
   it("should update the local cache state when the model version is changed", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
     const mockUpdateQuery = vi.fn();
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          updateSubmissionModelVersion: {
-            _id: "",
+          updateSubmissionInfo: {
+            _id: "mock-uuid",
             modelVersion: "API RESPONSE VERSION",
+            submitterID: "mock-user-id",
+            submitterName: "Mock User",
           },
         },
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId } = render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -500,32 +371,39 @@ describe("Implementation Requirements", () => {
       ),
     });
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button"));
 
     await waitFor(() => {
-      expect(getByTestId("model-version-dialog")).toBeVisible();
+      expect(getByTestId("update-submission-dialog")).toBeVisible();
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockUpdateQuery).toHaveBeenCalledTimes(1);
     });
   });
 
-  it("should reset validation results after the model version is changed", async () => {
+  it("should reset validation results only if the model version is changed", async () => {
     mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0", "2.0.0"]);
 
     const prevState: GetSubmissionResp = {
       getSubmission: submissionFactory.build({
         submitterID: "current-user",
+        submitterName: "Current User",
         dataCommons: mockDC,
         status: "New",
         modelVersion: "1.0.0",
         metadataValidationStatus: "Passed",
         fileValidationStatus: "Passed",
       }),
-      submissionStats: null,
+      submissionStats: {
+        stats: [
+          { nodeName: "node1", error: 10, passed: 10, warning: 10, new: 0, total: 30 },
+          { nodeName: "node2", error: 0, passed: 0, warning: 0, new: 10, total: 10 },
+          { nodeName: "node3", error: 0, passed: 0, warning: 0, new: 0, total: 0 },
+        ],
+      },
       getSubmissionAttributes: {
         submissionAttributes: submissionAttributesFactory
           .pick(["hasOrphanError", "isBatchUploading"])
@@ -537,26 +415,30 @@ describe("Implementation Requirements", () => {
     };
 
     let updateQueryResult: GetSubmissionResp | undefined;
-    const mockUpdateQuery = vi.fn((updater: (prev: GetSubmissionResp) => GetSubmissionResp) => {
-      updateQueryResult = updater(prevState);
-    });
+    const mockUpdateQuery = vi.fn(
+      (updateCallback: (prev: GetSubmissionResp) => GetSubmissionResp) => {
+        updateQueryResult = updateCallback(prevState);
+      }
+    );
 
-    const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+    const mock: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
       request: {
-        query: UPDATE_MODEL_VERSION,
+        query: UPDATE_SUBMISSION_INFO,
       },
       variableMatcher: () => true,
       result: {
         data: {
-          updateSubmissionModelVersion: {
-            _id: "",
-            modelVersion: "API RESPONSE VERSION",
+          updateSubmissionInfo: {
+            _id: "mock-uuid",
+            modelVersion: "2.0.0",
+            submitterID: prevState.getSubmission.submitterID,
+            submitterName: prevState.getSubmission.submitterName,
           },
         },
       },
     };
 
-    const { getByTestId } = render(<ModelSelection />, {
+    const { getByTestId, getByText } = render(<SubmissionUpdate icon={<span />} />, {
       wrapper: ({ children }) => (
         <MockParent
           mocks={[mock]}
@@ -576,13 +458,21 @@ describe("Implementation Requirements", () => {
 
     expect(updateQueryResult).toBeUndefined();
 
-    userEvent.click(getByTestId("change-model-version-button"));
+    userEvent.click(getByTestId("update-submission-button")); // Open Dialog
 
     await waitFor(() => {
-      expect(getByTestId("model-version-dialog")).toBeVisible();
+      expect(getByTestId("update-submission-dialog")).toBeVisible();
     });
 
-    userEvent.click(getByTestId("model-version-dialog-submit-button"));
+    userEvent.click(within(getByTestId("update-submission-version-field")).getByRole("button"));
+
+    await waitFor(() => {
+      expect(getByText("v2.0.0")).toBeVisible();
+    });
+
+    userEvent.click(getByText("v2.0.0")); // Select new version
+
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
 
     await waitFor(() => {
       expect(mockUpdateQuery).toHaveBeenCalledTimes(1);
@@ -591,5 +481,129 @@ describe("Implementation Requirements", () => {
     expect(updateQueryResult).toBeDefined();
     expect(updateQueryResult.getSubmission.metadataValidationStatus).toBe("New");
     expect(updateQueryResult.getSubmission.fileValidationStatus).toBe("New");
+    expect(updateQueryResult.getSubmission.modelVersion).toBe("2.0.0");
+    expect(updateQueryResult.submissionStats.stats).toEqual([
+      { nodeName: "node1", error: 0, passed: 0, warning: 0, new: 30, total: 30 },
+      { nodeName: "node2", error: 0, passed: 0, warning: 0, new: 10, total: 10 },
+      { nodeName: "node3", error: 0, passed: 0, warning: 0, new: 0, total: 0 },
+    ]);
+  });
+
+  it("should change the submitter only if it changed", async () => {
+    mockListAvailableModelVersions.mockImplementationOnce(() => ["1.0.0"]);
+
+    const prevState: GetSubmissionResp = {
+      getSubmission: submissionFactory.build({
+        _id: "a mock uuid",
+        submitterID: "submitter-uuid-1",
+        submitterName: "Submitter User 1",
+        dataCommons: mockDC,
+        modelVersion: "1.0.0",
+        status: "New",
+      }),
+      submissionStats: {
+        stats: [],
+      },
+      getSubmissionAttributes: null,
+    };
+
+    let updateQueryResult: GetSubmissionResp | undefined;
+    const mockUpdateQuery = vi.fn(
+      (updateCallback: (prev: GetSubmissionResp) => GetSubmissionResp) => {
+        updateQueryResult = updateCallback(prevState);
+      }
+    );
+
+    const mockCollaboratorsMatcher = vi.fn().mockImplementation(() => true);
+    const mockListCollaborators: MockedResponse<
+      ListPotentialCollaboratorsResp,
+      ListPotentialCollaboratorsInput
+    > = {
+      request: {
+        query: LIST_POTENTIAL_COLLABORATORS,
+      },
+      variableMatcher: mockCollaboratorsMatcher,
+      result: {
+        data: {
+          listPotentialCollaborators: userFactory
+            .pick(["_id", "firstName", "lastName"])
+            .build(2, (idx) => ({
+              _id: `user-${idx + 1}`,
+              firstName: `First ${idx + 1}`,
+              lastName: `Last ${idx + 1}`,
+            }))
+            .withTypename("User"),
+        },
+      },
+      maxUsageCount: Infinity,
+    };
+
+    const mockUpdateSubmission: MockedResponse<
+      UpdateSubmissionInfoResp,
+      UpdateSubmissionInfoInput
+    > = {
+      request: {
+        query: UPDATE_SUBMISSION_INFO,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          updateSubmissionInfo: {
+            _id: "mock-uuid",
+            modelVersion: "1.0.0",
+            submitterID: "user-1",
+            submitterName: "First 1 Last 1",
+          },
+        },
+      },
+    };
+
+    const { getByTestId, getByText } = render(<SubmissionUpdate icon={<span />} />, {
+      wrapper: ({ children }) => (
+        <MockParent
+          mocks={[mockListCollaborators, mockUpdateSubmission]}
+          updateQuery={mockUpdateQuery}
+          submission={{ ...prevState.getSubmission }}
+          user={{
+            role: "Data Commons Personnel",
+            permissions: ["data_submission:review"],
+            dataCommons: [mockDC],
+            dataCommonsDisplayNames: [mockDC],
+          }}
+        >
+          {children}
+        </MockParent>
+      ),
+    });
+
+    expect(updateQueryResult).toBeUndefined();
+
+    userEvent.click(getByTestId("update-submission-button")); // Open Dialog
+
+    await waitFor(() => {
+      expect(getByTestId("update-submission-dialog")).toBeVisible();
+    });
+
+    await waitFor(() => {
+      expect(mockCollaboratorsMatcher).toHaveBeenCalled();
+    });
+
+    userEvent.click(within(getByTestId("update-submission-submitter-field")).getByRole("button"));
+
+    await waitFor(() => {
+      expect(getByText(/First 1 Last 1/i)).toBeVisible();
+    });
+
+    userEvent.click(getByText(/First 1 Last 1/i)); // Select a different user
+
+    userEvent.click(getByTestId("update-submission-dialog-submit-button"));
+
+    await waitFor(() => {
+      expect(mockUpdateQuery).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateQueryResult).toBeDefined();
+    expect(updateQueryResult.getSubmission.submitterID).toBe("user-1");
+    expect(updateQueryResult.getSubmission.submitterName).toBe("First 1 Last 1");
   });
 });

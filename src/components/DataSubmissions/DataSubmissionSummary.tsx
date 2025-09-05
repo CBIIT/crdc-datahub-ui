@@ -15,6 +15,7 @@ import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import HistoryDialog from "../HistoryDialog";
 import ReviewCommentsDialog from "../ReviewCommentsDialog";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import SubmissionUpdate from "../SubmissionUpdateDialog";
 import TruncatedText from "../TruncatedText";
 
 import DataSubmissionIconMap from "./DataSubmissionIconMap";
@@ -274,7 +275,23 @@ const DataSubmissionSummary: FC<Props> = ({ dataSubmission }) => {
             value={dataSubmission?.intention}
             truncateAfter={false}
           />
-          <SubmissionHeaderProperty label="Submitter" value={dataSubmission?.submitterName} />
+          <SubmissionHeaderProperty
+            label="Submitter"
+            value={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <StyledValue>
+                  <TruncatedText
+                    text={dataSubmission?.submitterName}
+                    maxCharacters={16}
+                    underline={false}
+                    tooltipText={dataSubmission?.submitterName}
+                    ellipsis
+                  />
+                </StyledValue>
+                <SubmissionUpdate icon={<StyledEditIcon />} />
+              </Stack>
+            }
+          />
           <SubmissionHeaderProperty
             label="Collaborators"
             value={

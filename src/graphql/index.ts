@@ -154,11 +154,8 @@ export type {
   Response as EditSubmissionCollaboratorsResp,
 } from "./editSubmissionCollaborators";
 
-export { mutation as UPDATE_MODEL_VERSION } from "./updateSubmissionModelVersion";
-export type {
-  Input as UpdateModelVersionInput,
-  Response as UpdateModelVersionResp,
-} from "./updateSubmissionModelVersion";
+export { UPDATE_SUBMISSION_INFO } from "./updateSubmissionInfo";
+export type { UpdateSubmissionInfoInput, UpdateSubmissionInfoResp } from "./updateSubmissionInfo";
 
 export { query as DOWNLOAD_METADATA_FILE } from "./downloadMetadataFile";
 export type {

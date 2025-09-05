@@ -1,7 +1,8 @@
 import { MockedResponse } from "@apollo/client/testing";
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, userEvent, within } from "@storybook/test";
+import { fn, userEvent, within, screen } from "@storybook/test";
 
+import EditIconSvg from "@/assets/icons/pencil_icon.svg?react";
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
 import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
@@ -9,9 +10,12 @@ import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import { Roles } from "../../config/AuthRoles";
 import {
-  UPDATE_MODEL_VERSION,
-  UpdateModelVersionInput,
-  UpdateModelVersionResp,
+  LIST_POTENTIAL_COLLABORATORS,
+  ListPotentialCollaboratorsInput,
+  ListPotentialCollaboratorsResp,
+  UPDATE_SUBMISSION_INFO,
+  UpdateSubmissionInfoInput,
+  UpdateSubmissionInfoResp,
 } from "../../graphql";
 import { Context as AuthContext } from "../Contexts/AuthContext";
 import { SubmissionContext, SubmissionCtxStatus } from "../Contexts/SubmissionContext";
@@ -27,9 +31,12 @@ type CustomStoryProps = React.ComponentProps<typeof Button> & {
 };
 
 const meta: Meta<CustomStoryProps> = {
-  title: "Data Submissions / Model Selection",
+  title: "Data Submissions / Update Submission Dialog",
   component: Button,
   tags: ["autodocs"],
+  args: {
+    icon: <EditIconSvg />,
+  },
   argTypes: {
     status: {
       description: "Status of the submission",
@@ -68,22 +75,14 @@ const meta: Meta<CustomStoryProps> = {
         value={submissionCtxStateFactory.build({
           data: {
             getSubmission: submissionFactory.build({
-              _id: "",
-              submitterID: "current-user",
-              organization: null,
+              _id: "a-mock-submission-id",
+              submitterID: "test-user",
+              submitterName: "Test User",
               dataCommons: mockDC,
-              dataCommonsDisplayName: "A Mock Data Commons",
-              crossSubmissionStatus: null,
-              otherSubmissions: null,
               intention: "New/Update",
               dataType: "Metadata and Data Files",
-              validationStarted: "",
-              validationEnded: "",
-              validationScope: "New",
-              validationType: ["metadata", "file"],
               metadataValidationStatus: "New",
               fileValidationStatus: "New",
-              dataFileSize: null,
               modelVersion: "3.0.0",
               status: context.args.status,
             }),
@@ -116,19 +115,45 @@ const meta: Meta<CustomStoryProps> = {
 
 type Story = StoryObj<CustomStoryProps>;
 
-const mock: MockedResponse<UpdateModelVersionResp, UpdateModelVersionInput> = {
+const mockUpdateQuery: MockedResponse<UpdateSubmissionInfoResp, UpdateSubmissionInfoInput> = {
   request: {
-    query: UPDATE_MODEL_VERSION,
+    query: UPDATE_SUBMISSION_INFO,
   },
   variableMatcher: () => true,
   result: {
     data: {
-      updateSubmissionModelVersion: {
-        _id: "",
+      updateSubmissionInfo: {
+        _id: "mock-uuid-here",
         modelVersion: "API RESPONSE VERSION",
+        submitterID: "mock-user-id",
+        submitterName: "Mock User",
       },
     },
   },
+  maxUsageCount: Infinity,
+};
+
+const mockListCollaborators: MockedResponse<
+  ListPotentialCollaboratorsResp,
+  ListPotentialCollaboratorsInput
+> = {
+  request: {
+    query: LIST_POTENTIAL_COLLABORATORS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listPotentialCollaborators: userFactory
+        .pick(["_id", "firstName", "lastName"])
+        .build(5, (idx) => ({
+          _id: `user-${idx + 1}`,
+          firstName: `First ${idx + 1}`,
+          lastName: `Last ${idx + 1}`,
+        }))
+        .withTypename("User"),
+    },
+  },
+  maxUsageCount: Infinity,
 };
 
 export const Default: Story = {
@@ -139,26 +164,24 @@ export const Default: Story = {
   },
   parameters: {
     apolloClient: {
-      mocks: [mock],
+      mocks: [mockListCollaborators, mockUpdateQuery],
     },
   },
 };
 
 /**
- * A story to cover the hover state of the button.
- *
- * Note: The :hover state cannot truly be simulated programmatically, so the background won't be visible
- * until you hover over the button.
+ * A story to cover the hover state of the disabled button with the tooltip present.
  */
 export const Hovered: Story = {
   args: {
     userRole: "Data Commons Personnel",
     permissions: ["data_submission:review"],
     status: "In Progress",
+    disabled: true,
   },
   parameters: {
     apolloClient: {
-      mocks: [mock],
+      mocks: [mockUpdateQuery, mockListCollaborators],
     },
   },
   play: async ({ canvasElement }) => {
@@ -166,7 +189,29 @@ export const Hovered: Story = {
 
     const button = await canvas.findByRole("button");
 
-    await userEvent.hover(button);
+    await userEvent.hover(button, { pointerEventsCheck: 0 });
+  },
+};
+
+export const Dialog: Story = {
+  args: {
+    userRole: "Data Commons Personnel",
+    permissions: ["data_submission:review"],
+    status: "In Progress",
+  },
+  parameters: {
+    apolloClient: {
+      mocks: [mockUpdateQuery, mockListCollaborators],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const button = await canvas.findByRole("button");
+
+    await userEvent.click(button);
+
+    await screen.findByRole("dialog");
   },
 };
 
