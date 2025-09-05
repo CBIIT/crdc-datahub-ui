@@ -71,7 +71,8 @@ jobs:
         if: github.event.inputs.unit_test == 'true'
         run: |
           echo "Running unit tests..."
-          npm run test:ci
+          npm ci
+          npm test:ci
       
       - name: Build Frontend Docker Image
         id: build-image
