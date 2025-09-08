@@ -4,8 +4,6 @@ import { toString } from "lodash";
 
 import DataTypes from "@/config/DataTypesConfig";
 import {
-  IF,
-  STR_EQ,
   REQUIRED,
   TEXT_MAX,
   AND,
@@ -181,15 +179,8 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       type: "custom",
       allowBlank: true,
       showErrorMessage: true,
-      showInputMessage: true,
-      error: ErrorCatalog.get("invalidOperation"),
-      formulae: [
-        IF(
-          STR_EQ(A2, "Other"),
-          AND(REQUIRED("B2"), TEXT_MAX("B2", this.CHARACTER_LIMITS["program.name"])),
-          `LEN(TRIM(${"B2"}))=0`
-        ),
-      ],
+      error: ErrorCatalog.get("max", { max: this.CHARACTER_LIMITS["program.name"] }),
+      formulae: [AND(REQUIRED(B2), TEXT_MAX(B2, this.CHARACTER_LIMITS["program.name"]))],
     };
 
     // Program Abbreviation
@@ -197,15 +188,8 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       type: "custom",
       allowBlank: true,
       showErrorMessage: true,
-      showInputMessage: true,
-      error: ErrorCatalog.get("invalidOperation"),
-      formulae: [
-        IF(
-          STR_EQ(A2, "Other"),
-          AND(REQUIRED("C2"), TEXT_MAX("C2", this.CHARACTER_LIMITS["program.abbreviation"])),
-          `LEN(TRIM(${"C2"}))=0`
-        ),
-      ],
+      error: ErrorCatalog.get("max", { max: this.CHARACTER_LIMITS["program.abbreviation"] }),
+      formulae: [AND(REQUIRED(C2), TEXT_MAX(C2, this.CHARACTER_LIMITS["program.abbreviation"]))],
     };
 
     // Program Description
@@ -213,15 +197,8 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       type: "custom",
       allowBlank: true,
       showErrorMessage: true,
-      showInputMessage: true,
-      error: ErrorCatalog.get("invalidOperation"),
-      formulae: [
-        IF(
-          STR_EQ(A2, "Other"),
-          AND(REQUIRED("D2"), TEXT_MAX("D2", this.CHARACTER_LIMITS["program.description"])),
-          `LEN(TRIM(${"D2"}))=0`
-        ),
-      ],
+      error: ErrorCatalog.get("max", { max: this.CHARACTER_LIMITS["program.description"] }),
+      formulae: [AND(REQUIRED(D2), TEXT_MAX(D2, this.CHARACTER_LIMITS["program.description"]))],
     };
 
     // Study
