@@ -24,6 +24,7 @@ const T = {
   // formats
   email: () => `Please provide a valid email address.`,
   orcid: () => `Please provide a valid ORCID.`,
+  phone: () => `Please provide a valid phone number (0-9, '-', ' ')`,
   dateMMDDYYYY: () => `The date is invalid. Please enter a date in the format MM/DD/YYYY.`,
 
   // numeric
