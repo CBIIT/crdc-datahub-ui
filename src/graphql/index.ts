@@ -166,6 +166,12 @@ export type {
   Response as DownloadMetadataFileResp,
 } from "./downloadMetadataFile";
 
+export { query as GET_SUBMISSION_SUMMARY } from "./getSubmissionSummary";
+export type {
+  Input as GetSubmissionSummaryInput,
+  Response as GetSubmissionSummaryResp,
+} from "./getSubmissionSummary";
+
 export { DOWNLOAD_DB_GAP_SHEET } from "./downloadDBGaPLoadSheet";
 export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./downloadDBGaPLoadSheet";
 
@@ -308,3 +314,9 @@ export type {
 
 export { RETRIEVE_OMB_DETAILS } from "./retrieveOMBDetails";
 export type { RetrieveOMBDetailsResp } from "./retrieveOMBDetails";
+
+export { mutation as EDIT_SUBMISSION } from "./editSubmission";
+export type {
+  Input as EditSubmissionNameInput,
+  Response as EditSubmissionNameResp,
+} from "./editSubmission";

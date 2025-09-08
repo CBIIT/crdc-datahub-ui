@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { z } from "zod";
+import * as z from "zod";
 
 import { repositoryDataTypesOptions } from "@/components/Questionnaire/Repository";
 import accessTypeOptions from "@/config/AccessTypesConfig";
@@ -98,7 +98,7 @@ export const contactSchema = z
     /**
      * Primary email used for contact follow-ups.
      */
-    email: z.email(),
+    email: z.union([z.email(), z.literal("")]),
     /**
      * The contact's phone number.
      */
@@ -115,7 +115,7 @@ export const contactSchema = z
      *
      * @since 3.4.0
      */
-    institutionID: z.uuidv4().nullable(),
+    institutionID: z.union([z.uuidv4(), z.literal("")]).nullable(),
   })
   .strict();
 
@@ -374,7 +374,7 @@ export const fileInfoSchema = z
      *
      * @note Must be a non-negative integer.
      */
-    count: z.number().int().nonnegative(),
+    count: z.number().int().nonnegative().nullable(),
     /**
      * Approximate total data volume for this file type.
      *

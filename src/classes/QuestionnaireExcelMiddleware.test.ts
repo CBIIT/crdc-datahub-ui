@@ -1,4 +1,4 @@
-import { Worksheet } from "exceljs";
+import ExcelJS, { Worksheet } from "exceljs";
 import { v4 } from "uuid";
 
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
@@ -38,6 +38,7 @@ vi.mock(import("@/env"), async (importOriginal) => {
     default: {
       ...mod.default,
       VITE_DEV_TIER: "mock-dev-tier",
+      VITE_FE_VERSION: "5.5.0.959",
     },
   };
 });
@@ -104,7 +105,8 @@ describe("Serialization", () => {
       // Pre-filled data
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
-      expect(sheet.getCell("J2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
+      expect(sheet.getCell("J2").value).toEqual("5.5.0");
+      expect(sheet.getCell("K2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
     });
 
     it("should generate SectionA sheet with all dependent sheets", async () => {
@@ -224,7 +226,8 @@ describe("Serialization", () => {
       expect(sheet.getCell("G2").value).toEqual("2025-02-16T22:36:00Z");
       expect(sheet.getCell("H2").value).toEqual("mock-dev-tier");
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
-      expect(sheet.getCell("J2").value).toEqual(new Date("2025-03-15T22:36:00Z").toISOString());
+      expect(sheet.getCell("J2").value).toEqual("5.5.0");
+      expect(sheet.getCell("K2").value).toEqual(new Date("2025-03-15T22:36:00Z").toISOString());
     });
 
     it("should generate SectionA sheet with all data", async () => {
@@ -1802,6 +1805,54 @@ describe("Parsing", () => {
     await expect(middleware.parseMetadata()).resolves.toEqual(false);
   });
 
+  it("should log info message when app version differs between import and current", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeMetadata();
+
+    // Modify the App Version column to have a different version
+    sheet.getCell("J2").value = "2.5.6";
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseMetadata();
+
+    await waitFor(() => {
+      expect(Logger.info).toHaveBeenCalled();
+    });
+
+    expect(result).toEqual(true);
+
+    expect(Logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("Received mismatched appVersion."),
+      expect.objectContaining({
+        expected: "5.5.0",
+        received: "2.5.6",
+      })
+    );
+  });
+
+  it("should not log when app versions match", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const sheet = await middleware.serializeMetadata();
+
+    // App Version column should have the same version (5.5.0)
+    expect(sheet.getCell("J2").value).toEqual("5.5.0");
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseMetadata();
+
+    expect(result).toEqual(true);
+
+    // Should not log any app version mismatch
+    expect(Logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining("Received mismatched appVersion."),
+      expect.any(Object)
+    );
+  });
+
   it("should parse the SectionA sheet correctly", async () => {
     const mockForm = questionnaireDataFactory.build({
       pi: piFactory.build({
@@ -1850,9 +1901,11 @@ describe("Parsing", () => {
     const output = middleware.data;
 
     expect(result).toEqual(true);
-    expect(output.pi).toEqual(mockForm.pi);
-    expect(output.primaryContact).toEqual(mockForm.primaryContact);
-    expect(output.additionalContacts).toEqual(mockForm.additionalContacts);
+    expect(output.pi).toEqual({ ...mockForm.pi, institutionID: "" });
+    expect(output.primaryContact).toEqual({ ...mockForm.primaryContact, institutionID: "" });
+    expect(output.additionalContacts).toEqual(
+      mockForm.additionalContacts?.map((c) => ({ ...c, institutionID: "" }))
+    );
   });
 
   it("should handle missing SectionA sheet", async () => {
@@ -1962,7 +2015,7 @@ describe("Parsing", () => {
     expect(output.primaryContact).toEqual(
       expect.objectContaining({
         institution: "This one is new",
-        institutionID: null, // No match from API
+        institutionID: "", // No match from API
       })
     );
     expect(output.additionalContacts).toEqual(
@@ -1977,7 +2030,7 @@ describe("Parsing", () => {
         }),
         expect.objectContaining({
           institution: "api-option-4",
-          institutionID: null,
+          institutionID: "",
         }),
       ])
     );
@@ -2323,6 +2376,32 @@ describe("Parsing", () => {
 
     expect(result).toEqual(true);
 
+    expect(output.program.name).toBe(InitialQuestionnaire.program.name);
+    expect(output.program.abbreviation).toBe(InitialQuestionnaire.program.abbreviation);
+    expect(output.program.description).toBe(InitialQuestionnaire.program.description);
+  });
+
+  it("should allow empty program when program is not specified", async () => {
+    const mockForm = questionnaireDataFactory.build();
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // Reset data before parsing
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    expect(output.program._id).toBe(InitialQuestionnaire.program._id);
     expect(output.program.name).toBe(InitialQuestionnaire.program.name);
     expect(output.program.abbreviation).toBe(InitialQuestionnaire.program.abbreviation);
     expect(output.program.description).toBe(InitialQuestionnaire.program.description);
@@ -3207,6 +3286,125 @@ describe("Parsing", () => {
 
     expect(output.dataTypes).toEqual(expect.arrayContaining(["genomics", "imaging"]));
     expect(output.clinicalData?.dataTypes ?? []).toHaveLength(0);
+  });
+
+  it("normalizeCellValue handles primitives, Date, nullish, hyperlink, formula, shared formula, rich text, and error", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+    const call = (v: ExcelJS.CellValue | undefined) =>
+      // @ts-expect-error Private member
+      middleware.normalizeCellValue(v);
+
+    const d = new Date("2024-01-01T00:00:00Z");
+
+    // primitives and Date
+    expect(call("hello")).toBe("hello");
+    expect(call(123 as unknown as ExcelJS.CellValue)).toBe(123);
+    expect(call(true as unknown as ExcelJS.CellValue)).toBe(true);
+    expect(call(d as unknown as ExcelJS.CellValue)).toBe("1/1/2024");
+
+    // nullish
+    expect(call(null as unknown as ExcelJS.CellValue)).toBeNull();
+    expect(call(undefined)).toBeNull();
+
+    // hyperlink
+    const hyperlink: ExcelJS.CellHyperlinkValue = {
+      text: "example@example.com",
+      hyperlink: "mailto:example@example.com",
+    };
+    expect(call(hyperlink)).toBe("example@example.com");
+
+    // formula (with/without result)
+    const formulaWithResult: ExcelJS.CellFormulaValue = { formula: "1+1", result: 2 };
+    const formulaNoResult: ExcelJS.CellFormulaValue = { formula: "A1+B1" };
+    expect(call(formulaWithResult)).toBe(2);
+    expect(call(formulaNoResult)).toBeNull();
+
+    // shared formula (with/without result)
+    const sharedWithResult: ExcelJS.CellSharedFormulaValue = {
+      sharedFormula: "A1",
+      result: "ok",
+    };
+    const sharedNoResult: ExcelJS.CellSharedFormulaValue = { sharedFormula: "B2" };
+    expect(call(sharedWithResult)).toBe("ok");
+    expect(call(sharedNoResult)).toBeNull();
+
+    // rich text
+    const rich: ExcelJS.CellRichTextValue = { richText: [{ text: "Hello " }, { text: "World" }] };
+    expect(call(rich)).toBe("Hello World");
+
+    // error
+    expect(Logger.error).toHaveBeenCalledTimes(0);
+    const err: ExcelJS.CellErrorValue = { error: "#DIV/0!" };
+    expect(call(err)).toBe(null);
+
+    await waitFor(() => {
+      expect(Logger.error).toHaveBeenCalledWith(
+        "QuestionnaireExcelMiddleware: Found unknown value while normalizing data:",
+        expect.objectContaining({
+          error: "#DIV/0!",
+        })
+      );
+    });
+
+    // unknown object shape
+    const unknownObj = { foo: "bar", nested: { a: 1 } } as unknown as ExcelJS.CellValue;
+    expect(call(unknownObj)).toBe(null);
+    await waitFor(() => {
+      expect(Logger.error).toHaveBeenCalledWith(
+        "QuestionnaireExcelMiddleware: Found unknown value while normalizing data:",
+        unknownObj
+      );
+    });
+  });
+
+  it("headerKey returns normalized string keys and null for nullish", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+    const call = (v: ExcelJS.CellValue | undefined) =>
+      // @ts-expect-error Private member
+      middleware.headerKey(v);
+
+    const hyperlinkHeader: ExcelJS.CellHyperlinkValue = {
+      text: "Email",
+      hyperlink: "mailto:x@y.com",
+    };
+    expect(call(hyperlinkHeader)).toBe("Email");
+
+    const richHeader: ExcelJS.CellRichTextValue = {
+      richText: [{ text: "Col" }, { text: " Name" }],
+    };
+    expect(call(richHeader)).toBe("Col Name");
+
+    expect(call("Status")).toBe("Status");
+    expect(call(123 as unknown as ExcelJS.CellValue)).toBe("123");
+
+    expect(call(null as unknown as ExcelJS.CellValue)).toBeNull();
+    expect(call(undefined)).toBeNull();
+  });
+
+  it("extractValuesFromWorksheet skips columns with invalid headers", async () => {
+    const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+    // @ts-expect-error Private member
+    const wb = middleware.workbook;
+    const ws = wb.addWorksheet("Tmp Extract Test");
+
+    // Row 1 headers (1-indexed). Column B header is null -> should be skipped.
+    // eslint-disable-next-line no-sparse-arrays
+    ws.getRow(1).values = [, "ColA", null, "ColC"];
+
+    // Data row
+    // eslint-disable-next-line no-sparse-arrays
+    ws.getRow(2).values = [, "A2", "SHOULD_SKIP", "C2"];
+
+    // @ts-expect-error Private member
+    const map = await middleware.extractValuesFromWorksheet(ws);
+
+    expect(map.size).toBe(2);
+    expect(map.get("ColA")).toEqual(["A2"]);
+    expect(map.get("ColC")).toEqual(["C2"]);
+
+    const allValues = Array.from(map.values()).flat();
+    expect(allValues).not.toContain("SHOULD_SKIP");
   });
 });
 

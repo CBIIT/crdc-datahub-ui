@@ -296,12 +296,12 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     });
     this.forEachCellInColumn(ws, "files.count", (cell) => {
       cell.dataValidation = {
-        type: "textLength",
-        operator: "lessThanOrEqual",
+        type: "whole",
+        operator: "greaterThan",
         allowBlank: false,
         showErrorMessage: true,
-        error: ErrorCatalog.get("requiredMax", { max: this.CHARACTER_LIMITS["files.count"] }),
-        formulae: [this.CHARACTER_LIMITS["files.count"]],
+        error: ErrorCatalog.get("min", { min: 0 }),
+        formulae: [0],
       };
     });
     this.forEachCellInColumn(ws, "files.amount", (cell) => {
@@ -415,12 +415,27 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     }
 
     // Extract files
-    const files: FileInfo[] = data.get("files.type")?.map((fileType, index) => ({
-      type: toString(fileType)?.trim(),
-      extension: toString(data.get("files.extension")?.[index]).trim(),
-      count: toSafeInteger(data.get("files.count")?.[index]),
-      amount: toString(data.get("files.amount")?.[index]).trim(),
-    }));
+    const fileTypes = data.get("files.type") || [];
+    const fileExtensions = data.get("files.extension") || [];
+    const fileCounts = data.get("files.count") || [];
+    const fileAmounts = data.get("files.amount") || [];
+    const filesMax = Math.max(
+      fileTypes.length,
+      fileExtensions.length,
+      fileCounts.length,
+      fileAmounts.length
+    );
+    const files: FileInfo[] = [];
+    Array.from({ length: filesMax }).forEach((_, i) => {
+      const type = toString(fileTypes?.[i]).trim() || "";
+      const extension = toString(fileExtensions?.[i]).trim() || "";
+      const count = toSafeInteger(fileCounts?.[i]) || null;
+      const amount = toString(fileAmounts?.[i]).trim() || "";
+
+      if (type || extension || count || amount) {
+        files.push({ type, extension, count, amount });
+      }
+    });
 
     return {
       targetedSubmissionDate: FormatDate(
@@ -437,12 +452,12 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       imagingDataDeIdentified,
       clinicalData: {
         dataTypes: clinicalDataTypes,
-        otherDataTypes: toString(data.get("otherDataTypes")?.[0]).trim(),
+        otherDataTypes: hasClinicalDataType
+          ? toString(data.get("clinicalData.otherDataTypes")?.[0]).trim()
+          : "",
         futureDataTypes,
       },
-      otherDataTypes: hasClinicalDataType
-        ? toString(data.get("otherDataTypes")?.[0] as string).trim()
-        : "",
+      otherDataTypes: toString(data.get("otherDataTypes")?.[0]).trim(),
       files,
       dataDeIdentified: toString(data.get("dataDeIdentified")?.[0]) === "Yes",
       cellLines: toString(data.get("cellLines")?.[0]) === "Yes",

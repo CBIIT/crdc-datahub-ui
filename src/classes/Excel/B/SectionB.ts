@@ -416,59 +416,107 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       Logger.error(`SectionB.ts: The programs sheet is missing or invalid.`);
     }
 
-    const funding: Funding[] =
-      (data.get("study.funding.agency")?.map((agency, index) => ({
-        agency: toString(agency).trim(),
-        grantNumbers: toString(data.get("study.funding.grantNumbers")?.[index]).trim(),
-        nciProgramOfficer: toString(data.get("study.funding.nciProgramOfficer")?.[index]).trim(),
-      })) as Funding[]) || [];
+    const fundingAgencies = data.get("study.funding.agency") || [];
+    const fundingGrantNumbers = data.get("study.funding.grantNumbers") || [];
+    const fundingNciProgramOfficers = data.get("study.funding.nciProgramOfficer") || [];
+    const fundingsMax = Math.max(
+      fundingAgencies.length,
+      fundingGrantNumbers.length,
+      fundingNciProgramOfficers.length
+    );
+    const funding: Funding[] = [];
+    Array.from({ length: fundingsMax }).forEach((_, i) => {
+      const agency = toString(fundingAgencies?.[i]).trim();
+      const grantNumbers = toString(fundingGrantNumbers?.[i]).trim();
+      const nciProgramOfficer = toString(fundingNciProgramOfficers?.[i]).trim();
 
-    const publications: Publication[] =
-      (data.get("study.publications.title")?.map((title, index) => ({
-        title: toString(title).trim(),
-        pubmedID: toString(data.get("study.publications.pubmedID")?.[index]).trim(),
-        DOI: toString(data.get("study.publications.DOI")?.[index]).trim(),
-      })) as Publication[]) || [];
+      if (agency || grantNumbers || nciProgramOfficer) {
+        funding.push({ agency, grantNumbers, nciProgramOfficer });
+      }
+    });
 
-    const plannedPublications: PlannedPublication[] =
-      (data.get("study.plannedPublications.title")?.map((title, index) => ({
-        title: toString(title).trim(),
-        expectedDate: FormatDate(
-          toString(data.get("study.plannedPublications.expectedDate")?.[index]).trim(),
-          "MM/DD/YYYY",
-          ""
-        ),
-      })) as PlannedPublication[]) || [];
+    const publicationTitles = data.get("study.publications.title") || [];
+    const publicationPubmedIDs = data.get("study.publications.pubmedID") || [];
+    const publicationDois = data.get("study.publications.DOI") || [];
+    const publicationsMax = Math.max(
+      publicationTitles.length,
+      publicationPubmedIDs.length,
+      publicationDois.length
+    );
+    const publications: Publication[] = [];
+    Array.from({ length: publicationsMax }).forEach((_, i) => {
+      const title = toString(publicationTitles?.[i]).trim();
+      const pubmedID = toString(publicationPubmedIDs?.[i]).trim();
+      const DOI = toString(publicationDois?.[i]).trim();
 
-    const repositories: Repository[] =
-      (data.get("study.repositories.name")?.map((name, index) => ({
-        name: toString(name).trim(),
-        studyID: toString(data.get("study.repositories.studyID")?.[index]).trim(),
-        dataTypesSubmitted: toString(data.get("study.repositories.dataTypesSubmitted")?.[index])
-          .split("|")
-          .map((item) => item.trim())
-          .filter((item) => {
-            const dataTypes: string[] = [
-              DataTypes.clinicalTrial.name,
-              DataTypes.genomics.name,
-              DataTypes.imaging.name,
-              DataTypes.proteomics.name,
-            ];
+      if (title || pubmedID || DOI) {
+        publications.push({ title, pubmedID, DOI });
+      }
+    });
 
-            return dataTypes.includes(item);
-          }),
-        otherDataTypesSubmitted: toString(
-          data.get("study.repositories.otherDataTypesSubmitted")?.[index]
-        ).trim(),
-      })) as Repository[]) || [];
+    const plannedPublicationTitles = data.get("study.plannedPublications.title") || [];
+    const plannedPublicationExpectedDates =
+      data.get("study.plannedPublications.expectedDate") || [];
+    const plannedPublicationsMax = Math.max(
+      plannedPublicationTitles.length,
+      plannedPublicationExpectedDates.length
+    );
+    const plannedPublications: PlannedPublication[] = [];
+    Array.from({ length: plannedPublicationsMax }).forEach((_, i) => {
+      const title = toString(plannedPublicationTitles?.[i]).trim();
+      const expectedDate = FormatDate(
+        toString(plannedPublicationExpectedDates?.[i]).trim(),
+        "MM/DD/YYYY",
+        ""
+      );
+
+      if (title || expectedDate) {
+        plannedPublications.push({ title, expectedDate });
+      }
+    });
+
+    const repositoryNames = data.get("study.repositories.name") || [];
+    const repositoryStudyIDs = data.get("study.repositories.studyID") || [];
+    const repositoryDataTypesSubmitted = data.get("study.repositories.dataTypesSubmitted") || [];
+    const repositoryOtherDataTypesSubmitted =
+      data.get("study.repositories.otherDataTypesSubmitted") || [];
+    const repositoriesMax = Math.max(
+      repositoryNames.length,
+      repositoryStudyIDs.length,
+      repositoryDataTypesSubmitted.length,
+      repositoryOtherDataTypesSubmitted.length
+    );
+    const repositories: Repository[] = [];
+    Array.from({ length: repositoriesMax }).forEach((_, i) => {
+      const name = toString(repositoryNames?.[i]).trim();
+      const studyID = toString(repositoryStudyIDs?.[i]).trim();
+      const dataTypesSubmitted = toString(repositoryDataTypesSubmitted?.[i])
+        .split("|")
+        .map((item) => item.trim())
+        .filter((item) => {
+          const dataTypes: string[] = [
+            DataTypes.clinicalTrial.name,
+            DataTypes.genomics.name,
+            DataTypes.imaging.name,
+            DataTypes.proteomics.name,
+          ];
+
+          return dataTypes.includes(item);
+        }) as Repository["dataTypesSubmitted"];
+      const otherDataTypesSubmitted = toString(repositoryOtherDataTypesSubmitted?.[i]).trim();
+
+      if (name || studyID || dataTypesSubmitted.length || otherDataTypesSubmitted) {
+        repositories.push({ name, studyID, dataTypesSubmitted, otherDataTypesSubmitted });
+      }
+    });
 
     // Match program name to get the _id
-    let programId: string;
+    let programId = "";
     let programRow: Row | undefined;
     const rawProgramId = toString(data.get("program._id")?.[0]).trim();
     if (rawProgramId === "Not Applicable" || rawProgramId === "Other") {
       programId = rawProgramId;
-    } else if (programSheet) {
+    } else if (programSheet && rawProgramId?.length > 0) {
       const programColB = programSheet.getColumn(2);
       programColB.eachCell((cell, rowNumber) => {
         const name = toString(cell.value).trim();

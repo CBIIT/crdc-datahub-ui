@@ -1,4 +1,5 @@
 import type ExcelJS from "exceljs";
+import { toString } from "lodash";
 
 import { AND, EMAIL, IF, LIST_FORMULA, Logger, ORCID, REQUIRED, STR_EQ, TEXT_MAX } from "@/utils";
 
@@ -131,7 +132,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     };
 
     // Primary Contact
-    [I2, J2, K2, L2, M2, N2].forEach((cell) => {
+    [I2, J2, K2, N2].forEach((cell) => {
       const columnKey = ws.getColumn(cell.col).key;
       const cellLimit = DEFAULT_CHARACTER_LIMITS[columnKey as AKeys] ?? 0;
 
@@ -143,6 +144,27 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
         formulae: [IF(STR_EQ(H2, "Yes"), "TRUE", AND(REQUIRED(cell), TEXT_MAX(cell, cellLimit)))],
       };
     });
+    M2.dataValidation = {
+      type: "list",
+      allowBlank: true,
+      showErrorMessage: false,
+      formulae: [
+        LIST_FORMULA(
+          this.deps.institutionSheet.name,
+          "B",
+          1,
+          this.deps.institutionSheet.rowCount || 0
+        ),
+      ],
+    };
+
+    L2.dataValidation = {
+      type: "custom",
+      showErrorMessage: true,
+      error: ErrorCatalog.get("email"),
+      allowBlank: true,
+      formulae: [EMAIL(L2)],
+    };
 
     // Additional Contacts
     this.forEachCellInColumn(ws, "additionalContacts.firstName", (cell) => {
@@ -210,7 +232,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       email: data.get("pi.email")?.[0] as string,
       ORCID: data.get("pi.ORCID")?.[0] as string,
       institution: piInstitution,
-      institutionID: institutionMap.get(piInstitution) || null,
+      institutionID: institutionMap.get(piInstitution) || "",
       address: data.get("pi.address")?.[0] as string,
     };
 
@@ -222,27 +244,46 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       position: data.get("primaryContact.position")?.[0] as string,
       email: data.get("primaryContact.email")?.[0] as string,
       institution: pcInstitution,
-      institutionID: institutionMap.get(pcInstitution) || null,
+      institutionID: institutionMap.get(pcInstitution) || "",
       phone: data.get("primaryContact.phone")?.[0] as string,
     };
 
-    // NOTE: Known limitation that we require first name in order to parse
-    const additionalContacts: Contact[] =
-      data.get("additionalContacts.firstName")?.map((firstName, index) => {
-        const contactInstitution = (
-          data.get("additionalContacts.institution")?.[index] as string
-        )?.trim();
+    const additionalContactFirstNames = data.get("additionalContacts.firstName") || [];
+    const additionalContactLastNames = data.get("additionalContacts.lastName") || [];
+    const additionalContactPositions = data.get("additionalContacts.position") || [];
+    const additionalContactEmails = data.get("additionalContacts.email") || [];
+    const additionalContactInstitutions = data.get("additionalContacts.institution") || [];
+    const additionalContactPhones = data.get("additionalContacts.phone") || [];
+    const additionalContactsMax = Math.max(
+      additionalContactFirstNames.length,
+      additionalContactLastNames.length,
+      additionalContactPositions.length,
+      additionalContactEmails.length,
+      additionalContactInstitutions.length,
+      additionalContactPhones.length
+    );
+    const additionalContacts: Contact[] = [];
+    Array.from({ length: additionalContactsMax }).forEach((_, i) => {
+      const firstName = toString(additionalContactFirstNames?.[i]).trim() || "";
+      const lastName = toString(additionalContactLastNames?.[i]).trim() || "";
+      const position = toString(additionalContactPositions?.[i]).trim() || "";
+      const email = toString(additionalContactEmails?.[i]).trim() || "";
+      const institution = toString(additionalContactInstitutions?.[i]).trim() || "";
+      const institutionID = institutionMap.get(institution) || "";
+      const phone = toString(additionalContactPhones?.[i]).trim() || "";
 
-        return {
-          firstName: firstName as string,
-          lastName: data.get("additionalContacts.lastName")?.[index] as string,
-          position: data.get("additionalContacts.position")?.[index] as string,
-          email: data.get("additionalContacts.email")?.[index] as string,
-          institution: contactInstitution,
-          institutionID: institutionMap.get(contactInstitution) || null,
-          phone: data.get("additionalContacts.phone")?.[index] as string,
-        };
-      }) || [];
+      if (firstName || lastName || position || email || institution || phone) {
+        additionalContacts.push({
+          firstName,
+          lastName,
+          position,
+          email,
+          institution,
+          institutionID,
+          phone,
+        });
+      }
+    });
 
     return {
       pi,
