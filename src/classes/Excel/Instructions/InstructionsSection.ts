@@ -125,7 +125,7 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     const row = LAYOUT.rows.dependentCells + 2;
     ws.mergeCells(`D${row}:L${row}`);
     const blockedCell = ws.getCell(`C${row}`);
-    const textCell = ws.getCell(`L${row}`);
+    const textCell = ws.getCell(`D${row}`);
     textCell.value = firstDescription;
     textCell.font = { size: 14, color: { argb: "000000" } };
     textCell.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 1 };
@@ -174,7 +174,7 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     ws.getRow(startRow + 1).height = opts?.rowHeight || 60;
   };
 
-  private createGetStartedTable = async (
+  private createGetStartedTable = (
     _ctx: SectionCtxBase,
     ws: ExcelJS.Worksheet,
     startRow: number
