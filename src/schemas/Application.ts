@@ -98,11 +98,11 @@ export const contactSchema = z
     /**
      * Primary email used for contact follow-ups.
      */
-    email: z.email(),
+    email: z.union([z.email(), z.literal("")]),
     /**
      * The contact's phone number.
      */
-    phone: z.string().max(15).optional(),
+    phone: z.string().max(25).optional(),
     /**
      * The institution name for the contact.
      *
@@ -132,7 +132,10 @@ export const piSchema = z
      * ORCID identifier for the PI (format: 0000-0000-0000-0000 or X checksum).
      * Used for identity verification and publication linkage.
      */
-    ORCID: z.string().regex(/^(\d{4}-){3}\d{3}(\d|X)$/, "Please provide a valid ORCID"),
+    ORCID: z.union([
+      z.string().regex(/^(\d{4}-){3}\d{3}(\d|X)$/, "Please provide a valid ORCID"),
+      z.literal(""),
+    ]),
     /**
      * Mailing address for official correspondence
      */
@@ -374,7 +377,7 @@ export const fileInfoSchema = z
      *
      * @note Must be a non-negative integer.
      */
-    count: z.number().int().nonnegative(),
+    count: z.number().int().nonnegative().nullable(),
     /**
      * Approximate total data volume for this file type.
      *
