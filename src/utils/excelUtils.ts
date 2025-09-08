@@ -417,6 +417,17 @@ export const UUIDV4 = (c: ExcelJS.Cell | string) => {
 };
 
 /**
+ * Provides the Excel formula string to check if the cell contains a valid phone number (numeric, space, and dash)
+ *
+ * @param c The cell to check
+ * @returns The formula string
+ */
+export const PHONE = (c: ExcelJS.Cell | string) => {
+  const x = CELL(c);
+  return AND(`${LEN(TRIM(x))}>0`, `ISNUMBER(SUBSTITUTE(SUBSTITUTE(TRIM(${x})," ",""),"-","")+0)`);
+};
+
+/**
  * Quotes a sheet name for Excel ('Sheet 1' -> ''Sheet 1'') and wraps in single quotes.
  * Safe to use for all sheet names (with or without spaces/special chars).
  *
