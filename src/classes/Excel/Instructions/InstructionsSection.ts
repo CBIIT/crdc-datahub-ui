@@ -1,64 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import type ExcelJS from "exceljs";
 
-import { SectionBase, SectionCtxBase, type ColumnDef } from "../SectionBase";
+import { SectionBase, SectionCtxBase } from "../SectionBase";
 
-export type InstructionsKeys = "margin" | "left" | "right";
+import { COLUMNS, InstructionsKeys } from "./Columns";
+import { CONTENT, LAYOUT } from "./Content";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type InstructionsDeps = {};
-
-const LAYOUT = {
-  sheetName: "Instructions",
-  rows: {
-    title: 2,
-    spacing1: 3,
-    intro: 4,
-    getStarted: 6,
-    dependentCells: 12,
-    faq: 18,
-  },
-} as const;
-
-const CONTENT = {
-  title: "Instructions",
-  sections: {
-    intro: {
-      title: "Intro",
-      description:
-        "The following set of high-level questions are intended to provide insight to the CRDC, related to data storage, access, secondary sharing needs and other requirements of data submitters.",
-    },
-    getStarted: {
-      title: "Get Started",
-      description:
-        "Consult the table below for guidance on the required entry format for each field type. It explains where and how to provide values for single entries, multiple entries, and multiple records.",
-    },
-    dependentCells: {
-      title: "Dependent Cells",
-    },
-    faq: {
-      title: "Frequently Asked Questions (FAQ)",
-    },
-  },
-} as const;
-
-export const COLUMNS: ColumnDef<InstructionsKeys>[] = [
-  {
-    key: "margin",
-    header: "",
-    protection: { locked: true },
-  },
-  {
-    key: "left",
-    header: "",
-    protection: { locked: true },
-  },
-  {
-    key: "right",
-    header: "",
-    protection: { locked: true },
-  },
-];
 
 export class InstructionsSection extends SectionBase<InstructionsKeys, InstructionsDeps> {
   static SHEET_NAME = LAYOUT.sheetName;
@@ -170,24 +119,27 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
       CONTENT.sections.dependentCells.title
     );
 
+    const [firstDescription, secondDescription, thirdDescription] =
+      CONTENT.sections.dependentCells.descriptions;
+
     const row = LAYOUT.rows.dependentCells + 2;
     ws.mergeCells(`D${row}:L${row}`);
     const blockedCell = ws.getCell(`C${row}`);
     const textCell = ws.getCell(`L${row}`);
-    textCell.value = "- Indicates a derived or dependent field. You do not need to fill it out.";
+    textCell.value = firstDescription;
     textCell.font = { size: 14, color: { argb: "000000" } };
     textCell.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 1 };
     blockedCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "000000" } };
 
     ws.mergeCells(`D${row + 1}:L${row + 1}`);
     const textCell2 = ws.getCell(`D${row + 1}`);
-    textCell2.value = "If you type in a blocked cell, your input will be ignored.";
+    textCell2.value = secondDescription;
     textCell2.font = { size: 14, color: { argb: "000000" } };
     textCell2.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 2 };
 
     ws.mergeCells(`D${row + 2}:L${row + 2}`);
     const textCell3 = ws.getCell(`D${row + 2}`);
-    textCell3.value = "To unblock a blocked cell, update the field(s) it depends on.";
+    textCell3.value = thirdDescription;
     textCell3.font = { size: 14, color: { argb: "000000" } };
     textCell3.alignment = { horizontal: "left", vertical: "top", wrapText: true, indent: 2 };
   };
@@ -196,28 +148,9 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     this.createSectionHeader(_ctx, ws, LAYOUT.rows.faq, CONTENT.sections.faq.title);
 
     const row = LAYOUT.rows.faq + 2;
-    this.createQuestion(
-      ws,
-      "Q: What gets ignored?",
-      "- Stray values that don't match the column's entry type.\n- For Single Entry or Multiple Entry columns, anything typed outside of the second row.\n- Values within blocked cells.",
-      row
-    );
-
-    this.createQuestion(
-      ws,
-      "Q: How can I tell when a field is 'Multiple Entries' or 'Multiple Records'?",
-      "Hovering over the header cell will display an annotation indicating the field type. If no header annotation is present, then the field is Single Entry.",
-      row + 3,
-      { rowHeight: 40 }
-    );
-
-    this.createQuestion(
-      ws,
-      "Q: What is the Date format?",
-      "Dates should be entered in the format MM/DD/YYYY.",
-      row + 6,
-      { rowHeight: 20 }
-    );
+    CONTENT.sections.faq.questions.forEach((q, i) => {
+      this.createQuestion(ws, q.question, q.answer, row + i * 3, { rowHeight: q.rowHeight || 60 });
+    });
   };
 
   private createQuestion = (
@@ -246,17 +179,11 @@ export class InstructionsSection extends SectionBase<InstructionsKeys, Instructi
     ws: ExcelJS.Worksheet,
     startRow: number
   ) => {
-    const rows = [
-      ["Single Entry", "Enter exactly one value in a single row."],
-      [
-        "Multiple Entries",
-        'Enter multiple values in a single row, separated by a | delimiter.\n(e.g. "value1 | value2 | value3")',
-      ],
-      [
-        "Multiple Records",
-        "Enter multiple records by using a new row for each record. This does not affect adjacent columns; Single Entry fields will remain as a single row.",
-      ],
-    ];
+    const rows = CONTENT.sections.getStarted.table.types.map((type, i) => [
+      type,
+      CONTENT.sections.getStarted.table.descriptions[i],
+    ]);
+
     const cols = 2;
 
     rows.forEach((row, rowIndex) => {
