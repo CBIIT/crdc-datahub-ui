@@ -12,13 +12,7 @@ import { InitialSections } from "@/config/SectionConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
-import {
-  isErrorValue,
-  isFormulaValue,
-  isHyperlinkValue,
-  isRichTextValue,
-  isSharedFormulaValue,
-} from "@/utils";
+import { isFormulaValue, isHyperlinkValue, isRichTextValue, isSharedFormulaValue } from "@/utils";
 import { parseReleaseVersion } from "@/utils/envUtils";
 import { Logger } from "@/utils/logger";
 import { parseSchemaObject } from "@/utils/zodUtils";
@@ -813,18 +807,10 @@ export class QuestionnaireExcelMiddleware {
     if (isRichTextValue(value)) {
       return value.richText.map((seg) => seg.text).join("");
     }
-    if (isErrorValue(value)) {
-      Logger.error(
-        `QuestionnaireExcelMiddleware: Found error value while normalizing data: ${value.error}`
-      );
-      return null;
-    }
 
-    // Unknown object type, keeping as-is
     Logger.error(
-      `QuestionnaireExcelMiddleware: Found unknown value while normalizing data: ${JSON.stringify(
-        value
-      )}`
+      "QuestionnaireExcelMiddleware: Found unknown value while normalizing data:",
+      value
     );
     return null;
   }

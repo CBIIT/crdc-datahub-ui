@@ -18,7 +18,7 @@ on:
         type: boolean
         default: true
       unit_test:
-        description: "Run Unit Test"
+        description: "Run Unit Tests"
         required: true
         type: boolean
         default: true
@@ -66,11 +66,19 @@ jobs:
             echo "IMAGE_TAG=$BRANCH_NAME.$build_num" >> $GITHUB_ENV
           fi
  
-      - name: Run Unit Test
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        if: github.event.inputs.unit_test == 'true'
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Run Unit Tests
         id: unit-test
         if: github.event.inputs.unit_test == 'true'
         run: |
           echo "Running unit tests..."
+          npm i
           npm run test:ci
       
       - name: Build Frontend Docker Image
