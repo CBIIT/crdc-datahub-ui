@@ -102,7 +102,7 @@ export const contactSchema = z
     /**
      * The contact's phone number.
      */
-    phone: z.string().max(15).optional(),
+    phone: z.string().max(25).optional(),
     /**
      * The institution name for the contact.
      *
@@ -132,7 +132,10 @@ export const piSchema = z
      * ORCID identifier for the PI (format: 0000-0000-0000-0000 or X checksum).
      * Used for identity verification and publication linkage.
      */
-    ORCID: z.string().regex(/^(\d{4}-){3}\d{3}(\d|X)$/, "Please provide a valid ORCID"),
+    ORCID: z.union([
+      z.string().regex(/^(\d{4}-){3}\d{3}(\d|X)$/, "Please provide a valid ORCID"),
+      z.literal(""),
+    ]),
     /**
      * Mailing address for official correspondence
      */

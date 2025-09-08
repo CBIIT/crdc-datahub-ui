@@ -20,10 +20,10 @@ export const parseSchemaObject = <S extends z.ZodObject>(
     return result.data;
   }
 
-  Logger.error(
-    `parseSchemaObject: Failed schema validation. Will try to extract invalid fields.`,
-    data
-  );
+  Logger.error(`parseSchemaObject: Failed schema validation. Will try to extract invalid fields.`, {
+    data,
+    error: result.error,
+  });
 
   const issues = result?.error?.issues;
   const errorFields = issues.map((issue) => issue.path).filter((path) => path?.length > 0);

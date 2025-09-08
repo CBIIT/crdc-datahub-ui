@@ -216,6 +216,41 @@ describe("UUIDV4", () => {
   });
 });
 
+describe("PHONE", () => {
+  it("generates correct formula for a simple cell reference", () => {
+    expect(utils.PHONE("A1")).toBe(
+      'AND(LEN(TRIM($A$1))>0,ISNUMBER(SUBSTITUTE(SUBSTITUTE(TRIM($A$1)," ",""),"-","")+0))'
+    );
+  });
+
+  it("generates correct formula for a multi-letter cell reference", () => {
+    expect(utils.PHONE("AA10")).toBe(
+      'AND(LEN(TRIM($AA$10))>0,ISNUMBER(SUBSTITUTE(SUBSTITUTE(TRIM($AA$10)," ",""),"-","")+0))'
+    );
+  });
+
+  it("handles cell references with lowercase letters", () => {
+    expect(utils.PHONE("b2")).toBe(
+      'AND(LEN(TRIM($B$2))>0,ISNUMBER(SUBSTITUTE(SUBSTITUTE(TRIM($B$2)," ",""),"-","")+0))'
+    );
+  });
+
+  it("returns a formula that requires non-empty input", () => {
+    const formula = utils.PHONE("C3");
+    expect(formula).toContain("LEN(TRIM($C$3))>0");
+  });
+
+  it("returns a formula that allows spaces and dashes", () => {
+    const formula = utils.PHONE("D4");
+    expect(formula).toContain('SUBSTITUTE(SUBSTITUTE(TRIM($D$4)," ",""),"-","")');
+  });
+
+  it("returns a formula that checks for numeric value after removing spaces and dashes", () => {
+    const formula = utils.PHONE("E5");
+    expect(formula).toContain('ISNUMBER(SUBSTITUTE(SUBSTITUTE(TRIM($E$5)," ",""),"-","")+0)');
+  });
+});
+
 describe("SHEET", () => {
   it("quotes sheet name", () => {
     expect(utils.SHEET("Sheet 1")).toBe("'Sheet 1'");
