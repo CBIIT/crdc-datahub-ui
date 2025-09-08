@@ -127,8 +127,8 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       formulae: [
         IF(
           STR_EQ(C, "Yes"),
-          "TRUE",
-          AND(REQUIRED(D), TEXT_MAX(D, DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"]))
+          AND(REQUIRED(D), TEXT_MAX(D, DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"])),
+          "TRUE"
         ),
       ],
     };
