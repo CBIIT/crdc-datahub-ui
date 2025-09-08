@@ -105,15 +105,21 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
 
           // Update submitter information if changed
           if (newData?.getSubmission?.submitterID !== submitterID) {
-            newData.getSubmission.submitterID = d.updateSubmissionInfo.submitterID;
-            newData.getSubmission.submitterName = d.updateSubmissionInfo.submitterName;
+            newData.getSubmission = {
+              ...newData.getSubmission,
+              submitterID: d.updateSubmissionInfo.submitterID,
+              submitterName: d.updateSubmissionInfo.submitterName,
+            };
           }
 
           // Update model version if changed
           if (newData?.getSubmission?.modelVersion !== version) {
-            newData.getSubmission.modelVersion = d.updateSubmissionInfo.modelVersion;
-            newData.getSubmission.metadataValidationStatus = "New";
-            newData.getSubmission.fileValidationStatus = "New";
+            newData.getSubmission = {
+              ...newData.getSubmission,
+              modelVersion: d.updateSubmissionInfo.modelVersion,
+              metadataValidationStatus: "New",
+              fileValidationStatus: "New",
+            };
             newData.submissionStats = {
               ...prev.submissionStats,
               stats: prev.submissionStats?.stats?.map((stat) => ({
@@ -131,7 +137,7 @@ const SubmissionUpdate: FC<Props> = ({ icon, disabled, ...rest }: Props) => {
 
         enqueueSnackbar("Changes applied successfully to the submission.", { variant: "default" });
       } catch (err) {
-        Logger.error("SubmissionUpdate: API error received", err);
+        Logger.error("SubmissionUpdate: Received the following error", err);
         enqueueSnackbar(err.message, { variant: "error" });
       } finally {
         setLoading(false);
