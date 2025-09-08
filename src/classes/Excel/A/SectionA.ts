@@ -170,7 +170,6 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     };
     N2.dataValidation = {
       type: "custom",
-      operator: "greaterThan",
       allowBlank: true,
       error: ErrorCatalog.get("phone"),
       showErrorMessage: true,
@@ -224,7 +223,6 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
     this.forEachCellInColumn(ws, "additionalContacts.phone", (cell) => {
       cell.dataValidation = {
         type: "custom",
-        operator: "greaterThan",
         allowBlank: true,
         error: ErrorCatalog.get("phone"),
         showErrorMessage: true,
