@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
-import { Box, DialogProps, MenuItem, styled } from "@mui/material";
-import React, { FC, useEffect, useState } from "react";
+import { Box, DialogProps, MenuItem, styled, Typography } from "@mui/material";
+import React, { CSSProperties, FC, useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 import CloseIconSvg from "@/assets/icons/close_icon.svg?react";
@@ -40,8 +40,16 @@ const StyledForm = styled("form")({
   maxWidth: "485px",
 });
 
+const StyledTitle = styled(Typography)({
+  fontWeight: 600,
+  fontSize: "13px",
+  lineHeight: "27px",
+  letterSpacing: "0.5px",
+  textTransform: "uppercase",
+  color: "#929292",
+});
+
 const StyledHeader = styled(DefaultDialogHeader)({
-  color: "#1873BD",
   fontSize: "35px !important",
   marginBottom: "24px !important",
 });
@@ -50,12 +58,26 @@ const StyledDialogActions = styled(DefaultDialogActions)({
   marginTop: "36px !important",
 });
 
-const StyledButton = styled(LoadingButton)({
-  minWidth: "137px",
-  padding: "10px",
+const baseButtonStyles: CSSProperties = {
+  width: "128px !important",
+  height: "51px",
+  borderRadius: "8px",
+  fontWeight: 700,
   fontSize: "16px",
-  lineHeight: "24px",
   letterSpacing: "0.32px",
+  textTransform: "none" as const,
+  margin: "0 15px",
+};
+
+const StyledButton = styled(LoadingButton)({
+  ...baseButtonStyles,
+  background: "#FFF",
+  border: "1px solid #000",
+  color: "#000",
+});
+
+const StyledGreenButton = styled(LoadingButton)({
+  ...baseButtonStyles,
 });
 
 export type InputForm = Pick<UpdateSubmissionInfoInput, "submitterID" | "version">;
@@ -146,6 +168,7 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
       >
         <CloseIconSvg />
       </StyledCloseDialogButton>
+      <StyledTitle data-testid="edit-submission-name-dialog-title">DATA SUBMISSION</StyledTitle>
       <StyledHeader
         id="update-submission-dialog-header"
         data-testid="update-submission-dialog-header"
@@ -237,7 +260,7 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
         >
           Cancel
         </StyledButton>
-        <StyledButton
+        <StyledGreenButton
           data-testid="update-submission-dialog-submit-button"
           variant="contained"
           color="success"
@@ -246,7 +269,7 @@ const FormDialog: FC<Props> = ({ onSubmitForm, onClose, ...rest }) => {
           loading={isSubmitting}
         >
           Save
-        </StyledButton>
+        </StyledGreenButton>
       </StyledDialogActions>
     </StyledDialog>
   );
