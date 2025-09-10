@@ -25,6 +25,7 @@ import { SectionAColumns } from "./Excel/A/SectionA";
 import { SectionBColumns } from "./Excel/B/SectionB";
 import { SectionCColumns } from "./Excel/C/SectionC";
 import { SectionDColumns } from "./Excel/D/SectionD";
+import { CONTENT } from "./Excel/Instructions/Content";
 import {
   HIDDEN_SHEET_NAMES,
   QuestionnaireExcelMiddleware,
@@ -107,6 +108,42 @@ describe("Serialization", () => {
       expect(sheet.getCell("I2").value).toEqual(TEMPLATE_VERSION);
       expect(sheet.getCell("J2").value).toEqual("5.5.0");
       expect(sheet.getCell("K2").value).toEqual(new Date("2025-01-07T17:34:00Z").toISOString());
+    });
+
+    it("should display the instructions sheet", async () => {
+      vi.setSystemTime(new Date("2025-01-07T17:34:00Z"));
+
+      const middleware = new QuestionnaireExcelMiddleware(null, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeInstructions();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Instructions")).toEqual(sheet);
+
+      expect(sheet.getCell("B2").value).toEqual("Instructions");
+      expect(sheet.getCell("B4").value).toEqual(CONTENT.sections.intro.title);
+      expect(sheet.getCell("B5").value).toEqual(CONTENT.sections.intro.description);
+      expect(sheet.getCell("B6").value).toEqual(CONTENT.sections.getStarted.title);
+      expect(sheet.getCell("B7").value).toEqual(CONTENT.sections.getStarted.description);
+      expect(sheet.getCell("C8").value).toEqual(CONTENT.sections.getStarted.table.types[0]);
+      expect(sheet.getCell("C9").value).toEqual(CONTENT.sections.getStarted.table.types[1]);
+      expect(sheet.getCell("C10").value).toEqual(CONTENT.sections.getStarted.table.types[2]);
+      expect(sheet.getCell("E8").value).toEqual(CONTENT.sections.getStarted.table.descriptions[0]);
+      expect(sheet.getCell("E9").value).toEqual(CONTENT.sections.getStarted.table.descriptions[1]);
+      expect(sheet.getCell("E10").value).toEqual(CONTENT.sections.getStarted.table.descriptions[2]);
+      expect(sheet.getCell("B12").value).toEqual(CONTENT.sections.dependentCells.title);
+      expect(sheet.getCell("D14").value).toEqual(CONTENT.sections.dependentCells.descriptions[0]);
+      expect(sheet.getCell("D15").value).toEqual(CONTENT.sections.dependentCells.descriptions[1]);
+      expect(sheet.getCell("D16").value).toEqual(CONTENT.sections.dependentCells.descriptions[2]);
+      expect(sheet.getCell("B18").value).toEqual(CONTENT.sections.faq.title);
+      expect(sheet.getCell("B20").value).toEqual(CONTENT.sections.faq.questions[0].question);
+      expect(sheet.getCell("B21").value).toEqual(CONTENT.sections.faq.questions[0].answer);
+      expect(sheet.getCell("B23").value).toEqual(CONTENT.sections.faq.questions[1].question);
+      expect(sheet.getCell("B24").value).toEqual(CONTENT.sections.faq.questions[1].answer);
+      expect(sheet.getCell("B26").value).toEqual(CONTENT.sections.faq.questions[2].question);
+      expect(sheet.getCell("B27").value).toEqual(CONTENT.sections.faq.questions[2].answer);
     });
 
     it("should generate SectionA sheet with all dependent sheets", async () => {

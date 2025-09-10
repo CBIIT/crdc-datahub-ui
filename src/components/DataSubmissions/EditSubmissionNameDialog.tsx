@@ -3,7 +3,7 @@ import { LoadingButton } from "@mui/lab";
 import { Box, Typography, styled } from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";
 import { useSnackbar } from "notistack";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, CSSProperties } from "react";
 
 import { EDIT_SUBMISSION, EditSubmissionNameInput, EditSubmissionNameResp } from "@/graphql";
 
@@ -24,7 +24,6 @@ const StyledDialog = styled(DefaultDialog)({
 });
 
 const StyledTitle = styled(Typography)({
-  fontFamily: "Nunito, 'Rubik', sans-serif",
   fontWeight: 600,
   fontSize: "13px",
   lineHeight: "27px",
@@ -40,13 +39,10 @@ const StyledDialogActions = styled(DialogActions)({
   gap: "10px",
 });
 
-const baseButtonStyles: object = {
+const baseButtonStyles: CSSProperties = {
   width: "128px !important",
-  height: "50.59px",
-  padding: "12px 60px",
+  height: "51px",
   borderRadius: "8px",
-  textAlign: "center",
-  fontFamily: "'Nunito', 'Rubik', sans-serif",
   fontWeight: 700,
   fontSize: "16px",
   letterSpacing: "0.32px",
@@ -129,6 +125,7 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
       onClose={onCancel}
       data-testid="edit-submission-name-dialog"
       aria-labelledby="edit-submission-name-dialog-header"
+      scroll="body"
     >
       <StyledCloseDialogButton
         onClick={onCancel}
@@ -139,41 +136,37 @@ const EditSubmissionNameDialog: React.FC<Props> = ({
       </StyledCloseDialogButton>
       <DefaultDialogContent>
         <Box sx={{}}>
-          <Box sx={{}}>
-            <StyledTitle data-testid="edit-submission-name-dialog-title">
-              DATA SUBMISSION
-            </StyledTitle>
-            <DefaultDialogHeader
-              id="edit-submission-name-dialog-header"
-              variant="h1"
-              sx={{ mt: "5px" }}
-              data-testid="edit-submission-name-dialog-header"
-            >
-              Update
-              <br />
-              Data Submission Name
-            </DefaultDialogHeader>
-          </Box>
-          <Box sx={{}}>
-            <StyledLabel sx={{ textAlign: "left" }} htmlFor="edit-submission-name-dialog-input">
-              Submission Name
-            </StyledLabel>
-            <StyledOutlinedInput
-              id="edit-submission-name-dialog-input"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              data-testid="edit-submission-name-dialog-input"
-              inputProps={{ maxLength: 25 }}
-              error={!!error}
-              required
-            />
-            <Box sx={{ height: "30px" }}>
-              {error && (
-                <StyledHelperText error data-testid="edit-submission-name-dialog-error">
-                  {error}
-                </StyledHelperText>
-              )}
-            </Box>
+          <StyledTitle data-testid="edit-submission-name-dialog-title">DATA SUBMISSION</StyledTitle>
+          <DefaultDialogHeader
+            id="edit-submission-name-dialog-header"
+            variant="h1"
+            sx={{ mt: "5px" }}
+            data-testid="edit-submission-name-dialog-header"
+          >
+            Update
+            <br />
+            Data Submission Name
+          </DefaultDialogHeader>
+        </Box>
+        <Box sx={{}}>
+          <StyledLabel sx={{ textAlign: "left" }} htmlFor="edit-submission-name-dialog-input">
+            Submission Name
+          </StyledLabel>
+          <StyledOutlinedInput
+            id="edit-submission-name-dialog-input"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            data-testid="edit-submission-name-dialog-input"
+            inputProps={{ maxLength: 25 }}
+            error={!!error}
+            required
+          />
+          <Box sx={{ minHeight: "30px" }}>
+            {error && (
+              <StyledHelperText error data-testid="edit-submission-name-dialog-error">
+                {error}
+              </StyledHelperText>
+            )}
           </Box>
         </Box>
       </DefaultDialogContent>
