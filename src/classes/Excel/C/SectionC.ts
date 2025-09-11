@@ -76,7 +76,7 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
   }
 
   protected async applyValidation(ctx: SectionCtxBase, ws: ExcelJS.Worksheet): Promise<void> {
-    const [A, B, C, D, , , G, H, I, , K] = this.getRowCells(ws);
+    const [A, B, C, D, , , G, H, , J, K] = this.getRowCells(ws);
 
     ws.addConditionalFormatting({
       ref: "D2",
@@ -127,8 +127,8 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       formulae: [
         IF(
           STR_EQ(C, "Yes"),
-          "TRUE",
-          AND(REQUIRED(D), TEXT_MAX(D, DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"]))
+          AND(REQUIRED(D), TEXT_MAX(D, DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"])),
+          "TRUE"
         ),
       ],
     };
@@ -149,7 +149,6 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
     });
     this.applyTextLengthValidation(G, DEFAULT_CHARACTER_LIMITS.otherCancerTypes);
     this.applyTextLengthValidation(H, DEFAULT_CHARACTER_LIMITS.preCancerTypes);
-    this.applyTextLengthValidation(I, DEFAULT_CHARACTER_LIMITS.otherSpeciesOfSubjects);
     this.forEachCellInColumn(ws, "species", (cell) => {
       cell.dataValidation = {
         type: "list",
@@ -160,6 +159,7 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
         ],
       };
     });
+    this.applyTextLengthValidation(J, DEFAULT_CHARACTER_LIMITS.otherSpeciesOfSubjects);
     K.dataValidation = {
       type: "decimal",
       allowBlank: true,
