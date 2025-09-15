@@ -55,7 +55,7 @@
 #### Internal & Administrative Tools
 
 - Migrated Submission Portal/MDB integration to pull CDE permissible values from the API instead of GitHub
-- Integrate Admins can clear studies pending data model updates so submissions can begin.
+- Admins can clear studies pending data model updates so submissions can begin.
 - Institution dropdown in Edit User tool enhanced with auto-complete and case-insensitive search.
 - Manage Users search now supports user name and email.
 - Manage Programs search now supports name and abbreviation.
