@@ -5,20 +5,22 @@
 #### Submission Request
 
 - Users can now import/export Submission Request form with Excel templates, enabling offline completion and transfer between requests.
-- Requests can be conditionally approved without GPA information, with submission pending until the information is provided.
+- Requests can be approved but flagged as pending on Data Model changes.
+- Requests can be conditionally approved without GPA information.
 - Empty requests are permanently deleted when canceled or auto-deleted due to inactivity.
 - OMB messages can be updated without code deployment for faster compliance updates.
 - Added tooltip guidance when the ‘Next ‘button is disabled on the final form page, directing users to save first.
 
 #### Data Submission
 
+- The system blocks the creation of a data submission if any of the following conditions are pending: missing dbGaP ID, missing GPA, or required Data Model changes.
 - Submitters can now edit the name of the existing data submissions.
-- Data Commons Personnel can update both the owner and the data model version of a data submission in a single action.. 
+- Data Commons Personnel can update both the owner and the data model version of a data submission in a single action.
 - New Data Explorer lets users view released study metadata and download completed metadata.
 - dbGaP loading sheets are available for released submissions (GC Commons only in this release).
 - Submitters can now review a summary before submitting their data submission.
 - Data Submission must include participant-level dbGaP consent codes for controlled-access studies.
-- Submitters can now request new permissible values directly from validation results when “Value not Permitted” error occur. 
+- Submitters can now request new permissible values directly from validation results when “Value not Permitted” error occur.
 - “NA” is now supported as a valid Program Full Name/Short Name.
 - Submitters’ or collaborators’ access is automatically revoked when their study-level access is removed.
 - Record counts for are aligned between aggregated and expanded validation Results views.
@@ -52,7 +54,8 @@
 
 #### Internal & Administrative Tools
 
-- Admins can clear studies pending data model updates so submissions can begin.
+- Migrated Submission Portal/MDB integration to pull CDE permissible values from the API instead of GitHub
+- Integrate Admins can clear studies pending data model updates so submissions can begin.
 - Institution dropdown in Edit User tool enhanced with auto-complete and case-insensitive search.
 - Manage Users search now supports user name and email.
 - Manage Programs search now supports name and abbreviation.
