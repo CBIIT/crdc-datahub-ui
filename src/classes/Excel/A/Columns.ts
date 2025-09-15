@@ -80,9 +80,9 @@ export const COLUMNS: ColumnDef<AKeys>[] = [
   },
   // Primary Contact
   {
-    header: "Same as Principal Investigator",
+    header: "Primary Contact Same as Principal Investigator",
     key: "piAsPrimaryContact",
-    width: 30,
+    width: 40,
     protection: { locked: true },
   },
   {
