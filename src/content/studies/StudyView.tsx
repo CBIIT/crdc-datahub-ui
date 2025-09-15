@@ -41,7 +41,7 @@ import {
   UpdateApprovedStudyResp,
 } from "../../graphql";
 import usePageTitle from "../../hooks/usePageTitle";
-import { formatORCIDInput, isValidORCID, validateUTF8 } from "../../utils";
+import { formatORCIDInput, isValidORCID, isValidDbGaPID, validateUTF8 } from "../../utils";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -371,6 +371,10 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   };
 
   const handlePreSubmit = (data: FormInput) => {
+    if (data.dbGaPID && !isValidDbGaPID(data?.dbGaPID)) {
+      setError("Invalid dbGaPID format.");
+      return;
+    }
     if (data.ORCID && !isValidORCID(data?.ORCID)) {
       setError("Invalid ORCID format.");
       return;
