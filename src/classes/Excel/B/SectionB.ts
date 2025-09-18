@@ -153,7 +153,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
       rules: [
         {
           type: "expression",
-          formulae: ['AND($A2<>"Other", LEN(TRIM($A2))>0)'],
+          formulae: ['$A2<>"Other"'],
           style: {
             fill: {
               type: "pattern",
