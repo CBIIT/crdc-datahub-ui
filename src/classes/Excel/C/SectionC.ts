@@ -1,7 +1,7 @@
 import type ExcelJS from "exceljs";
 
 import { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
-import { IF, STR_EQ, AND, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger } from "@/utils";
+import { STR_EQ, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger, PHS_OK } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
 import { ErrorCatalog } from "../ErrorCatalog";
@@ -83,7 +83,7 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       rules: [
         {
           type: "expression",
-          formulae: ['IF($C$2="No",TRUE,FALSE)'],
+          formulae: ['OR($C2="No", LEN(TRIM($C2))=0)'],
           style: {
             fill: {
               type: "pattern",
@@ -119,17 +119,15 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
     };
     D.dataValidation = {
       type: "custom",
-      allowBlank: true,
+      allowBlank: false,
+      errorStyle: "stop",
       showErrorMessage: true,
-      error: ErrorCatalog.get("requiredMax", {
-        max: DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"],
-      }),
+      error: ErrorCatalog.get("dbGaPPHSNumber"),
       formulae: [
-        IF(
-          STR_EQ(C, "Yes"),
-          "TRUE",
-          AND(REQUIRED(D), TEXT_MAX(D, DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"]))
-        ),
+        `OR(${STR_EQ(C, "No")},AND(${REQUIRED(D)},${TEXT_MAX(
+          D,
+          DEFAULT_CHARACTER_LIMITS["study.dbGaPPPHSNumber"]
+        )} ,${PHS_OK(D)}))`,
       ],
     };
     this.forEachCellInColumn(ws, "cancerTypes", (cell) => {
