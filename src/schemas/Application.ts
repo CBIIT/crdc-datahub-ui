@@ -5,6 +5,7 @@ import { repositoryDataTypesOptions } from "@/components/Questionnaire/Repositor
 import accessTypeOptions from "@/config/AccessTypesConfig";
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import DataTypes from "@/config/DataTypesConfig";
+import { validatePHSNumber } from "@/utils";
 
 const FIELD_IS_REQUIRED = "This field is required.";
 
@@ -336,7 +337,12 @@ export const studySchema = z
      *
      * @example "phs002529.v1.p1"
      */
-    dbGaPPPHSNumber: z.string().max(50).optional(),
+    dbGaPPPHSNumber: z
+      .string()
+      .max(50)
+      .trim()
+      .refine((val) => validatePHSNumber(val))
+      .optional(),
     /**
      * The name of the Genomic Program Administrator.
      *
