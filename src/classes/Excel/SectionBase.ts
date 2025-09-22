@@ -295,7 +295,7 @@ export abstract class SectionBase<K extends string, D> implements Section {
   protected applyTextLengthValidation(cell: ExcelJS.Cell, limit: number): void {
     cell.dataValidation = {
       type: "textLength",
-      operator: "lessThan",
+      operator: "lessThanOrEqual",
       showErrorMessage: true,
       error: ErrorCatalog.get("max", { max: limit }),
       allowBlank: false,

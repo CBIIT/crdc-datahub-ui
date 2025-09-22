@@ -5,7 +5,7 @@ import { isEqual } from "lodash";
 import { VariantType } from "notistack";
 import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 
-import CogIcon from "@/assets/icons/cog_icon.svg?react";
+import EditIconSvg from "@/assets/icons/pencil_icon.svg?react";
 
 import { hasPermission } from "../../config/AuthPermissions";
 import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
@@ -109,6 +109,11 @@ const StyledModelVersionText = styled(Typography)({
     fontWeight: 700,
     textTransform: "none",
   },
+});
+
+const StyledEditIcon = styled(EditIconSvg)({
+  color: "#005999",
+  marginBottom: "3px",
 });
 
 type Props = {
@@ -355,7 +360,7 @@ const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
             <NavigatorLink submission={getSubmission} />
           </StyledModelVersionText>
         )}
-        <SubmissionUpdate icon={<CogIcon />} />
+        <SubmissionUpdate icon={<StyledEditIcon />} />
       </Stack>
     ),
     [getSubmission]
