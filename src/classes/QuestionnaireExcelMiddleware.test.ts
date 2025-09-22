@@ -2776,7 +2776,7 @@ describe("Parsing", () => {
       accessTypes: ["Open Access", "Controlled Access"],
       study: studyFactory.build({
         isDbGapRegistered: true,
-        dbGaPPPHSNumber: "phs100009.v6.a1",
+        dbGaPPPHSNumber: "phs100009.v6.p3",
         GPAName: "Benjamin 'Gpa' Bunny",
       }),
       cancerTypes: cancerTypeOptions.slice(1, 10),
@@ -2807,7 +2807,7 @@ describe("Parsing", () => {
     expect(output.study).toEqual(
       expect.objectContaining({
         isDbGapRegistered: true,
-        dbGaPPPHSNumber: "phs100009.v6.a1",
+        dbGaPPPHSNumber: "phs100009.v6.p3",
         GPAName: "Benjamin 'Gpa' Bunny",
       })
     );
@@ -2842,6 +2842,91 @@ describe("Parsing", () => {
     // @ts-expect-error Private member
     const output = middleware.data;
     expect(output.cancerTypes).toEqual([cancerTypeOptions[3]]);
+  });
+
+  it.each<string>([
+    "phs0012345",
+    "phs00123",
+    "phs001234.v",
+    "phs001234.p1",
+    "phs001234.v12.p",
+    "phs001234.v1.p2x",
+    "phsabc123",
+  ])('should ignore invalid dbGaPPHSNumber "%s" in SectionC', async (input) => {
+    const mockForm = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        isDbGapRegistered: true,
+        dbGaPPPHSNumber: input,
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.study.dbGaPPPHSNumber).toEqual(InitialQuestionnaire.study.dbGaPPPHSNumber);
+  });
+
+  it("should allow partial dbGaPPHSNumber with no versioning in SectionC", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        isDbGapRegistered: true,
+        dbGaPPPHSNumber: "phs001234",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.study.dbGaPPPHSNumber).toEqual("phs001234");
+  });
+
+  it.each<[input: string, expected: string]>([
+    ["phs001234", "phs001234"],
+    ["phs001234.v2", "phs001234.v2"],
+    ["phs001234.v2.p3", "phs001234.v2.p3"],
+    ["  phs001234  ", "phs001234"],
+  ])('should allow valid dbGaPPHSNumber "%s" in SectionC', async (input, expected) => {
+    const mockForm = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        isDbGapRegistered: true,
+        dbGaPPPHSNumber: input,
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.study.dbGaPPPHSNumber).toEqual(expected);
   });
 
   it("should clear all Cancer Type options if 'Not Applicable' is selected", async () => {
