@@ -216,8 +216,8 @@ describe("StudyView Component", () => {
     userEvent.type(PIInput, "John Doe");
     expect(PIInput.value).toBe("John Doe");
 
-    userEvent.type(dbGaPIDInput, "db123456");
-    expect(dbGaPIDInput.value).toBe("db123456");
+    userEvent.type(dbGaPIDInput, "phs123456");
+    expect(dbGaPIDInput.value).toBe("phs123456");
 
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
     expect(ORCIDInput.value).toBe("0000-0001-2345-6789");
@@ -273,6 +273,33 @@ describe("StudyView Component", () => {
     });
   });
 
+  it("validates dbGaPID format and displays error at the top", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <StudyView _id="new" />
+      </TestParent>
+    );
+
+    const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
+    const PIInput = getByTestId("PI-input") as HTMLInputElement;
+    const dbGaPIDInput = getByTestId("dbGaPID-input") as HTMLInputElement;
+    const GPANameInput = getByTestId("GPAName-input") as HTMLInputElement;
+    const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox");
+    const saveButton = getByTestId("save-button");
+
+    userEvent.type(studyNameInput, "Test Study Name");
+    userEvent.type(PIInput, "John Doe");
+    userEvent.click(controlledAccessCheckbox);
+    userEvent.type(GPANameInput, "1234");
+    userEvent.type(dbGaPIDInput, "phs12345");
+
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(getByTestId("alert-error-message")).toHaveTextContent("Invalid dbGaPID format.");
+    });
+  });
+
   it("creates a new study successfully", async () => {
     const createApprovedStudyMock: MockedResponse<
       CreateApprovedStudyResp,
@@ -282,7 +309,7 @@ describe("StudyView Component", () => {
         query: CREATE_APPROVED_STUDY,
         variables: {
           PI: "John Doe",
-          dbGaPID: "db123456",
+          dbGaPID: "phs123456",
           ORCID: "0000-0001-2345-6789",
           openAccess: true,
           controlledAccess: false,
@@ -326,7 +353,7 @@ describe("StudyView Component", () => {
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(studyAbbreviationInput, "TSN");
     userEvent.type(PIInput, "John Doe");
-    userEvent.type(dbGaPIDInput, "db123456");
+    userEvent.type(dbGaPIDInput, "phs123456");
     userEvent.type(GPANameInput, "Test GPA Name");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
     userEvent.click(openAccessCheckbox);
@@ -377,7 +404,7 @@ describe("StudyView Component", () => {
             studyName: "Existing Study",
             studyAbbreviation: "ES",
             PI: "Jane Smith",
-            dbGaPID: "db654321",
+            dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
@@ -405,7 +432,7 @@ describe("StudyView Component", () => {
         variables: {
           studyID: studyId,
           PI: "Jane Smith",
-          dbGaPID: "db654321",
+          dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
           openAccess: false,
           controlledAccess: true,
@@ -544,7 +571,7 @@ describe("StudyView Component", () => {
             studyName: "Existing Study",
             studyAbbreviation: "USN",
             PI: "Jane Smith",
-            dbGaPID: "db654321",
+            dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
@@ -573,7 +600,7 @@ describe("StudyView Component", () => {
         variables: {
           studyID: studyId,
           PI: "Jane Smith",
-          dbGaPID: "db654321",
+          dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
           openAccess: false,
           controlledAccess: true,
@@ -744,7 +771,7 @@ describe("StudyView Component", () => {
             _id: studyId,
             studyName: "Study With Null Fields",
             studyAbbreviation: null,
-            dbGaPID: "db123456",
+            dbGaPID: "phs123456",
             controlledAccess: false,
             openAccess: true,
             PI: null,
@@ -769,7 +796,7 @@ describe("StudyView Component", () => {
       expect(getByTestId("studyName-input")).toHaveValue("Study With Null Fields");
       expect(getByTestId("studyAbbreviation-input")).toHaveValue("");
       expect(getByTestId("PI-input")).toHaveValue("");
-      expect(getByTestId("dbGaPID-input")).toHaveValue("db123456");
+      expect(getByTestId("dbGaPID-input")).toHaveValue("phs123456");
     });
   });
 
@@ -878,7 +905,7 @@ describe("StudyView Component", () => {
             studyName: "Existing Study",
             studyAbbreviation: "ES",
             PI: "Jane Smith",
-            dbGaPID: "db654321",
+            dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
@@ -907,7 +934,7 @@ describe("StudyView Component", () => {
         variables: {
           studyID: studyId,
           PI: "Jane Smith",
-          dbGaPID: "db654321",
+          dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
           openAccess: false,
           controlledAccess: true,
@@ -1060,7 +1087,7 @@ describe("StudyView Component", () => {
             studyName: "Existing Study",
             studyAbbreviation: "ES",
             PI: "Jane Smith",
-            dbGaPID: "db654321",
+            dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
@@ -1089,7 +1116,7 @@ describe("StudyView Component", () => {
         variables: {
           studyID: studyId,
           PI: "Jane Smith",
-          dbGaPID: "db654321",
+          dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
           openAccess: false,
           controlledAccess: true,

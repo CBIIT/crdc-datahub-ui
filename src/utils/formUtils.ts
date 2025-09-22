@@ -170,6 +170,22 @@ export const mapOrganizationStudyToId = (
 };
 
 /**
+ * Validates a dbGaPID phs accession number. A dbGaPID must begin with phs (case-insensitive), followed by 6 digits
+ * and optionally followed by a dot and a version number (1 or more digits).
+ *
+ * @param {string} id The dbGaPID string to validate.
+ * @returns {boolean} Returns true if the string is a valid dbGaPID, false otherwise.
+ */
+export const isValidDbGaPID = (id: string): boolean => {
+  if (typeof id !== "string" || id?.length < 9) {
+    return false;
+  }
+
+  const idPattern = /^phs\d{6}(\.v\d+)?(\.p\d+)?$/i;
+  return idPattern.test(id);
+};
+
+/**
  * Validates an ORCID string. An ORCID must consist of exactly four groups of four alphanumeric characters,
  * with each group separated by a hyphen. Only digits and the letter 'X' are allowed
  * as characters. The letter 'X' is only allowed as the final character.
