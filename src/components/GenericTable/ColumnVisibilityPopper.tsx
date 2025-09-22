@@ -113,7 +113,6 @@ const StyledGroupContainer = styled(Box)({
   padding: "15px",
   width: "100%",
   "&:not(:last-of-type)": {
-    marginBottom: "-10px",
     borderBottom: "0.5px solid #375F9A",
   },
 });
