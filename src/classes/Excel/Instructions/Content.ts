@@ -62,7 +62,7 @@ export const CONTENT = {
         {
           question: "Q: Can I paste values directly into the spreadsheet fields?",
           answer:
-            "Yes, you can paste values directly into the spreadsheet fields, but please note that pasting content may remove dropdown menus and special features in some cells. For best results, use 'Paste Special' and select 'Values', or enter your data manually.",
+            "Pasting data into the Excel form may cause dropdown menus or other features to disappear in some cells. To avoid these issues, use 'Paste Special' and select 'Values', or enter your data manually.",
           rowHeight: 60,
         },
       ],
