@@ -59,6 +59,12 @@ export const CONTENT = {
           answer: "Dates should be entered in the format MM/DD/YYYY.",
           rowHeight: 20,
         },
+        {
+          question: "Q: Can I paste values directly into the spreadsheet fields?",
+          answer:
+            "Pasting data into the Excel form may cause dropdown menus or other features to disappear in some cells. To avoid these issues, use 'Paste Special' and select 'Values', or enter your data manually.",
+          rowHeight: 60,
+        },
       ],
     },
   },
