@@ -80,9 +80,7 @@ export const Error: Story = {
 
 export const LongMessage: Story = {
   args: {
-    message: `This is a very long notification message intended to test how the snackbar handles overflow and text wrapping. ${"a".repeat(
-      100
-    )} It should display properly without breaking the layout or causing any visual issues.`,
+    message: `This is a very long notification message intended to test how the snackbar handles overflow and text wrapping. https://www.example.com/this/is/a/very/long/url/that/should/test/overflow/and/wrapping/in/the/snackbar/component It should display properly without breaking the layout or causing any visual issues.`,
     variant: "default",
   },
 };
