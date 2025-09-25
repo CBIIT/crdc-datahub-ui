@@ -36,6 +36,10 @@ type ApprovedStudy = {
    */
   ORCID: string;
   /**
+   * Program ID associated with the study
+   */
+  programID: string;
+  /**
    * The list of programs that contain this study
    */
   programs: Organization[];
