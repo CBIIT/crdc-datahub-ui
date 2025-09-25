@@ -28,7 +28,7 @@ const StudiesController: FC = () => {
 
   return (
     <OrganizationProvider preload>
-      {studyId ? <StudyView _id={studyId} /> : <ListView />};
+      {studyId ? <StudyView _id={studyId} /> : <ListView />}
     </OrganizationProvider>
   );
 };
