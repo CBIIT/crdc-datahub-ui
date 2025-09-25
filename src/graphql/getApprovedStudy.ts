@@ -13,6 +13,7 @@ const BaseApprovedStudyFragment = gql`
   }
 `;
 
+// TODO: Add programID
 const ExtendedApprovedStudyFragment = gql`
   fragment ExtendedApprovedStudy on ApprovedStudy {
     PI
@@ -81,6 +82,7 @@ export type Response<PartialResponse = false> = {
         | "openAccess"
         | "PI"
         | "ORCID"
+        | "programID"
         | "createdAt"
         | "useProgramPC"
         | "pendingModelChange"
