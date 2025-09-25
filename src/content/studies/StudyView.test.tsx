@@ -5,6 +5,7 @@ import React, { FC } from "react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
+import { OrganizationProvider } from "@/components/Contexts/OrganizationListContext";
 import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
 import { organizationFactory } from "@/factories/auth/OrganizationFactory";
 
@@ -21,6 +22,9 @@ import {
   CreateApprovedStudyInput,
   UpdateApprovedStudyResp,
   UpdateApprovedStudyInput,
+  ListOrgsResp,
+  ListOrgsInput,
+  LIST_ORGS,
 } from "../../graphql";
 import { act, render, waitFor, within } from "../../test-utils";
 
@@ -65,6 +69,27 @@ const listActiveDCPsMock: MockedResponse<ListActiveDCPsResp> = {
   },
 };
 
+const listProgramsMock: MockedResponse<ListOrgsResp, ListOrgsInput> = {
+  request: {
+    query: LIST_ORGS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listPrograms: {
+        total: 3,
+        programs: [
+          organizationFactory.build({ _id: "NA", name: "NA", readOnly: true }),
+          ...organizationFactory.build(3, (idx) => ({
+            _id: `program-${idx + 1}`,
+            name: `PROGRAM-${idx}`,
+          })),
+        ],
+      },
+    },
+  },
+};
+
 type ParentProps = {
   mocks?: MockedResponse[];
   initialEntries?: MemoryRouterProps["initialEntries"];
@@ -72,14 +97,16 @@ type ParentProps = {
 };
 
 const TestParent: FC<ParentProps> = ({
-  mocks = [listActiveDCPsMock],
+  mocks = [listActiveDCPsMock, listProgramsMock],
   initialEntries = ["/"],
   children,
 }: ParentProps) => (
   <MockedProvider mocks={mocks} addTypename={false}>
-    <MemoryRouter initialEntries={initialEntries}>
-      <SearchParamsProvider>{children}</SearchParamsProvider>
-    </MemoryRouter>
+    <OrganizationProvider preload>
+      <MemoryRouter initialEntries={initialEntries}>
+        <SearchParamsProvider>{children}</SearchParamsProvider>
+      </MemoryRouter>
+    </OrganizationProvider>
   </MockedProvider>
 );
 
@@ -89,12 +116,17 @@ describe("StudyView Component", () => {
     vi.useRealTimers();
   });
 
-  it("renders without crashing", () => {
-    const { getByTestId } = render(
+  it("renders without crashing", async () => {
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     expect(getByTestId("studyName-input")).toBeInTheDocument();
     expect(getByTestId("studyAbbreviation-input")).toBeInTheDocument();
     expect(getByTestId("PI-input")).toBeInTheDocument();
@@ -107,11 +139,15 @@ describe("StudyView Component", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = render(
+    const { container, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await act(async () => {
       const results = await axe(container);
@@ -120,11 +156,15 @@ describe("StudyView Component", () => {
   });
 
   it("should set the page title 'Add Study'", async () => {
-    render(
+    const { queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockUsePageTitle).toHaveBeenCalledWith("Add Study");
@@ -144,11 +184,15 @@ describe("StudyView Component", () => {
       },
     };
 
-    render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
+    const { queryByTestId } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, getApprovedStudyMock]}>
         <StudyView _id="test-id" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockUsePageTitle).toHaveBeenCalledWith("Edit Study test-id");
@@ -170,7 +214,7 @@ describe("StudyView Component", () => {
     };
 
     const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, getApprovedStudyMock]}>
         <StudyView _id="test-id" />
       </TestParent>
     );
@@ -180,12 +224,17 @@ describe("StudyView Component", () => {
     });
   });
 
-  it("renders all input fields correctly", () => {
-    const { getByTestId } = render(
+  it("renders all input fields correctly", async () => {
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     expect(getByTestId("studyName-input")).toBeInTheDocument();
     expect(getByTestId("studyAbbreviation-input")).toBeInTheDocument();
     expect(getByTestId("PI-input")).toBeInTheDocument();
@@ -196,11 +245,16 @@ describe("StudyView Component", () => {
   });
 
   it("allows users to input text into the fields", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const studyAbbreviationInput = getByTestId("studyAbbreviation-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
@@ -224,67 +278,99 @@ describe("StudyView Component", () => {
   });
 
   it("validates required fields and shows error if access type is not selected", async () => {
-    const { getByTestId, getByText } = render(
+    const { getByTestId, queryByTestId, getByText } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
 
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(PIInput, "John Doe");
     userEvent.type(ORCIDInput, "0000-0001-2345-6789");
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(
-        getByText("Invalid Access Type. Please select at least one Access Type.")
-      ).toBeInTheDocument();
+      expect(global.mockEnqueue).toHaveBeenCalledWith(
+        "Invalid Access Type. Please select at least one Access Type.",
+        { variant: "error" }
+      );
     });
   });
 
   it("validates ORCID format", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId, getByText } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
 
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const ORCIDInput = getByTestId("ORCID-input") as HTMLInputElement;
     const openAccessCheckbox = getByTestId("openAccess-checkbox");
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(PIInput, "John Doe");
     userEvent.type(ORCIDInput, "0");
     userEvent.click(openAccessCheckbox);
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(getByTestId("alert-error-message")).toHaveTextContent("Invalid ORCID format.");
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Invalid ORCID format.", {
+        variant: "error",
+      });
     });
   });
 
   it("validates dbGaPID format and displays error at the top", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId, getByText } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
     const dbGaPIDInput = getByTestId("dbGaPID-input") as HTMLInputElement;
     const GPANameInput = getByTestId("GPAName-input") as HTMLInputElement;
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox");
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
 
     userEvent.type(studyNameInput, "Test Study Name");
@@ -292,11 +378,20 @@ describe("StudyView Component", () => {
     userEvent.click(controlledAccessCheckbox);
     userEvent.type(GPANameInput, "1234");
     userEvent.type(dbGaPIDInput, "phs12345");
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(getByTestId("alert-error-message")).toHaveTextContent("Invalid dbGaPID format.");
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Invalid dbGaPID format.", {
+        variant: "error",
+      });
     });
   });
 
@@ -311,7 +406,7 @@ describe("StudyView Component", () => {
           PI: "John Doe",
           dbGaPID: "phs123456",
           ORCID: "0000-0001-2345-6789",
-          programID: "",
+          programID: "NA",
           openAccess: true,
           controlledAccess: false,
           name: "Test Study Name",
@@ -332,11 +427,15 @@ describe("StudyView Component", () => {
       },
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
+    const { getByTestId, queryByTestId, getByText } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const studyAbbreviationInput = getByTestId("studyAbbreviation-input") as HTMLInputElement;
@@ -349,7 +448,15 @@ describe("StudyView Component", () => {
     const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
       "button"
     );
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
+
+    userEvent.type(programAutocomplete, "Not Appl");
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(studyAbbreviationInput, "TSN");
@@ -361,24 +468,17 @@ describe("StudyView Component", () => {
     userEvent.click(sameAsProgramPrimaryContactCheckbox);
     userEvent.click(primaryContactIDSelect);
 
+    let muiSelectOptions;
     await waitFor(() => {
-      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
-        "option",
-        {
-          hidden: true,
-        }
-      );
+      muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole("option", {
+        hidden: true,
+      });
       expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
       expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
       expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
     });
 
-    userEvent.selectOptions(
-      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
-        hidden: true,
-      }),
-      "John Doe"
-    );
+    userEvent.click(muiSelectOptions[1]);
 
     expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
@@ -409,6 +509,7 @@ describe("StudyView Component", () => {
             ORCID: "0000-0002-3456-7890",
             openAccess: false,
             controlledAccess: true,
+            programID: "NA",
             programs: organizationFactory.build(1, {
               _id: "program-1",
               conciergeID: "primary-contact-1",
@@ -435,7 +536,7 @@ describe("StudyView Component", () => {
           PI: "Jane Smith",
           dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
-          programID: "",
+          programID: "NA",
           openAccess: false,
           controlledAccess: true,
           name: "Updated Study Name",
@@ -456,11 +557,22 @@ describe("StudyView Component", () => {
       },
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
+    const { getByTestId, queryByTestId } = render(
+      <TestParent
+        mocks={[
+          listActiveDCPsMock,
+          listProgramsMock,
+          getApprovedStudyMock,
+          updateApprovedStudyMock,
+        ]}
+      >
         <StudyView _id={studyId} />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(getByTestId("studyName-input")).toHaveValue("Existing Study");
@@ -492,7 +604,7 @@ describe("StudyView Component", () => {
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
-          programID: "",
+          programID: "NA",
           openAccess: true,
           controlledAccess: false,
           name: "Test Study Name",
@@ -507,11 +619,15 @@ describe("StudyView Component", () => {
       error: new Error("Unable to create approved study."),
     };
 
-    const { getByTestId, getByText } = render(
-      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
+    const { getByTestId, getByText, queryByTestId } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const studyAbbreviationInput = getByTestId("studyAbbreviation-input") as HTMLInputElement;
@@ -522,7 +638,15 @@ describe("StudyView Component", () => {
     const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
       "button"
     );
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
+
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(studyAbbreviationInput, "TSN");
@@ -532,31 +656,26 @@ describe("StudyView Component", () => {
     userEvent.click(sameAsProgramPrimaryContactCheckbox);
     userEvent.click(primaryContactIDSelect);
 
+    let muiSelectOptions;
     await waitFor(() => {
-      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
-        "option",
-        {
-          hidden: true,
-        }
-      );
+      muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole("option", {
+        hidden: true,
+      });
       expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
       expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
       expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
     });
 
-    userEvent.selectOptions(
-      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
-        hidden: true,
-      }),
-      "John Doe"
-    );
+    userEvent.click(muiSelectOptions[1]);
 
     expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(getByText("Unable to create approved study.")).toBeInTheDocument();
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to create approved study.", {
+        variant: "error",
+      });
     });
   });
 
@@ -576,6 +695,7 @@ describe("StudyView Component", () => {
             PI: "Jane Smith",
             dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
+            programID: "NA",
             openAccess: false,
             controlledAccess: true,
             programs: organizationFactory.build(1, {
@@ -605,7 +725,7 @@ describe("StudyView Component", () => {
           PI: "Jane Smith",
           dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
-          programID: "",
+          programID: "NA",
           openAccess: false,
           controlledAccess: true,
           name: "Updated Study Name",
@@ -620,11 +740,22 @@ describe("StudyView Component", () => {
       error: new Error("Unable to save changes"),
     };
 
-    const { getByTestId, findByText } = render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
+    const { getByTestId, queryByTestId } = render(
+      <TestParent
+        mocks={[
+          listActiveDCPsMock,
+          listProgramsMock,
+          getApprovedStudyMock,
+          updateApprovedStudyMock,
+        ]}
+      >
         <StudyView _id={studyId} />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(getByTestId("studyName-input")).toHaveValue("Existing Study");
@@ -642,7 +773,11 @@ describe("StudyView Component", () => {
 
     userEvent.click(saveButton);
 
-    expect(await findByText("Unable to save changes")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to save changes", {
+        variant: "error",
+      });
+    });
   });
 
   it("disables checkboxes and sets readOnly prop when saving is true", async () => {
@@ -656,7 +791,7 @@ describe("StudyView Component", () => {
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
-          programID: "",
+          programID: "NA",
           openAccess: true,
           controlledAccess: false,
           name: "Test Study Name",
@@ -678,11 +813,15 @@ describe("StudyView Component", () => {
       delay: 1000,
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
+    const { getByTestId, queryByTestId, getByText } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
@@ -691,7 +830,15 @@ describe("StudyView Component", () => {
     const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
       "button"
     );
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
+
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(PIInput, "John Doe");
@@ -699,24 +846,17 @@ describe("StudyView Component", () => {
     userEvent.click(sameAsProgramPrimaryContactCheckbox);
     userEvent.click(primaryContactIDSelect);
 
+    let muiSelectOptions;
     await waitFor(() => {
-      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
-        "option",
-        {
-          hidden: true,
-        }
-      );
+      muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole("option", {
+        hidden: true,
+      });
       expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
       expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
       expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
     });
 
-    userEvent.selectOptions(
-      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
-        hidden: true,
-      }),
-      "John Doe"
-    );
+    userEvent.click(muiSelectOptions[1]);
 
     expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
@@ -725,7 +865,6 @@ describe("StudyView Component", () => {
 
     userEvent.click(saveButton);
 
-    // Wait for the checkboxes to become disabled
     await waitFor(() => {
       expect(openAccessCheckbox).toBeDisabled();
       const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
@@ -750,11 +889,15 @@ describe("StudyView Component", () => {
       error: new ApolloError({ errorMessage: null }),
     };
 
-    render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
+    const { queryByTestId } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, getApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("/studies", {
@@ -781,6 +924,7 @@ describe("StudyView Component", () => {
             openAccess: true,
             PI: null,
             ORCID: "0000-0001-2345-6789",
+            programID: "NA",
             createdAt: "",
             useProgramPC: false,
             primaryContact: null,
@@ -791,11 +935,15 @@ describe("StudyView Component", () => {
       },
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock]}>
+    const { getByTestId, queryByTestId } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, getApprovedStudyMock]}>
         <StudyView _id={studyId} />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(getByTestId("studyName-input")).toHaveValue("Study With Null Fields");
@@ -805,12 +953,16 @@ describe("StudyView Component", () => {
     });
   });
 
-  it("navigates back to manage studies page when cancel button is clicked", () => {
-    const { getByTestId } = render(
+  it("navigates back to manage studies page when cancel button is clicked", async () => {
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const cancelButton = getByTestId("cancel-button");
     userEvent.click(cancelButton);
@@ -829,7 +981,7 @@ describe("StudyView Component", () => {
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
-          programID: "",
+          programID: "NA",
           openAccess: true,
           controlledAccess: false,
           name: "Test Study Name",
@@ -844,11 +996,15 @@ describe("StudyView Component", () => {
       error: new ApolloError({ errorMessage: null }),
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
+    const { getByTestId, queryByTestId, getByText } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const studyNameInput = getByTestId("studyName-input") as HTMLInputElement;
     const PIInput = getByTestId("PI-input") as HTMLInputElement;
@@ -858,7 +1014,15 @@ describe("StudyView Component", () => {
     const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
       "button"
     );
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
     const saveButton = getByTestId("save-button");
+
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.type(studyNameInput, "Test Study Name");
     userEvent.type(PIInput, "John Doe");
@@ -867,33 +1031,26 @@ describe("StudyView Component", () => {
     userEvent.click(openAccessCheckbox);
     userEvent.click(primaryContactIDSelect);
 
+    let muiSelectOptions;
     await waitFor(() => {
-      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
-        "option",
-        {
-          hidden: true,
-        }
-      );
+      muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole("option", {
+        hidden: true,
+      });
       expect(muiSelectOptions[0]).toHaveTextContent("<Not Set>");
       expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
       expect(muiSelectOptions[2]).toHaveTextContent("James Smith");
     });
 
-    userEvent.selectOptions(
-      within(getByTestId("primaryContactID-select")).getByRole("listbox", {
-        hidden: true,
-      }),
-      "John Doe"
-    );
+    userEvent.click(muiSelectOptions[1]);
 
     expect(getByTestId("primaryContactID-select")).toHaveTextContent("John Doe");
 
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(getByTestId("alert-error-message")).toHaveTextContent(
-        "Unable to create approved study."
-      );
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to create approved study.", {
+        variant: "error",
+      });
     });
   });
 
@@ -913,6 +1070,7 @@ describe("StudyView Component", () => {
             PI: "Jane Smith",
             dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
+            programID: "NA",
             openAccess: false,
             controlledAccess: true,
             programs: organizationFactory.build(1, {
@@ -942,7 +1100,7 @@ describe("StudyView Component", () => {
           PI: "Jane Smith",
           dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
-          programID: "",
+          programID: "NA",
           openAccess: false,
           controlledAccess: true,
           name: "Updated Study Name",
@@ -957,11 +1115,22 @@ describe("StudyView Component", () => {
       error: new ApolloError({ errorMessage: null }),
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
+    const { getByTestId, queryByTestId } = render(
+      <TestParent
+        mocks={[
+          listActiveDCPsMock,
+          listProgramsMock,
+          getApprovedStudyMock,
+          updateApprovedStudyMock,
+        ]}
+      >
         <StudyView _id={studyId} />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(getByTestId("studyName-input")).toHaveValue("Existing Study");
@@ -976,26 +1145,36 @@ describe("StudyView Component", () => {
     userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(getByTestId("alert-error-message")).toHaveTextContent("Unable to save changes");
+      expect(global.mockEnqueue).toHaveBeenCalledWith("Unable to save changes", {
+        variant: "error",
+      });
     });
   });
 
-  it("renders the pendingModelChange checkbox", () => {
-    const { getByTestId } = render(
+  it("renders the pendingModelChange checkbox", async () => {
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     expect(getByTestId("pendingConditions-checkbox")).toBeInTheDocument();
   });
 
   it("allows toggling the pendingModelChange checkbox", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     const checkbox = getByTestId("pendingConditions-checkbox") as HTMLInputElement;
 
@@ -1019,7 +1198,7 @@ describe("StudyView Component", () => {
           PI: "John Doe",
           dbGaPID: "",
           ORCID: "0000-0001-2345-6789",
-          programID: "",
+          programID: "NA",
           openAccess: true,
           controlledAccess: false,
           name: "Test Study Name",
@@ -1040,15 +1219,27 @@ describe("StudyView Component", () => {
       },
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, createApprovedStudyMock]}>
+    const { getByTestId, queryByTestId, getByText } = render(
+      <TestParent mocks={[listActiveDCPsMock, listProgramsMock, createApprovedStudyMock]}>
         <StudyView _id="new" />
       </TestParent>
     );
 
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const primaryContactIDSelect = within(getByTestId("primaryContactID-select")).getByRole(
       "button"
     );
+    const programAutocomplete = getByTestId("program-input") as HTMLInputElement;
+
+    userEvent.type(programAutocomplete, "Not Appl");
+
+    await waitFor(() => {
+      expect(getByText("Not Applicable")).toBeInTheDocument();
+    });
+    userEvent.click(getByText("Not Applicable"));
 
     userEvent.type(getByTestId("studyName-input"), "Test Study Name");
     userEvent.type(getByTestId("PI-input"), "John Doe");
@@ -1058,20 +1249,15 @@ describe("StudyView Component", () => {
     userEvent.click(getByTestId("pendingConditions-checkbox"));
     userEvent.click(primaryContactIDSelect);
 
+    let muiSelectOptions;
     await waitFor(() => {
-      const muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole(
-        "option",
-        {
-          hidden: true,
-        }
-      );
+      muiSelectOptions = within(getByTestId("primaryContactID-select")).getAllByRole("option", {
+        hidden: true,
+      });
 
       expect(muiSelectOptions[1]).toHaveTextContent("John Doe");
     });
-    userEvent.selectOptions(
-      within(getByTestId("primaryContactID-select")).getByRole("listbox", { hidden: true }),
-      "John Doe"
-    );
+    userEvent.click(muiSelectOptions[1]);
     userEvent.click(getByTestId("save-button"));
 
     await waitFor(() => {
@@ -1097,6 +1283,7 @@ describe("StudyView Component", () => {
             PI: "Jane Smith",
             dbGaPID: "phs654321",
             ORCID: "0000-0002-3456-7890",
+            programID: "NA",
             openAccess: false,
             controlledAccess: true,
             programs: organizationFactory.build(1, {
@@ -1126,7 +1313,7 @@ describe("StudyView Component", () => {
           PI: "Jane Smith",
           dbGaPID: "phs654321",
           ORCID: "0000-0002-3456-7890",
-          programID: "",
+          programID: "NA",
           openAccess: false,
           controlledAccess: true,
           name: "Existing Study",
@@ -1147,11 +1334,22 @@ describe("StudyView Component", () => {
       },
     };
 
-    const { getByTestId } = render(
-      <TestParent mocks={[listActiveDCPsMock, getApprovedStudyMock, updateApprovedStudyMock]}>
+    const { getByTestId, queryByTestId } = render(
+      <TestParent
+        mocks={[
+          listActiveDCPsMock,
+          listProgramsMock,
+          getApprovedStudyMock,
+          updateApprovedStudyMock,
+        ]}
+      >
         <StudyView _id={studyId} />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
 
     await waitFor(() => {
       expect(getByTestId("studyName-input")).toHaveValue("Existing Study");
@@ -1174,11 +1372,16 @@ describe("StudyView Component", () => {
 
 describe("Implementation Requirements", () => {
   it("should check 'Pending on dbGaPID' when controlledAccess is true and dbGaPID is empty", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
     userEvent.click(controlledAccessCheckbox);
 
@@ -1193,11 +1396,16 @@ describe("Implementation Requirements", () => {
   });
 
   it("should uncheck 'Pending on dbGaPID' when controlledAccess is false", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
     userEvent.click(controlledAccessCheckbox);
     expect(controlledAccessCheckbox.checked).toBe(true);
@@ -1216,11 +1424,16 @@ describe("Implementation Requirements", () => {
   });
 
   it("should uncheck 'Pending on dbGaPID' when dbGaPID is filled and controlledAccess is true", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
     userEvent.click(controlledAccessCheckbox);
 
@@ -1238,11 +1451,16 @@ describe("Implementation Requirements", () => {
   });
 
   it("should check 'Pending on Genomic Program Administrator (GPA)' when controlledAccess is true and GPA is empty", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
     userEvent.click(controlledAccessCheckbox);
 
@@ -1255,11 +1473,16 @@ describe("Implementation Requirements", () => {
   });
 
   it("should uncheck 'Pending on Genomic Program Administrator (GPA)' when controlledAccess is false", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
     userEvent.click(controlledAccessCheckbox);
     expect(controlledAccessCheckbox.checked).toBe(true);
@@ -1276,11 +1499,16 @@ describe("Implementation Requirements", () => {
   });
 
   it("should uncheck 'Pending on Genomic Program Administrator (GPA)' when GPA is filled and controlledAccess is true", async () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <TestParent>
         <StudyView _id="new" />
       </TestParent>
     );
+
+    await waitFor(async () => {
+      expect(queryByTestId("study-view-suspense-loader")).not.toBeInTheDocument();
+    });
+
     const controlledAccessCheckbox = getByTestId("controlledAccess-checkbox") as HTMLInputElement;
     userEvent.click(controlledAccessCheckbox);
 

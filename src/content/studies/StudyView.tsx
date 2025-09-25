@@ -722,7 +722,11 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           <TextField
                             {...params}
                             placeholder={programField ? undefined : "Select Program"}
-                            inputProps={{ "aria-labelledby": "studiesLabel", ...inputProps }}
+                            inputProps={{
+                              "aria-labelledby": "programLabel",
+                              "data-testid": "program-input",
+                              ...inputProps,
+                            }}
                             required
                           />
                         )}
