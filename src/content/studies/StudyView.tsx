@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
-  Alert,
   Box,
   Checkbox,
   Container,
@@ -10,18 +9,27 @@ import {
   MenuItem,
   Stack,
   styled,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
+import {
+  Status as OrgStatus,
+  useOrganizationListContext,
+} from "@/components/Contexts/OrganizationListContext";
 
 import bannerSvg from "../../assets/banner/profile_banner.png";
 import CheckboxCheckedIconSvg from "../../assets/icons/checkbox_checked.svg?url";
 import studyIcon from "../../assets/icons/study_icon.svg?url";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
 import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
 import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
 import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
@@ -166,6 +174,13 @@ const BaseInputStyling = {
 
 const StyledTextField = styled(BaseOutlinedInput)(BaseInputStyling);
 const StyledSelect = styled(BaseSelect)(BaseInputStyling);
+const StyledAutocomplete = styled(BaseAutocomplete)(BaseInputStyling);
+
+const StyledPaper = styled(BasePaper)({
+  maxHeight: "300px",
+  "& .MuiAutocomplete-listbox": { width: "fit-content", minWidth: "100%", maxHeight: "unset" },
+  "& .MuiAutocomplete-option": { whiteSpace: "nowrap" },
+});
 
 const StyledButtonStack = styled(Stack)({
   marginTop: "50px",
@@ -185,13 +200,6 @@ const StyledButton = styled(LoadingButton)(({ txt, border }: { txt: string; bord
 
 const StyledContentStack = styled(Stack)({
   marginLeft: "2px !important",
-});
-
-const StyledAlert = styled(Alert)({
-  marginBottom: "16px",
-  padding: "16px",
-  width: "100%",
-  maxWidth: "556px",
 });
 
 const StyledTitleBox = styled(Box)({
@@ -218,7 +226,7 @@ type FormInput = Pick<
   | "useProgramPC"
   | "pendingModelChange"
   | "GPAName"
-> & { primaryContactID: string };
+> & { primaryContactID: string; program: Organization };
 
 type Props = {
   _id: string;
@@ -230,6 +238,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { lastSearchParams } = useSearchParamsContext();
+  const { activeOrganizations: activePrograms, status: orgStatus } = useOrganizationListContext();
   const {
     handleSubmit,
     register,
@@ -247,6 +256,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       PI: "",
       dbGaPID: "",
       ORCID: "",
+      program: null,
       primaryContactID: "",
       openAccess: false,
       controlledAccess: false,
@@ -254,24 +264,39 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       GPAName: "",
     },
   });
-  const [isControlled, dbGaPIDFilter, gpaNameFilter] = watch([
+  const [isControlled, dbGaPIDFilter, gpaNameFilter, programField] = watch([
     "controlledAccess",
     "dbGaPID",
     "GPAName",
+    "program",
   ]);
 
   const [saving, setSaving] = useState<boolean>(false);
-  const [error, setError] = useState(null);
   const [sameAsProgramPrimaryContact, setSameAsProgramPrimaryContact] = useState<boolean>(true);
   const [approvedStudy, setApprovedStudy] = useState<ApprovedStudy>(null);
+  const [autocompleteMinWidth, setAutocompleteMinWidth] = useState<number | null>(null);
+  const autocompleteRef = useRef<HTMLElement | null>(null);
 
   const manageStudiesPageUrl = `/studies${lastSearchParams?.["/studies"] ?? ""}`;
+  const programOptions = useMemo(() => {
+    const NAProgram = activePrograms?.find((p) => p.readOnly);
+    const modifiedNAProgram = { ...NAProgram, name: "Not Applicable" };
+    const filteredPrograms =
+      activePrograms?.filter((p) => !p.readOnly)?.sort((a, b) => a?.name?.localeCompare(b?.name)) ||
+      [];
+
+    if (!NAProgram) {
+      return filteredPrograms;
+    }
+
+    return [modifiedNAProgram, ...filteredPrograms];
+  }, [activePrograms]);
 
   const { loading: retrievingStudy } = useQuery<GetApprovedStudyResp, GetApprovedStudyInput>(
     GET_APPROVED_STUDY,
     {
       variables: { _id },
-      skip: !_id || _id === "new",
+      skip: !_id || _id === "new" || orgStatus === OrgStatus.LOADING,
       onCompleted: (data) => {
         setApprovedStudy({ ...data?.getApprovedStudy } as ApprovedStudy);
         const {
@@ -281,6 +306,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
           PI,
           dbGaPID,
           ORCID,
+          programID,
           openAccess,
           controlledAccess,
           useProgramPC,
@@ -290,12 +316,16 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
         setSameAsProgramPrimaryContact(useProgramPC);
 
+        const defaultProgram = programOptions?.[0] as Organization;
+        const program = activePrograms?.find((p) => p._id === programID) as Organization;
+
         resetForm({
           studyName,
           studyAbbreviation,
           PI,
           dbGaPID,
           ORCID,
+          program: program || defaultProgram || null,
           openAccess,
           controlledAccess,
           useProgramPC,
@@ -352,6 +382,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     dbGaPID,
     PI,
     ORCID,
+    program,
     primaryContactID,
     pendingModelChange,
     GPAName,
@@ -364,6 +395,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       dbGaPID: dbGaPID || "",
       PI: PI || "",
       ORCID: ORCID || "",
+      program: program || null,
       primaryContactID: primaryContactID || "",
       pendingModelChange: pendingModelChange || false,
       GPAName: GPAName || "",
@@ -372,26 +404,27 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
 
   const handlePreSubmit = (data: FormInput) => {
     if (data.dbGaPID && !isValidDbGaPID(data?.dbGaPID)) {
-      setError("Invalid dbGaPID format.");
+      enqueueSnackbar("Invalid dbGaPID format.", { variant: "error" });
       return;
     }
     if (data.ORCID && !isValidORCID(data?.ORCID)) {
-      setError("Invalid ORCID format.");
+      enqueueSnackbar("Invalid ORCID format.", { variant: "error" });
       return;
     }
     if (!data?.controlledAccess && !data?.openAccess) {
-      setError("Invalid Access Type. Please select at least one Access Type.");
+      enqueueSnackbar("Invalid Access Type. Please select at least one Access Type.", {
+        variant: "error",
+      });
       return;
     }
 
-    setError(null);
     onSubmit(data);
   };
 
   const onSubmit = async (data: FormInput) => {
     setSaving(true);
 
-    const { studyName, studyAbbreviation, ...rest } = data;
+    const { studyName, studyAbbreviation, program, ...rest } = data;
 
     const variables: CreateApprovedStudyInput | UpdateApprovedStudyInput = {
       ...rest,
@@ -402,6 +435,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
         : rest.primaryContactID || undefined,
       useProgramPC: sameAsProgramPrimaryContact,
       isPendingGPA: rest.controlledAccess === true && rest.GPAName?.trim().length === 0,
+      programID: program?._id,
     };
 
     if (_id === "new") {
@@ -412,7 +446,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       setSaving(false);
 
       if (errors || !d?.createApprovedStudy?._id) {
-        setError(errors || "Unable to create approved study.");
+        enqueueSnackbar(errors || "Unable to create approved study.", { variant: "error" });
         return;
       }
       enqueueSnackbar("This study has been successfully added.", {
@@ -425,7 +459,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       setSaving(false);
 
       if (errors || !d?.updateApprovedStudy) {
-        setError(errors || "Unable to save changes");
+        enqueueSnackbar(errors || "Unable to save changes", { variant: "error" });
         return;
       }
 
@@ -433,7 +467,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
       resetForm({ ...d.updateApprovedStudy });
     }
 
-    setError(null);
     navigate(manageStudiesPageUrl);
   };
 
@@ -460,7 +493,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     setValue("primaryContactID", null);
   };
 
-  if (retrievingStudy) {
+  if (retrievingStudy || orgStatus === OrgStatus.LOADING) {
     return <SuspenseLoader data-testid="study-view-suspense-loader" />;
   }
 
@@ -486,12 +519,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
             </StyledTitleBox>
 
             <form onSubmit={handleSubmit(handlePreSubmit)} data-testid="study-form">
-              {error && (
-                <StyledAlert severity="error" data-testid="alert-error-message">
-                  {error || "An unknown API error occurred."}
-                </StyledAlert>
-              )}
-
               <StyledField>
                 <StyledLabel id="studyNameLabel">
                   Name
@@ -670,6 +697,56 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                           "aria-labelledby": "orcidLabel",
                           "data-testid": "ORCID-input",
                         }}
+                      />
+                    )}
+                  />
+                </Stack>
+              </StyledField>
+
+              <StyledField>
+                <StyledLabel id="programLabel">
+                  Program
+                  <StyledAsterisk visible />
+                </StyledLabel>
+                <Stack direction="column">
+                  <Controller
+                    name="program"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <StyledAutocomplete
+                        {...field}
+                        value={field.value || null}
+                        ref={autocompleteRef}
+                        renderInput={({ inputProps, ...params }) => (
+                          <TextField
+                            {...params}
+                            placeholder={programField ? undefined : "Select Program"}
+                            inputProps={{ "aria-labelledby": "studiesLabel", ...inputProps }}
+                            required
+                          />
+                        )}
+                        onOpen={(event) => {
+                          setAutocompleteMinWidth(
+                            autocompleteRef.current ? autocompleteRef.current?.offsetWidth : null
+                          );
+                        }}
+                        slotProps={{
+                          popper: {
+                            sx: {
+                              width: autocompleteMinWidth
+                                ? `${autocompleteMinWidth}px !important`
+                                : "auto !important",
+                            },
+                          },
+                        }}
+                        options={programOptions}
+                        getOptionLabel={(option: Organization) => option?.name || ""}
+                        isOptionEqualToValue={(option: Organization, value: Organization) =>
+                          option._id === value._id
+                        }
+                        onChange={(_, data: Organization) => field.onChange(data)}
+                        PaperComponent={StyledPaper}
                       />
                     )}
                   />
