@@ -13,7 +13,6 @@ const BaseApprovedStudyFragment = gql`
   }
 `;
 
-// TODO: Add programID
 const ExtendedApprovedStudyFragment = gql`
   fragment ExtendedApprovedStudy on ApprovedStudy {
     PI
@@ -23,6 +22,7 @@ const ExtendedApprovedStudyFragment = gql`
       firstName
       lastName
     }
+    programID
     programs {
       _id
       name
