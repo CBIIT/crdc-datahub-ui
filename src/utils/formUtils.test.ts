@@ -595,3 +595,56 @@ describe("combineQuestionnaireData cases", () => {
     expect(result.tags).toEqual([]);
   });
 });
+
+describe("isValidDbGaPID cases", () => {
+  it("should return true for a valid dbGaPID", () => {
+    expect(utils.isValidDbGaPID("phs123456")).toBe(true);
+  });
+
+  it("should return true for a valid dbGaPID with different case", () => {
+    expect(utils.isValidDbGaPID("PHS123456")).toBe(true);
+    expect(utils.isValidDbGaPID("Phs123456")).toBe(true);
+  });
+
+  it("should return false for dbGaPID with less than 6 digits", () => {
+    expect(utils.isValidDbGaPID("phs12345")).toBe(false);
+  });
+
+  it("should return false for dbGaPID with more than 6 digits", () => {
+    expect(utils.isValidDbGaPID("phs1234567")).toBe(false);
+  });
+
+  it("should return false for dbGaPID without 'phs' prefix", () => {
+    expect(utils.isValidDbGaPID("123456")).toBe(false);
+  });
+
+  it("should return false for dbGaPID with wrong prefix", () => {
+    expect(utils.isValidDbGaPID("abc123456")).toBe(false);
+  });
+
+  it("should return false for strings that are too short", () => {
+    expect(utils.isValidDbGaPID("phs123")).toBe(false);
+    expect(utils.isValidDbGaPID("")).toBe(false);
+  });
+
+  it("should return false for non-string values", () => {
+    expect(utils.isValidDbGaPID(null as unknown as string)).toBe(false);
+    expect(utils.isValidDbGaPID(undefined as unknown as string)).toBe(false);
+    expect(utils.isValidDbGaPID(123456789 as unknown as string)).toBe(false);
+  });
+
+  it("should return false for dbGaPID with letters in digit section", () => {
+    expect(utils.isValidDbGaPID("phs12345a")).toBe(false);
+  });
+
+  it("should return false for dbGaPID with special characters", () => {
+    expect(utils.isValidDbGaPID("phs123-456")).toBe(false);
+    expect(utils.isValidDbGaPID("phs123.456")).toBe(false);
+  });
+
+  it("should return false for a dbGaPID with version or participant suffix", () => {
+    expect(utils.isValidDbGaPID("phs123456.v1")).toBe(false);
+    expect(utils.isValidDbGaPID("phs123456.p1")).toBe(false);
+    expect(utils.isValidDbGaPID("phs123456.v1.p1")).toBe(false);
+  });
+});
