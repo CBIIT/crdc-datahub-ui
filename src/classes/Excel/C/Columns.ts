@@ -117,7 +117,6 @@ export const COLUMNS: ColumnDef<CKeys>[] = [
 
 export const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<CKeys> = {
   "study.dbGaPPPHSNumber": 50,
-  // "study.GPAName": 0, // TODO: no limit?
   otherCancerTypes: 1000,
   preCancerTypes: 500,
   otherSpeciesOfSubjects: 500,
