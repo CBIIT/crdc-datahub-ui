@@ -130,7 +130,8 @@ const StyledTooltip = styled(StyledFormTooltip)({
   },
 });
 
-const validateSection = (section: string) => typeof map[section] !== "undefined";
+const validateSection = (section: string): section is SectionKey =>
+  typeof map[section] !== "undefined";
 
 export type SaveForm =
   | { status: "success"; id: string }
@@ -163,7 +164,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
   const { user, status: authStatus } = useAuthContext();
   const { formMode, readOnlyInputs } = useFormMode();
 
-  const [activeSection, setActiveSection] = useState<string>(
+  const [activeSection, setActiveSection] = useState<SectionKey>(
     validateSection(section) ? section : "A"
   );
   const [blockedNavigate, setBlockedNavigate] = useState<boolean>(false);
