@@ -3579,11 +3579,14 @@ describe("IO Symmetry", () => {
     });
 
     const serializedExcel = await middleware.serialize();
+    const file = new File([serializedExcel], "filename.xlsx", {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
     expect(mockInstitutions).toHaveBeenCalled();
     expect(mockPrograms).toHaveBeenCalled();
 
-    const data = await QuestionnaireExcelMiddleware.parse(serializedExcel, {});
+    const data = await QuestionnaireExcelMiddleware.parse(file, {});
 
     expect(data).toEqual(mockForm);
   });

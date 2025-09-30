@@ -138,19 +138,21 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
       return;
     }
 
-    const newData = await QuestionnaireExcelMiddleware.parse(
-      await dataTransferFile?.arrayBuffer(),
-      {
-        application: data,
-      }
-    );
-
-    const res = await setData(newData as QuestionnaireData, { skipSave: false });
+    const parsedForm = await QuestionnaireExcelMiddleware.parse(dataTransferFile, {});
+    const isCompleted = parsedForm?.sections?.every((section) => section.status === "Completed");
+    const res = await setData(parsedForm, { skipSave: false });
 
     if (res?.status === "success") {
       enqueueSnackbar(
-        "Your data for this Submission Request has been imported. Please review each page and confirm all fields before submitting.",
+        isCompleted
+          ? "Your data has been imported and all passed validation. You may proceed to Review & Submit."
+          : "Your data has been imported, but some pages contain validation errors. Please review each page and resolve before submitting.",
         { variant: "success" }
+      );
+    } else {
+      enqueueSnackbar(
+        "Import failed. Your data could not be imported. Please check the file format and template, then try again.",
+        { variant: "error" }
       );
     }
 

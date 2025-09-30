@@ -70,7 +70,7 @@ export class QuestionnaireExcelMiddleware {
    * The internal QuestionnaireData object.
    * This object is mutated during the import process, but remains immutable for export.
    */
-  private data: QuestionnaireData | RecursivePartial<QuestionnaireData> | null;
+  private data: QuestionnaireData | null;
 
   /**
    * The dependencies required for exporting or importing,
@@ -114,18 +114,18 @@ export class QuestionnaireExcelMiddleware {
    * A static method to parse the input file and return a QuestionnaireExcelMiddleware instance.
    * This method is the inverse of the `serialize` method.
    *
-   * @param fileBuffer The Excel file data to be parsed.
+   * @param file The Excel file data to be parsed.
    * @param dependencies The dependencies required for parsing the data.
    * @throws Will throw an error if the data cannot be parsed or is invalid.
    * @returns A new instance of QuestionnaireExcelMiddleware with the parsed data.
    */
   public static async parse(
-    fileBuffer: ArrayBuffer,
+    file: File,
     dependencies: MiddlewareDependencies
-  ): Promise<QuestionnaireExcelMiddleware["data"]> {
-    // Load the workbook from the ArrayBuffer
+  ): Promise<QuestionnaireData> {
+    // Load the workbook from the File
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(fileBuffer);
+    await workbook.xlsx.load(await file?.arrayBuffer());
 
     // Create an instance with null data, then assign the loaded workbook
     const middleware = new QuestionnaireExcelMiddleware(null, dependencies);
@@ -690,6 +690,11 @@ export class QuestionnaireExcelMiddleware {
     return sheet;
   }
 
+  /**
+   * Creates a hidden sheet containing the funding agency options.
+   *
+   * @returns The created worksheet.
+   */
   private async createFundingAgencySheet(): Promise<Readonly<ExcelJS.Worksheet>> {
     let sheet = this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.fundingAgencies);
     if (!sheet) {
