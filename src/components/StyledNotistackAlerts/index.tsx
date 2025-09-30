@@ -1,12 +1,14 @@
 import { styled } from "@mui/material";
 import { MaterialDesignContent } from "notistack";
+import { CSSProperties } from "react";
 
-const BaseSnackbarStyles = {
+const BaseSnackbarStyles: CSSProperties = {
   color: "#ffffff",
   width: "535px",
   minHeight: "50px",
   boxShadow: "-4px 8px 27px 4px rgba(27,28,28,0.09)",
   boxSizing: "border-box",
+  wordBreak: "break-word",
   userSelect: "none",
   justifyContent: "center",
 };
