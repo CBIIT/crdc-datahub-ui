@@ -170,9 +170,9 @@ export const mapOrganizationStudyToId = (
 };
 
 /**
- * Validates a dbGaPID phs accession number. A dbGaPID must begin with phs (case-insensitive), followed by 6 digits
- * and optionally followed by a dot and a version number (1 or more digits).
+ * Validates a dbGaPID phs accession number. A dbGaPID must begin with phs (case-insensitive), followed by 6 digits.
  *
+ * @note This explicitly does NOT allow version or participant suffixes (e.g. phs000001.v3.p1)
  * @param {string} id The dbGaPID string to validate.
  * @returns {boolean} Returns true if the string is a valid dbGaPID, false otherwise.
  */
@@ -181,7 +181,7 @@ export const isValidDbGaPID = (id: string): boolean => {
     return false;
   }
 
-  const idPattern = /^phs\d{6}(\.v\d+)?(\.p\d+)?$/i;
+  const idPattern = /^phs\d{6}$/i;
   return idPattern.test(id);
 };
 
