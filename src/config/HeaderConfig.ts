@@ -1,6 +1,7 @@
 import Logo from "../assets/header/Portal_Logo.svg";
 import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
 import usaFlagSmall from "../assets/header/us_flag_small.svg";
+import DataExplorerInstructions from "../assets/pdf/CRDC_Data_Explorer_Instructions.pdf";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
 
 import { DataCommons } from "./DataCommons";
@@ -63,6 +64,14 @@ export const HeaderLinks = [
           name: "Data Submission\nInstructions",
           link: DataSubmissionInstructionsLink,
           id: "data-submission-instructions",
+          className: "navMobileSubItem",
+        },
+      ],
+      [
+        {
+          name: "Data Explorer\nInstructions",
+          link: DataExplorerInstructions,
+          id: "data-explorer-instructions",
           className: "navMobileSubItem",
         },
       ],
