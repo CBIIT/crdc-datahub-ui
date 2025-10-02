@@ -400,6 +400,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
       // Not including review section
       newData.sections = cloneDeep(InitialSections);
     }
+    // TODO: If the section has no data, it should be marked as New
     const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
     const currentSection: Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {

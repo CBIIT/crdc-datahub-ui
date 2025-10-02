@@ -1,4 +1,6 @@
 import { cloneDeep } from "lodash";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { z } from "zod";
 
 import { fundingFactory } from "@/factories/application/FundingFactory";
 import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
@@ -7,6 +9,7 @@ import { studyFactory } from "@/factories/application/StudyFactory";
 import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
 
 import * as utils from "./formUtils";
+import { Logger } from "./logger";
 
 describe("filterNonNumeric cases", () => {
   it("should filter non-numerics", () => {
@@ -646,5 +649,107 @@ describe("isValidDbGaPID cases", () => {
     expect(utils.isValidDbGaPID("phs123456.v1")).toBe(false);
     expect(utils.isValidDbGaPID("phs123456.p1")).toBe(false);
     expect(utils.isValidDbGaPID("phs123456.v1.p1")).toBe(false);
+  });
+});
+
+describe("determineSectionStatus", () => {
+  it('should return "Completed" if passed is true', () => {
+    expect(utils.determineSectionStatus(true, true)).toBe("Completed");
+    expect(utils.determineSectionStatus(true, false)).toBe("Completed");
+  });
+
+  it('should return "In Progress" if passed is false and hasData is true', () => {
+    expect(utils.determineSectionStatus(false, true)).toBe("In Progress");
+  });
+
+  it('should return "Not Started" if both passed and hasData are false', () => {
+    expect(utils.determineSectionStatus(false, false)).toBe("Not Started");
+  });
+});
+
+describe("parseSchemaObject", () => {
+  const schema = z.object({
+    name: z.string(),
+    age: z.number().int().min(0),
+    nested: z.object({
+      foo: z.string(),
+      bar: z.number().optional(),
+    }),
+  });
+
+  let loggerErrorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    loggerErrorSpy = vi.spyOn(Logger, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    loggerErrorSpy.mockRestore();
+  });
+
+  it("should return passed=true and data if validation succeeds", () => {
+    const data = {
+      name: "Alice",
+      age: 30,
+      nested: { foo: "bar", bar: 1 },
+    };
+    const result = utils.parseSchemaObject(schema, data);
+
+    expect(result.passed).toBe(true);
+    expect(result.data).toEqual(data);
+    expect(loggerErrorSpy).not.toHaveBeenCalled();
+  });
+
+  it("should remove invalid fields and return passed=false if validation fails", () => {
+    const data = {
+      name: "Alice",
+      age: "not-a-number",
+      nested: { foo: 123, bar: 1 },
+      extra: "should be removed",
+    };
+
+    const result = utils.parseSchemaObject(schema, data);
+    expect(result.passed).toBe(false);
+    // Should remove 'age' and 'nested.foo', but keep 'name', 'nested.bar', and 'extra'
+    expect(result.data).toMatchObject({
+      name: "Alice",
+      nested: { bar: 1 },
+      extra: "should be removed",
+    });
+    expect(result.data).not.toHaveProperty("age");
+    expect(result.data.nested).not.toHaveProperty("foo");
+    expect(loggerErrorSpy).toHaveBeenCalled();
+  });
+
+  it("should handle deeply nested invalid fields", () => {
+    const deepSchema = z.object({
+      a: z.object({
+        b: z.object({
+          c: z.string(),
+        }),
+      }),
+    });
+    const data = { a: { b: { c: 123, d: "extra" } } };
+    const result = utils.parseSchemaObject(deepSchema, data);
+
+    expect(result.passed).toBe(false);
+    expect(result.data).toEqual({ a: { b: { d: "extra" } } });
+    expect(loggerErrorSpy).toHaveBeenCalled();
+  });
+
+  it("should not unset anything if all fields are valid", () => {
+    const data = { name: "Bob", age: 42, nested: { foo: "baz" } };
+    const result = utils.parseSchemaObject(schema, data);
+
+    expect(result.passed).toBe(true);
+    expect(result.data).toEqual({ name: "Bob", age: 42, nested: { foo: "baz" } });
+    expect(loggerErrorSpy).not.toHaveBeenCalled();
+  });
+
+  it("should handle empty data object", () => {
+    const result = utils.parseSchemaObject(schema, {});
+    expect(result.passed).toBe(false);
+    expect(result.data).toEqual({});
+    expect(loggerErrorSpy).toHaveBeenCalled();
   });
 });

@@ -1,6 +1,6 @@
 import { LazyQueryExecFunction } from "@apollo/client";
 import ExcelJS from "exceljs";
-import { cloneDeep, merge, union, some, values, toString } from "lodash";
+import { cloneDeep, merge, union, toString } from "lodash";
 
 import cancerTypeOptions from "@/config/CancerTypesConfig";
 import DataTypes from "@/config/DataTypesConfig";
@@ -14,8 +14,8 @@ import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
 import { isFormulaValue, isHyperlinkValue, isRichTextValue, isSharedFormulaValue } from "@/utils";
 import { parseReleaseVersion } from "@/utils/envUtils";
+import { determineSectionStatus, parseSchemaObject } from "@/utils/formUtils";
 import { Logger } from "@/utils/logger";
-import { parseSchemaObject } from "@/utils/zodUtils";
 
 import { SectionA, SectionAColumns, SectionASchema } from "./Excel/A/SectionA";
 import { SectionB, SectionBColumns, SectionBSchema } from "./Excel/B/SectionB";
@@ -398,26 +398,13 @@ export class QuestionnaireExcelMiddleware {
       institutionSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.institutions),
     });
 
-    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      SectionASchema,
-      newMapping
-    );
+    const result = parseSchemaObject(SectionASchema, newMapping);
 
-    const hasPIFields = some(values(result?.pi), (v) => typeof v === "string" && v.trim() !== "");
-    const hasPrimaryContactFields = some(
-      values(result?.primaryContact),
-      (v) => typeof v === "string" && v.trim() !== ""
+    this.data = merge({}, this.data, result.data);
+    this.data.sections.find((s) => s.name === "A").status = determineSectionStatus(
+      result.passed,
+      SectionA.hasValidData(result.data)
     );
-    const hasAdditionalContactFields = some(result?.additionalContacts || [], (contact) =>
-      some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
-    );
-
-    this.data = merge({}, this.data, result);
-
-    const isStarted = hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
-    this.data.sections.find((s) => s.name === "A").status = isStarted
-      ? "In Progress"
-      : "Not Started";
 
     return true;
   }
@@ -448,43 +435,13 @@ export class QuestionnaireExcelMiddleware {
       programSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.programs),
     });
 
-    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      SectionBSchema,
-      newMapping
+    const result = parseSchemaObject(SectionBSchema, newMapping);
+
+    this.data = merge({}, this.data, result.data);
+    this.data.sections.find((s) => s.name === "B").status = determineSectionStatus(
+      result.passed,
+      SectionB.hasValidData(result.data)
     );
-
-    this.data = merge({}, this.data, result);
-
-    const hasProgramId = result?.program?._id?.length > 0;
-    const hasProgramName = result?.program?.name?.length > 0;
-    const hasProgramAbbreviation = result?.program?.abbreviation?.length > 0;
-    const hasStudyName = result?.study?.name?.length > 0;
-    const hasStudyAbbreviation = result?.study?.abbreviation?.length > 0;
-    const hasStudyDescription = result?.study?.description?.length > 0;
-    // SR form creates one funding entry by default
-    const hasFundingAgency = result?.study?.funding?.[0]?.agency;
-    const hasFundingGrantNumbers = result?.study?.funding?.[0]?.grantNumbers;
-    const hasFundingNciProgramOfficer = result?.study?.funding?.[0]?.nciProgramOfficer;
-    const hasPublications = result?.study?.publications?.length > 0;
-    const hasPlannedPublications = result?.study?.plannedPublications?.length > 0;
-    const hasRepositories = result?.study?.repositories?.length > 0;
-
-    const isStarted =
-      hasProgramId ||
-      hasProgramName ||
-      hasProgramAbbreviation ||
-      hasStudyName ||
-      hasStudyAbbreviation ||
-      hasStudyDescription ||
-      hasFundingAgency ||
-      hasFundingGrantNumbers ||
-      hasFundingNciProgramOfficer ||
-      hasPublications ||
-      hasPlannedPublications ||
-      hasRepositories;
-    this.data.sections.find((s) => s.name === "B").status = isStarted
-      ? "In Progress"
-      : "Not Started";
 
     return true;
   }
@@ -517,37 +474,13 @@ export class QuestionnaireExcelMiddleware {
       speciesSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.speciesOptions),
     });
 
-    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      SectionCSchema,
-      newMapping
+    const result = parseSchemaObject(SectionCSchema, newMapping);
+
+    this.data = merge({}, this.data, result.data);
+    this.data.sections.find((s) => s.name === "C").status = determineSectionStatus(
+      result.passed,
+      SectionC.hasValidData(result.data)
     );
-
-    const hasAccessTypes = result?.accessTypes?.length > 0;
-    const hasStudyFields = some(
-      values(result?.study || {}),
-      (v) => typeof v === "string" && v.trim() !== ""
-    );
-    const hasCancerTypes = result?.cancerTypes?.length > 0;
-    const hasOtherCancerTypes = result?.otherCancerTypes?.length > 0;
-    const hasPreCancerTypes = result?.preCancerTypes?.length > 0;
-    const hasSpecies = result?.species?.length > 0;
-    const hasOtherSpecies = result?.otherSpeciesOfSubjects?.length > 0;
-    const hasNumberOfParticipants = !!result?.numberOfParticipants;
-
-    this.data = merge({}, this.data, result);
-
-    const isStarted =
-      hasAccessTypes ||
-      hasStudyFields ||
-      hasCancerTypes ||
-      hasOtherCancerTypes ||
-      hasPreCancerTypes ||
-      hasSpecies ||
-      hasOtherSpecies ||
-      hasNumberOfParticipants;
-    this.data.sections.find((s) => s.name === "C").status = isStarted
-      ? "In Progress"
-      : "Not Started";
 
     return true;
   }
@@ -561,7 +494,7 @@ export class QuestionnaireExcelMiddleware {
 
     const data = await this.extractValuesFromWorksheet(ws);
     const newData = new Map();
-    // Swap the column headers for the column keys in the mapping
+
     data.forEach((values, key) => {
       const colKey = SectionDColumns.find((col) => col.header === key)?.key;
       newData.set(
@@ -569,41 +502,19 @@ export class QuestionnaireExcelMiddleware {
         values.map((value) => toString(value).trim())
       );
     });
+
     const newMapping = SectionD.mapValues(newData, {
       programSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.programs),
       fileTypesSheet: this.workbook.getWorksheet(HIDDEN_SHEET_NAMES.fileTypes),
     });
 
-    const result: RecursivePartial<QuestionnaireData> = parseSchemaObject(
-      SectionDSchema,
-      newMapping
+    const result = parseSchemaObject(SectionDSchema, newMapping);
+
+    this.data = merge({}, this.data, result.data);
+    this.data.sections.find((s) => s.name === "D").status = determineSectionStatus(
+      result.passed,
+      SectionD.hasValidData(result.data)
     );
-
-    this.data = merge({}, this.data, result);
-
-    const hasTargetedSubmissionDate = result?.targetedSubmissionDate?.length > 0;
-    const hasTargetedReleaseDate = result?.targetedReleaseDate?.length > 0;
-    const hasDataTypes = result?.dataTypes?.length > 0;
-    const hasOtherDataTypes = result?.otherDataTypes?.length > 0;
-    const hasFiles = result?.files?.length > 0;
-    const hasDataDeIdentified = !!result?.dataDeIdentified;
-    const hasSubmitterComment = result?.submitterComment?.length > 0;
-    const hasCellLines = !!result?.cellLines;
-    const hasModelSystems = !!result?.modelSystems;
-
-    const isStarted =
-      hasTargetedSubmissionDate ||
-      hasTargetedReleaseDate ||
-      hasDataTypes ||
-      hasOtherDataTypes ||
-      hasFiles ||
-      hasDataDeIdentified ||
-      hasSubmitterComment ||
-      hasCellLines ||
-      hasModelSystems;
-    this.data.sections.find((s) => s.name === "D").status = isStarted
-      ? "In Progress"
-      : "Not Started";
 
     return true;
   }

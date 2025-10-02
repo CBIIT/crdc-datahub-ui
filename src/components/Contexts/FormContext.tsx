@@ -175,6 +175,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
     const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
 
+    // TODO: Call the API with this input
+    // const newStatus: ApplicationStatus = data?.sections?.some((s) => s.status !== "Not Started")
+    //   ? "In Progress"
+    //   : "New";
+
     const newInstitutions = [...newState.data.newInstitutions];
     const { pi, primaryContact, additionalContacts } = newState.data.questionnaireData;
     const contacts = [pi, primaryContact, ...(additionalContacts || [])].filter(

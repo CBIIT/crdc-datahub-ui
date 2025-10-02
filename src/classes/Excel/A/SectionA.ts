@@ -1,5 +1,6 @@
 import type ExcelJS from "exceljs";
-import { toString } from "lodash";
+import { some, toString, values } from "lodash";
+import type * as z from "zod";
 
 import {
   AND,
@@ -318,6 +319,25 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       primaryContact: piAsPrimaryContact ? null : primaryContact,
       additionalContacts,
     };
+  }
+
+  /**
+   * Determine if the provided data object contains any valid data relevant to the section.
+   *
+   * @param data The partial data object to evaluate.
+   * @returns A boolean flag indicating if any data is present.
+   */
+  public static hasValidData(data: Partial<z.infer<typeof SCHEMA>>): boolean {
+    const hasPIFields = some(values(data?.pi), (v) => typeof v === "string" && v.trim() !== "");
+    const hasPrimaryContactFields = some(
+      values(data?.primaryContact),
+      (v) => typeof v === "string" && v.trim() !== ""
+    );
+    const hasAdditionalContactFields = some(data?.additionalContacts || [], (contact) =>
+      some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
+    );
+
+    return hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
   }
 }
 

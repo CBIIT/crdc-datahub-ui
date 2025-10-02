@@ -1,6 +1,9 @@
-import { cloneDeep, mergeWith } from "lodash";
+import { cloneDeep, mergeWith, has, unset } from "lodash";
+import type * as z from "zod";
 
 import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
+
+import { Logger } from "./logger";
 
 /**
  * Generic Email Validator
@@ -370,3 +373,66 @@ export const combineQuestionnaireData = <T extends object, U extends object>(
     // default merge behavior
     return undefined;
   }) as T & U;
+
+export type ParseResult<S extends z.ZodObject> = {
+  passed: boolean;
+  data: Partial<z.infer<S>> | null;
+};
+
+/**
+ * This function will remove the fields that are not valid according to the schema validation.
+ *
+ * @template S
+ * @param schema - The Zod schema to validate against.
+ * @param data - The object to parse against the schema.
+ * @returns The parsed and validated object with all fields optional.
+ */
+export const parseSchemaObject = <S extends z.ZodObject>(
+  schema: S,
+  data: object
+): ParseResult<S> => {
+  const result = schema.safeParse(data);
+  if (result.success) {
+    return { passed: true, data: result.data };
+  }
+
+  Logger.error(`parseSchemaObject: Failed schema validation.`, {
+    data,
+    issues: result.error.issues,
+  });
+
+  const errorFields = result?.error?.issues
+    ?.map((issue) => issue.path)
+    .filter((path) => path?.length > 0);
+
+  const clonedData = cloneDeep(data);
+  for (const path of errorFields) {
+    if (!has(clonedData, path)) {
+      break;
+    }
+
+    if (!unset(clonedData, path)) {
+      Logger.error(`parseSchemaObject: Failed to unset path ${JSON.stringify(path)} in object.`);
+    }
+  }
+
+  return { passed: false, data: clonedData };
+};
+
+/**
+ * A helper function to determine the status of a section based on whether it has passed validation
+ *
+ * @param passed A flag indicating if the section has passed Zod validation
+ * @param hasData A flag indicating if the section has any data
+ * @returns The determined section status
+ */
+export const determineSectionStatus = (passed: boolean, hasData: boolean): SectionStatus => {
+  if (passed) {
+    return "Completed";
+  }
+  if (hasData) {
+    return "In Progress";
+  }
+
+  return "Not Started";
+};
