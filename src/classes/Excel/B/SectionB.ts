@@ -1,10 +1,8 @@
 import type ExcelJS from "exceljs";
 import { Row } from "exceljs";
 import { toString } from "lodash";
-import type * as z from "zod";
 
 import DataTypes from "@/config/DataTypesConfig";
-import { SectionBSchema } from "@/schemas/ApplicationSections";
 import {
   IF,
   STR_EQ,
@@ -53,9 +51,11 @@ type SectionBDeps = {
 export class SectionB extends SectionBase<BKeys, SectionBDeps> {
   static SHEET_NAME = "Program and Study";
 
+  static SHEET_ID: SectionKey = "B";
+
   constructor(deps: SectionBDeps) {
     super({
-      id: "B",
+      id: SectionB.SHEET_ID,
       sheetName: SectionB.SHEET_NAME,
       columns: COLUMNS,
       headerColor: "D9EAD3",
@@ -579,42 +579,6 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
     });
 
     return cell || null;
-  }
-
-  /**
-   * Determine if the provided data object contains any valid data relevant to the section.
-   *
-   * @param data The partial data object to evaluate.
-   * @returns A boolean flag indicating if any data is present.
-   */
-  public static hasValidData(data: Partial<z.infer<typeof SectionBSchema>>): boolean {
-    const hasProgramId = data?.program?._id?.length > 0;
-    const hasProgramName = data?.program?.name?.length > 0;
-    const hasProgramAbbreviation = data?.program?.abbreviation?.length > 0;
-    const hasStudyName = data?.study?.name?.length > 0;
-    const hasStudyAbbreviation = data?.study?.abbreviation?.length > 0;
-    const hasStudyDescription = data?.study?.description?.length > 0;
-    const hasFundingAgency = !!data?.study?.funding?.[0]?.agency; // NOTE: 1 entry exists by default
-    const hasFundingGrantNumbers = !!data?.study?.funding?.[0]?.grantNumbers;
-    const hasFundingNciProgramOfficer = !!data?.study?.funding?.[0]?.nciProgramOfficer;
-    const hasPublications = data?.study?.publications?.length > 0;
-    const hasPlannedPublications = data?.study?.plannedPublications?.length > 0;
-    const hasRepositories = data?.study?.repositories?.length > 0;
-
-    return (
-      hasProgramId ||
-      hasProgramName ||
-      hasProgramAbbreviation ||
-      hasStudyName ||
-      hasStudyAbbreviation ||
-      hasStudyDescription ||
-      hasFundingAgency ||
-      hasFundingGrantNumbers ||
-      hasFundingNciProgramOfficer ||
-      hasPublications ||
-      hasPlannedPublications ||
-      hasRepositories
-    );
   }
 }
 

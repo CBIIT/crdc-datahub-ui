@@ -1,4 +1,4 @@
-import { cloneDeep, mergeWith, has, unset } from "lodash";
+import { cloneDeep, mergeWith, has, unset, some, values } from "lodash";
 import type * as z from "zod";
 
 import { NotApplicableProgram, OtherProgram } from "../config/ProgramConfig";
@@ -435,4 +435,110 @@ export const determineSectionStatus = (passed: boolean, hasData: boolean): Secti
   }
 
   return "Not Started";
+};
+
+/**
+ * Given a section key and a questionnaire data object, determines if the section has
+ * any data that would indicate the user has started filling it out.
+ *
+ * @param section The section to check for data
+ * @param data The questionnaire data to check against
+ * @returns A boolean flag indicating if the section has any meaningful data
+ */
+export const sectionHasData = (
+  section: SectionKey,
+  data: RecursivePartial<QuestionnaireData>
+): boolean => {
+  switch (section) {
+    case "A": {
+      const hasPIFields = some(values(data?.pi), (v) => typeof v === "string" && v.trim() !== "");
+      const hasPrimaryContactFields = some(
+        values(data?.primaryContact),
+        (v) => typeof v === "string" && v.trim() !== ""
+      );
+      const hasAdditionalContactFields = some(data?.additionalContacts || [], (contact) =>
+        some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
+      );
+
+      return hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
+    }
+    case "B": {
+      const hasProgramId = data?.program?._id?.length > 0;
+      const hasProgramName = data?.program?.name?.length > 0;
+      const hasProgramAbbreviation = data?.program?.abbreviation?.length > 0;
+      const hasStudyName = data?.study?.name?.length > 0;
+      const hasStudyAbbreviation = data?.study?.abbreviation?.length > 0;
+      const hasStudyDescription = data?.study?.description?.length > 0;
+      const hasFundingAgency = !!data?.study?.funding?.[0]?.agency; // NOTE: 1 entry exists by default
+      const hasFundingGrantNumbers = !!data?.study?.funding?.[0]?.grantNumbers;
+      const hasFundingNciProgramOfficer = !!data?.study?.funding?.[0]?.nciProgramOfficer;
+      const hasPublications = data?.study?.publications?.length > 0;
+      const hasPlannedPublications = data?.study?.plannedPublications?.length > 0;
+      const hasRepositories = data?.study?.repositories?.length > 0;
+
+      return (
+        hasProgramId ||
+        hasProgramName ||
+        hasProgramAbbreviation ||
+        hasStudyName ||
+        hasStudyAbbreviation ||
+        hasStudyDescription ||
+        hasFundingAgency ||
+        hasFundingGrantNumbers ||
+        hasFundingNciProgramOfficer ||
+        hasPublications ||
+        hasPlannedPublications ||
+        hasRepositories
+      );
+    }
+    case "C": {
+      const hasAccessTypes = data?.accessTypes?.length > 0;
+      const hasStudyFields = some(
+        values(data?.study || {}),
+        (v) => typeof v === "string" && v.trim() !== ""
+      );
+      const hasCancerTypes = data?.cancerTypes?.length > 0;
+      const hasOtherCancerTypes = data?.otherCancerTypes?.length > 0;
+      const hasPreCancerTypes = data?.preCancerTypes?.length > 0;
+      const hasSpecies = data?.species?.length > 0;
+      const hasOtherSpecies = data?.otherSpeciesOfSubjects?.length > 0;
+      const hasNumberOfParticipants = !!data?.numberOfParticipants;
+
+      return (
+        hasAccessTypes ||
+        hasStudyFields ||
+        hasCancerTypes ||
+        hasOtherCancerTypes ||
+        hasPreCancerTypes ||
+        hasSpecies ||
+        hasOtherSpecies ||
+        hasNumberOfParticipants
+      );
+    }
+    case "D": {
+      const hasTargetedSubmissionDate = data?.targetedSubmissionDate?.length > 0;
+      const hasTargetedReleaseDate = data?.targetedReleaseDate?.length > 0;
+      const hasDataTypes = data?.dataTypes?.length > 0;
+      const hasOtherDataTypes = data?.otherDataTypes?.length > 0;
+      const hasFiles = data?.files?.length > 0;
+      const hasDataDeIdentified = !!data?.dataDeIdentified;
+      const hasSubmitterComment = data?.submitterComment?.length > 0;
+      const hasCellLines = !!data?.cellLines;
+      const hasModelSystems = !!data?.modelSystems;
+
+      return (
+        hasTargetedSubmissionDate ||
+        hasTargetedReleaseDate ||
+        hasDataTypes ||
+        hasOtherDataTypes ||
+        hasFiles ||
+        hasDataDeIdentified ||
+        hasSubmitterComment ||
+        hasCellLines ||
+        hasModelSystems
+      );
+    }
+    default:
+      return false;
+  }
 };

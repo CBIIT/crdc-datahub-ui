@@ -32,7 +32,7 @@ import { hasPermission } from "../../config/AuthPermissions";
 import map, { InitialSections } from "../../config/SectionConfig";
 import useFormMode from "../../hooks/useFormMode";
 import usePageTitle from "../../hooks/usePageTitle";
-import { Logger } from "../../utils";
+import { determineSectionStatus, Logger, sectionHasData } from "../../utils";
 
 import Section from "./sections";
 
@@ -400,8 +400,11 @@ const FormView: FC<Props> = ({ section }: Props) => {
       // Not including review section
       newData.sections = cloneDeep(InitialSections);
     }
-    // TODO: If the section has no data, it should be marked as New
-    const newStatus = ref.current.checkValidity() ? "Completed" : "In Progress";
+
+    const newStatus: SectionStatus = determineSectionStatus(
+      ref.current.checkValidity(),
+      sectionHasData(activeSection, newData)
+    );
     const currentSection: Section = newData.sections.find((s) => s.name === activeSection);
     if (currentSection) {
       currentSection.status = newStatus;

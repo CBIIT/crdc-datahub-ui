@@ -1,10 +1,8 @@
 import type ExcelJS from "exceljs";
 import { union, toString, toSafeInteger } from "lodash";
-import type * as z from "zod";
 
 import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
-import { SectionDSchema } from "@/schemas/ApplicationSections";
 import { DATE_NOT_BEFORE_TODAY, FormatDate } from "@/utils";
 
 import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
@@ -37,9 +35,11 @@ type SectionDDeps = {
 export class SectionD extends SectionBase<DKeys, SectionDDeps> {
   static SHEET_NAME = "Data Types";
 
+  static SHEET_ID: SectionKey = "D";
+
   constructor(deps: SectionDDeps) {
     super({
-      id: "D",
+      id: SectionD.SHEET_ID,
       sheetName: SectionD.SHEET_NAME,
       columns: COLUMNS,
       headerColor: "D9EAD3",
@@ -466,36 +466,6 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       modelSystems: toString(data.get("modelSystems")?.[0]) === "Yes",
       submitterComment: toString(data.get("submitterComment")?.[0]).trim(),
     };
-  }
-
-  /**
-   * Determine if the provided data object contains any valid data relevant to the section.
-   *
-   * @param data The partial data object to evaluate.
-   * @returns A boolean flag indicating if any data is present.
-   */
-  public static hasValidData(data: Partial<z.infer<typeof SectionDSchema>>): boolean {
-    const hasTargetedSubmissionDate = data?.targetedSubmissionDate?.length > 0;
-    const hasTargetedReleaseDate = data?.targetedReleaseDate?.length > 0;
-    const hasDataTypes = data?.dataTypes?.length > 0;
-    const hasOtherDataTypes = data?.otherDataTypes?.length > 0;
-    const hasFiles = data?.files?.length > 0;
-    const hasDataDeIdentified = !!data?.dataDeIdentified;
-    const hasSubmitterComment = data?.submitterComment?.length > 0;
-    const hasCellLines = !!data?.cellLines;
-    const hasModelSystems = !!data?.modelSystems;
-
-    return (
-      hasTargetedSubmissionDate ||
-      hasTargetedReleaseDate ||
-      hasDataTypes ||
-      hasOtherDataTypes ||
-      hasFiles ||
-      hasDataDeIdentified ||
-      hasSubmitterComment ||
-      hasCellLines ||
-      hasModelSystems
-    );
   }
 }
 

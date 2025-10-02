@@ -20,7 +20,7 @@ import {
 } from "@/schemas/ApplicationSections";
 import { isFormulaValue, isHyperlinkValue, isRichTextValue, isSharedFormulaValue } from "@/utils";
 import { parseReleaseVersion } from "@/utils/envUtils";
-import { determineSectionStatus, parseSchemaObject } from "@/utils/formUtils";
+import { determineSectionStatus, parseSchemaObject, sectionHasData } from "@/utils/formUtils";
 import { Logger } from "@/utils/logger";
 
 import { SectionA, SectionAColumns } from "./Excel/A/SectionA";
@@ -409,7 +409,7 @@ export class QuestionnaireExcelMiddleware {
     this.data = merge({}, this.data, result.data);
     this.data.sections.find((s) => s.name === "A").status = determineSectionStatus(
       result.passed,
-      SectionA.hasValidData(result.data)
+      sectionHasData(SectionA.SHEET_ID, result.data)
     );
 
     return true;
@@ -446,7 +446,7 @@ export class QuestionnaireExcelMiddleware {
     this.data = merge({}, this.data, result.data);
     this.data.sections.find((s) => s.name === "B").status = determineSectionStatus(
       result.passed,
-      SectionB.hasValidData(result.data)
+      sectionHasData(SectionB.SHEET_ID, result.data)
     );
 
     return true;
@@ -485,7 +485,7 @@ export class QuestionnaireExcelMiddleware {
     this.data = merge({}, this.data, result.data);
     this.data.sections.find((s) => s.name === "C").status = determineSectionStatus(
       result.passed,
-      SectionC.hasValidData(result.data)
+      sectionHasData(SectionC.SHEET_ID, result.data)
     );
 
     return true;
@@ -519,7 +519,7 @@ export class QuestionnaireExcelMiddleware {
     this.data = merge({}, this.data, result.data);
     this.data.sections.find((s) => s.name === "D").status = determineSectionStatus(
       result.passed,
-      SectionD.hasValidData(result.data)
+      sectionHasData(SectionD.SHEET_ID, result.data)
     );
 
     return true;

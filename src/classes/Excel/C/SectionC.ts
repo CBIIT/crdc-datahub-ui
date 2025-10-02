@@ -1,9 +1,6 @@
 import type ExcelJS from "exceljs";
-import { some, values } from "lodash";
-import type * as z from "zod";
 
 import { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
-import { SectionCSchema } from "@/schemas/ApplicationSections";
 import { STR_EQ, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger, PHS_OK } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
@@ -21,9 +18,11 @@ type SectionCDeps = {
 export class SectionC extends SectionBase<CKeys, SectionCDeps> {
   static SHEET_NAME = "Data Access and Disease";
 
+  static SHEET_ID: SectionKey = "C";
+
   constructor(deps: SectionCDeps) {
     super({
-      id: "C",
+      id: SectionC.SHEET_ID,
       sheetName: SectionC.SHEET_NAME,
       columns: COLUMNS,
       headerColor: "D9EAD3",
@@ -244,37 +243,6 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
       otherSpeciesOfSubjects: (data.get("otherSpeciesOfSubjects")?.[0] as string) || "",
       numberOfParticipants: numberOfParticipants > 0 ? numberOfParticipants : null,
     };
-  }
-
-  /**
-   * Determine if the provided data object contains any valid data relevant to the section.
-   *
-   * @param data The partial data object to evaluate.
-   * @returns A boolean flag indicating if any data is present.
-   */
-  public static hasValidData(data: Partial<z.infer<typeof SectionCSchema>>): boolean {
-    const hasAccessTypes = data?.accessTypes?.length > 0;
-    const hasStudyFields = some(
-      values(data?.study || {}),
-      (v) => typeof v === "string" && v.trim() !== ""
-    );
-    const hasCancerTypes = data?.cancerTypes?.length > 0;
-    const hasOtherCancerTypes = data?.otherCancerTypes?.length > 0;
-    const hasPreCancerTypes = data?.preCancerTypes?.length > 0;
-    const hasSpecies = data?.species?.length > 0;
-    const hasOtherSpecies = data?.otherSpeciesOfSubjects?.length > 0;
-    const hasNumberOfParticipants = !!data?.numberOfParticipants;
-
-    return (
-      hasAccessTypes ||
-      hasStudyFields ||
-      hasCancerTypes ||
-      hasOtherCancerTypes ||
-      hasPreCancerTypes ||
-      hasSpecies ||
-      hasOtherSpecies ||
-      hasNumberOfParticipants
-    );
   }
 }
 

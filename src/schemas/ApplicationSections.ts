@@ -94,21 +94,9 @@ const DSchema = z
   })
   .strict();
 
-/**
- * Provides a mapping of section keys to their corresponding Zod schemas.
- */
-const SectionSchemaMap: Record<SectionKey, z.ZodObject> = {
-  A: ASchema,
-  B: BSchema,
-  C: CSchema,
-  D: DSchema,
-  REVIEW: undefined,
-};
-
 export {
   ASchema as SectionASchema,
   BSchema as SectionBSchema,
   CSchema as SectionCSchema,
   DSchema as SectionDSchema,
-  SectionSchemaMap,
 };

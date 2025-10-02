@@ -1,8 +1,6 @@
 import type ExcelJS from "exceljs";
-import { some, toString, values } from "lodash";
-import type * as z from "zod";
+import { toString } from "lodash";
 
-import { SectionASchema } from "@/schemas/ApplicationSections";
 import {
   AND,
   EMAIL,
@@ -30,9 +28,11 @@ type SectionADeps = {
 export class SectionA extends SectionBase<AKeys, SectionADeps> {
   static SHEET_NAME = "PI and Contact";
 
+  static SHEET_ID: SectionKey = "A";
+
   constructor(deps: SectionADeps) {
     super({
-      id: "A",
+      id: SectionA.SHEET_ID,
       sheetName: SectionA.SHEET_NAME,
       columns: COLUMNS,
       headerColor: "D9EAD3",
@@ -320,25 +320,6 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
       primaryContact: piAsPrimaryContact ? null : primaryContact,
       additionalContacts,
     };
-  }
-
-  /**
-   * Determine if the provided data object contains any valid data relevant to the section.
-   *
-   * @param data The partial data object to evaluate.
-   * @returns A boolean flag indicating if any data is present.
-   */
-  public static hasValidData(data: Partial<z.infer<typeof SectionASchema>>): boolean {
-    const hasPIFields = some(values(data?.pi), (v) => typeof v === "string" && v.trim() !== "");
-    const hasPrimaryContactFields = some(
-      values(data?.primaryContact),
-      (v) => typeof v === "string" && v.trim() !== ""
-    );
-    const hasAdditionalContactFields = some(data?.additionalContacts || [], (contact) =>
-      some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
-    );
-
-    return hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
   }
 }
 
