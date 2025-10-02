@@ -12,15 +12,21 @@ import { InitialSections } from "@/config/SectionConfig";
 import speciesOptions from "@/config/SpeciesConfig";
 import env from "@/env";
 import { ListInstitutionsResp, ListOrgsInput, ListOrgsResp } from "@/graphql";
+import {
+  SectionASchema,
+  SectionBSchema,
+  SectionCSchema,
+  SectionDSchema,
+} from "@/schemas/ApplicationSections";
 import { isFormulaValue, isHyperlinkValue, isRichTextValue, isSharedFormulaValue } from "@/utils";
 import { parseReleaseVersion } from "@/utils/envUtils";
 import { determineSectionStatus, parseSchemaObject } from "@/utils/formUtils";
 import { Logger } from "@/utils/logger";
 
-import { SectionA, SectionAColumns, SectionASchema } from "./Excel/A/SectionA";
-import { SectionB, SectionBColumns, SectionBSchema } from "./Excel/B/SectionB";
-import { SectionC, SectionCColumns, SectionCSchema } from "./Excel/C/SectionC";
-import { SectionD, SectionDColumns, SectionDSchema } from "./Excel/D/SectionD";
+import { SectionA, SectionAColumns } from "./Excel/A/SectionA";
+import { SectionB, SectionBColumns } from "./Excel/B/SectionB";
+import { SectionC, SectionCColumns } from "./Excel/C/SectionC";
+import { SectionD, SectionDColumns } from "./Excel/D/SectionD";
 import { InstructionsSection } from "./Excel/Instructions/InstructionsSection";
 import { MetaKeys } from "./Excel/Metadata/Columns";
 import { MetadataColumns, MetadataSection } from "./Excel/Metadata/MetadataSection";

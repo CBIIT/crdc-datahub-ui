@@ -4,13 +4,14 @@ import type * as z from "zod";
 
 import DataTypes from "@/config/DataTypesConfig";
 import { fileTypeExtensions } from "@/config/FileTypeConfig";
+import { SectionDSchema } from "@/schemas/ApplicationSections";
 import { DATE_NOT_BEFORE_TODAY, FormatDate } from "@/utils";
 
 import { LIST_FORMULA, toYesNo } from "../../../utils/excelUtils";
 import { ErrorCatalog } from "../ErrorCatalog";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { COLUMNS, DKeys, SCHEMA } from "./Columns";
+import { COLUMNS, DKeys } from "./Columns";
 
 /**
  * List of options for Yes/No validation.
@@ -473,7 +474,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
    * @param data The partial data object to evaluate.
    * @returns A boolean flag indicating if any data is present.
    */
-  public static hasValidData(data: Partial<z.infer<typeof SCHEMA>>): boolean {
+  public static hasValidData(data: Partial<z.infer<typeof SectionDSchema>>): boolean {
     const hasTargetedSubmissionDate = data?.targetedSubmissionDate?.length > 0;
     const hasTargetedReleaseDate = data?.targetedReleaseDate?.length > 0;
     const hasDataTypes = data?.dataTypes?.length > 0;
@@ -498,4 +499,4 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
   }
 }
 
-export { COLUMNS as SectionDColumns, SCHEMA as SectionDSchema };
+export { COLUMNS as SectionDColumns };

@@ -4,6 +4,7 @@ import { toString } from "lodash";
 import type * as z from "zod";
 
 import DataTypes from "@/config/DataTypesConfig";
+import { SectionBSchema } from "@/schemas/ApplicationSections";
 import {
   IF,
   STR_EQ,
@@ -19,7 +20,7 @@ import {
 import { ErrorCatalog } from "../ErrorCatalog";
 import { CharacterLimitsMap, SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { COLUMNS, BKeys, SCHEMA } from "./Columns";
+import { COLUMNS, BKeys } from "./Columns";
 
 const DEFAULT_CHARACTER_LIMITS: CharacterLimitsMap<BKeys> = {
   "program.name": 100,
@@ -586,7 +587,7 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
    * @param data The partial data object to evaluate.
    * @returns A boolean flag indicating if any data is present.
    */
-  public static hasValidData(data: Partial<z.infer<typeof SCHEMA>>): boolean {
+  public static hasValidData(data: Partial<z.infer<typeof SectionBSchema>>): boolean {
     const hasProgramId = data?.program?._id?.length > 0;
     const hasProgramName = data?.program?.name?.length > 0;
     const hasProgramAbbreviation = data?.program?.abbreviation?.length > 0;
@@ -617,4 +618,4 @@ export class SectionB extends SectionBase<BKeys, SectionBDeps> {
   }
 }
 
-export { COLUMNS as SectionBColumns, SCHEMA as SectionBSchema };
+export { COLUMNS as SectionBColumns };

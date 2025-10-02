@@ -3,13 +3,14 @@ import { some, values } from "lodash";
 import type * as z from "zod";
 
 import { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
+import { SectionCSchema } from "@/schemas/ApplicationSections";
 import { STR_EQ, REQUIRED, TEXT_MAX, LIST_FORMULA, Logger, PHS_OK } from "@/utils";
 
 import { YesNoList } from "../D/SectionD";
 import { ErrorCatalog } from "../ErrorCatalog";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { CKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS, SCHEMA } from "./Columns";
+import { CKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS } from "./Columns";
 
 type SectionCDeps = {
   data: QuestionnaireData | null;
@@ -251,7 +252,7 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
    * @param data The partial data object to evaluate.
    * @returns A boolean flag indicating if any data is present.
    */
-  public static hasValidData(data: Partial<z.infer<typeof SCHEMA>>): boolean {
+  public static hasValidData(data: Partial<z.infer<typeof SectionCSchema>>): boolean {
     const hasAccessTypes = data?.accessTypes?.length > 0;
     const hasStudyFields = some(
       values(data?.study || {}),
@@ -277,4 +278,4 @@ export class SectionC extends SectionBase<CKeys, SectionCDeps> {
   }
 }
 
-export { COLUMNS as SectionCColumns, SCHEMA as SectionCSchema };
+export { COLUMNS as SectionCColumns };

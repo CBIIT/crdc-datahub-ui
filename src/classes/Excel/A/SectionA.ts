@@ -2,6 +2,7 @@ import type ExcelJS from "exceljs";
 import { some, toString, values } from "lodash";
 import type * as z from "zod";
 
+import { SectionASchema } from "@/schemas/ApplicationSections";
 import {
   AND,
   EMAIL,
@@ -19,7 +20,7 @@ import { YesNoList } from "../D/SectionD";
 import { ErrorCatalog } from "../ErrorCatalog";
 import { SectionBase, SectionCtxBase } from "../SectionBase";
 
-import { AKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS, SCHEMA } from "./Columns";
+import { AKeys, COLUMNS, DEFAULT_CHARACTER_LIMITS } from "./Columns";
 
 type SectionADeps = {
   data: QuestionnaireData | null;
@@ -327,7 +328,7 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
    * @param data The partial data object to evaluate.
    * @returns A boolean flag indicating if any data is present.
    */
-  public static hasValidData(data: Partial<z.infer<typeof SCHEMA>>): boolean {
+  public static hasValidData(data: Partial<z.infer<typeof SectionASchema>>): boolean {
     const hasPIFields = some(values(data?.pi), (v) => typeof v === "string" && v.trim() !== "");
     const hasPrimaryContactFields = some(
       values(data?.primaryContact),
@@ -341,4 +342,4 @@ export class SectionA extends SectionBase<AKeys, SectionADeps> {
   }
 }
 
-export { COLUMNS as SectionAColumns, SCHEMA as SectionASchema };
+export { COLUMNS as SectionAColumns };

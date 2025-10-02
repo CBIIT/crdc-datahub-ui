@@ -1,29 +1,4 @@
-import * as z from "zod";
-
-import { questionnaireDataSchema } from "@/schemas/Application";
-
 import { CharacterLimitsMap, ColumnDef } from "../SectionBase";
-
-export const SCHEMA = z
-  .object({
-    accessTypes: questionnaireDataSchema.shape.accessTypes,
-    cancerTypes: questionnaireDataSchema.shape.cancerTypes,
-    study: z
-      .object({
-        isDbGapRegistered: questionnaireDataSchema.shape.study.shape.isDbGapRegistered,
-        dbGaPPPHSNumber: questionnaireDataSchema.shape.study.shape.dbGaPPPHSNumber,
-        GPAName: questionnaireDataSchema.shape.study.shape.GPAName,
-      })
-      .strict(),
-    otherCancerTypesEnabled: questionnaireDataSchema.shape.otherCancerTypesEnabled,
-    otherCancerTypes: questionnaireDataSchema.shape.otherCancerTypes,
-    preCancerTypes: questionnaireDataSchema.shape.preCancerTypes,
-    species: questionnaireDataSchema.shape.species,
-    otherSpeciesEnabled: questionnaireDataSchema.shape.otherSpeciesEnabled,
-    otherSpeciesOfSubjects: questionnaireDataSchema.shape.otherSpeciesOfSubjects,
-    numberOfParticipants: questionnaireDataSchema.shape.numberOfParticipants,
-  })
-  .strict();
 
 export type CKeys =
   | "accessTypes.openAccess"
