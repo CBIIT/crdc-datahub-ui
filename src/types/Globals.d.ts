@@ -16,8 +16,6 @@ type FormObject = {
   data: QuestionnaireData;
 };
 
-type SectionKey = "A" | "B" | "C" | "D" | "REVIEW";
-
 type SectionConfig = {
   [key in SectionKey]: SectionOption;
 };

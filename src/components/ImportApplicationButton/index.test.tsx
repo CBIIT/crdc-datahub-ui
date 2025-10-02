@@ -383,8 +383,8 @@ describe("Implementation Requirements", () => {
     const setData = vi.fn().mockReturnValue({ status: "success", id: "success-id" });
     const parsedData: Partial<QuestionnaireData> = {
       sections: [
-        { name: "mock-name-1", status: "Completed" },
-        { name: "mock-name-2", status: "Completed" },
+        { name: "A", status: "Completed" },
+        { name: "B", status: "Completed" },
       ],
     };
     const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");
@@ -440,8 +440,8 @@ describe("Implementation Requirements", () => {
     const setData = vi.fn().mockReturnValue({ status: "success", id: "success-id" });
     const parsedData: Partial<QuestionnaireData> = {
       sections: [
-        { name: "mock-name-1", status: "Not Started" },
-        { name: "mock-name-2", status: "Completed" },
+        { name: "B", status: "Not Started" },
+        { name: "C", status: "Completed" },
       ],
     };
     const { QuestionnaireExcelMiddleware } = await import("@/classes/QuestionnaireExcelMiddleware");

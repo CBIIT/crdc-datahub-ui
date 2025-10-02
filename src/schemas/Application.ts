@@ -17,7 +17,7 @@ export const sectionSchema = z
     /**
      * Name of the section within the form.
      */
-    name: z.string(),
+    name: z.enum(["A", "B", "C", "D", "REVIEW"]),
     /**
      * Progress state used to render checkmarks and gate navigation.
      */
@@ -604,6 +604,7 @@ export const questionnaireDataSchema = z
 export type QuestionnaireData = z.infer<typeof questionnaireDataSchema>;
 export type Section = z.infer<typeof sectionSchema>;
 export type SectionStatus = z.infer<typeof sectionSchema>["status"];
+export type SectionKey = z.infer<typeof sectionSchema>["name"];
 export type TimeConstraint = z.infer<typeof timeConstraintSchema>;
 export type ClinicalData = z.infer<typeof clinicalDataSchema>;
 export type Contact = z.infer<typeof contactSchema>;
