@@ -87,15 +87,15 @@ export const contactSchema = z
     /**
      * Role of the contact within the project
      */
-    position: z.string().max(100),
+    position: z.string().max(100).nonempty(),
     /**
      * The contact's first name.
      */
-    firstName: z.string().max(50),
+    firstName: z.string().max(50).nonempty(),
     /**
      * The contact's last name.
      */
-    lastName: z.string().max(50),
+    lastName: z.string().max(50).nonempty(),
     /**
      * Primary email used for contact follow-ups.
      */
@@ -140,7 +140,7 @@ export const piSchema = z
     /**
      * Mailing address for official correspondence
      */
-    address: z.string().max(200),
+    address: z.string().max(200).nonempty(),
   })
   .strict();
 
@@ -201,11 +201,11 @@ export const repositorySchema = z
      *
      * @example "GEO", "EGA", etc.
      */
-    name: z.string().max(50),
+    name: z.string().max(50).nonempty(),
     /**
      * Study identifier used by the repository to associate records.
      */
-    studyID: z.string().max(50),
+    studyID: z.string().max(50).nonempty(),
     /**
      * Data categories already submitted.
      *
@@ -229,7 +229,7 @@ export const publicationSchema = z
     /**
      * Full publication title associated with the study.
      */
-    title: z.string().max(500),
+    title: z.string().max(500).nonempty(),
     /**
      * PubMed ID (PMID) to enable automatic linking.
      */
@@ -249,7 +249,7 @@ export const plannedPublicationSchema = z
     /**
      * Working or planned title for the forthcoming publication and/or pre-print.
      */
-    title: z.string().max(500),
+    title: z.string().max(500).nonempty(),
     /**
      * Target date for publication release.
      * Stored as MM/DD/YYYY.
@@ -266,13 +266,13 @@ export const fundingSchema = z
     /**
      * Funding agency/organization name.
      */
-    agency: z.string(),
+    agency: z.string().nonempty(),
     /**
      * The grant or contract number(s).
      *
      * @example "R01CAXXXX, R01CAYYYY"
      */
-    grantNumbers: z.string().max(250),
+    grantNumbers: z.string().max(250).nonempty(),
     /**
      * The NCI Program Officer.
      */
@@ -295,7 +295,7 @@ export const studySchema = z
     /**
      * The full study title.
      */
-    name: z.string().max(100),
+    name: z.string().max(100).nonempty(),
     /**
      * The short study title.
      */
@@ -303,7 +303,7 @@ export const studySchema = z
     /**
      * A short description of the effort that these data have been collected for.
      */
-    description: z.string().max(2_500),
+    description: z.string().max(2_500).nonempty(),
     /**
      * List of published works arising from the study.
      *
@@ -371,13 +371,13 @@ export const fileInfoSchema = z
      *
      * @example "Raw sequencing data", "Derived sequencing data", "Clinical data"
      */
-    type: z.string(),
+    type: z.string().nonempty(),
     /**
      * File extension associated with the file type.
      *
      * @example "BAM", "FASTQ", "JSON", "TSV"
      */
-    extension: z.string(),
+    extension: z.string().nonempty(),
     /**
      * Number of files to be submitted for this type.
      *
@@ -389,7 +389,7 @@ export const fileInfoSchema = z
      *
      * @example "120 GB"
      */
-    amount: z.string(),
+    amount: z.string().nonempty(),
   })
   .strict();
 
