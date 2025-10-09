@@ -94,7 +94,12 @@ export const ExportNodeDataButton: React.FC<Props> = ({
       return;
     }
 
-    if (!d?.getSubmissionNodes?.total || !d?.getSubmissionNodes?.nodes.length) {
+    if (
+      !d?.getSubmissionNodes?.total ||
+      !d?.getSubmissionNodes?.nodes.length ||
+      !("properties" in d.getSubmissionNodes) ||
+      !d.getSubmissionNodes.properties?.length
+    ) {
       enqueueSnackbar("There is no data to export for the selected node.", {
         variant: "error",
       });
@@ -105,8 +110,13 @@ export const ExportNodeDataButton: React.FC<Props> = ({
     try {
       const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
       const filename = `${filteredName}_${nodeType}_${dayjs().format("YYYYMMDDHHmm")}.tsv`;
+      const mappedFields = d.getSubmissionNodes.properties.reduce(
+        (acc, key) => ({ ...acc, [key]: "" }),
+        {}
+      );
       const csvArray = d.getSubmissionNodes.nodes.map((node) => ({
         type: nodeType,
+        ...mappedFields,
         ...JSON.parse(node.props),
         status: node.status,
       }));
