@@ -2,7 +2,7 @@ import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 export const mutation: TypedDocumentNode<Response, Input> = gql`
-  mutation saveApplication($application: AppInput!, $status: string) {
+  mutation saveApplication($application: AppInput!, $status: String) {
     saveApplication(application: $application, status: $status) {
       _id
       status
