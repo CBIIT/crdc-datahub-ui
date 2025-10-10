@@ -38,7 +38,7 @@ vi.mock("@/classes/QuestionnaireExcelMiddleware", async () => ({
 type ParentProps = {
   mocks?: MockedResponse[];
   authCtxState?: AuthCtxState;
-  formCtxState?: RecursivePartial<FormContextState>;
+  formCtxState?: Partial<Omit<FormContextState, "data">> & { data?: RecursivePartial<Application> };
   children: React.ReactNode;
 };
 

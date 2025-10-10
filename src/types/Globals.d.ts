@@ -12,6 +12,9 @@ type FormSectionProps = {
 };
 
 type FormObject = {
+  /**
+   * @deprecated use `formRef` in the context instead.
+   */
   ref: React.RefObject<HTMLFormElement>;
   data: QuestionnaireData;
 };

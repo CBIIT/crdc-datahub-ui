@@ -87,7 +87,7 @@ type Props = {
 const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
-  const { data, setData } = useFormContext();
+  const { data, formRef, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -155,6 +155,8 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
         { variant: "error" }
       );
     }
+
+    formRef?.current?.reportValidity();
 
     setOpenDialog(false);
     setIsUploading(false);
