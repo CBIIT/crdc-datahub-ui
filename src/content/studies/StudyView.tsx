@@ -261,7 +261,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   ]);
 
   const [saving, setSaving] = useState<boolean>(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string>(null);
   const [sameAsProgramPrimaryContact, setSameAsProgramPrimaryContact] = useState<boolean>(true);
   const [approvedStudy, setApprovedStudy] = useState<ApprovedStudy>(null);
 
@@ -598,17 +598,12 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                 </Stack>
               </StyledField>
               <StyledField>
-                <StyledLabel id="dbGaPIDLabel">
-                  dbGaPID
-                  <StyledAsterisk visible={isControlled} />
-                </StyledLabel>
+                <StyledLabel id="dbGaPIDLabel">dbGaPID</StyledLabel>
                 <StyledTextField
                   {...register("dbGaPID", {
-                    required: isControlled === true,
                     setValueAs: (val) => val?.trim(),
                   })}
                   size="small"
-                  required={isControlled === true}
                   disabled={retrievingStudy}
                   readOnly={saving}
                   inputProps={{ "aria-labelledby": "dbGaPIDLabel", "data-testid": "dbGaPID-input" }}
@@ -618,16 +613,13 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
               <StyledField>
                 <StyledLabel id="gpaNameLabel">
                   GPA
-                  <StyledAsterisk visible={isControlled} />
                   <Tooltip title="Genomic Program Administrator" />
                 </StyledLabel>
                 <StyledTextField
                   {...register("GPAName", {
-                    required: isControlled === true,
                     setValueAs: (val) => val?.trim(),
                   })}
                   size="small"
-                  required={isControlled === true}
                   disabled={retrievingStudy}
                   readOnly={saving}
                   inputProps={{
