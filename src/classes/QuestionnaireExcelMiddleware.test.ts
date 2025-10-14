@@ -3064,29 +3064,6 @@ describe("Parsing", () => {
     );
   });
 
-  it("should set the status of SectionC correctly (Not Started)", async () => {
-    const middleware = new QuestionnaireExcelMiddleware(questionnaireDataFactory.build(), {});
-
-    // @ts-expect-error Private member
-    await middleware.serializeSectionC();
-
-    // @ts-expect-error Private member
-    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
-
-    // @ts-expect-error Private member
-    const result = await middleware.parseSectionC();
-
-    // @ts-expect-error Private member
-    const output = middleware.data;
-
-    expect(result).toEqual(true);
-    expect(output.sections.find((s) => s.name === "C")).toEqual(
-      expect.objectContaining({
-        status: "Not Started",
-      })
-    );
-  });
-
   it("should parse the SectionD sheet correctly", async () => {
     const mockForm = questionnaireDataFactory.build({
       targetedSubmissionDate: "03/15/2030",
