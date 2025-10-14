@@ -463,9 +463,10 @@ export const sectionHasData = (
       return hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
     }
     case "B": {
-      const hasProgramId = data?.program?._id?.length > 0;
-      const hasProgramName = data?.program?.name?.length > 0;
-      const hasProgramAbbreviation = data?.program?.abbreviation?.length > 0;
+      const hasProgramFields = some(
+        values(data?.program || {}),
+        (v) => typeof v === "string" && v.trim() !== ""
+      );
       const hasStudyName = data?.study?.name?.length > 0;
       const hasStudyAbbreviation = data?.study?.abbreviation?.length > 0;
       const hasStudyDescription = data?.study?.description?.length > 0;
@@ -477,9 +478,7 @@ export const sectionHasData = (
       const hasRepositories = data?.study?.repositories?.length > 0;
 
       return (
-        hasProgramId ||
-        hasProgramName ||
-        hasProgramAbbreviation ||
+        hasProgramFields ||
         hasStudyName ||
         hasStudyAbbreviation ||
         hasStudyDescription ||
@@ -493,10 +492,10 @@ export const sectionHasData = (
     }
     case "C": {
       const hasAccessTypes = data?.accessTypes?.length > 0;
-      const hasStudyFields = some(
-        values(data?.study || {}),
-        (v) => typeof v === "string" && v.trim() !== ""
-      );
+      const hasStudyFields =
+        typeof data?.study?.isDbGapRegistered === "boolean" ||
+        data?.study?.dbGaPPPHSNumber?.length > 0 ||
+        data?.study?.GPAName?.length > 0;
       const hasCancerTypes = data?.cancerTypes?.length > 0;
       const hasOtherCancerTypes = data?.otherCancerTypes?.length > 0;
       const hasPreCancerTypes = data?.preCancerTypes?.length > 0;
@@ -520,11 +519,15 @@ export const sectionHasData = (
       const hasTargetedReleaseDate = data?.targetedReleaseDate?.length > 0;
       const hasDataTypes = data?.dataTypes?.length > 0;
       const hasOtherDataTypes = data?.otherDataTypes?.length > 0;
-      const hasFiles = data?.files?.length > 0;
-      const hasDataDeIdentified = !!data?.dataDeIdentified;
+      const hasFiles =
+        data?.files?.[0]?.type?.length > 0 ||
+        data?.files?.[0]?.extension?.length > 0 ||
+        data?.files?.[0]?.count > 0 ||
+        data?.files?.[0]?.amount?.length > 0; // NOTE: 1 entry exists by default
+      const hasDataDeIdentified = typeof data?.dataDeIdentified === "boolean";
       const hasSubmitterComment = data?.submitterComment?.length > 0;
-      const hasCellLines = !!data?.cellLines;
-      const hasModelSystems = !!data?.modelSystems;
+      const hasCellLines = typeof data?.cellLines === "boolean";
+      const hasModelSystems = typeof data?.modelSystems === "boolean";
 
       return (
         hasTargetedSubmissionDate ||
