@@ -492,9 +492,7 @@ export const sectionHasData = (
     case "C": {
       const hasAccessTypes = data?.accessTypes?.length > 0;
       const hasStudyFields =
-        typeof data?.study?.isDbGapRegistered === "boolean" ||
-        data?.study?.dbGaPPPHSNumber?.length > 0 ||
-        data?.study?.GPAName?.length > 0;
+        data?.study?.dbGaPPPHSNumber?.length > 0 || data?.study?.GPAName?.length > 0;
       const hasCancerTypes = data?.cancerTypes?.length > 0;
       const hasOtherCancerTypes = data?.otherCancerTypes?.length > 0;
       const hasPreCancerTypes = data?.preCancerTypes?.length > 0;

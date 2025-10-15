@@ -1079,30 +1079,6 @@ describe("sectionHasData", () => {
           "C",
           questionnaireDataFactory.build({
             study: studyFactory.build({
-              isDbGapRegistered: true,
-              dbGaPPPHSNumber: null,
-              GPAName: null,
-            }),
-          })
-        )
-      ).toBe(true);
-      expect(
-        utils.sectionHasData(
-          "C",
-          questionnaireDataFactory.build({
-            study: studyFactory.build({
-              isDbGapRegistered: false,
-              dbGaPPPHSNumber: null,
-              GPAName: null,
-            }),
-          })
-        )
-      ).toBe(true);
-      expect(
-        utils.sectionHasData(
-          "C",
-          questionnaireDataFactory.build({
-            study: studyFactory.build({
               isDbGapRegistered: null,
               dbGaPPPHSNumber: "phs000001",
               GPAName: null,
