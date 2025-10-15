@@ -237,7 +237,7 @@ const ListView = () => {
     <>
       <PageBanner
         title="Data Explorer"
-        subTitle="The list below shows studies associated with your account. Select a study to view metadata that has already been released and completed."
+        subTitle="The list below shows studies associated with your account. Select a study to view metadata that has already been released by a Data Commons."
         padding="57px 0 0 25px"
         bannerSrc={bannerSvg}
       />

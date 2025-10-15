@@ -238,8 +238,8 @@ describe("Basic Functionality", () => {
           data: {
             getSubmissionNodes: {
               total: 1,
-              IDPropName: null,
-              properties: [],
+              IDPropName: "x",
+              properties: ["some prop"],
               nodes: [
                 {
                   nodeType: ["aaaa"] as unknown as string,
@@ -494,6 +494,75 @@ describe("Implementation Requirements", () => {
 
     expect(mockDownloadBlob.mock.calls[0][0]).toContain(
       `type\ta\tstatus\r\n${nodeType}\t1\tPassed`
+    );
+  });
+
+  // NOTE: This tests a scenario where the first row does not contain all possible properties
+  // but other rows do. This ensures that the export includes all properties across all nodes.
+  it("should include every property in the TSV export", async () => {
+    const nodeType = "a_prop_with_varying_data";
+
+    const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: () => true,
+        result: {
+          data: {
+            getSubmissionNodes: {
+              total: 2,
+              IDPropName: "dev.property",
+              properties: ["dev.property", "another.property", "abc123", "pdx.pdx_id"],
+              nodes: [
+                // This only has 2 of the 4 props
+                {
+                  nodeType,
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({ "dev.property": "yes", abc123: 5 }),
+                  status: "Passed",
+                },
+                // This has all props
+                {
+                  nodeType,
+                  nodeID: "another-example",
+                  props: JSON.stringify({
+                    "dev.property": "no",
+                    "another.property": "here",
+                    abc123: 10,
+                    "pdx.pdx_id": "PD1234",
+                  }),
+                  status: "Error",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <ExportNodeDataButton
+          submission={{ _id: "mock-type-test", name: "test-type-column" }}
+          nodeType={nodeType}
+        />
+      </TestParent>
+    );
+
+    userEvent.click(getByTestId("export-node-data-button"));
+
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalled();
+    });
+
+    expect(mockDownloadBlob.mock.calls[0][0]).toContain(
+      // HEADER ROW
+      `type\tdev.property\tanother.property\tabc123\tpdx.pdx_id\tstatus\r\n` +
+        // FIRST DATA ROW
+        `a_prop_with_varying_data\tyes\t\t5\t\tPassed\r\n` +
+        // SECOND DATA ROW
+        `a_prop_with_varying_data\tno\there\t10\tPD1234\tError`
     );
   });
 });
