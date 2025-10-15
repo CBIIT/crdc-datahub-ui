@@ -89,8 +89,10 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
   const { user } = useAuthContext();
   const { data, formRef, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+
   const isFormOwner = user?._id === data?.applicant?.applicantID;
   const isReviewSection = activeSection?.toUpperCase() === config.REVIEW.id.toUpperCase();
   const shouldDisable =
@@ -156,8 +158,7 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
       );
     }
 
-    formRef?.current?.reportValidity();
-
+    setTimeout(() => formRef?.current?.reportValidity(), 200);
     setOpenDialog(false);
     setIsUploading(false);
   };
