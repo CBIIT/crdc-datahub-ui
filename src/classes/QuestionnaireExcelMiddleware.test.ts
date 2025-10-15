@@ -3277,7 +3277,7 @@ describe("Parsing", () => {
     expect(output.imagingDataDeIdentified).toBe(false);
     expect(output.clinicalData?.futureDataTypes).toBe(false);
     expect(output.dataTypes).toEqual(["genomics", "imaging", "proteomics"]);
-    expect(output.dataDeIdentified).toBe(false);
+    expect(output.dataDeIdentified).toBe(null);
     expect(output.cellLines).toBe(true);
     expect(output.modelSystems).toBe(false);
   });

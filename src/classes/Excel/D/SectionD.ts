@@ -439,6 +439,10 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       }
     });
 
+    const dataDeIdentified = yesNoOptions.includes(toString(data.get("dataDeIdentified")?.[0]))
+      ? toString(data.get("dataDeIdentified")?.[0]) === "Yes"
+      : null;
+
     return {
       targetedSubmissionDate: FormatDate(
         toString(data.get("targetedSubmissionDate")?.[0]).trim(),
@@ -461,7 +465,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       },
       otherDataTypes: toString(data.get("otherDataTypes")?.[0]).trim(),
       files,
-      dataDeIdentified: toString(data.get("dataDeIdentified")?.[0]) === "Yes",
+      dataDeIdentified,
       cellLines: toString(data.get("cellLines")?.[0]) === "Yes",
       modelSystems: toString(data.get("modelSystems")?.[0]) === "Yes",
       submitterComment: toString(data.get("submitterComment")?.[0]).trim(),
