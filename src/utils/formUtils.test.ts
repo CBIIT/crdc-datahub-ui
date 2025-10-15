@@ -1329,26 +1329,6 @@ describe("sectionHasData", () => {
           })
         )
       ).toBe(true);
-      expect(
-        utils.sectionHasData(
-          "D",
-          questionnaireDataFactory.build({
-            cellLines: false,
-            dataDeIdentified: null,
-            files: null,
-          })
-        )
-      ).toBe(true);
-      expect(
-        utils.sectionHasData(
-          "D",
-          questionnaireDataFactory.build({
-            modelSystems: false,
-            dataDeIdentified: null,
-            files: null,
-          })
-        )
-      ).toBe(true);
     });
 
     it("should return false for no data", () => {

@@ -523,8 +523,8 @@ export const sectionHasData = (
         data?.files?.[0]?.amount?.length > 0; // NOTE: 1 entry exists by default
       const hasDataDeIdentified = typeof data?.dataDeIdentified === "boolean";
       const hasSubmitterComment = data?.submitterComment?.length > 0;
-      const hasCellLines = typeof data?.cellLines === "boolean";
-      const hasModelSystems = typeof data?.modelSystems === "boolean";
+      const hasCellLines = !!data?.cellLines;
+      const hasModelSystems = !!data?.modelSystems;
 
       return (
         hasTargetedSubmissionDate ||
