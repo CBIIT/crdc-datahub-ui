@@ -520,7 +520,8 @@ export const sectionHasData = (
         data?.files?.[0]?.type?.length > 0 ||
         data?.files?.[0]?.extension?.length > 0 ||
         data?.files?.[0]?.count > 0 ||
-        data?.files?.[0]?.amount?.length > 0; // NOTE: 1 entry exists by default
+        data?.files?.[0]?.amount?.length > 0 ||
+        data?.files?.length > 1; // NOTE: 1 entry exists by default
       const hasDataDeIdentified = typeof data?.dataDeIdentified === "boolean";
       const hasSubmitterComment = data?.submitterComment?.length > 0;
       const hasCellLines = !!data?.cellLines;

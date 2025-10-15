@@ -1272,6 +1272,19 @@ describe("sectionHasData", () => {
           })
         )
       ).toBe(true);
+      // NOTE: Multiple files with partial data should also return true
+      expect(
+        utils.sectionHasData(
+          "D",
+          questionnaireDataFactory.build({
+            files: [
+              fileInfoFactory.build({ type: null, extension: null, count: null, amount: null }),
+              fileInfoFactory.build({ type: "PDF", extension: null, count: null, amount: null }),
+            ],
+            dataDeIdentified: null, // Reset factory default
+          })
+        )
+      ).toBe(true);
     });
 
     it("should return true for Data De-identified", () => {
