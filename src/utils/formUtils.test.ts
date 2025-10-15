@@ -984,6 +984,28 @@ describe("sectionHasData", () => {
           })
         )
       ).toBe(true);
+      // NOTE: Multiple funding entries with partial data should also return true
+      expect(
+        utils.sectionHasData(
+          "B",
+          questionnaireDataFactory.build({
+            study: studyFactory.build({
+              funding: [
+                fundingFactory.build({
+                  agency: null,
+                  grantNumbers: null,
+                  nciProgramOfficer: null,
+                }),
+                fundingFactory.build({
+                  agency: "mock",
+                  grantNumbers: null,
+                  nciProgramOfficer: null,
+                }),
+              ],
+            }),
+          })
+        )
+      ).toBe(true);
     });
 
     it("should return true for publications", () => {

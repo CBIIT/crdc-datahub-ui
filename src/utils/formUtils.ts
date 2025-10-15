@@ -470,9 +470,10 @@ export const sectionHasData = (
       const hasStudyName = data?.study?.name?.length > 0;
       const hasStudyAbbreviation = data?.study?.abbreviation?.length > 0;
       const hasStudyDescription = data?.study?.description?.length > 0;
-      const hasFundingAgency = !!data?.study?.funding?.[0]?.agency; // NOTE: 1 entry exists by default
-      const hasFundingGrantNumbers = !!data?.study?.funding?.[0]?.grantNumbers;
-      const hasFundingNciProgramOfficer = !!data?.study?.funding?.[0]?.nciProgramOfficer;
+      const hasFundingAgency =
+        some(data?.study?.funding || [], (contact) =>
+          some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
+        ) || data?.study?.funding?.length > 1;
       const hasPublications = data?.study?.publications?.length > 0;
       const hasPlannedPublications = data?.study?.plannedPublications?.length > 0;
       const hasRepositories = data?.study?.repositories?.length > 0;
@@ -483,8 +484,6 @@ export const sectionHasData = (
         hasStudyAbbreviation ||
         hasStudyDescription ||
         hasFundingAgency ||
-        hasFundingGrantNumbers ||
-        hasFundingNciProgramOfficer ||
         hasPublications ||
         hasPlannedPublications ||
         hasRepositories
