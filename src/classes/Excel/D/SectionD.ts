@@ -440,7 +440,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
     });
 
     const dataDeIdentified = yesNoOptions.includes(toString(data.get("dataDeIdentified")?.[0]))
-      ? toString(data.get("dataDeIdentified")?.[0]) === "Yes"
+      ? data.get("dataDeIdentified")?.[0] === "Yes"
       : null;
 
     return {
