@@ -4,7 +4,7 @@
 
 N/A
 
-## 3.4.0 (Released 10/15/2025)
+## 3.4.0 (Released 10/24/2025)
 
 #### Submission Request
 
