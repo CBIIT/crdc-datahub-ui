@@ -4,6 +4,10 @@ import { isEqual } from "lodash";
 import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import {
+  ExportApplicationsButton,
+  ExportApplicationsButtonProps,
+} from "@/components/ExportApplicationsButton";
 import ExportTemplateButton from "@/components/ExportTemplateButton";
 
 import bannerSvg from "../../assets/banner/submission_banner.png";
@@ -390,6 +394,14 @@ const ListingView: FC = () => {
     [navigate, reviewApp]
   );
 
+  const exportScope = useMemo<ExportApplicationsButtonProps["scope"]>(
+    () => ({
+      ...filtersRef.current,
+      ...tableRef.current?.tableParams,
+    }),
+    [filtersRef.current, tableRef.current?.tableParams]
+  );
+
   const providerValue = useMemo(
     () => ({ user, handleOnReviewClick, tableRef }),
     [user, handleOnReviewClick, tableRef.current]
@@ -421,6 +433,9 @@ const ListingView: FC = () => {
             {state?.error || "An error occurred while loading the data."}
           </Alert>
         )}
+
+        {/* TODO: Placement */}
+        <ExportApplicationsButton scope={exportScope} disabled={!data?.total} />
 
         <StyledFilterTableWrapper>
           <ListFilters applicationData={data} onChange={handleOnFiltersChange} />
