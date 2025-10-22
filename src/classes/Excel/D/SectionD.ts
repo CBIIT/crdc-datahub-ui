@@ -65,7 +65,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       "dataTypes.genomics": toYesNo(data?.dataTypes?.includes("genomics") || false),
       "dataTypes.imaging": toYesNo(data?.dataTypes?.includes("imaging") || false),
       "dataTypes.proteomics": toYesNo(data?.dataTypes?.includes("proteomics") || false),
-      imagingDataDeIdentified: toYesNo(data?.imagingDataDeIdentified || null),
+      imagingDataDeIdentified: toYesNo(data?.imagingDataDeIdentified ?? null),
       otherDataTypes: data?.otherDataTypes || "",
       "clinicalData.dataTypes.demographicData": toYesNo(
         data?.clinicalData?.dataTypes?.includes("demographicData") || false
@@ -87,7 +87,7 @@ export class SectionD extends SectionBase<DKeys, SectionDDeps> {
       ),
       "clinicalData.otherDataTypes": data?.clinicalData?.otherDataTypes || "",
       "clinicalData.futureDataTypes": toYesNo(data?.clinicalData?.futureDataTypes || false),
-      dataDeIdentified: toYesNo(data?.dataDeIdentified || null),
+      dataDeIdentified: toYesNo(data?.dataDeIdentified ?? null),
       cellLines: toYesNo(data?.cellLines || false),
       modelSystems: toYesNo(data?.modelSystems || false),
       submitterComment: data?.submitterComment || "",
