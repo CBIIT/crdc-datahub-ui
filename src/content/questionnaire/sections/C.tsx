@@ -55,10 +55,10 @@ const AccessTypesDescription = styled("span")(() => ({
 const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSectionProps) => {
   const {
     data: { questionnaireData: data },
+    formRef,
   } = useFormContext();
   const { readOnlyInputs } = useFormMode();
   const formContainerRef = useRef<HTMLDivElement>();
-  const formRef = useRef<HTMLFormElement>();
   const { getFormObjectRef } = refs;
   const { C: SectionCMetadata } = SectionMetadata;
 

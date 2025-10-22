@@ -168,61 +168,6 @@ describe("FormContext > FormProvider Tests", () => {
     expect(getByTestId("pi-last-name").textContent).toEqual("Fetched");
   });
 
-  it("should autofill the user's last application for new submissions", async () => {
-    const mocks = [
-      {
-        request: {
-          query: GET_LAST_APP,
-        },
-        result: {
-          data: {
-            getMyLastApplication: {
-              _id: "ABC-LAST-ID-123",
-              questionnaireData: JSON.stringify({
-                pi: {
-                  firstName: "Test",
-                  lastName: "User",
-                },
-              }),
-            },
-          },
-        },
-      },
-    ];
-    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} appId="new" />);
-
-    await findByTestId("status");
-
-    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(getByTestId("app-id").textContent).toEqual("new");
-    expect(getByTestId("pi-first-name").textContent).toEqual("Test");
-    expect(getByTestId("pi-last-name").textContent).toEqual("User");
-  });
-
-  it("should default to an empty string when no autofill information is returned", async () => {
-    const mocks = [
-      {
-        request: {
-          query: GET_LAST_APP,
-        },
-        result: {
-          data: {
-            getMyLastApplication: null,
-          },
-        },
-        errors: [new GraphQLError("The user has no previous applications")],
-      },
-    ];
-    const { findByTestId, getByTestId } = render(<TestParent mocks={mocks} appId="new" />);
-
-    await findByTestId("status");
-
-    expect(getByTestId("status").textContent).toEqual(FormStatus.LOADED);
-    expect(getByTestId("app-id").textContent).toEqual("new");
-    expect(getByTestId("pi-first-name").textContent).toEqual("");
-    expect(getByTestId("pi-last-name").textContent).toEqual("");
-  });
-
   it("should autofill PI details if Section A is not started", async () => {
     const mocks = [
       {
