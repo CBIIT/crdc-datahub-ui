@@ -510,7 +510,7 @@ describe("StudyView Component", () => {
             openAccess: false,
             controlledAccess: true,
             programID: "NA",
-            programs: organizationFactory.build(1, {
+            program: organizationFactory.build({
               _id: "program-1",
               conciergeID: "primary-contact-1",
               conciergeName: "John Doe",
@@ -698,7 +698,7 @@ describe("StudyView Component", () => {
             programID: "NA",
             openAccess: false,
             controlledAccess: true,
-            programs: organizationFactory.build(1, {
+            program: organizationFactory.build({
               _id: "program-1",
               conciergeID: "primary-contact-1",
               conciergeName: "John Doe",
@@ -928,7 +928,7 @@ describe("StudyView Component", () => {
             createdAt: "",
             useProgramPC: false,
             primaryContact: null,
-            programs: [],
+            program: null,
             pendingModelChange: false,
           }),
         },
@@ -1073,7 +1073,7 @@ describe("StudyView Component", () => {
             programID: "NA",
             openAccess: false,
             controlledAccess: true,
-            programs: organizationFactory.build(1, {
+            program: organizationFactory.build({
               _id: "program-1",
               conciergeID: "primary-contact-1",
               conciergeName: "John Doe",
@@ -1286,7 +1286,7 @@ describe("StudyView Component", () => {
             programID: "NA",
             openAccess: false,
             controlledAccess: true,
-            programs: organizationFactory.build(1, {
+            program: organizationFactory.build({
               _id: "program-1",
               conciergeID: "primary-contact-1",
               conciergeName: "John Doe",

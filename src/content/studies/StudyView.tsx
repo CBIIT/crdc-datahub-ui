@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -364,12 +364,6 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
     }
   );
 
-  useEffect(() => {
-    if (approvedStudy?.programs?.length > 1 && sameAsProgramPrimaryContact) {
-      setSameAsProgramPrimaryContact(false);
-    }
-  }, [approvedStudy?.programs?.length, sameAsProgramPrimaryContact]);
-
   /**
    * Reset the form values, and preventing invalid
    * properties from being set
@@ -481,12 +475,8 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
   const handleOnSameAsProgramPCChange = (checked: boolean) => {
     setSameAsProgramPrimaryContact(checked);
 
-    if (
-      checked &&
-      approvedStudy?.programs?.length === 1 &&
-      approvedStudy.programs[0]?.conciergeID
-    ) {
-      setValue("primaryContactID", approvedStudy.programs[0].conciergeID);
+    if (checked && approvedStudy.program?.conciergeID) {
+      setValue("primaryContactID", approvedStudy.program.conciergeID);
       return;
     }
 
@@ -764,12 +754,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                       title="Disabled due to this study is associated with multiple programs; manually assign a Data Concierge."
                       placement="top"
                       open={undefined}
-                      disableHoverListener={
-                        saving ||
-                        retrievingStudy ||
-                        !approvedStudy?.programs ||
-                        approvedStudy?.programs?.length <= 1
-                      }
+                      disableHoverListener={saving || retrievingStudy || !approvedStudy?.program}
                     >
                       <StyledFormControlLabel
                         control={
@@ -778,9 +763,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                             onChange={(_, checked) => handleOnSameAsProgramPCChange(checked)}
                             checkedIcon={<CheckedIcon readOnly={saving || retrievingStudy} />}
                             icon={<UncheckedIcon readOnly={saving || retrievingStudy} />}
-                            disabled={
-                              saving || retrievingStudy || approvedStudy?.programs?.length > 1
-                            }
+                            disabled={saving || retrievingStudy}
                             inputProps={
                               { "data-testid": "sameAsProgramPrimaryContact-checkbox" } as unknown
                             }
@@ -799,7 +782,7 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         {...field}
                         value={
                           sameAsProgramPrimaryContact
-                            ? approvedStudy?.programs?.[0]?.conciergeID || ""
+                            ? approvedStudy?.program?.conciergeID || ""
                             : field.value || ""
                         }
                         MenuProps={{ disablePortal: true }}
@@ -810,10 +793,9 @@ const StudyView: FC<Props> = ({ _id }: Props) => {
                         error={!!errors.primaryContactID}
                         disabled={sameAsProgramPrimaryContact}
                       >
-                        {sameAsProgramPrimaryContact &&
-                        approvedStudy?.programs?.[0]?.conciergeID ? (
-                          <MenuItem value={approvedStudy.programs[0].conciergeID}>
-                            {`${approvedStudy?.programs?.[0]?.conciergeName}`.trim()}
+                        {sameAsProgramPrimaryContact && approvedStudy?.program?.conciergeID ? (
+                          <MenuItem value={approvedStudy.program.conciergeID}>
+                            {`${approvedStudy?.program?.conciergeName}`.trim()}
                           </MenuItem>
                         ) : (
                           <MenuItem value={null}>{"<Not Set>"}</MenuItem>
