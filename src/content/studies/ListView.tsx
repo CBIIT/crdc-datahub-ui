@@ -188,7 +188,7 @@ const columns: Column<ApprovedStudy>[] = [
   {
     label: "Program",
     renderValue: ({ program }) => <TruncatedText text={program?.name} maxCharacters={8} />,
-    fieldKey: "programs.name",
+    fieldKey: "program.name",
     sx: {
       width: "380px",
     },
