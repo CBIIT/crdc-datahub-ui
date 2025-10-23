@@ -1,7 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, DialogProps, styled } from "@mui/material";
 import { FC } from "react";
-import Dialog from "../Shared/Dialog";
+import Dialog from "../GenericDialog";
 
 const StyledSubmitLoadingButton = styled(LoadingButton)(() => ({
   color: "#0B7F99",

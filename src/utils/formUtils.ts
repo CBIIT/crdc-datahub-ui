@@ -114,22 +114,26 @@ export const findProgram = (
 
 /**
  * Formats an Approved Study Name and Abbreviation into a single string.
- * If the abbreviation is provided and not equal to the name, it will be included in parentheses.
+ * Prioritizes the display of Abbreviation over Study Name.
  *
- * @note The study name, at a minimum, should be provided.
+ * Examples:
+ * - Both values are provided – "Abbreviation - Study Name"
+ * - Only study name is provided – "Study Name"
+ * - Both values are the same (case-insensitive) – "Study Abbreviation"
+ *
  * @param studyName The full name of the study
  * @param studyAbbreviation The abbreviation of the study
- * @returns The formatted study name
+ * @returns The formatted study name or empty string if something is invalid
  */
 export const formatFullStudyName = (studyName: string, studyAbbreviation: string): string => {
   if (typeof studyName !== "string") {
     return "";
   }
   if (studyAbbreviation?.toLowerCase() === studyName?.toLowerCase()) {
-    return studyName.trim();
+    return studyAbbreviation.trim();
   }
   if (studyAbbreviation && studyAbbreviation.length > 0) {
-    return `${studyName.trim()} (${studyAbbreviation.trim()})`;
+    return `${studyAbbreviation.trim()} - ${studyName.trim()}`;
   }
 
   return studyName.trim();
@@ -229,4 +233,95 @@ export const validateEmoji = (value: string): string | null => {
   }
 
   return null;
+};
+
+/**
+ * Provides a validation function to test against a string for non-UTF8 characters.
+ *
+ * NOTE:
+ * This is more restrictive than {@link validateEmoji} and will not allow any characters
+ * outside the standard ASCII range (0-127).
+ *
+ * @param value The input string to validate
+ * @returns A string if the value contains non-UTF8 characters, otherwise null if valid
+ */
+export const validateUTF8 = (value: string): string | null => {
+  if (typeof value !== "string" || value?.split("").some((char) => char.charCodeAt(0) > 127)) {
+    return "This field contains invalid characters";
+  }
+
+  return null;
+};
+
+/**
+ * Updates the validity of an HTMLInputElement by setting a custom validation message.
+ *
+ * @param inputRef - The reference to the HTMLInputElement to be validated
+ * @param message - The custom validation message to be set. Defaults to an empty string if not provided.
+ */
+export const updateInputValidity = (
+  inputRef: React.RefObject<HTMLInputElement>,
+  message = ""
+): void => {
+  if (!inputRef?.current) {
+    return; // Invalid ref
+  }
+  if (typeof inputRef.current.setCustomValidity !== "function") {
+    return; // Input element doesn't support custom validity
+  }
+
+  inputRef.current.setCustomValidity(message);
+};
+
+/**
+ *  Updates the validity of a MUI select component by setting a custom validation message.
+ *
+ * NOTE: This interfaces with the MUI Select ref which returns { node, value, focus }
+ *
+ * @param selectRef - the reference to the MUI select component to be validated
+ * @param message - The custom validation message to be set. Defaults to an empty string if not provided.
+ */
+export const updateSelectValidity = (selectRef, message = ""): void => {
+  if (!selectRef?.current?.node) {
+    return; // Invalid ref
+  }
+  if (typeof selectRef.current.node?.setCustomValidity !== "function") {
+    return; // Input element doesn't support custom validity
+  }
+
+  selectRef.current.node.setCustomValidity(message);
+};
+
+/**
+ * Validates whether a given value (string or number) lies within a specified range.
+ *
+ * @param value - The value to be validated. It can be of type string or number.
+ *                If it's a string, the function will attempt to parse a number from it.
+ * @param min - The minimum allowed value. Defaults to 0 if not provided.
+ * @param max - The maximum allowed value. Optional.
+ * @param allowFloat - A boolean indicating whether floating point numbers are considered
+ *                     valid. Defaults to false.
+ * @returns A boolean indicating whether the value passed the validation or not.
+ *          Returns false if the value is NaN after being parsed or if it doesn't
+ *          fall within the min and max parameters.
+ */
+export const isValidInRange = (
+  value: string | number,
+  min = 0,
+  max?: number,
+  allowFloat = false
+): boolean => {
+  const numValue = typeof value === "string" ? parseFloat(value) : value;
+
+  if (Number.isNaN(numValue)) {
+    return false;
+  }
+  if (!allowFloat && !Number.isInteger(numValue)) {
+    return false;
+  }
+  if (numValue < min || (max !== undefined && numValue > max)) {
+    return false;
+  }
+
+  return true;
 };

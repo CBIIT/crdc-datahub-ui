@@ -26,6 +26,6 @@
     "conf",
     ".eslintrc.cjs",
     "types/*.d.ts",
-    "public"
+    "public",
   ]
 }

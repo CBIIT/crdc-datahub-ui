@@ -20,6 +20,10 @@ export const query: TypedDocumentNode<Response> = gql`
         dbGaPID
         controlledAccess
       }
+      institution {
+        _id
+        name
+      }
       permissions
       notifications
       createdAt

@@ -17,6 +17,7 @@ import {
   isValidORCID,
   mapObjectWithKey,
   validateEmail,
+  validateUTF8,
 } from "../../../utils";
 import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
 import { InitialQuestionnaire } from "../../../config/InitialValues";
@@ -117,7 +118,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   }, [refs]);
 
   useEffect(() => {
-    if (location?.state?.from === "/submissions") {
+    if (location?.state?.from === "/submission-requests") {
       return;
     }
 
@@ -194,9 +195,9 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Institution"
           name="pi[institution]"
           value={pi?.institution || ""}
-          options={institutionList}
+          options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
-          validate={(v: string) => v?.trim()?.length > 0}
+          validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
           required
           disableClearable
           freeSolo
@@ -295,10 +296,10 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               label="Institution"
               name="primaryContact[institution]"
               value={primaryContact?.institution || ""}
-              options={institutionList}
+              options={institutionList?.map((i) => i.name)}
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
-              validate={(v: string) => v?.trim()?.length > 0}
+              validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
               disableClearable
               required
               freeSolo

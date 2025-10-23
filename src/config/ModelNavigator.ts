@@ -1,9 +1,3 @@
-const filterResetIcon = {
-  src: "https://raw.githubusercontent.com/CBIIT/datacommons-assets/main/bento/images/icons/svgs/Clear-icon.svg",
-  alt: "Reset icon",
-  size: "12 px",
-};
-
 /**
  * Configuration for the facet filter (i.e. the entire DMN)
  */
@@ -14,8 +8,6 @@ export const baseConfiguration = {
   baseFilters: {},
   filterOptions: [],
   filterSections: [],
-  // Base configuration that does not change by model
-  resetIcon: filterResetIcon,
   showCheckboxCount: 6,
 };
 

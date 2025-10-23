@@ -122,7 +122,7 @@ const writeHeader = (doc: JsPDF, request: Application): number => {
   // Click to view (overlapping link)
   doc.setTextColor(...COLOR_HYPERLINK);
   doc.textWithLink("here", CONTENT_MARGIN + 22, y, {
-    url: `${env.REACT_APP_NIH_REDIRECT_URL}/submission/${request._id}`,
+    url: `${env.REACT_APP_NIH_REDIRECT_URL}/submission-request/${request._id}`,
     align: "left",
   });
 

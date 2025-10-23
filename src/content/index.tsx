@@ -181,12 +181,7 @@ const Home: FC = () => {
               Please login with a Login.gov account to make a data submission request or to upload
               data for approved submissions
             </div>
-            <Link
-              id="loginPageLoginButton"
-              className="loginPageLoginButton"
-              to="/login"
-              state={{ redirectState: "/submissions" }}
-            >
+            <Link id="loginPageLoginButton" className="loginPageLoginButton" to="/login">
               <strong>Log In</strong>
             </Link>
           </div>

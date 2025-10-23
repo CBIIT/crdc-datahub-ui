@@ -9,6 +9,7 @@ export const query = gql`
     $dbGaPID: String
     $controlledAccess: String
     $study: String
+    $programID: ID
   ) {
     listApprovedStudies(
       first: $first
@@ -18,6 +19,7 @@ export const query = gql`
       dbGaPID: $dbGaPID
       controlledAccess: $controlledAccess
       study: $study
+      programID: $programID
     ) {
       total
       studies {
@@ -29,6 +31,18 @@ export const query = gql`
         openAccess
         PI
         ORCID
+        primaryContact {
+          _id
+          firstName
+          lastName
+        }
+        programs {
+          _id
+          name
+          conciergeID
+          conciergeName
+        }
+        useProgramPC
         createdAt
       }
     }
@@ -44,6 +58,7 @@ export type Input = {
   controlledAccess?: AccessType;
   openAccess?: boolean;
   study?: string;
+  programID?: string;
 };
 
 export type Response = {

@@ -32,12 +32,15 @@ export const TOOLTIP_TEXT = {
     },
     SUBMIT: {
       DISABLED: {
+        EMPTY_SUBMISSION: "Empty submission - no data has been uploaded yet.",
         VALIDATION_RUNNING:
           "Validation is in progress. Please wait until it completes and address any issues before submitting.",
         NEW_DATA_OR_VALIDATION_ERRORS:
           "There are new data entries or validation issues that need to be resolved.",
         MISSING_DATA_FILE:
           "There are no data files for this submission. Please upload the appropriate data files and validate to enable the Submit button.",
+        BATCH_IS_UPLOADING:
+          "There are ongoing batch uploads. Please wait for the upload to complete.",
       },
     },
   },

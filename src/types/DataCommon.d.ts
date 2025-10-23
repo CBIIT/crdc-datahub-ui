@@ -2,7 +2,7 @@ type DataCommon = {
   /**
    * The unique identifier for the Data Common.
    *
-   * @note This value should be appear in the models repository as the key for the
+   * This value should be appear in the models repository as the key for the
    * configuration in the manifest file.
    *
    * If not present, an error will be thrown when trying to load Model Navigator.
@@ -16,18 +16,12 @@ type DataCommon = {
    */
   displayName: string;
   /**
-   * The Data Common assets.
+   * The relevant assets needed for Model Navigator.
    *
-   * NOTE:
-   * - This is loaded dynamically from a CRDC Hub maintained repository
-   *   when it's needed.
+   * This is only loaded when first needed, and is not part of the initial object
+   * stored in the configuration.
    */
-  assets: ManifestAssets;
-  /**
-   * The Data Model Navigator configuration. This is used to fine-tune
-   * the navigator for a specific Data Common.
-   */
-  configuration: ModelNavigatorConfig;
+  assets: ManifestAssets | null;
 };
 
 /**
@@ -78,6 +72,12 @@ type ManifestAssets = {
    * @since 3.1.0
    */
   "model-navigator-logo"?: string | null;
+  /**
+   * The full configuration for the Data Model Navigator instance.
+   *
+   * @since 3.3.0
+   */
+  "model-navigator-config": ModelNavigatorConfig;
   /**
    * The pre-zipped example loading file.
    *

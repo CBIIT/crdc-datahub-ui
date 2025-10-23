@@ -15,7 +15,7 @@ import {
 import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { useSnackbar } from "notistack";
-import { cloneDeep } from "lodash";
+import { cloneDeep, flatMap, isEqual, uniq } from "lodash";
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,
@@ -94,12 +94,21 @@ const StyledNotice = styled(Typography)({
   userSelect: "none",
 });
 
+export type PermissionPanelProps = {
+  /**
+   * A flag indicating whether the panel is explicitly read-only.
+   *
+   * Defaults to false.
+   */
+  readOnly?: boolean;
+};
+
 /**
  * Provides a panel for managing permissions and notifications for a user role.
  *
  * @returns The PermissionPanel component.
  */
-const PermissionPanel: FC = () => {
+const PermissionPanel: FC<PermissionPanelProps> = ({ readOnly = false }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { setValue, watch } = useFormContext<EditUserInput>();
 
@@ -121,40 +130,70 @@ const PermissionPanel: FC = () => {
   const notificationsValue = watch("notifications");
   const roleRef = useRef<UserRole>(selectedRole);
 
-  const permissionColumns = useMemo<ColumnizedPBACGroups<AuthPermissions>>(() => {
+  const [permissionCount, permissionColumns] = useMemo<
+    [number, ColumnizedPBACGroups<AuthPermissions>]
+  >(() => {
     if (!data?.retrievePBACDefaults && loading) {
-      return [];
+      return [0, []];
     }
 
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.permissions) {
       Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
-      return [];
+      return [0, []];
     }
 
-    const remappedPermissions: PBACDefault<AuthPermissions>[] = cloneDeep(defaults.permissions).map(
-      (p) => ({ ...p, checked: permissionsValue.includes(p._id) })
-    );
+    const clonedPermissions = cloneDeep(defaults.permissions);
+    const checkedPermissions = clonedPermissions?.filter((p) => permissionsValue?.includes(p._id));
+    const inheritedPermissions = uniq(flatMap(checkedPermissions, (p) => p.inherited || []));
 
-    return columnizePBACGroups(remappedPermissions, 3);
+    const remappedPermissions: PBACDefault<AuthPermissions>[] = clonedPermissions.map((p) => ({
+      ...p,
+      // NOTE: Inherited permissions are explicitly checked here to handle the initial loading state
+      // when the permission may not have been checked yet.
+      checked: permissionsValue?.includes(p._id) || inheritedPermissions.includes(p._id),
+      disabled: p.disabled || inheritedPermissions.includes(p._id),
+    }));
+
+    return [
+      remappedPermissions.filter((p) => p.checked).length,
+      columnizePBACGroups(remappedPermissions, 3),
+    ];
   }, [data, permissionsValue]);
 
-  const notificationColumns = useMemo<ColumnizedPBACGroups<AuthNotifications>>(() => {
+  const [notificationCount, notificationColumns] = useMemo<
+    [number, ColumnizedPBACGroups<AuthNotifications>]
+  >(() => {
     if (!data?.retrievePBACDefaults && loading) {
-      return [];
+      return [0, []];
     }
 
     const defaults = data?.retrievePBACDefaults?.find((pbac) => pbac.role === selectedRole);
     if (!defaults || !defaults?.notifications) {
       Logger.error("Role not found in PBAC defaults", { role: selectedRole, data });
-      return [];
+      return [0, []];
     }
 
-    const remappedNotifications: PBACDefault<AuthNotifications>[] = cloneDeep(
-      defaults.notifications
-    ).map((n) => ({ ...n, checked: notificationsValue.includes(n._id) }));
+    const clonedNotifications = cloneDeep(defaults.notifications);
+    const checkedNotifications = clonedNotifications?.filter(
+      (p) => notificationsValue?.includes(p._id)
+    );
+    const inheritedNotifications = uniq(flatMap(checkedNotifications, (p) => p.inherited || []));
 
-    return columnizePBACGroups(remappedNotifications, 3);
+    const remappedNotifications: PBACDefault<AuthNotifications>[] = clonedNotifications.map(
+      (n) => ({
+        ...n,
+        // NOTE: Inherited notifications are explicitly checked here to handle the initial loading state
+        // when the notification may not have been checked yet.
+        checked: notificationsValue?.includes(n._id) || inheritedNotifications.includes(n._id),
+        disabled: n.disabled || inheritedNotifications.includes(n._id),
+      })
+    );
+
+    return [
+      remappedNotifications.filter((p) => p.checked).length,
+      columnizePBACGroups(remappedNotifications, 3),
+    ];
   }, [data, notificationsValue]);
 
   const handlePermissionChange = (_id: AuthPermissions) => {
@@ -194,11 +233,53 @@ const PermissionPanel: FC = () => {
     handleRoleChange(selectedRole);
   }, [selectedRole]);
 
+  useEffect(() => {
+    if (readOnly) {
+      return;
+    }
+
+    const checkedPermissions = data?.retrievePBACDefaults
+      ?.find((pbac) => pbac.role === selectedRole)
+      ?.permissions?.filter((p) => permissionsValue.includes(p._id));
+
+    // Find any inherited permissions that are not already checked and add them to the new value
+    const uncheckedInheritedPermissions =
+      uniq(flatMap(checkedPermissions, (p) => p.inherited || [])).filter(
+        (p) => !permissionsValue.includes(p)
+      ) || [];
+
+    if (uncheckedInheritedPermissions.length) {
+      setValue("permissions", [...permissionsValue, ...uncheckedInheritedPermissions]);
+    }
+  }, [permissionsValue]);
+
+  useEffect(() => {
+    if (readOnly) {
+      return;
+    }
+
+    const checkedNotifications = data?.retrievePBACDefaults
+      ?.find((pbac) => pbac.role === selectedRole)
+      ?.notifications?.filter((n) => notificationsValue.includes(n._id));
+
+    // Find any inherited notifications that are not already checked and add them to the new value
+    const uncheckedInheritedNotifications =
+      uniq(flatMap(checkedNotifications, (n) => n.inherited || [])).filter(
+        (n) => !notificationsValue.includes(n)
+      ) || [];
+
+    if (uncheckedInheritedNotifications.length) {
+      setValue("notifications", [...notificationsValue, ...uncheckedInheritedNotifications]);
+    }
+  }, [notificationsValue]);
+
   return (
     <StyledBox>
       <StyledAccordion elevation={0} data-testid="permissions-accordion">
         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <StyledAccordionHeader component="span">Permissions</StyledAccordionHeader>
+          <StyledAccordionHeader component="span">
+            Permissions <span data-testid="permissions-count">({permissionCount})</span>
+          </StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
           <Grid2 container spacing={2}>
@@ -214,8 +295,9 @@ const PermissionPanel: FC = () => {
                           key={_id}
                           label={name}
                           onChange={() => handlePermissionChange(_id)}
-                          control={<Checkbox name={_id} checked={checked} disabled={disabled} />}
+                          control={<Checkbox name={_id} checked={checked} />}
                           data-testid={`permission-${_id}`}
+                          disabled={readOnly || disabled}
                         />
                       ))}
                     </FormGroup>
@@ -233,7 +315,9 @@ const PermissionPanel: FC = () => {
       </StyledAccordion>
       <StyledAccordion elevation={0} data-testid="notifications-accordion">
         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <StyledAccordionHeader component="span">Email Notifications</StyledAccordionHeader>
+          <StyledAccordionHeader component="span">
+            Email Notifications <span data-testid="notifications-count">({notificationCount})</span>
+          </StyledAccordionHeader>
         </StyledAccordionSummary>
         <AccordionDetails>
           <Grid2 container spacing={2}>
@@ -249,8 +333,9 @@ const PermissionPanel: FC = () => {
                           key={_id}
                           label={name}
                           onChange={() => handleNotificationChange(_id)}
-                          control={<Checkbox name={_id} checked={checked} disabled={disabled} />}
+                          control={<Checkbox name={_id} checked={checked} />}
                           data-testid={`notification-${_id}`}
+                          disabled={readOnly || disabled}
                         />
                       ))}
                     </FormGroup>
@@ -270,4 +355,4 @@ const PermissionPanel: FC = () => {
   );
 };
 
-export default memo(PermissionPanel);
+export default memo<PermissionPanelProps>(PermissionPanel, isEqual);

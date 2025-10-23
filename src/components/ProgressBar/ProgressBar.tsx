@@ -105,7 +105,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
       newSections.push({
         title,
         id,
-        url: `/submission/${_id}/${s}`,
+        url: `/submission-request/${_id}/${s}`,
         icon: status,
         selected: s === section,
       });
@@ -141,6 +141,7 @@ const ProgressBar: FC<Props> = ({ section }) => {
             data-testid={`progress-bar-section-${idx}`}
             aria-disabled={disabled || false}
             data-selected={selected || false}
+            preventScrollReset
           >
             <Stack direction="row" alignItems="center" justifyContent="center">
               <StyledAvatar>

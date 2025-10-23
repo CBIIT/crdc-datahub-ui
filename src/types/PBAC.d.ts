@@ -18,6 +18,7 @@ type AccessPermissions = "access:request";
 type UserPermissions = "user:manage";
 type ProgramPermissions = "program:manage";
 type StudyPermissions = "study:manage";
+type InstitutionPermissions = "institution:manage";
 
 type AuthPermissions =
   | SubmissionRequestPermissions
@@ -26,7 +27,8 @@ type AuthPermissions =
   | AccessPermissions
   | UserPermissions
   | ProgramPermissions
-  | StudyPermissions;
+  | StudyPermissions
+  | InstitutionPermissions;
 
 type SubmissionRequestNotifications =
   | "submission_request:submitted"
@@ -81,6 +83,12 @@ type PBACDefault<T = AuthNotifications | AuthPermissions> = {
    * @example "Manage Users"
    */
   name: string;
+  /**
+   * List of permissions the current PBAC object inherits.
+   *
+   * @example ["submission_request:view"]
+   */
+  inherited: T[];
   /**
    * The sort order of the PBAC object within its group.
    */

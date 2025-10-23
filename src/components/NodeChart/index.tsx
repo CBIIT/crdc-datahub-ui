@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Typography, styled } from "@mui/material";
 import { PieChart, Pie, Label, Cell } from "recharts";
 import { isEqual } from "lodash";
@@ -28,6 +28,7 @@ const StyledPieChartLabel = styled(Typography)({
   lineHeight: "21px",
   marginBottom: "12px",
   userSelect: "none",
+  textAlign: "center",
 });
 
 const StyledChartContainer = styled(Box)({
@@ -50,9 +51,10 @@ const StyledChartContainer = styled(Box)({
 const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const [hoveredSlice, setHoveredSlice] = useState<PieSectorDataItem>(null);
 
-  const dataset: PieSectorDataItem[] = useMemo(() => data.filter(({ value }) => value > 0), [data]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dataset = useMemo<PieSectorDataItem[]>(() => data.filter(({ value }) => value > 0), [data]);
 
-  const showDefaultCenter: boolean = useMemo(
+  const showDefaultCenter = useMemo<boolean>(
     () => (dataset.length === 0 && hoveredSlice === null) || hoveredSlice?.value === 0,
     [dataset, hoveredSlice]
   );
@@ -72,15 +74,19 @@ const NodeChart: FC<Props> = ({ label, centerCount, data }: Props) => {
   const onMouseOver = useCallback((data) => setHoveredSlice(data), []);
   const onMouseLeave = useCallback(() => setHoveredSlice(null), []);
 
+  // NOTE: Remove accessibility attributes from the chart
+  // to prevent 508 violations when the parent container is not visible
+  useEffect(() => {
+    containerRef?.current
+      .querySelectorAll("g[tabindex]")
+      ?.forEach((e) => e.removeAttribute("tabindex"));
+  }, [containerRef]);
+
   return (
-    <StyledChartContainer>
+    <StyledChartContainer ref={containerRef}>
       {reformattedLabel && (
         <StyledPieChartLabel>
-          <TruncatedText
-            text={reformattedLabel}
-            wrapperSx={{ margin: "0 auto" }}
-            maxCharacters={14}
-          />
+          <TruncatedText text={reformattedLabel} maxCharacters={14} />
         </StyledPieChartLabel>
       )}
       <PieChart width={150} height={150}>

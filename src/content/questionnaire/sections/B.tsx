@@ -14,7 +14,7 @@ import {
   findProgram,
   Logger,
   mapObjectWithKey,
-  validateEmoji,
+  validateUTF8,
 } from "../../../utils";
 import AddRemoveButton from "../../../components/AddRemoveButton";
 import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
@@ -302,10 +302,12 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
-  const allProgramOptions = useMemo(
-    () => [NotApplicableProgram, ...programs, OtherProgram],
-    [NotApplicableProgram, OtherProgram, programs]
-  );
+  const allProgramOptions = useMemo(() => {
+    // Filter out system-managed programs
+    const filteredPrograms = programs?.filter((p) => !p.readOnly);
+
+    return [NotApplicableProgram, ...filteredPrograms, OtherProgram];
+  }, [NotApplicableProgram, OtherProgram, programs]);
   const readOnlyProgram = readOnlyInputs || program?._id !== OtherProgram._id;
 
   return (
@@ -337,6 +339,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           label="Program Title"
           name="program[name]"
           value={program?.name}
+          validate={(input: string) => !validateUTF8(input)}
           maxLength={100}
           placeholder="100 characters allowed"
           hideValidation={readOnlyProgram}
@@ -389,7 +392,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={study.name}
           maxLength={100}
           placeholder="100 characters allowed"
-          validate={(input: string) => !validateEmoji(input)}
+          validate={(input: string) => !validateUTF8(input)}
           readOnly={readOnlyInputs}
           hideValidation={readOnlyInputs}
           tooltipText="A descriptive name that will be used to identify the study."

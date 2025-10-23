@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query getOrganizationData($orgID: ID!, $organization: String) {
     getOrganization(orgID: $orgID) {
       _id
@@ -15,6 +16,7 @@ export const query = gql`
         studyName
         studyAbbreviation
       }
+      readOnly
       createdAt
       updateAt
     }
@@ -34,6 +36,11 @@ export const query = gql`
     }
   }
 `;
+
+export type Input = {
+  orgID: string;
+  organization: string;
+};
 
 export type Response = {
   /**
