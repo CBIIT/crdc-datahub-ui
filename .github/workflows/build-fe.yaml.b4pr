@@ -9,9 +9,9 @@ on:
       environment:
         description: Build from github actions
         type: environment
-      branch:
-        description: Branch to build
-        required: true
+#      code_branch:
+#        description: Branch to build validation
+#        required: false
       trivy_test_scan_fe:
         description: "Run Trivy Test Scan"
         required: true
@@ -23,18 +23,11 @@ on:
         type: boolean
         default: true
 
-  pull_request:
-    types:
-      - closed
-    branches:
-      - "*.*.*"
-
 jobs:
   build-frontend:
     name: Build frontend image
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'build' }}
+    environment: ${{ inputs.environment }}
     env:
       ECR_REPO_FE: "crdc-hub-frontend"
       REGION: "us-east-1"
@@ -42,8 +35,6 @@ jobs:
       AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      TRIVY_TEST_SCAN_FE: ${{ github.event.inputs.trivy_test_scan_fe != '' && github.event.inputs.trivy_test_scan_fe || 'true' }}
-      UNIT_TEST: ${{ github.event.inputs.unit_test != '' && github.event.inputs.unit_test || 'true' }}
 
     steps:
 
@@ -51,21 +42,13 @@ jobs:
         uses: actions/checkout@v4
         with:
 #          ref: ${{ env.CODE_BRANCH }}
-#          ref: ${{ github.ref_name }}
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.event.pull_request.base.ref }}
+          ref: ${{ github.ref_name }}
           submodules: true
 
       - name: Extract branch name and set image tag
         id: extract_branch
         run: |
-          #BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-          # Determine branch name
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BRANCH_NAME="${{ github.event.inputs.branch }}"
-          else
-            BRANCH_NAME="${{ github.event.pull_request.base.ref }}"
-          fi
-
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           echo "branch=$BRANCH_NAME" >> "$GITHUB_ENV"
           echo "Current branch is: $BRANCH_NAME"
           git fetch --tags --force --quiet
@@ -85,7 +68,7 @@ jobs:
  
       - name: Run Unit Test
         id: unit-test
-        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true || (github.event_name == 'workflow_dispatch' && inputs.unit_test == 'true')
+        if: github.event.inputs.unit_test == 'true'
         run: |
           echo "Running unit tests..."
           npm ci
@@ -103,7 +86,7 @@ jobs:
 
       - name: Run Trivy test scan for FE Docker Image
         id: trivy-scan-fe
-        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true || (github.event_name == 'workflow_dispatch' && inputs.trivy_test_scan_fe == 'true')
+        if: github.event.inputs.trivy_test_scan_fe == 'true'
         env:
           REGISTRY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
           #PV_PULLER_IMAGE_NAME: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_PVPULLER }}:${{ env.CODE_BRANCH }}.${{ github.run_number }}
@@ -152,3 +135,42 @@ jobs:
           status: ${{ job.status }}
           steps: ${{ toJson(steps) }}
         if: always()
+
+#1st try      - name: scan docker image with AWS inspector
+#        id: scan-inspector
+#        env:
+#          REGISTRY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com
+#          PV_PULLER_IMAGE_NAME: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_PVPULLER }}:${{ env.CODE_BRANCH }}.${{ github.run_number }}
+#        run: |
+#          echo "AWS Inspector scan for image: $PV_PULLER_IMAGE_NAME"
+#          SCAN_ID=$(aws inspector2 start-scan --resource-group-arn arn:aws:inspector2:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:resourcegroup/default \
+#                     -image-arn arn:aws:ecr:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:repository/$ECR_REPO)
+#          echo "Scan started: $SCAN_ID"
+
+#      - name: wait for scan results
+#        run: |
+#          echo "Waiting for scan results..."
+#          sleep 60
+
+#      - name: get scan findings
+#        env:
+#          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+#        run: |
+#          aws inspector2 list-findings --filter '{
+#            "awsAccountId": { "equals": ["'$AWS_ACCOUNT_ID'"] },
+#            "severity": { "equals": ["HIGH", "CRITICAL"] }
+#          }' > findings.json
+#          cat findings.json
+
+#      - name: Fail if vulnerabilities are found
+#        if: github.event.inputs.trivy_test_scan_file_validation == 'true'
+#        run: |
+#          CRITICAL_COUNT=$(jq '.findings | map(select(.severity == "CRITICAL")) | length' findings.json)
+#          HIGH_COUNT=$(jq '.findings | map(select(.severity == "HIGH")) | length' findings.json)
+
+#          if [[ $CRITICAL_COUNT -gt 0 || $HIGH_COUNT -gt 0 ]]; then
+#            echo "Securities vuls found"
+#            exit 1
+#          else
+#            echo "Pass"
+#          fi
