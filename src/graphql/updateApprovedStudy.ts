@@ -10,7 +10,7 @@ export const mutation: TypedDocumentNode<Response, Input> = gql`
     $openAccess: Boolean
     $dbGaPID: String
     $ORCID: String
-    $programID: String
+    $programID: ID
     $PI: String
     $primaryContactID: String
     $useProgramPC: Boolean!
