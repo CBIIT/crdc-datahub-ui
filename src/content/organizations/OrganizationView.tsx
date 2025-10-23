@@ -38,7 +38,7 @@ type Props = {
   _id: string;
 };
 
-type FormInput = Omit<EditOrgInput, "orgID" | "studies">;
+type FormInput = Omit<EditOrgInput, "orgID">;
 
 const StyledContainer = styled(Container)({
   marginBottom: "90px",
