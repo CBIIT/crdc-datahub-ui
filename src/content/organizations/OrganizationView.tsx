@@ -146,7 +146,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-  const [showMultipleProgramsWarning, setShowMultipleProgramsWarning] = useState<boolean>(false);
 
   const manageOrgPageUrl = `/programs${lastSearchParams?.["/programs"] ?? ""}`;
 
@@ -246,9 +245,6 @@ const OrganizationView: FC<Props> = ({ _id }: Props) => {
   const handleBypassWarning = () => {
     if (confirmOpen) {
       setConfirmOpen(false);
-    }
-    if (showMultipleProgramsWarning) {
-      setShowMultipleProgramsWarning(false);
     }
 
     handleSubmit(onSubmit)();
