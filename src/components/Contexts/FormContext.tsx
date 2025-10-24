@@ -1,6 +1,11 @@
-import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { merge, cloneDeep } from "lodash";
+import React, { FC, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
+
+import { QuestionnaireDataMigrator } from "@/classes/QuestionnaireDataMigrator";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import {
   APPROVE_APP,
   GET_APP,
@@ -20,9 +25,12 @@ import {
   SubmitAppResp,
   ApproveAppInput,
   SaveAppInput,
+  LIST_INSTITUTIONS,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
 } from "../../graphql";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
 import { Logger } from "../../utils";
+import { FormInput as ApproveFormInput } from "../Questionnaire/ApproveFormDialog";
 
 export type SetDataReturnType =
   | { status: "success"; id: string }
@@ -33,10 +41,13 @@ export type ContextState = {
   data: Application;
   submitData?: () => Promise<string | boolean>;
   reopenForm?: () => Promise<string | boolean>;
-  approveForm?: (comment: string, wholeProgram: boolean) => Promise<SetDataReturnType>;
+  approveForm?: (data: ApproveFormInput, wholeProgram: boolean) => Promise<SetDataReturnType>;
   inquireForm?: (comment: string) => Promise<string | boolean>;
   rejectForm?: (comment: string) => Promise<string | boolean>;
-  setData?: (Application) => Promise<SetDataReturnType>;
+  setData?: (
+    questionnaire: QuestionnaireData,
+    opts?: { skipSave?: boolean }
+  ) => Promise<SetDataReturnType>;
   error?: string;
 };
 
@@ -94,6 +105,16 @@ type ProviderProps = {
 export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
 
+  const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
+    LIST_INSTITUTIONS,
+    {
+      variables: { first: -1, orderBy: "name", sortDirection: "asc" },
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("FormContext listInstitutions API error:", e),
+    }
+  );
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "no-cache",
@@ -139,7 +160,10 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     fetchPolicy: "no-cache",
   });
 
-  const setData = async (data: QuestionnaireData): Promise<SetDataReturnType> => {
+  const setData = async (
+    data: QuestionnaireData,
+    opts?: { skipSave?: boolean }
+  ): Promise<SetDataReturnType> => {
     const newState = {
       ...state,
       data: {
@@ -151,10 +175,39 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState((prevState) => ({ ...prevState, status: Status.SAVING }));
     const fullPIName = `${data?.pi?.firstName || ""} ${data?.pi?.lastName || ""}`.trim();
 
+    const newInstitutions = [...newState.data.newInstitutions];
+    const { pi, primaryContact, additionalContacts } = newState.data.questionnaireData;
+    const contacts = [pi, primaryContact, ...(additionalContacts || [])].filter(
+      (obj) => obj && (obj.institution || obj.institutionID)
+    );
+
+    contacts.forEach((contact) => {
+      if (contact.institutionID) {
+        return;
+      }
+
+      const prevId = newInstitutions.find(({ name }) => name === contact.institution)?.id;
+      if (prevId) {
+        contact.institutionID = prevId;
+      } else {
+        const newId = v4();
+        newInstitutions.push({ id: newId, name: contact.institution });
+        contact.institutionID = newId;
+      }
+    });
+
+    if (opts?.skipSave) {
+      setState({ ...newState, status: Status.LOADED, error: null });
+      return {
+        status: "success",
+        id: newState.data._id,
+      };
+    }
+
     const { data: d, errors } = await saveApp({
       variables: {
         application: {
-          _id: newState?.data?.["_id"] === "new" ? undefined : newState?.data?.["_id"],
+          _id: newState?.data?._id === "new" ? undefined : newState?.data?._id,
           studyName: data?.study?.name,
           studyAbbreviation: data?.study?.abbreviation || data?.study?.name,
           questionnaireData: JSON.stringify(data),
@@ -165,11 +218,15 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
           programName: data?.program?.name,
           programAbbreviation: data?.program?.abbreviation,
           programDescription: data?.program?.description,
+          newInstitutions: newInstitutions
+            .filter((inst) => contacts.findIndex((c) => c.institutionID === inst.id) !== -1)
+            .map(({ id, name }) => ({ id, name })),
+          GPAName: data?.study?.GPAName,
         },
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !d?.saveApplication?.["_id"]) {
+    if (errors || !d?.saveApplication?._id) {
       const errorMessage = errors?.[0]?.message || "An unknown GraphQL Error occurred";
 
       Logger.error("Unable to save application", errors);
@@ -185,10 +242,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       };
     }
 
-    if (d?.saveApplication?.["_id"] && data?.["_id"] === "new") {
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    if (d?.saveApplication?._id && data["_id"] === "new") {
       newState.data = {
         ...newState.data,
-        _id: d.saveApplication["_id"],
+        _id: d.saveApplication._id,
         applicant: d?.saveApplication?.applicant,
       };
     }
@@ -200,12 +258,13 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       createdAt: d?.saveApplication?.createdAt,
       submittedDate: d?.saveApplication?.submittedDate,
       history: d?.saveApplication?.history,
+      newInstitutions: d?.saveApplication?.newInstitutions,
     };
 
     setState({ ...newState, status: Status.LOADED, error: null });
     return {
       status: "success",
-      id: d.saveApplication["_id"],
+      id: d.saveApplication._id,
     };
   };
 
@@ -214,7 +273,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await submitApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
       },
     });
 
@@ -224,32 +283,26 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.submitApplication?.["_id"] || false;
+    return res?.submitApplication?._id || false;
   };
 
   // Here we approve the form to the API with a comment and wholeProgram
   const approveForm = async (
-    comment: string,
+    data: ApproveFormInput,
     wholeProgram: boolean
   ): Promise<SetDataReturnType> => {
     setState((prevState) => ({ ...prevState, status: Status.SUBMITTING }));
 
-    const institutions: string[] = [
-      state?.data?.questionnaireData?.pi?.institution,
-      state?.data?.questionnaireData?.primaryContact?.institution,
-      ...(state?.data?.questionnaireData?.additionalContacts?.map((c) => c?.institution) || []),
-    ].filter((i) => !!i && typeof i === "string");
-
     const { data: res, errors } = await approveApp({
       variables: {
-        id: state?.data?.["_id"],
-        comment,
+        id: state?.data?._id,
+        comment: data?.reviewComment,
         wholeProgram,
-        institutions,
+        pendingModelChange: data?.pendingModelChange,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.approveApplication?.["_id"]) {
+    if (errors || !res?.approveApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return {
         status: "failed",
@@ -260,7 +313,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
     return {
       status: "success",
-      id: res?.approveApplication?.["_id"],
+      id: res?.approveApplication?._id,
     };
   };
 
@@ -270,18 +323,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await inquireApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
         comment,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.inquireApplication?.["_id"]) {
+    if (errors || !res?.inquireApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.inquireApplication?.["_id"];
+    return res?.inquireApplication?._id;
   };
 
   // Here we reject the form to the API with a comment
@@ -290,18 +343,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await rejectApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
         comment,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.rejectApplication?.["_id"]) {
+    if (errors || !res?.rejectApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
 
     setState((prevState) => ({ ...prevState, status: Status.LOADED }));
-    return res?.rejectApplication?.["_id"];
+    return res?.rejectApplication?._id;
   };
 
   // Reopen a form when it has been rejected and they submit an updated form
@@ -310,11 +363,11 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
 
     const { data: res, errors } = await reopenApp({
       variables: {
-        _id: state?.data["_id"],
+        _id: state?.data._id,
       },
     }).catch((e) => ({ data: null, errors: [e] }));
 
-    if (errors || !res?.reopenApplication?.["_id"]) {
+    if (errors || !res?.reopenApplication?._id) {
       setState((prevState) => ({ ...prevState, status: Status.ERROR }));
       return false;
     }
@@ -327,7 +380,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       },
       status: Status.LOADED,
     }));
-    return res?.reopenApplication?.["_id"];
+    return res?.reopenApplication?._id;
   };
 
   useEffect(() => {
@@ -379,25 +432,19 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         getApplication?.questionnaireData || null
       );
 
-      // Check if we need to autofill the PI details
-      const sectionA: Section = questionnaireData?.sections?.find((s: Section) => s?.name === "A");
-      if (!sectionA || sectionA?.status === "Not Started") {
-        const { data: lastAppData } = await lastApp();
-        const { getMyLastApplication } = lastAppData || {};
-        const parsedLastAppData = JSON.parse(getMyLastApplication?.questionnaireData || null) || {};
-
-        questionnaireData.pi = {
-          ...questionnaireData.pi,
-          ...parsedLastAppData.pi,
-        };
-      }
+      const migrator = new QuestionnaireDataMigrator(questionnaireData, {
+        getInstitutions,
+        newInstitutions: getApplication?.newInstitutions || [],
+        getLastApplication: lastApp,
+      });
+      const migratedData = await migrator.run();
 
       setState({
         status: Status.LOADED,
         data: {
           ...merge(cloneDeep(InitialApplication), d?.getApplication),
           questionnaireData: {
-            ...merge(cloneDeep(InitialQuestionnaire), questionnaireData),
+            ...merge(cloneDeep(InitialQuestionnaire), migratedData),
           },
         },
       });

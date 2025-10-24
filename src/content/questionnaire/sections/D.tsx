@@ -1,31 +1,33 @@
-import React, { FC, useEffect, useRef, useState } from "react";
-import dayjs from "dayjs";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep } from "lodash";
-import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import { Table, TableBody, TableCell, TableHead, TableRow, styled } from "@mui/material";
+import dayjs from "dayjs";
+import { unset } from "lodash";
+import React, { FC, useEffect, useRef, useState } from "react";
+
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
+import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
+import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
 import SectionGroup, { StyledDescription } from "../../../components/Questionnaire/SectionGroup";
 import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
+import TableTextInput from "../../../components/Questionnaire/TableTextInput";
 import TextInput from "../../../components/Questionnaire/TextInput";
+import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
+import { fileTypeOptions } from "../../../config/FileTypeConfig";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
+import SectionMetadata from "../../../config/SectionMetadata";
+import useFormMode from "../../../hooks/useFormMode";
 import {
   mapObjectWithKey,
   filterPositiveIntegerString,
   reshapeCheckboxGroupOptions,
+  combineQuestionnaireData,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/AddRemoveButton";
-import TableFileTypeAndExtensionInput from "../../../components/Questionnaire/TableFileTypeAndExtensionInput";
-import { fileTypeOptions } from "../../../config/FileTypeConfig";
-import TableTextInput from "../../../components/Questionnaire/TableTextInput";
-import DatePickerInput from "../../../components/Questionnaire/DatePickerInput";
-import RadioYesNoInput from "../../../components/Questionnaire/RadioYesNoInput";
-import useFormMode from "../../../hooks/useFormMode";
-import SectionMetadata from "../../../config/SectionMetadata";
-import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
-import cellLineModelSystemOptions from "../../../config/CellLineModelSystemConfig";
-import { InitialQuestionnaire } from "../../../config/InitialValues";
 
 export type KeyedFileTypeData = {
   key: string;
@@ -144,7 +146,6 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { D: SectionDMetadata } = SectionMetadata;
 
   const [dataTypes, setDataTypes] = useState<string[]>(data.dataTypes);
-  const [isClinical, setIsClinical] = useState<boolean>(dataTypes?.includes("clinicalTrial"));
   const formContainerRef = useRef<HTMLDivElement>();
   const formRef = useRef<HTMLFormElement>();
   const [dataTypesErrorMsg, setDataTypesErrorMsg] = useState<string>("");
@@ -158,6 +159,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const [cellLineModelSystemCheckboxes, setCellLineModelSystemCheckboxes] = useState<string[]>(
     reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data)
   );
+  const isClinical = dataTypes?.includes("clinicalTrial");
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -165,9 +167,9 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData = combineQuestionnaireData(data, formObject);
     // Remove empty strings from dataType arrays
-    combinedData.dataTypes = combinedData.dataTypes.filter((str) => str !== "");
+    combinedData.dataTypes = combinedData.dataTypes.filter((str: string) => str !== "");
     // Handle validity for at dataTypes section
     if (combinedData.dataTypes.length !== 0 || combinedData.otherDataTypes !== "") {
       setDataTypesErrorMsg("");
@@ -181,7 +183,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.clinicalData = InitialQuestionnaire.clinicalData;
     } else {
       combinedData.clinicalData.dataTypes = combinedData.clinicalData.dataTypes.filter(
-        (str) => str !== ""
+        (str: string) => str !== ""
       );
     }
 
@@ -192,7 +194,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         combinedData.clinicalData?.otherDataTypes !== "")
     ) {
       setClinicalDataTypesErrorMsg("");
-      clinicalDataTypesInputRef.current.setCustomValidity("");
+      clinicalDataTypesInputRef.current?.setCustomValidity("");
     } else if (combinedData.dataTypes.includes("clinicalTrial")) {
       setClinicalDataTypesErrorMsg("At least one clinical data type is required");
       clinicalDataTypesInputRef.current?.setCustomValidity(
@@ -220,12 +222,14 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       return file;
     });
 
+    combinedData.files?.forEach((f) => unset(f, "key"));
+
     return { ref: formRef, data: combinedData };
   };
 
   const addFileDataType = () => {
-    setFileTypeData([
-      ...fileTypeData,
+    setFileTypeData((prev) => [
+      ...prev,
       {
         key: `${fileTypeData.length}_${new Date().getTime()}`,
         type: ``,
@@ -237,7 +241,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   };
 
   const removeFileDataType = (key: string) => {
-    setFileTypeData(fileTypeData.filter((c) => c.key !== key));
+    setFileTypeData((prev) => prev.filter((c) => c.key !== key));
   };
 
   const handleDataTypesChange = (checked: boolean, value: string) => {
@@ -255,6 +259,24 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
+
+  useEffect(() => {
+    setDataTypes(data?.dataTypes || []);
+  }, [data?.dataTypes]);
+
+  useEffect(() => {
+    const incoming = data?.files ?? [];
+    setFileTypeData((prev) =>
+      incoming.map((c, i) => ({
+        ...c,
+        key: prev[i]?.key ?? mapObjectWithKey(c, i).key,
+      }))
+    );
+  }, [data?.files]);
+
+  useEffect(() => {
+    setCellLineModelSystemCheckboxes(reshapeCheckboxGroupOptions(cellLineModelSystemOptions, data));
+  }, [data?.cellLines, data?.modelSystems]);
 
   return (
     <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
@@ -300,7 +322,7 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           name="dataTypes[]"
           graphQLValue="clinicalTrial"
           value={dataTypes.includes("clinicalTrial")}
-          onChange={(e, val) => setIsClinical(val)}
+          onChange={(_e, checked) => handleDataTypesChange(checked, "clinicalTrial")}
           tooltipText="A research study in which one or more subjects are prospectively assigned to one or more interventions (which may include placebo or other control) to evaluate the effects of those interventions on health-related biomedical outcomes."
           readOnly={readOnlyInputs}
         />
@@ -506,6 +528,12 @@ const FormSectionD: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
                     options={fileTypeOptions.map((fileType) => fileType)}
                   />
                   <TableCell className="bottomRowMiddle">
+                    <input
+                      type="hidden"
+                      name={`files[${idx}][key]`}
+                      value={fileData.key}
+                      readOnly
+                    />
                     <TableTextInput
                       id={`section-d-file-type-${idx}-number-of-files`}
                       name={`files[${idx}][count]`}

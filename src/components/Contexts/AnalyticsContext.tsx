@@ -1,7 +1,9 @@
 import React, { FC, createContext, useContext, useEffect, useMemo } from "react";
 import ReactGA from "react-ga4";
-import { useAuthContext } from "./AuthContext";
+
 import env from "../../env";
+
+import { useAuthContext } from "./AuthContext";
 
 export type ContextState = {
   ReactGA: typeof ReactGA;
@@ -61,8 +63,8 @@ export const AnalyticsProvider: FC<ProviderProps> = ({
     if (GA_MEASUREMENT_ID) {
       ReactGA.initialize(GA_MEASUREMENT_ID, {
         gaOptions: {
-          DEV_TIER: env?.REACT_APP_DEV_TIER || "N/A",
-          FE_VERSION: env?.REACT_APP_FE_VERSION || "N/A",
+          DEV_TIER: env?.VITE_DEV_TIER || "N/A",
+          FE_VERSION: env?.VITE_FE_VERSION || "N/A",
         },
       });
     }

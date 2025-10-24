@@ -1,10 +1,14 @@
-import { FC } from "react";
-import { render, waitFor, within } from "@testing-library/react";
-import UserEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import SubmittedDataFilters from "./SubmittedDataFilters";
+import UserEvent from "@testing-library/user-event";
+import { FC } from "react";
+import { axe } from "vitest-axe";
+
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
+
 import { SUBMISSION_STATS, SubmissionStatsInput, SubmissionStatsResp } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+
+import SubmittedDataFilters from "./SubmittedDataFilters";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -19,18 +23,9 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 
 describe("SubmittedDataFilters cases", () => {
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
-
-  const baseStatistic: SubmissionStatistic = {
-    nodeName: "",
-    total: 0,
-    new: 0,
-    passed: 0,
-    warning: 0,
-    error: 0,
-  };
 
   it("should not have accessibility violations", async () => {
     const { container } = render(
@@ -84,9 +79,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "N-3", total: 1 },
-                { ...baseStatistic, nodeName: "N-1", total: 3 },
-                { ...baseStatistic, nodeName: "N-2", total: 2 },
+                submissionStatisticFactory.build({ nodeName: "N-3", total: 1 }),
+                submissionStatisticFactory.build({ nodeName: "N-1", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "N-2", total: 2 }),
               ],
             },
           },
@@ -134,9 +129,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "SECOND", total: 3 },
-                { ...baseStatistic, nodeName: "THIRD", total: 999 },
-                { ...baseStatistic, nodeName: "FIRST", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "SECOND", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "THIRD", total: 999 }),
+                submissionStatisticFactory.build({ nodeName: "FIRST", total: 1 }),
               ],
             },
           },
@@ -168,9 +163,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "Participant", total: 3 },
-                { ...baseStatistic, nodeName: "Data File", total: 2 },
-                { ...baseStatistic, nodeName: "Sample", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "Participant", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "Data File", total: 2 }),
+                submissionStatisticFactory.build({ nodeName: "Sample", total: 1 }),
               ],
             },
           },
@@ -207,9 +202,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "NODE_NAME", total: 1 },
-                { ...baseStatistic, nodeName: "Upper_Case", total: 1 },
-                { ...baseStatistic, nodeName: "lower_case", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "NODE_NAME", total: 1 }),
+                submissionStatisticFactory.build({ nodeName: "Upper_Case", total: 1 }),
+                submissionStatisticFactory.build({ nodeName: "lower_case", total: 1 }),
               ],
             },
           },
@@ -235,7 +230,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should immediately dispatch NodeType and Status filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -246,9 +241,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "enrollment", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "sample", total: 2 }),
+                submissionStatisticFactory.build({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -262,7 +257,7 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const muiSelectBox = within(getByTestId("data-content-node-filter")).getByRole("button");
 
@@ -282,7 +277,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should debounce the submittedID field input", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -293,9 +288,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "enrollment", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "sample", total: 2 }),
+                submissionStatisticFactory.build({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -309,14 +304,14 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "id1");
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), " abc 9912");
 
     expect(mockOnChange).not.toHaveBeenCalled(); // Not called before advancing timers
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(mockOnChange).toHaveBeenCalledWith({
       nodeType: expect.any(String),
@@ -326,7 +321,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should dispatch an empty submittedID field input immediately", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -337,9 +332,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "enrollment", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "sample", total: 2 }),
+                submissionStatisticFactory.build({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -353,11 +348,11 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "valid id here");
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     expect(mockOnChange).toHaveBeenCalledWith({
       nodeType: expect.any(String),
@@ -375,7 +370,7 @@ describe("SubmittedDataFilters cases", () => {
   });
 
   it("should not dispatch a submittedID field with less than 3 characters", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const mocks: MockedResponse<SubmissionStatsResp, SubmissionStatsInput>[] = [
       {
         request: {
@@ -386,9 +381,9 @@ describe("SubmittedDataFilters cases", () => {
           data: {
             submissionStats: {
               stats: [
-                { ...baseStatistic, nodeName: "enrollment", total: 3 },
-                { ...baseStatistic, nodeName: "sample", total: 2 },
-                { ...baseStatistic, nodeName: "study", total: 1 },
+                submissionStatisticFactory.build({ nodeName: "enrollment", total: 3 }),
+                submissionStatisticFactory.build({ nodeName: "sample", total: 2 }),
+                submissionStatisticFactory.build({ nodeName: "study", total: 1 }),
               ],
             },
           },
@@ -402,12 +397,12 @@ describe("SubmittedDataFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "1");
     UserEvent.type(getByTestId("data-content-submitted-id-filter"), "2");
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(mockOnChange).not.toHaveBeenCalled();
   });

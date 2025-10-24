@@ -1,8 +1,10 @@
 import React, { memo } from "react";
 import { useParams } from "react-router-dom";
+
+import { SubmissionProvider } from "../../components/Contexts/SubmissionContext";
+
 import DataSubmission from "./DataSubmission";
 import ListView from "./DataSubmissionsListView";
-import { SubmissionProvider } from "../../components/Contexts/SubmissionContext";
 
 /**
  * A memoized version of SubmissionProvider

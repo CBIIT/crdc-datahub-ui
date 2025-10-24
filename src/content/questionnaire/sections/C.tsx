@@ -1,22 +1,45 @@
-import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
-import { cloneDeep, merge } from "lodash";
 import { parseForm } from "@jalik/form-parser";
 import { AutocompleteChangeReason, styled } from "@mui/material";
+import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+
 import { useFormContext } from "../../../components/Contexts/FormContext";
+import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
-import SectionGroup from "../../../components/Questionnaire/SectionGroup";
-import TextInput from "../../../components/Questionnaire/TextInput";
-import SelectInput from "../../../components/Questionnaire/SelectInput";
 import FormGroupCheckbox from "../../../components/Questionnaire/FormGroupCheckbox";
+import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
+import SectionGroup from "../../../components/Questionnaire/SectionGroup";
+import SelectInput from "../../../components/Questionnaire/SelectInput";
+import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import TextInput from "../../../components/Questionnaire/TextInput";
 import accessTypesOptions from "../../../config/AccessTypesConfig";
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "../../../config/CancerTypesConfig";
-import speciesOptions from "../../../config/SpeciesConfig";
-import { isValidInRange, filterPositiveIntegerString } from "../../../utils";
-import useFormMode from "../../../hooks/useFormMode";
 import SectionMetadata from "../../../config/SectionMetadata";
-import LabelCheckbox from "../../../components/Questionnaire/LabelCheckbox";
-import CustomAutocomplete from "../../../components/Questionnaire/CustomAutocomplete";
-import SwitchInput from "../../../components/Questionnaire/SwitchInput";
+import speciesOptions from "../../../config/SpeciesConfig";
+import useFormMode from "../../../hooks/useFormMode";
+import {
+  isValidInRange,
+  filterPositiveIntegerString,
+  combineQuestionnaireData,
+} from "../../../utils";
+
+const StyledLink = styled(Link)({
+  color: "#005A9E",
+  fontSize: "16px",
+  fontWeight: 700,
+  lineHeight: "19.6px",
+  marginLeft: "10px",
+});
+
+const GPAList = () => (
+  <StyledLink
+    to="https://sharing.nih.gov/genomic-data-sharing-policy/resources/contacts-and-help#gds_support"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    View GPA List
+  </StyledLink>
+);
 
 const AccessTypesDescription = styled("span")(() => ({
   fontWeight: 400,
@@ -49,6 +72,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     data.study?.isDbGapRegistered
   );
   const [dbGaPPPHSNumber, setDbGaPPPHSNumber] = useState<string>(data.study?.dbGaPPPHSNumber);
+  const [GPAName, setGPAName] = useState<string>(data.study?.GPAName);
 
   const getFormObject = (): FormObject | null => {
     if (!formRef.current) {
@@ -56,7 +80,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
+    const combinedData: QuestionnaireData = combineQuestionnaireData(data, formObject);
 
     combinedData.numberOfParticipants = parseInt(formObject.numberOfParticipants, 10) || null;
 
@@ -121,6 +145,38 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
 
+  useEffect(() => {
+    setCancerTypes(data?.cancerTypes || []);
+  }, [data?.cancerTypes]);
+
+  useEffect(() => {
+    setOtherCancerTypes(data?.otherCancerTypes);
+  }, [data?.otherCancerTypes]);
+
+  useEffect(() => {
+    setOtherCancerTypesEnabled(data?.otherCancerTypesEnabled);
+  }, [data?.otherCancerTypesEnabled]);
+
+  useEffect(() => {
+    setOtherSpecies(data?.otherSpeciesOfSubjects);
+  }, [data?.otherSpeciesOfSubjects]);
+
+  useEffect(() => {
+    setOtherSpeciesEnabled(data?.otherSpeciesEnabled);
+  }, [data?.otherSpeciesEnabled]);
+
+  useEffect(() => {
+    setIsdbGaPRegistered(data?.study?.isDbGapRegistered);
+  }, [data?.study?.isDbGapRegistered]);
+
+  useEffect(() => {
+    setDbGaPPPHSNumber(data?.study?.dbGaPPPHSNumber);
+  }, [data?.study?.dbGaPPPHSNumber]);
+
+  useEffect(() => {
+    setGPAName(data?.study?.GPAName);
+  }, [data?.study?.GPAName]);
+
   return (
     <FormContainer ref={formContainerRef} formRef={formRef} description={SectionOption.title}>
       {/* Data Access Section */}
@@ -166,10 +222,23 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           value={dbGaPPPHSNumber}
           onChange={(e) => setDbGaPPPHSNumber(e.target.value || "")}
           maxLength={50}
-          placeholder={'Ex/ "phs002529.v1.p1". 50 characters allowed'}
+          placeholder='Ex/ "phs002529.v1.p1". 50 characters allowed'
           gridWidth={12}
           readOnly={readOnlyInputs || !isDbGapRegistered}
           required={isDbGapRegistered}
+        />
+
+        <TextInput
+          id="section-c-genomic-program-administrator-name"
+          label="GPA Name"
+          labelEndAdornment={<GPAList />}
+          name="study[GPAName]"
+          value={GPAName}
+          onChange={(e) => setGPAName(e.target.value || "")}
+          placeholder="Enter GPA Name, if applicable"
+          tooltipText="Provide information on the Genomic Program Administrator (GPA) who registered the study on dbGaP."
+          gridWidth={12}
+          readOnly={readOnlyInputs}
         />
       </SectionGroup>
 
@@ -197,7 +266,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           key={`other_cancer_types_${cancerTypes?.toString()}`}
           label="Other cancer type(s)"
           tooltipText='Enter additional Cancer Types, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherCancerTypesEnabled"
@@ -248,7 +317,7 @@ const FormSectionC: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           id="section-c-other-species-of-subjects"
           label="Other Specie(s) involved"
           tooltipText='Enter additional Species, separated by pipes ("|").'
-          labelStartAddornment={
+          labelStartAdornment={
             <LabelCheckbox
               idPrefix="section-c-other-cancer-types-enabled"
               name="otherSpeciesEnabled"

@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const mutation = gql`
+export const mutation: TypedDocumentNode<Response, Input> = gql`
   mutation saveApplication($application: AppInput!) {
     saveApplication(application: $application) {
       _id
@@ -22,6 +23,11 @@ export const mutation = gql`
         applicantID
         applicantName
       }
+      newInstitutions {
+        id
+        name
+      }
+      GPAName
     }
   }
 `;
@@ -77,6 +83,14 @@ export type Input = {
      * The description for the application program
      */
     programDescription: string;
+    /**
+     * An array of new institutions in the form.
+     */
+    newInstitutions: Array<{ id: string; name: string }>;
+    /**
+     * The name of the Genomic Program Administrator
+     */
+    GPAName: string;
   };
 };
 

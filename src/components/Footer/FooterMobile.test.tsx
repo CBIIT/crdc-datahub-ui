@@ -1,7 +1,9 @@
-import { render, within } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import { axe } from "jest-axe";
 import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { render, within } from "../../test-utils";
+
 import FooterMobile from "./FooterMobile";
 
 describe("Accessibility", () => {

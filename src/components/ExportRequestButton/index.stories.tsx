@@ -1,22 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { Stack } from "@mui/material";
-import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
-import Button from "./index";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import type { Meta, StoryObj } from "@storybook/react";
 
-const baseApplication: Application = {
-  ...InitialApplication,
-  applicant: {
-    applicantID: "mock-applicant-id",
-    applicantName: "John Doe",
-    applicantEmail: "john.doe@example.com",
-  },
-  questionnaireData: {
-    ...InitialQuestionnaire,
-  },
-  status: "In Progress",
-  submittedDate: "2023-10-01T00:00:00Z",
-};
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+
+import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
+
+import Button from "./index";
 
 type CustomStoryProps = {
   FormStatus: FormStatus;
@@ -66,7 +56,16 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     FormStatus: FormStatus.LOADED,
-    application: baseApplication,
+    application: applicationFactory.build({
+      applicant: {
+        applicantID: "mock-applicant-id",
+        applicantName: "John Doe",
+        applicantEmail: "john.doe@example.com",
+      },
+      questionnaireData: questionnaireDataFactory.build(),
+      status: "In Progress",
+      submittedDate: "2023-10-01T00:00:00Z",
+    }),
   },
 };
 

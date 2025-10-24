@@ -1,51 +1,18 @@
-import { render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { useMemo } from "react";
-import { ValidationStatus } from "./ValidationStatus";
+import { axe } from "vitest-axe";
+
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
+import { render, waitFor } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
 
-const BaseSubmission: Omit<
-  Submission,
-  "validationStarted" | "validationEnded" | "validationType" | "validationScope"
-> = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  archived: false,
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import { ValidationStatus } from "./ValidationStatus";
 
 type TestParentProps = {
   submission: Pick<
@@ -57,18 +24,24 @@ type TestParentProps = {
 
 const TestParent: React.FC<TestParentProps> = ({ submission, children }) => {
   const value = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-      isPolling: false,
-      data: {
-        getSubmission: { ...BaseSubmission, ...submission },
-        submissionStats: {
-          stats: [],
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+        data: {
+          getSubmission: submissionFactory.build({
+            validationStarted: undefined,
+            validationEnded: undefined,
+            validationType: undefined,
+            validationScope: undefined,
+            ...submission,
+          }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: null,
         },
-        batchStatusList: null,
-      },
-    }),
+      }),
     [submission]
   );
 
@@ -114,7 +87,7 @@ describe("Accessibility", () => {
 // NOTE: We're testing component behavior here, not requirement-based behavior
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not crash if the submission is null", async () => {
@@ -144,6 +117,28 @@ describe("Basic Functionality", () => {
     expect(container.firstChild).toBeNull();
     expect(() => getByTestId("validation-status-chip")).toThrow();
   });
+
+  it.each([[], null, undefined, NaN])(
+    "should not appear for a submission with validationType %s",
+    async (validationType) => {
+      const { container, getByTestId } = render(
+        <TestParent
+          submission={{
+            validationStarted: null,
+            validationEnded: null,
+            validationScope: null,
+            // @ts-expect-error Testing invalid values
+            validationType,
+          }}
+        >
+          <ValidationStatus />
+        </TestParent>
+      );
+
+      expect(container.firstChild).toBeNull();
+      expect(() => getByTestId("validation-status-chip")).toThrow();
+    }
+  );
 
   it("should rerender when the validation state changes", async () => {
     const { getByText, rerender } = render(
@@ -182,7 +177,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip appear on hover", async () => {

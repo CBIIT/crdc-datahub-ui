@@ -1,22 +1,29 @@
 import { DashboardContentOptions } from "amazon-quicksight-embedding-sdk";
+
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import { addStudiesParameter, addDataCommonsParameter } from "./dashboardUtils";
 import { Logger } from "./logger";
 
-jest.mock("./logger", () => ({
+vi.mock("./logger", () => ({
   Logger: {
-    error: jest.fn(),
+    error: vi.fn(),
   },
 }));
 
 describe("addStudiesParameter", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return an empty array if user has 'All' as the first study", () => {
-    const user = {
-      studies: [{ _id: "All" }, { _id: "AnotherStudy" }],
-    } as unknown as User;
+    const user = userFactory.build({
+      studies: [
+        approvedStudyFactory.build({ _id: "All" }),
+        approvedStudyFactory.build({ _id: "AnotherStudy" }),
+      ],
+    });
 
     const result = addStudiesParameter(user);
     expect(result).toEqual([]);
@@ -24,9 +31,12 @@ describe("addStudiesParameter", () => {
   });
 
   it("should return an array with studiesParameter if user has valid studies", () => {
-    const user = {
-      studies: [{ _id: "StudyA" }, { _id: "StudyB" }],
-    } as unknown as User;
+    const user = userFactory.build({
+      studies: [
+        approvedStudyFactory.build({ _id: "StudyA" }),
+        approvedStudyFactory.build({ _id: "StudyB" }),
+      ],
+    });
 
     const result = addStudiesParameter(user);
     expect(result).toEqual<DashboardContentOptions["parameters"]>([
@@ -39,9 +49,9 @@ describe("addStudiesParameter", () => {
   });
 
   it("should return NO-CONTENT if user has an empty studies array", () => {
-    const user = {
+    const user = userFactory.build({
       studies: [],
-    } as unknown as User;
+    });
 
     const result = addStudiesParameter(user);
     expect(result).toEqual<DashboardContentOptions["parameters"]>([
@@ -58,9 +68,9 @@ describe("addStudiesParameter", () => {
   });
 
   it("should return NO-CONTENT if user studies is undefined or null", () => {
-    const user = {
+    const user = userFactory.build({
       studies: null,
-    } as unknown as User;
+    });
 
     const result = addStudiesParameter(user);
     expect(result).toEqual<DashboardContentOptions["parameters"]>([
@@ -99,13 +109,13 @@ describe("addStudiesParameter", () => {
 
 describe("addDataCommonsParameter", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return an array with dataCommonsParameter if user has valid dataCommons", () => {
-    const user = {
+    const user = userFactory.build({
       dataCommons: ["CommonsA", "CommonsB"],
-    } as unknown as User;
+    });
 
     const result = addDataCommonsParameter(user);
     expect(result).toEqual<DashboardContentOptions["parameters"]>([
@@ -118,9 +128,9 @@ describe("addDataCommonsParameter", () => {
   });
 
   it("should return NO-CONTENT if user dataCommons is an empty array", () => {
-    const user = {
+    const user = userFactory.build({
       dataCommons: [],
-    } as unknown as User;
+    });
 
     const result = addDataCommonsParameter(user);
     expect(result).toEqual<DashboardContentOptions["parameters"]>([
@@ -137,9 +147,9 @@ describe("addDataCommonsParameter", () => {
   });
 
   it("should return NO-CONTENT if user dataCommons is null or undefined", () => {
-    const user = {
+    const user = userFactory.build({
       dataCommons: null,
-    } as unknown as User;
+    });
 
     const result = addDataCommonsParameter(user);
     expect(result).toEqual<DashboardContentOptions["parameters"]>([

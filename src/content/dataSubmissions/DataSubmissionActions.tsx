@@ -1,14 +1,17 @@
-import React, { useMemo, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import { Button, OutlinedInput, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
+import React, { useMemo, useState } from "react";
+
+import SubmitDialog from "@/components/SubmitDialog";
+
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import CustomDialog from "../../components/GenericDialog";
-import { ReleaseInfo, shouldDisableRelease, shouldEnableSubmit } from "../../utils";
-import Tooltip from "../../components/Tooltip";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
-import { hasPermission } from "../../config/AuthPermissions";
 import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import CustomDialog from "../../components/GenericDialog";
+import Tooltip from "../../components/Tooltip";
+import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import { ReleaseInfo, shouldDisableRelease, shouldEnableSubmit } from "../../utils";
 
 const StyledActionWrapper = styled(Stack)(() => ({
   justifyContent: "center",
@@ -152,7 +155,7 @@ type Props = {
 
 const DataSubmissionActions = ({ onAction }: Props) => {
   const { user } = useAuthContext();
-  const { data, qcData } = useSubmissionContext();
+  const { data } = useSubmissionContext();
   const { getSubmission: submission } = data || {};
 
   const [currentDialog, setCurrentDialog] = useState<ActiveDialog | null>(null);
@@ -164,13 +167,16 @@ const DataSubmissionActions = ({ onAction }: Props) => {
       return { enabled: false };
     }
 
-    return shouldEnableSubmit(data, qcData?.submissionQCResults?.results, user);
-  }, [data, qcData?.submissionQCResults?.results, user]);
+    return shouldEnableSubmit(data, user);
+  }, [data, user]);
 
-  const releaseActionButton: ReleaseInfo = useMemo(
-    () => shouldDisableRelease(data?.getSubmission),
-    [data?.getSubmission?.crossSubmissionStatus, data?.getSubmission?.otherSubmissions]
-  );
+  const releaseActionButton: ReleaseInfo = useMemo(() => {
+    if (!submission?._id) {
+      return { disable: true, requireAlert: false };
+    }
+
+    return shouldDisableRelease(submission);
+  }, [submission?._id, submission?.crossSubmissionStatus, submission?.otherSubmissions]);
 
   const handleOnAction = async (action: SubmissionAction) => {
     if (currentDialog) {
@@ -205,6 +211,14 @@ const DataSubmissionActions = ({ onAction }: Props) => {
     const val = event?.target?.value || "";
     setReviewComment(val);
   };
+
+  const submitButtonBodyText = useMemo(() => {
+    if (submission?.status === "Rejected") {
+      return "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection.";
+    }
+
+    return "Once submitted, your submission will be locked and will no longer accept updates. Are you sure you want to proceed?";
+  }, [submission?.status]);
 
   return (
     <StyledActionWrapper direction="row" spacing={2}>
@@ -248,7 +262,7 @@ const DataSubmissionActions = ({ onAction }: Props) => {
               loading={action === "Release"}
               disabled={(action && action !== "Release") || releaseActionButton?.disable}
             >
-              Release
+              Release to {submission?.dataCommonsDisplayName}
             </StyledLoadingButton>
           </span>
         </Tooltip>
@@ -298,32 +312,13 @@ const DataSubmissionActions = ({ onAction }: Props) => {
         </StyledLoadingButton>
       ) : null}
       {/* Submit Dialog */}
-      <StyledDialog
+      <SubmitDialog
         open={currentDialog === "Submit" && !submitActionButton.isAdminOverride}
+        bodyText={submitButtonBodyText}
         onClose={onCloseDialog}
-        title="Submit Data Submission"
-        actions={
-          <>
-            <Button onClick={onCloseDialog} disabled={!!action}>
-              No
-            </Button>
-            <LoadingButton
-              onClick={() => handleOnAction("Submit")}
-              loading={!!action}
-              color="error"
-              autoFocus
-            >
-              Yes
-            </LoadingButton>
-          </>
-        }
-      >
-        <StyledDialogText variant="body2">
-          {submission?.status === "Rejected"
-            ? "Are you sure you want to resubmit your data without making any changes? Your previous submission was rejected, and resubmitting without addressing the issues may result in another rejection."
-            : "This action will lock your submission and it will no longer accept updates to the data. Are you sure you want to proceed?"}
-        </StyledDialogText>
-      </StyledDialog>
+        onConfirm={() => handleOnAction("Submit")}
+        disabled={!!action}
+      />
       {/* Admin Submit Dialog */}
       <StyledDialog
         open={currentDialog === "Submit" && submitActionButton.isAdminOverride}

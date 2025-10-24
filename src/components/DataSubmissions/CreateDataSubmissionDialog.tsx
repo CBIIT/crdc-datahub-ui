@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Button,
   Dialog,
@@ -11,8 +11,14 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useMutation, useQuery } from "@apollo/client";
+import { FC, useEffect, useMemo, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import BellIcon from "../../assets/icons/filled_bell_icon.svg?react";
+import { hasPermission } from "../../config/AuthPermissions";
+import { RequiresStudiesAssigned } from "../../config/AuthRoles";
+import { DataCommons } from "../../config/DataCommons";
 import {
   CREATE_SUBMISSION,
   CreateSubmissionResp,
@@ -21,20 +27,18 @@ import {
   ListApprovedStudiesInput,
   LIST_APPROVED_STUDIES,
 } from "../../graphql";
-import RadioInput, { RadioOption } from "./RadioInput";
-import { DataCommons } from "../../config/DataCommons";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import { ReactComponent as BellIcon } from "../../assets/icons/filled_bell_icon.svg";
-import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
-import StyledSelect from "../StyledFormComponents/StyledSelect";
-import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
-import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
-import Tooltip from "../Tooltip";
 import { Logger, formatFullStudyName, validateEmoji } from "../../utils";
-import { RequiresStudiesAssigned } from "../../config/AuthRoles";
-import { hasPermission } from "../../config/AuthPermissions";
+import { Status as AuthStatus, useAuthContext } from "../Contexts/AuthContext";
+import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
+import BaseStyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
+import StyledTooltip from "../StyledFormComponents/StyledTooltip";
+import TooltipList from "../SummaryList/TooltipList";
+import Tooltip from "../Tooltip";
+
+import RadioInput, { RadioOption } from "./RadioInput";
 
 const CreateSubmissionDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -195,6 +199,12 @@ const StyledBellIcon = styled(BellIcon)({
   color: "#C94313",
 });
 
+const TOOLTIPS = {
+  pendingModelChange:
+    "The CRDC team is reviewing the data requirements of this study for potential data model changes. Data submissions cannot be created until any required model updates are released.",
+  pendingGPA: "Data submissions cannot be created until the required GPA updates are provided.",
+};
+
 type Props = {
   onCreate: () => void;
 };
@@ -224,6 +234,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   const [isDbGapRequired, setIsDbGapRequired] = useState<boolean>(false);
   const [dbGaPID, setDbGaPID] = useState<string>("");
   const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
+  const [intention, studyID] = watch(["intention", "studyID"]);
 
   const shouldFetchAllStudies = useMemo<boolean>(
     () =>
@@ -246,7 +257,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     {
       variables: { first: -1, orderBy: "studyAbbreviation", sortDirection: "asc" },
       context: { clientName: "backend" },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "cache-and-network",
       skip: !shouldFetchAllStudies,
     }
   );
@@ -261,7 +272,23 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
     );
   }, [shouldFetchAllStudies, allStudies, user?.studies]);
 
-  const intention = watch("intention");
+  const studyPendingConditions = useMemo<string[]>(() => {
+    if (!studyID) {
+      return [];
+    }
+
+    const mappedStudy = studies?.find((s) => s?._id === studyID);
+
+    const conditions = [];
+    if (mappedStudy?.pendingModelChange) {
+      conditions.push(TOOLTIPS.pendingModelChange);
+    }
+    if (mappedStudy?.isPendingGPA) {
+      conditions.push(TOOLTIPS.pendingGPA);
+    }
+    return conditions;
+  }, [studyID, studies]);
+
   const submissionTypeOptions: RadioOption[] = [
     {
       label: "New/Update",
@@ -308,6 +335,10 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
   };
 
   const onSubmit: SubmitHandler<CreateSubmissionInput> = async (input) => {
+    if (studyPendingConditions?.length > 0) {
+      return;
+    }
+
     const { data, errors } = await createDataSubmission({
       variables: { ...input },
     }).catch((e) => {
@@ -504,7 +535,7 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
                 <StyledAsterisk />
               </StyledLabel>
               <Tooltip
-                title="dbGapID is required for controlled-access studies."
+                title="dbGaPID is required for controlled-access studies."
                 open={undefined}
                 disableHoverListener={false}
                 placement="top"
@@ -566,15 +597,29 @@ const CreateDataSubmissionDialog: FC<Props> = ({ onCreate }) => {
           </StyledFormStack>
         </StyledDialogContent>
         <StyledDialogActions>
-          <StyledDialogButton
-            type="submit"
-            tabIndex={0}
-            data-testid="create-data-submission-dialog-create-button"
-            form="create-submission-dialog-form"
-            disabled={(isDbGapRequired && !dbGaPID) || isSubmitting}
+          <StyledTooltip
+            title={<TooltipList data={studyPendingConditions} />}
+            placement="top"
+            open={undefined}
+            disableHoverListener={!studyPendingConditions?.length}
+            arrow
           >
-            Create
-          </StyledDialogButton>
+            <span>
+              <StyledDialogButton
+                type="submit"
+                tabIndex={0}
+                data-testid="create-data-submission-dialog-create-button"
+                form="create-submission-dialog-form"
+                disabled={
+                  (isDbGapRequired && !dbGaPID) ||
+                  studyPendingConditions?.length > 0 ||
+                  isSubmitting
+                }
+              >
+                Create
+              </StyledDialogButton>
+            </span>
+          </StyledTooltip>
           {error && (
             <StyledDialogError variant="body1">
               Unable to create this data submission. If the problem persists please contact

@@ -1,10 +1,17 @@
-import React, { FC, useMemo } from "react";
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import QualityControlFilters from "./QualityControlFilters";
+import userEvent from "@testing-library/user-event";
+import React, { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { Mock } from "vitest";
+import { axe } from "vitest-axe";
+
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { aggregatedQCResultFactory } from "@/factories/submission/AggregatedQCResultFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
+
 import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   SUBMISSION_STATS,
@@ -16,66 +23,51 @@ import {
   SubmissionStatsResp,
   SubmissionStatsInput,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
 
-const mockSubmission: Submission = {
+import QualityControlFilters from "./QualityControlFilters";
+
+const mockSubmission: Submission = submissionFactory.build({
   _id: "sub123",
   name: "Test Submission",
   submitterID: "user1",
   submitterName: "Test User",
-  organization: { _id: "Org1", name: "Organization 1", abbreviation: "O1" },
+  organization: organizationFactory.pick(["_id", "name", "abbreviation"]).build({
+    _id: "Org1",
+    name: "Organization 1",
+    abbreviation: "O1",
+  }),
   createdAt: "2021-01-01T00:00:00Z",
   updatedAt: "2021-01-02T00:00:00Z",
   status: "In Progress",
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
   metadataValidationStatus: "New",
   fileValidationStatus: "New",
   crossSubmissionStatus: "New",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
   intention: "New/Update",
   dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  collaborators: [],
   dataFileSize: null,
-};
+});
 
-const defaultSubmissionContextValue: SubmissionCtxState = {
+const defaultSubmissionContextValue: SubmissionCtxState = submissionCtxStateFactory.build({
   data: {
     getSubmission: mockSubmission,
     submissionStats: null,
-    batchStatusList: null,
+    getSubmissionAttributes: null,
   },
   status: undefined,
   error: undefined,
-};
+});
 
 interface TestParentProps {
   submissionContextValue?: SubmissionCtxState;
   issueTypeProp?: string | null;
   isAggregated?: boolean;
-  onChange?: jest.Mock;
+  onChange?: Mock;
   mocks?: MockedResponse[];
 }
 
@@ -83,7 +75,7 @@ const TestParent: FC<TestParentProps> = ({
   submissionContextValue,
   issueTypeProp = null,
   isAggregated = false,
-  onChange = jest.fn(),
+  onChange = vi.fn(),
   mocks = [],
 }) => {
   const value = useMemo<SubmissionCtxState>(
@@ -125,16 +117,15 @@ const issueTypesMock: MockedResponse<
     data: {
       aggregatedSubmissionQCResults: {
         total: 1,
-        results: [
-          {
-            code: "ISSUE1",
-            title: "Issue Title 1",
+        results: aggregatedQCResultFactory
+          .build(1, (index) => ({
+            code: `ISSUE${index + 1}`,
+            title: `Issue Title ${index + 1}`,
             count: 100,
-            description: "",
+            desdescription: "",
             severity: "Error",
-            __typename: "aggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as AggregatedQCResult,
-        ],
+          }))
+          .withTypename("aggregatedQCResult"),
       },
     },
   },
@@ -150,25 +141,16 @@ const batchDataMock: MockedResponse<ListBatchesResp, ListBatchesInput> = {
     data: {
       listBatches: {
         total: 1,
-        batches: [
-          {
-            _id: "999",
-            displayID: 1,
-            createdAt: "",
-            errors: [],
+        batches: batchFactory
+          .build(1, (index) => ({
+            _id: `${index + 999}`,
+            displayID: index + 1,
             fileCount: 1,
             files: [],
             status: "Uploaded",
-            submissionID: "",
             type: "metadata",
-            updatedAt: "",
-            submitterName: "",
-            __typename: "Batch",
-          } as Batch,
-        ],
-      },
-      batchStatusList: {
-        batches: [],
+          }))
+          .withTypename("Batch"),
       },
     },
   },
@@ -184,8 +166,22 @@ const submissionStatsMock: MockedResponse<SubmissionStatsResp, SubmissionStatsIn
     data: {
       submissionStats: {
         stats: [
-          { nodeName: "SAMPLE", error: 2, warning: 0, new: 0, passed: 0, total: 2 },
-          { nodeName: "FILE", error: 1, warning: 1, new: 0, passed: 0, total: 2 },
+          submissionStatisticFactory.build({
+            nodeName: "SAMPLE",
+            error: 2,
+            warning: 0,
+            new: 0,
+            passed: 0,
+            total: 2,
+          }),
+          submissionStatisticFactory.build({
+            nodeName: "FILE",
+            error: 1,
+            warning: 1,
+            new: 0,
+            passed: 0,
+            total: 2,
+          }),
         ],
       },
     },
@@ -213,9 +209,6 @@ const emptyBatchDataMock: MockedResponse<ListBatchesResp, ListBatchesInput> = {
     data: {
       listBatches: {
         total: 0,
-        batches: [],
-      },
-      batchStatusList: {
         batches: [],
       },
     },
@@ -255,23 +248,23 @@ describe("Acessibility", () => {
 
 describe("QualityControlFilters", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders with no submissionID (queries skipped)", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
-        submissionContextValue={{
+        submissionContextValue={submissionCtxStateFactory.build({
           data: {
             getSubmission: null,
             submissionStats: null,
-            batchStatusList: null,
+            getSubmissionAttributes: null,
           },
           status: SubmissionCtxStatus.LOADED,
           error: undefined,
-        }}
+        })}
       />
     );
 
@@ -285,7 +278,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("renders defaults and triggers queries when submissionID is available", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         issueTypeProp={null}
@@ -318,7 +311,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("updates issueType filter from prop if different", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         issueTypeProp="ISSUE1"
@@ -333,7 +326,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("does not update issueType if prop is null or same as current", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, rerender } = render(
       <TestParent
         issueTypeProp={null}
@@ -360,7 +353,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("calls onChange after a filter is touched", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -450,7 +443,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("displays batchIDs from query", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -476,7 +469,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("displays nodeTypes from submissionStats", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -505,7 +498,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("only shows 'All' for empty issueTypes", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -533,7 +526,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("only shows 'All' for empty batches", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -561,7 +554,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("only shows 'All' for nodeTypes if empty stats", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}
@@ -592,7 +585,7 @@ describe("QualityControlFilters", () => {
   });
 
   it("displays only severity filter when table is in aggregated view", async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByTestId, queryByTestId } = render(
       <TestParent
         onChange={onChange}

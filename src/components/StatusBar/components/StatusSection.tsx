@@ -1,10 +1,12 @@
-import { CSSProperties, FC, useMemo, useState } from "react";
 import { Avatar, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useFormContext } from "../../Contexts/FormContext";
-import { StatusIconMap } from "./SubmissionRequestIconMap";
+import { CSSProperties, FC, useMemo, useState } from "react";
+
 import { SortHistory } from "../../../utils";
+import { useFormContext } from "../../Contexts/FormContext";
 import ReviewCommentsDialog from "../../ReviewCommentsDialog";
+
+import { StatusIconMap } from "./SubmissionRequestIconMap";
 
 /**
  * Returns the styling for a component based on the Questionnaire Status

@@ -1,15 +1,17 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
-import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { ClickAwayListener, styled } from "@mui/material";
 import { flatMap } from "lodash";
 import { useSnackbar } from "notistack";
-import { useAuthContext } from "../../Contexts/AuthContext";
-import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
-import APITokenDialog from "../../APITokenDialog";
-import UploaderToolDialog from "../../UploaderToolDialog";
-import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
-import { Logger } from "../../../utils";
+import React, { useEffect, useState, useRef, useMemo } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
+
 import { hasPermission, Permissions } from "../../../config/AuthPermissions";
+import { ActionHandlers, ActionId, HeaderLinks } from "../../../config/HeaderConfig";
+import { Logger } from "../../../utils";
+import APITokenDialog from "../../APITokenDialog";
+import { useAuthContext } from "../../Contexts/AuthContext";
+import UploaderToolDialog from "../../UploaderToolDialog";
+
+import NavbarDesktopDropdown from "./NavbarDesktopDropdown";
 
 const Nav = styled("div")({
   top: 0,

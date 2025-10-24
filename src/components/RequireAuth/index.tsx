@@ -1,5 +1,6 @@
-import { Navigate } from "react-router-dom";
 import { FC, ReactElement } from "react";
+import { Navigate } from "react-router-dom";
+
 import { useAuthContext } from "../Contexts/AuthContext";
 
 export type RequireAuthProps = {

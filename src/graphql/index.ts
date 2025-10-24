@@ -44,6 +44,9 @@ export type {
   Input as ListApplicationsInput,
 } from "./listApplications";
 
+export { GET_APPLICATION_FORM_VERSION } from "./getApplicationFormVersion";
+export type { GetApplicationFormVersionResp } from "./getApplicationFormVersion";
+
 // Data Submissions
 export { mutation as CREATE_SUBMISSION } from "./createSubmission";
 export type {
@@ -151,17 +154,29 @@ export type {
   Response as EditSubmissionCollaboratorsResp,
 } from "./editSubmissionCollaborators";
 
-export { mutation as UPDATE_MODEL_VERSION } from "./updateSubmissionModelVersion";
-export type {
-  Input as UpdateModelVersionInput,
-  Response as UpdateModelVersionResp,
-} from "./updateSubmissionModelVersion";
+export { UPDATE_SUBMISSION_INFO } from "./updateSubmissionInfo";
+export type { UpdateSubmissionInfoInput, UpdateSubmissionInfoResp } from "./updateSubmissionInfo";
 
 export { query as DOWNLOAD_METADATA_FILE } from "./downloadMetadataFile";
 export type {
   Input as DownloadMetadataFileInput,
   Response as DownloadMetadataFileResp,
 } from "./downloadMetadataFile";
+
+export { query as GET_SUBMISSION_SUMMARY } from "./getSubmissionSummary";
+export type {
+  Input as GetSubmissionSummaryInput,
+  Response as GetSubmissionSummaryResp,
+} from "./getSubmissionSummary";
+
+export { DOWNLOAD_DB_GAP_SHEET } from "./downloadDBGaPLoadSheet";
+export type { DownloadDbGaPSheetInput, DownloadDbGaPSheetResp } from "./downloadDBGaPLoadSheet";
+
+export { GET_PENDING_PVS } from "./getPendingPVs";
+export type { GetPendingPVsInput, GetPendingPVsResponse } from "./getPendingPVs";
+
+export { REQUEST_PV } from "./requestPV";
+export type { RequestPVInput, RequestPVResponse } from "./requestPV";
 
 // User Profile
 export { query as GET_MY_USER } from "./getMyUser";
@@ -190,6 +205,9 @@ export type {
   Input as UserIsPrimaryContactInput,
   Response as UserIsPrimaryContactResp,
 } from "./userIsPrimaryContact";
+
+export { mutation as GRANT_TOKEN } from "./grantToken";
+export type { Response as GrantTokenResp } from "./grantToken";
 
 // Organizations
 export { query as LIST_ORGS } from "./listOrganizations";
@@ -256,13 +274,46 @@ export type {
   Response as UpdateInstitutionResp,
 } from "./updateInstitution";
 
-// Misc.
-export { mutation as GRANT_TOKEN } from "./grantToken";
-export type { Response as GrantTokenResp } from "./grantToken";
-
 // Operation Dashboard
 export { query as GET_DASHBOARD_URL } from "./getDashboardURL";
 export type {
   Input as GetDashboardURLInput,
   Response as GetDashboardURLResp,
 } from "./getDashboardURL";
+
+// Data Explorer
+export { query as LIST_RELEASED_STUDIES } from "./listReleasedStudies";
+export type {
+  Input as ListReleasedStudiesInput,
+  Response as ListReleasedStudiesResp,
+} from "./listReleasedStudies";
+
+export { LIST_RELEASED_DATA_RECORDS } from "./listReleasedDataRecords";
+export type {
+  ListReleasedDataRecordsInput,
+  ListReleasedDataRecordsResponse,
+} from "./listReleasedDataRecords";
+
+export { DOWNLOAD_ALL_RELEASED_NODES } from "./downloadAllReleasedNodes";
+export type {
+  DownloadAllReleaseNodesInput,
+  DownloadAllReleasedNodesResp,
+} from "./downloadAllReleasedNodes";
+
+export { GET_RELEASED_NODE_TYPES } from "./getReleasedNodeTypes";
+export type { GetReleasedNodeTypesInput, GetReleasedNodeTypesResp } from "./getReleasedNodeTypes";
+
+export { RETRIEVE_PROPS_FOR_NODE_TYPE } from "./retrievePropsForNodeType";
+export type {
+  RetrievePropsForNodeTypeInput,
+  RetrievePropsForNodeTypeResp,
+} from "./retrievePropsForNodeType";
+
+export { RETRIEVE_OMB_DETAILS } from "./retrieveOMBDetails";
+export type { RetrieveOMBDetailsResp } from "./retrieveOMBDetails";
+
+export { mutation as EDIT_SUBMISSION } from "./editSubmission";
+export type {
+  Input as EditSubmissionNameInput,
+  Response as EditSubmissionNameResp,
+} from "./editSubmission";

@@ -1,6 +1,7 @@
 import { hasPermission } from "../config/AuthPermissions";
 import { ADMIN_OVERRIDE_CONDITIONS, SUBMIT_BUTTON_CONDITIONS } from "../config/SubmitButtonConfig";
 import { GetSubmissionResp } from "../graphql";
+
 import { safeParse } from "./jsonUtils";
 
 /**
@@ -14,11 +15,7 @@ import { safeParse } from "./jsonUtils";
  * @returns {SubmitButtonResult} - Returns an object indicating whether the submit button is enabled,
  * whether the admin override is in effect, and an optional tooltip explaining why it is disabled.
  */
-export const shouldEnableSubmit = (
-  data: GetSubmissionResp,
-  qcResults: Pick<QCResult, "errors">[],
-  user: User
-): SubmitButtonResult => {
+export const shouldEnableSubmit = (data: GetSubmissionResp, user: User): SubmitButtonResult => {
   if (!data?.getSubmission?._id || !user) {
     return { enabled: false, isAdminOverride: false };
   }
@@ -31,7 +28,7 @@ export const shouldEnableSubmit = (
     data.getSubmission
   );
   if (canAdminOverride) {
-    const adminOverrideResult = shouldAllowAdminOverride(data, qcResults);
+    const adminOverrideResult = shouldAllowAdminOverride(data);
     if (adminOverrideResult.enabled) {
       return { ...adminOverrideResult };
     }
@@ -39,12 +36,10 @@ export const shouldEnableSubmit = (
 
   // Skip required conditions already checked if user is Admin role
   const failedCondition = SUBMIT_BUTTON_CONDITIONS.find((condition) => {
-    const preConditionMet = condition.preConditionCheck
-      ? condition.preConditionCheck(data, qcResults)
-      : true;
+    const preConditionMet = condition.preConditionCheck ? condition.preConditionCheck(data) : true;
 
     // Return true if preCondition is met and main condition fails
-    return preConditionMet && !condition.check(data, qcResults);
+    return preConditionMet && !condition.check(data);
   });
 
   // If no failed conditions, enable submit
@@ -72,10 +67,7 @@ export const shouldEnableSubmit = (
  * @returns {SubmitButtonResult} - Returns an object indicating whether the admin override is allowed,
  * and an optional tooltip explaining why the override is not allowed.
  */
-export const shouldAllowAdminOverride = (
-  data: GetSubmissionResp,
-  qcResults: Pick<QCResult, "errors">[]
-): SubmitButtonResult => {
+export const shouldAllowAdminOverride = (data: GetSubmissionResp): SubmitButtonResult => {
   if (!data?.getSubmission?._id) {
     return { enabled: false, isAdminOverride: false };
   }
@@ -83,12 +75,10 @@ export const shouldAllowAdminOverride = (
   // Check if can bypass current conditions
   const requiredConditions = SUBMIT_BUTTON_CONDITIONS.filter((condition) => condition.required);
   const failedRequiredCondition = requiredConditions.find((condition) => {
-    const preConditionMet = condition.preConditionCheck
-      ? condition.preConditionCheck(data, qcResults)
-      : true;
+    const preConditionMet = condition.preConditionCheck ? condition.preConditionCheck(data) : true;
 
     // Return true if preCondition is met and main condition fails
-    return preConditionMet && !condition.check(data, qcResults);
+    return preConditionMet && !condition.check(data);
   });
 
   // If failed required condition, then disable submit buton and show tooltip if available
@@ -103,12 +93,10 @@ export const shouldAllowAdminOverride = (
 
   // Check if current conditions allow for an admin override
   const overrideCondition = ADMIN_OVERRIDE_CONDITIONS.find((condition) => {
-    const preConditionMet = condition.preConditionCheck
-      ? condition.preConditionCheck(data, qcResults)
-      : true;
+    const preConditionMet = condition.preConditionCheck ? condition.preConditionCheck(data) : true;
 
     // Return true if preCondition is met and main condition passes
-    return preConditionMet && condition.check(data, qcResults);
+    return preConditionMet && condition.check(data);
   });
 
   // If Admin override, then enable submit button with tooltip if available
@@ -172,7 +160,7 @@ export const unpackValidationSeverities = <T extends QCResult | CrossValidationR
  * @returns void
  */
 export const downloadBlob = (
-  content: string | Blob,
+  content: string | Blob | ArrayBuffer,
   filename: string,
   contentType: string
 ): void => {
@@ -217,7 +205,12 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
     return { disable: false, requireAlert: false };
   }
 
-  // Scenario 1: All other submissions are "In Progress", "Rejected", or "Withdrawn", allow release with alert
+  // Scenario 1: Cross-validation has issues, disable release entirely
+  if (crossSubmissionStatus === "Error") {
+    return { disable: true, requireAlert: false };
+  }
+
+  // Scenario 2: All other submissions are "In Progress", "Rejected", or "Withdrawn", allow release with alert
   const hasRelatedSubmitted = parsedSubmissions?.Submitted?.length > 0;
   const hasRelatedReleased = parsedSubmissions?.Released?.length > 0;
 
@@ -230,7 +223,7 @@ export const shouldDisableRelease = (submission: Submission): ReleaseInfo => {
     return { disable: false, requireAlert: true };
   }
 
-  // Scenario 2: More than one other Submitted/Released submission exists, disable release entirely
+  // Scenario 3: More than one other Submitted/Released submission exists, disable release entirely
   if (hasRelatedSubmitted || hasRelatedReleased) {
     return { disable: true, requireAlert: false };
   }

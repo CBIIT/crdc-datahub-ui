@@ -45,6 +45,9 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         createdAt
         updatedAt
         intention
+        history {
+          status
+        }
         dataFileSize {
           formatted
         }
@@ -93,7 +96,10 @@ export type Response = {
       | "createdAt"
       | "updatedAt"
       | "intention"
-    > & { dataFileSize: Pick<Submission["dataFileSize"], "formatted"> })[];
+    > & {
+      dataFileSize: Pick<Submission["dataFileSize"], "formatted">;
+      history: Pick<Submission["history"][number], "status">[];
+    })[];
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];
     dataCommons: string[];

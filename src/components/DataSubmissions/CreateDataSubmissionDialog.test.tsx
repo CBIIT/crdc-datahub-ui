@@ -1,15 +1,13 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
-import {
-  Context as AuthCtx,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+
+import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   CREATE_SUBMISSION,
   CreateSubmissionResp,
@@ -18,30 +16,75 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import { Context as AuthCtx, ContextState as AuthCtxState } from "../Contexts/AuthContext";
+
+import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
+
+const partialStudyProperties = [
+  "_id",
+  "studyName",
+  "studyAbbreviation",
+  "dbGaPID",
+  "controlledAccess",
+  "pendingModelChange",
+  "isPendingGPA",
+] satisfies (keyof ApprovedStudy)[];
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
-  {
+  approvedStudyFactory.pick(partialStudyProperties).build({
     _id: "study1",
     studyName: "study-name",
     studyAbbreviation: "SN",
     dbGaPID: "phsTEST",
     controlledAccess: null,
-  },
-  {
+    pendingModelChange: false,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
     _id: "study2",
     studyName: "controlled-study",
     studyAbbreviation: "CS",
     dbGaPID: "phsTEST",
     controlledAccess: true,
-  },
-  {
+    pendingModelChange: false,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
     _id: "no-dbGaP-ID",
     studyName: "controlled-study",
     studyAbbreviation: "DB",
     dbGaPID: null,
     controlledAccess: true,
-  },
+    pendingModelChange: false,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
+    _id: "pending-model-changes",
+    studyName: "study with pending model changes",
+    studyAbbreviation: "PMC",
+    dbGaPID: "phsTEST",
+    controlledAccess: null,
+    pendingModelChange: true,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
+    _id: "pending-GPA-condition",
+    studyName: "study with pending GPA condition",
+    studyAbbreviation: "PGC",
+    dbGaPID: "phsTEST",
+    controlledAccess: true,
+    pendingModelChange: false,
+    isPendingGPA: true,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
+    _id: "pending-conditions",
+    studyName: "study with pending conditions",
+    studyAbbreviation: "PC",
+    dbGaPID: null,
+    controlledAccess: true,
+    pendingModelChange: true,
+    isPendingGPA: true,
+  }),
 ];
+
+const basePermissions: AuthPermissions[] = ["data_submission:view", "data_submission:create"];
 
 const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
   {
@@ -67,29 +110,6 @@ const createSubmissionMocks: MockedResponse<CreateSubmissionResp>[] = [
   },
 ];
 
-const baseUser: Omit<User, "role"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:create"],
-  notifications: [],
-};
-
-const baseAuthCtx: AuthCtxState = {
-  status: AuthStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
 type ParentProps = {
   mocks?: MockedResponse[];
   authCtxState?: AuthCtxState;
@@ -97,7 +117,7 @@ type ParentProps = {
 };
 
 const TestParent: FC<ParentProps> = ({
-  authCtxState = baseAuthCtx,
+  authCtxState = authCtxStateFactory.build(),
   mocks = [...createSubmissionMocks],
   children,
 }) => (
@@ -109,15 +129,22 @@ const TestParent: FC<ParentProps> = ({
 );
 
 describe("Basic Functionality", () => {
-  const handleCreate = jest.fn();
+  const handleCreate = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders dialog and form inputs correctly", async () => {
     const { getByText, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            permissions: basePermissions,
+          }),
+        })}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -147,10 +174,13 @@ describe("Basic Functionality", () => {
   it("submits the form successfully", async () => {
     const { getByTestId, getByRole } = render(
       <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
-        }}
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: basePermissions,
+          }),
+        })}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -211,10 +241,13 @@ describe("Basic Functionality", () => {
   it("should only show the dbGaP ID if study is controlled access", async () => {
     const { getByRole, getByTestId } = render(
       <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
-        }}
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: basePermissions,
+          }),
+        })}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -269,10 +302,13 @@ describe("Basic Functionality", () => {
   it("sets dbGaPID to an empty string and isDbGapRequired to false when studyID is not found", async () => {
     const { getByRole, getByTestId } = render(
       <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
-        }}
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: basePermissions,
+          }),
+        })}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -335,10 +371,13 @@ describe("Basic Functionality", () => {
     const { getByText, getByRole, getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{
-          ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
-        }}
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: basePermissions,
+          }),
+        })}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -418,10 +457,13 @@ describe("Basic Functionality", () => {
     const { getByText, getByRole, getByTestId } = render(
       <TestParent
         mocks={mocks}
-        authCtxState={{
-          ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
-        }}
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: basePermissions,
+          }),
+        })}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -482,10 +524,13 @@ describe("Basic Functionality", () => {
   it("should show message field is required but input is empty", async () => {
     const { getByText, getByRole, getByTestId } = render(
       <TestParent
-        authCtxState={{
-          ...baseAuthCtx,
-          user: { ...baseUser, role: "Submitter", studies: baseStudies },
-        }}
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({
+            role: "Submitter",
+            studies: baseStudies,
+            permissions: basePermissions,
+          }),
+        })}
       >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
@@ -532,7 +577,11 @@ describe("Basic Functionality", () => {
 
   it("sets dataType to 'Metadata and Data Files' when intention is 'New/Update'", async () => {
     const { getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ role: "Submitter", permissions: basePermissions }),
+        })}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -563,7 +612,11 @@ describe("Basic Functionality", () => {
 
   it("sets dataType to 'Metadata Only' when intention is 'Delete'", async () => {
     const { getByRole, getByTestId } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ role: "Submitter", permissions: basePermissions }),
+        })}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -594,7 +647,11 @@ describe("Basic Functionality", () => {
 
   it("sets studyID to an empty string when not provided", async () => {
     const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ role: "Submitter", permissions: basePermissions }),
+        })}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -618,7 +675,11 @@ describe("Basic Functionality", () => {
 
   it("sets name to an empty string when not provided", async () => {
     const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ role: "Submitter", permissions: basePermissions }),
+        })}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -644,7 +705,11 @@ describe("Basic Functionality", () => {
 
   it("closes the dialog when the close button is clicked", async () => {
     const { getByTestId, getByRole } = render(
-      <TestParent authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role: "Submitter" } }}>
+      <TestParent
+        authCtxState={authCtxStateFactory.build({
+          user: userFactory.build({ role: "Submitter", permissions: basePermissions }),
+        })}
+      >
         <CreateDataSubmissionDialog onCreate={handleCreate} />
       </TestParent>
     );
@@ -679,10 +744,13 @@ describe("Basic Functionality", () => {
       {
         wrapper: (p) => (
           <TestParent
-            authCtxState={{
-              ...baseAuthCtx,
-              user: { ...baseUser, role: "Submitter", studies: baseStudies },
-            }}
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
             {...p}
           />
         ),
@@ -742,17 +810,22 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
-          authCtxState={{
-            ...baseAuthCtx,
-            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-          }}
+          authCtxState={authCtxStateFactory.build({
+            user: userFactory.build({
+              role: "Submitter",
+              studies: ApprovedStudyNoDbGaPID,
+              permissions: basePermissions,
+            }),
+          })}
           {...p}
         />
       ),
@@ -794,17 +867,22 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
-          authCtxState={{
-            ...baseAuthCtx,
-            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-          }}
+          authCtxState={authCtxStateFactory.build({
+            user: userFactory.build({
+              role: "Submitter",
+              studies: ApprovedStudyNoDbGaPID,
+              permissions: basePermissions,
+            }),
+          })}
           {...p}
         />
       ),
@@ -857,6 +935,8 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: "phsTEST",
         controlledAccess: true,
+        pendingModelChange: false,
+        isPendingGPA: false,
       },
       {
         _id: "non-controlled",
@@ -864,17 +944,22 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "NCS",
         dbGaPID: null,
         controlledAccess: false,
+        pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
-          authCtxState={{
-            ...baseAuthCtx,
-            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-          }}
+          authCtxState={authCtxStateFactory.build({
+            user: userFactory.build({
+              role: "Submitter",
+              studies: ApprovedStudyNoDbGaPID,
+              permissions: basePermissions,
+            }),
+          })}
           {...p}
         />
       ),
@@ -930,17 +1015,22 @@ describe("Implementation Requirements", () => {
         studyAbbreviation: "CS",
         dbGaPID: null,
         controlledAccess: true,
+        pendingModelChange: false,
+        isPendingGPA: false,
       },
     ];
 
-    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[]}
-          authCtxState={{
-            ...baseAuthCtx,
-            user: { ...baseUser, role: "Submitter", studies: ApprovedStudyNoDbGaPID },
-          }}
+          authCtxState={authCtxStateFactory.build({
+            user: userFactory.build({
+              role: "Submitter",
+              studies: ApprovedStudyNoDbGaPID,
+              permissions: basePermissions,
+            }),
+          })}
           {...p}
         />
       ),
@@ -976,7 +1066,7 @@ describe("Implementation Requirements", () => {
     });
 
     expect(getByRole("tooltip")).toHaveTextContent(
-      "dbGapID is required for controlled-access studies.",
+      "dbGaPID is required for controlled-access studies.",
       { normalizeWhitespace: true }
     );
   });
@@ -985,7 +1075,7 @@ describe("Implementation Requirements", () => {
   it.each<UserRole>(["Data Commons Personnel"])(
     "should fetch all of the studies if the user's role is %s",
     async (role) => {
-      const mockMatcher = jest.fn().mockImplementation(() => true);
+      const mockMatcher = vi.fn().mockImplementation(() => true);
       const listApprovedStudiesMock: MockedResponse<
         ListApprovedStudiesResp,
         ListApprovedStudiesInput
@@ -998,32 +1088,25 @@ describe("Implementation Requirements", () => {
           data: {
             listApprovedStudies: {
               total: 1,
-              studies: [
-                {
-                  _id: "study1",
-                  studyName: "study-1-from-api",
-                  studyAbbreviation: "study-1-from-api-abbr",
-                  dbGaPID: "",
-                  controlledAccess: false,
-                },
-                {
-                  _id: "study2",
-                  studyName: "study-2-from-api",
-                  studyAbbreviation: "study-2-from-api-abbr",
-                  dbGaPID: "",
-                  controlledAccess: false,
-                },
-              ] as ApprovedStudy[],
+              studies: approvedStudyFactory.build(2, (index) => ({
+                _id: `study${index + 1}`,
+                studyName: `study-${index + 1}-from-api`,
+                studyAbbreviation: `study-${index + 1}-from-api-abbr`,
+                dbGaPID: "",
+                controlledAccess: false,
+              })),
             },
           },
         },
       };
 
-      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+      const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
         wrapper: (p) => (
           <TestParent
             mocks={[listApprovedStudiesMock]}
-            authCtxState={{ ...baseAuthCtx, user: { ...baseUser, role } }}
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({ role, permissions: basePermissions }),
+            })}
             {...p}
           />
         ),
@@ -1038,7 +1121,7 @@ describe("Implementation Requirements", () => {
   );
 
   it("should fetch all of the studies if the user's assigned studies contains the 'All' study", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const listApprovedStudiesMock: MockedResponse<
       ListApprovedStudiesResp,
       ListApprovedStudiesInput
@@ -1051,28 +1134,24 @@ describe("Implementation Requirements", () => {
         data: {
           listApprovedStudies: {
             total: 1,
-            studies: [
-              {
-                _id: "study1",
-                studyName: "study-1-from-api",
-                studyAbbreviation: "study-1-from-api-abbr",
-                dbGaPID: "",
-                controlledAccess: false,
-              },
-            ] as ApprovedStudy[],
+            studies: approvedStudyFactory.build(1, (index) => ({
+              _id: `study${index + 1}`,
+              studyName: `study-${index + 1}-from-api`,
+              studyAbbreviation: `study-${index + 1}-from-api-abbr`,
+              dbGaPID: "",
+              controlledAccess: false,
+            })),
           },
         },
       },
     };
 
-    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={jest.fn()} />, {
+    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
       wrapper: (p) => (
         <TestParent
           mocks={[listApprovedStudiesMock]}
-          authCtxState={{
-            ...baseAuthCtx,
-            user: {
-              ...baseUser,
+          authCtxState={authCtxStateFactory.build({
+            user: userFactory.build({
               role: "Federal Lead",
               studies: [
                 {
@@ -1083,8 +1162,9 @@ describe("Implementation Requirements", () => {
                   controlledAccess: false,
                 },
               ],
-            },
-          }}
+              permissions: basePermissions,
+            }),
+          })}
           {...p}
         />
       ),
@@ -1095,5 +1175,172 @@ describe("Implementation Requirements", () => {
     await waitFor(() => {
       expect(mockMatcher).toHaveBeenCalledTimes(1); // Ensure the listApprovedStudies query was called
     });
+  });
+
+  it("disables the Create button and shows a tooltip if the selected study has pending model changes", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending model changes study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-model-changes")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-model-changes"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("disables the Create button and shows a tooltip if the selected study has pending GPA condition", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending GPA study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-GPA-condition")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-GPA-condition"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /Data submissions cannot be created until the required GPA updates are provided./i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("disables the Create button and shows a tooltip with multiple pending conditions", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the multiple pending conditions study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-conditions")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-conditions"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /Data submissions cannot be created until the required GPA updates are provided./i
+      )
+    ).toBeInTheDocument();
+    expect(
+      await findByText(
+        /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
+      )
+    ).toBeInTheDocument();
   });
 });

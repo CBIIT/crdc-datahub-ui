@@ -1,14 +1,10 @@
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC, useMemo } from "react";
 import userEvent from "@testing-library/user-event";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
-import AccessRequest from "./index";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   LIST_APPROVED_STUDIES,
   LIST_INSTITUTIONS,
@@ -17,22 +13,14 @@ import {
   ListInstitutionsInput,
   ListInstitutionsResp,
 } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+import {
+  Context as AuthContext,
+  ContextState as AuthContextState,
+  Status as AuthContextStatus,
+} from "../Contexts/AuthContext";
 
-const mockUser: Omit<User, "role" | "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  notifications: [],
-};
+import AccessRequest from "./index";
 
 const mockListApprovedStudies: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
   request: {
@@ -76,7 +64,7 @@ const MockParent: FC<MockParentProps> = ({ mocks, role, permissions, children })
     () => ({
       isLoggedIn: true,
       status: AuthContextStatus.LOADED,
-      user: { ...mockUser, role, permissions },
+      user: userFactory.build({ role, permissions }),
     }),
     [role]
   );
@@ -135,5 +123,17 @@ describe("Implementation Requirements", () => {
     });
 
     expect(queryByTestId("request-access-button")).not.toBeInTheDocument();
+  });
+
+  it("should show the tooltip when hovering over the 'Request Access' button", async () => {
+    const { getByTestId, findByText } = render(<AccessRequest />, {
+      wrapper: (p) => <MockParent {...p} mocks={[]} role="User" permissions={["access:request"]} />,
+    });
+
+    userEvent.hover(getByTestId("request-access-button"));
+
+    expect(
+      await findByText("Request role change, study access, or institution update.")
+    ).toBeInTheDocument();
   });
 });

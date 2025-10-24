@@ -1,9 +1,9 @@
-import { memo, useEffect, useMemo } from "react";
-import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { useQuery } from "@apollo/client";
+import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
 import { cloneDeep } from "lodash";
+import { memo, useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import StyledFormSelect from "../StyledFormComponents/StyledSelect";
+
 import {
   LIST_BATCHES,
   ListBatchesInput,
@@ -15,8 +15,9 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
-import { useSubmissionContext } from "../Contexts/SubmissionContext";
 import { compareNodeStats, FormatDate } from "../../utils";
+import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import StyledFormSelect from "../StyledFormComponents/StyledSelect";
 
 const StyledFilterContainer = styled(Box)({
   display: "flex",

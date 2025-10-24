@@ -1,84 +1,38 @@
-import { FC, useMemo } from "react";
-import { act, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
-import { MemoryRouter } from "react-router-dom";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import {
-  Context as AuthCtx,
-  ContextState as AuthCtxState,
-  Status as AuthStatus,
-} from "../Contexts/AuthContext";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import { RETRIEVE_CLI_CONFIG, RetrieveCLIConfigResp } from "../../graphql";
+import { act, render, waitFor } from "../../test-utils";
+import { Context as AuthCtx, ContextState as AuthCtxState } from "../Contexts/AuthContext";
+
 import { DataUpload } from "./DataUpload";
 
-jest.mock("../../env", () => ({
-  ...jest.requireActual("../../env"),
-  REACT_APP_BACKEND_API: "mocked-backend-api-url",
-  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+  return {
+    default: {
+      ...mod.default,
+      VITE_BACKEND_API: "mocked-backend-api-url",
+      VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+    },
+  };
+});
+
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
-
-const baseSubmission: Omit<Submission, "_id"> = {
-  name: "",
-  submitterID: "current-user",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  createdAt: "",
-  updatedAt: "",
-  crossSubmissionStatus: null,
-  otherSubmissions: null,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseUser: Omit<User, "permissions"> = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This base role allows for all actions
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -94,11 +48,10 @@ const TestParent: FC<ParentProps> = ({
   children,
 }) => {
   const authCtxState: AuthCtxState = useMemo<AuthCtxState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      isLoggedIn: true,
-      user: { ...baseUser, role, permissions },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ _id: "current-user", role, permissions }),
+      }),
     [role]
   );
 
@@ -115,7 +68,7 @@ describe("Accessibility", () => {
   it("should have no violations", async () => {
     const { container } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "accessibility-base" }} />
+        <DataUpload submission={submissionFactory.build({ _id: "accessibility-base" })} />
       </TestParent>
     );
 
@@ -127,7 +80,12 @@ describe("Basic Functionality", () => {
   it("should render without crashing", () => {
     const { getByTestId } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
+        <DataUpload
+          submission={submissionFactory.build({
+            _id: "smoke-test-id",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -137,7 +95,12 @@ describe("Basic Functionality", () => {
   it("should render the CLI version with tooltip and opens CLI dialog", async () => {
     const { getByTestId, getByRole, queryByRole } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "smoke-test-id" }} />
+        <DataUpload
+          submission={submissionFactory.build({
+            _id: "smoke-test-id",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -185,7 +148,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "network-error-handling" }} />
+        <DataUpload
+          submission={submissionFactory.build({
+            _id: "network-error-handling",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -222,7 +190,12 @@ describe("Basic Functionality", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "graphql-error-handling" }} />
+        <DataUpload
+          submission={submissionFactory.build({
+            _id: "graphql-error-handling",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -232,7 +205,10 @@ describe("Basic Functionality", () => {
     userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
     userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
-    userEvent.click(getByText("Download"));
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+    await act(async () => {
+      userEvent.click(getByText("Download"));
+    });
 
     await waitFor(() => {
       expect(global.mockEnqueue).toHaveBeenCalledWith(
@@ -248,11 +224,11 @@ describe("Basic Functionality", () => {
     const { getByTestId, findAllByRole, queryByRole } = render(
       <TestParent mocks={[]}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={submissionFactory.build({
             _id: "hide-config-dialog-on-close",
             dataType: "Metadata and Data Files",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -276,10 +252,10 @@ describe("Basic Functionality", () => {
     const { getByTestId, findAllByRole, queryByRole } = render(
       <TestParent mocks={[]}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={submissionFactory.build({
             _id: "hide-cli-dialog-on-close",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -304,7 +280,12 @@ describe("Implementation Requirements", () => {
   it("should have the Uploader CLI download dialog button", async () => {
     const { getByText, getByTestId } = render(
       <TestParent>
-        <DataUpload submission={{ ...baseSubmission, _id: "cli-download-link-id" }} />
+        <DataUpload
+          submission={submissionFactory.build({
+            _id: "cli-download-link-id",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -326,11 +307,11 @@ describe("Implementation Requirements", () => {
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={submissionFactory.build({
             _id: "config-download-link-id",
             dataType: "Metadata and Data Files",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -343,11 +324,11 @@ describe("Implementation Requirements", () => {
   it("should enable the Uploader CLI download button when user has required permissions", async () => {
     const { getByTestId } = render(
       <DataUpload
-        submission={{
-          ...baseSubmission,
+        submission={submissionFactory.build({
           _id: "config-download-role-check",
           dataType: "Metadata and Data Files", // NOTE: Required for the button to show
-        }}
+          submitterID: "current-user",
+        })}
       />,
       {
         wrapper: (p) => (
@@ -362,11 +343,11 @@ describe("Implementation Requirements", () => {
   it("should disable the Uploader CLI download button when user is missing required permissions", async () => {
     const { getByTestId } = render(
       <DataUpload
-        submission={{
-          ...baseSubmission,
+        submission={submissionFactory.build({
           _id: "config-download-role-check",
           dataType: "Metadata and Data Files", // NOTE: Required for the button to show
-        }}
+          submitterID: "current-user",
+        })}
       />,
       { wrapper: (p) => <TestParent {...p} permissions={[]} /> }
     );
@@ -377,19 +358,18 @@ describe("Implementation Requirements", () => {
   it("should enable the Uploader CLI download button when user is a collaborator", async () => {
     const { getByTestId } = render(
       <DataUpload
-        submission={{
-          ...baseSubmission,
+        submission={submissionFactory.build({
           _id: "config-download-check",
           dataType: "Metadata and Data Files", // NOTE: Required for the button to show
           submitterID: "some-other-user",
           collaborators: [
-            {
+            collaboratorFactory.build({
               collaboratorID: "current-user",
               collaboratorName: "",
               permission: "Can Edit",
-            },
+            }),
           ],
-        }}
+        })}
       />,
       { wrapper: (p) => <TestParent {...p} role="Submitter" /> }
     );
@@ -403,11 +383,11 @@ describe("Implementation Requirements", () => {
     const { getByText, getByTestId } = render(
       <TestParent mocks={mocks}>
         <DataUpload
-          submission={{
-            ...baseSubmission,
+          submission={submissionFactory.build({
             _id: "config-download-link-id",
             dataType: "Metadata Only",
-          }}
+            submitterID: "current-user",
+          })}
         />
       </TestParent>
     );
@@ -440,7 +420,12 @@ describe("Implementation Requirements", () => {
 
     const { getByTestId, getByText } = render(
       <TestParent mocks={mocks}>
-        <DataUpload submission={{ ...baseSubmission, _id: "cli-download-on-click" }} />
+        <DataUpload
+          submission={submissionFactory.build({
+            _id: "cli-download-on-click",
+            submitterID: "current-user",
+          })}
+        />
       </TestParent>
     );
 
@@ -475,7 +460,7 @@ describe("Implementation Requirements", () => {
     { input: "CRDCDH-1234", expected: "cli-config-CRDCDH-1234.yml" },
     { input: "SPACE-AT-END ", expected: "cli-config-SPACE-AT-END.yml" },
   ])(
-    "should safely name the Uploader CLI config file based on the submission name",
+    "should safely name the Uploader CLI config file based on the submission name '%s'",
     async ({ input, expected }) => {
       const mocks: MockedResponse<RetrieveCLIConfigResp>[] = [
         {
@@ -493,7 +478,13 @@ describe("Implementation Requirements", () => {
 
       const { getByTestId, getByText } = render(
         <TestParent mocks={mocks}>
-          <DataUpload submission={{ ...baseSubmission, _id: "safe-filename-test", name: input }} />
+          <DataUpload
+            submission={submissionFactory.build({
+              _id: "safe-filename-test",
+              name: input,
+              submitterID: "current-user",
+            })}
+          />
         </TestParent>
       );
 
@@ -503,7 +494,10 @@ describe("Implementation Requirements", () => {
       userEvent.type(getByTestId("uploader-config-dialog-input-data-folder"), "test-folder");
       userEvent.type(getByTestId("uploader-config-dialog-input-manifest"), "test-manifest");
 
-      userEvent.click(getByText("Download"));
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- RHF is throwing an error without act
+      await act(async () => {
+        userEvent.click(getByText("Download"));
+      });
 
       await waitFor(() => {
         expect(mockDownloadBlob).toHaveBeenCalledWith(

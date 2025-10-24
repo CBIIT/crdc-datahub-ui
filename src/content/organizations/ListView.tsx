@@ -1,4 +1,3 @@
-import { ElementType, FC, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -11,22 +10,24 @@ import {
   TableHead,
   styled,
 } from "@mui/material";
-import { Link, LinkProps, useLocation } from "react-router-dom";
+import { ElementType, FC, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import type { ListOrgsResp } from "../../graphql";
-import PageBanner from "../../components/PageBanner";
+import { Link, LinkProps, useLocation } from "react-router-dom";
+
 import {
   useOrganizationListContext,
   Status as OrgStatus,
 } from "../../components/Contexts/OrganizationListContext";
-import usePageTitle from "../../hooks/usePageTitle";
-import GenericTable, { Column } from "../../components/GenericTable";
-import { sortData } from "../../utils";
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import TruncatedText from "../../components/TruncatedText";
+import GenericTable, { Column } from "../../components/GenericTable";
+import PageBanner from "../../components/PageBanner";
 import StudyList from "../../components/StudyList";
-import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
 import StyledTextField from "../../components/StyledFormComponents/StyledOutlinedInput";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import TruncatedText from "../../components/TruncatedText";
+import type { ListOrgsResp } from "../../graphql";
+import usePageTitle from "../../hooks/usePageTitle";
+import { sortData } from "../../utils";
 
 type T = ListOrgsResp["listPrograms"]["programs"][number];
 
@@ -182,7 +183,7 @@ const columns: Column<T>[] = [
   {
     label: "Action",
     renderValue: (a) => (
-      <Link to={`/programs/${a?.["_id"]}`}>
+      <Link to={`/programs/${a?._id}`}>
         <StyledActionButton bg="#C5EAF2" text="#156071" border="#84B4BE">
           Edit
         </StyledActionButton>
@@ -233,10 +234,18 @@ const ListView: FC = () => {
     }
 
     const filters: FilterFunction<T>[] = [
-      (u: T) =>
-        orgFilter && orgFilter.length > 0
-          ? u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
-          : true,
+      (u: T) => {
+        if (!orgFilter || orgFilter.trim().length < 1) {
+          return true;
+        }
+
+        const nameMatch = u.name.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1;
+        const abbrMatch = u.abbreviation
+          ? u.abbreviation.toLowerCase().indexOf(orgFilter.toLowerCase()) !== -1
+          : false;
+
+        return nameMatch || abbrMatch;
+      },
       (u: T) => (statusFilter && statusFilter !== "All" ? u.status === statusFilter : true),
       (u: T) => {
         if (!studyFilter || studyFilter.trim().length < 1) {

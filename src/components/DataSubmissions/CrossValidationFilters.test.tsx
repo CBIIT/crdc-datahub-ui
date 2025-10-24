@@ -1,10 +1,13 @@
-import { FC, useMemo } from "react";
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import Filters from "./CrossValidationFilters";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
+
 import {
   LIST_BATCHES,
   SUBMISSION_STATS,
@@ -13,58 +16,14 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "Error",
-  fileValidationStatus: "Error",
-  crossSubmissionStatus: "Error",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  createdAt: "",
-  updatedAt: "",
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseBatch = {
-  _id: "",
-  displayID: 0,
-  createdAt: "",
-  updatedAt: "",
-  __typename: "Batch",
-};
+import Filters from "./CrossValidationFilters";
 
 type ParentProps = {
   submissionId?: string;
@@ -77,13 +36,8 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
     () => ({
       status: SubmissionCtxStatus.LOADED,
       data: {
-        getSubmission: {
-          ...baseSubmission,
-          _id: submissionId,
-        },
-        batchStatusList: {
-          batches: null,
-        },
+        getSubmission: submissionFactory.build({ _id: submissionId }),
+        getSubmissionAttributes: null,
         submissionStats: { stats: [] },
       },
       error: null,
@@ -100,8 +54,8 @@ const TestParent: FC<ParentProps> = ({ submissionId, mocks, children }: ParentPr
 
 describe("CrossValidationFilters cases", () => {
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("should not have accessibility violations", async () => {
@@ -139,9 +93,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: null,
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -177,9 +128,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: null,
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -211,9 +159,6 @@ describe("CrossValidationFilters cases", () => {
         data: {
           listBatches: {
             total: 0,
-            batches: null,
-          },
-          batchStatusList: {
             batches: null,
           },
         },
@@ -317,14 +262,11 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 4,
             batches: [
-              { ...baseBatch, displayID: 4, _id: "batch-4" },
-              { ...baseBatch, displayID: 3, _id: "batch-3" },
-              { ...baseBatch, displayID: 1, _id: "batch-1" },
-              { ...baseBatch, displayID: 2, _id: "batch-2" },
+              batchFactory.build({ displayID: 4, _id: "batch-4" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 3, _id: "batch-3" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 1, _id: "batch-1" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 2, _id: "batch-2" }).withTypename("Batch"),
             ],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },
@@ -373,30 +315,9 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "node-3",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "node-1",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "node-2",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "node-3" }),
+              submissionStatisticFactory.build({ nodeName: "node-1" }),
+              submissionStatisticFactory.build({ nodeName: "node-2" }),
             ],
           },
         },
@@ -411,9 +332,6 @@ describe("CrossValidationFilters cases", () => {
         data: {
           listBatches: {
             total: 0,
-            batches: null,
-          },
-          batchStatusList: {
             batches: null,
           },
         },
@@ -461,30 +379,9 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "NODE_NAME",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "Upper_Case",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "lower_case",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "NODE_NAME" }),
+              submissionStatisticFactory.build({ nodeName: "Upper_Case" }),
+              submissionStatisticFactory.build({ nodeName: "lower_case" }),
             ],
           },
         },
@@ -499,9 +396,6 @@ describe("CrossValidationFilters cases", () => {
         data: {
           listBatches: {
             total: 0,
-            batches: null,
-          },
-          batchStatusList: {
             batches: null,
           },
         },
@@ -528,7 +422,7 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should immediately dispatch Batch ID filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
@@ -552,12 +446,9 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 2,
             batches: [
-              { ...baseBatch, displayID: 4, _id: "batch-4" },
-              { ...baseBatch, displayID: 1, _id: "batch-1" },
+              batchFactory.build({ displayID: 4, _id: "batch-4" }).withTypename("Batch"),
+              batchFactory.build({ displayID: 1, _id: "batch-1" }).withTypename("Batch"),
             ],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },
@@ -569,7 +460,7 @@ describe("CrossValidationFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const batchBox = within(getByTestId("cross-validation-batchID-filter")).getByRole("button");
 
@@ -596,7 +487,7 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should immediately dispatch NodeID ID filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
@@ -606,22 +497,8 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "study",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "enrollment",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "study" }),
+              submissionStatisticFactory.build({ nodeName: "enrollment" }),
             ],
           },
         },
@@ -638,9 +515,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: [],
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -651,7 +525,7 @@ describe("CrossValidationFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const nodeBox = within(getByTestId("cross-validation-nodeType-filter")).getByRole("button");
 
@@ -678,7 +552,7 @@ describe("CrossValidationFilters cases", () => {
   });
 
   it("should immediately dispatch Severity filter changes", async () => {
-    const mockOnChange = jest.fn();
+    const mockOnChange = vi.fn();
     const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
       request: {
         query: SUBMISSION_STATS,
@@ -703,9 +577,6 @@ describe("CrossValidationFilters cases", () => {
             total: 0,
             batches: [],
           },
-          batchStatusList: {
-            batches: null,
-          },
         },
       },
     };
@@ -716,7 +587,7 @@ describe("CrossValidationFilters cases", () => {
       </TestParent>
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const severityBox = within(getByTestId("cross-validation-status-filter")).getByRole("button");
 
@@ -752,30 +623,9 @@ describe("CrossValidationFilters cases", () => {
         data: {
           submissionStats: {
             stats: [
-              {
-                nodeName: "study",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "enrollment",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
-              {
-                nodeName: "data file",
-                total: 0,
-                new: 0,
-                passed: 0,
-                warning: 0,
-                error: 0,
-              },
+              submissionStatisticFactory.build({ nodeName: "study" }),
+              submissionStatisticFactory.build({ nodeName: "enrollment" }),
+              submissionStatisticFactory.build({ nodeName: "data file" }),
             ],
           },
         },
@@ -791,9 +641,6 @@ describe("CrossValidationFilters cases", () => {
           listBatches: {
             total: 0,
             batches: [],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },

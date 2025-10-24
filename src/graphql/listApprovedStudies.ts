@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query listApprovedStudies(
     $first: Int
     $offset: Int
@@ -43,6 +44,8 @@ export const query = gql`
           conciergeName
         }
         useProgramPC
+        pendingModelChange
+        isPendingGPA
         createdAt
       }
     }

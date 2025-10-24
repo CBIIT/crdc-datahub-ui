@@ -1,3 +1,4 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
 // The base QCResult model used for all submissionQCResults queries
@@ -27,16 +28,21 @@ const FullQCResultFragment = gql`
       code
       title
       description
+      offendingProperty
+      offendingValue
     }
     warnings {
       code
       title
       description
+      offendingProperty
+      offendingValue
     }
+    issueCount
   }
 `;
 
-export const query = gql`
+export const query: TypedDocumentNode<Response, Input> = gql`
   query submissionQCResults(
     $id: ID!
     $issueCode: String
@@ -77,12 +83,8 @@ export type Input = {
   nodeTypes?: string[];
   batchIDs?: number[];
   severities?: string;
-  first?: number;
-  offset?: number;
-  orderBy?: string;
-  sortDirection?: string;
   partial?: boolean;
-};
+} & BasePaginationParams;
 
 export type Response<IsPartial = false> = {
   submissionQCResults: ValidationResult<

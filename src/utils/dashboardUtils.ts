@@ -1,4 +1,5 @@
 import { DashboardContentOptions } from "amazon-quicksight-embedding-sdk";
+
 import { Logger } from "./logger";
 
 /**

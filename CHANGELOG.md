@@ -1,5 +1,71 @@
 # Release Notes
 
+## 3.4.0 (Released 10/24/2025)
+
+#### Submission Request
+
+- Users can now import/export Submission Request form with Excel templates, enabling offline completion and transfer between requests.
+- Requests can be approved but flagged as pending on Data Model changes.
+- Requests can be conditionally approved without GPA information.
+- Empty requests are permanently deleted when canceled or auto-deleted due to inactivity.
+- OMB messages can be updated without code deployment for faster compliance updates.
+- Added tooltip guidance when the ‘Next ‘button is disabled on the final form page, directing users to save first.
+
+#### Data Submission
+
+- The system blocks the creation of a data submission if any of the following conditions are pending: missing dbGaP ID, missing GPA, or required Data Model changes.
+- Submitters can now edit the name of the existing data submissions.
+- Data Commons Personnel can update both the owner and the data model version of a data submission in a single action.
+- New Data Explorer lets users view released study metadata and download completed metadata.
+- dbGaP loading sheets are available for released submissions (GC Commons only in this release).
+- Submitters can now review a summary before submitting their data submission.
+- Data Submission must include participant-level dbGaP consent codes for controlled-access studies.
+- Submitters can now request new permissible values directly from validation results when “Value not Permitted” error occur.
+- “NA” is now supported as a valid Program Full Name/Short Name.
+- Submitters’ or collaborators’ access is automatically revoked when their study-level access is removed.
+- Record counts for are aligned between aggregated and expanded validation Results views.
+- Data Submission Dashboard loading performance has been further improved.
+
+#### Uploader CLI Tool
+
+- Improved log messages for batch uploads when files were already uploaded.
+- .zip archives are now supported for data file uploads and are validated with required manifest files.
+- Submitters must now specify the archive manifest file location in the CLI configuration download dialog for .zip uploads.
+
+#### Data Commons
+
+- dbGaP consent codes are included in released submission packages and DCF manifests for controlled-access studies.
+
+#### User Account Management
+
+- Permissions and email notification details removed from external user profiles.
+
+#### Email Notifications
+
+- Updated: Conditionally approved request notifications now include all pending conditions.
+- New: Email triggered when all pending conditions are resolved and submission can proceed.
+- New: Email triggered when Data Concierge updates submission configurations.
+- New: Email triggered when submitters request new permissible values.
+
+#### Data Model Navigator
+
+- Permissible values are now displayed in alphabetical order.
+- CDE configurations for each property remain visible even when MDB results are unavailable.
+
+#### Internal & Administrative Tools
+
+- Migrated Submission Portal/MDB integration to pull CDE permissible values from the API instead of GitHub
+- Admins can clear studies pending data model updates so submissions can begin.
+- Institution dropdown in Edit User tool enhanced with auto-complete and case-insensitive search.
+- Manage Users search now supports user name and email.
+- Manage Programs search now supports name and abbreviation.
+- View permissions automatically enabled when required by higher-level roles.
+
+#### System Performance & Technical Improvements
+
+- Program, Study, Institution, and User Name updates automatically sync across associated submissions.
+- ORM abstraction layer introduced for more efficient database operations across modules.
+
 ## 3.3.1 (Released 08/01/2025)
 
 This production patch includes a critical fix to ensure reliable uploading of large data files using the CLI.
@@ -100,7 +166,7 @@ This production patch includes a critical fix to resolve a timeout and crash iss
 
 - Added Submission Request Version Support to ensure backward compatibility.
 - Released Submission Request Form 3.0 with added question and UI improvements
-- Provided filtering capability on the Submission Request List Page.
+- Provided filtering capability on the Submission Requests Page.
 - Users can now cancel and restore Submission Requests.
 - Added support for conditionally approved studies.
 - Study Primary Contacts and PIs will now receive Submission Request email notifications for their study

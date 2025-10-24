@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useState } from "react";
 import { Alert, AlertColor, AlertProps, styled } from "@mui/material";
+import React, { FC, useEffect, useState } from "react";
 
 const StyledAlert = styled(Alert, {
   shouldForwardProp: (prop) => prop !== "bgColor",

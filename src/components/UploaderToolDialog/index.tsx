@@ -1,4 +1,3 @@
-import { FC } from "react";
 import {
   Button,
   Dialog,
@@ -9,10 +8,13 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import PackageTable from "./PackageTable";
+import { FC } from "react";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import env from "../../env";
 import { extractVersion } from "../../utils";
+
+import PackageTable from "./PackageTable";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -122,7 +124,7 @@ type Props = {
 } & Omit<DialogProps, "onClose">;
 
 const UploaderToolDialog: FC<Props> = ({ title, onClose, onSubmit, open, ...rest }) => {
-  const version = extractVersion(env?.REACT_APP_UPLOADER_CLI_VERSION);
+  const version = extractVersion(env?.VITE_UPLOADER_CLI_VERSION);
 
   return (
     <StyledDialog

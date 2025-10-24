@@ -1,4 +1,3 @@
-import React, { FC, useId, useState } from "react";
 import {
   Checkbox,
   CheckboxProps,
@@ -7,8 +6,10 @@ import {
   FormHelperText,
   styled,
 } from "@mui/material";
+import React, { FC, useId, useState } from "react";
+
+import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?url";
 import Tooltip from "../Tooltip";
-import checkboxCheckedIcon from "../../assets/icons/checkbox_checked.svg";
 
 const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
   outline: "2px solid #1D91AB",
@@ -21,7 +22,7 @@ const UncheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
 }));
 
 const CheckedIcon = styled("div")<{ readOnly?: boolean }>(({ readOnly }) => ({
-  backgroundImage: `url(${checkboxCheckedIcon})`,
+  backgroundImage: `url("${checkboxCheckedIcon}")`,
   backgroundSize: "auto",
   backgroundRepeat: "no-repeat",
   width: "24px",

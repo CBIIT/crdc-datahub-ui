@@ -1,23 +1,24 @@
-import { Logger } from "./logger";
 import env from "../env";
+
+import { Logger } from "./logger";
 
 describe("Logger", () => {
   const originalEnv = process.env;
 
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy;
 
   beforeEach(() => {
     // Reset the environment variables back to their original values
     process.env = { ...originalEnv };
 
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it("should log an error message with the correct format", () => {
+  it("should log with the correct output format", () => {
     env.NODE_ENV = "development"; // Override 'test' to log the message
 
     Logger.error("Test error message");
@@ -26,6 +27,32 @@ describe("Logger", () => {
       expect.stringMatching(
         /\[ERROR\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test error message/
       )
+    );
+  });
+
+  it("should support logging error levels", () => {
+    env.NODE_ENV = "development"; // Override 'test' to log the message
+
+    Logger.error("Test ERROR message");
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /\[ERROR\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test ERROR message/
+      )
+    );
+  });
+
+  it("should support logging info levels", () => {
+    env.NODE_ENV = "development"; // Override 'test' to log the message
+    const consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+
+    Logger.info("Test INFO message");
+
+    expect(consoleInfoSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /%c\[INFO\] \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z\] Test INFO message/
+      ),
+      "color: #90D5FF;"
     );
   });
 
@@ -63,12 +90,12 @@ describe("Logger", () => {
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
-  it.each<AppEnv["REACT_APP_DEV_TIER"]>(["stage", "prod"])(
+  it.each<AppEnv["VITE_DEV_TIER"]>(["stage", "prod"])(
     "should not log on the upper tier '%s'",
     (tier) => {
       env.NODE_ENV = "development"; // Override 'test' to log the message
 
-      env.REACT_APP_DEV_TIER = tier;
+      env.VITE_DEV_TIER = tier;
 
       Logger.error("A message that should not be visible");
 

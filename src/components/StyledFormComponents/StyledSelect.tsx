@@ -1,5 +1,6 @@
 import { Select, SelectProps, styled } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 
 const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "placeholderText",
@@ -98,7 +99,7 @@ const StyledSelect = styled(Select, {
 }));
 
 const DropdownArrowsIcon = styled("div")(() => ({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundImage: `url("${dropdownArrowsIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "10px",

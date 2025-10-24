@@ -1,9 +1,9 @@
+import { useQuery } from "@apollo/client";
+import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
+import { cloneDeep, isEqual } from "lodash";
 import { forwardRef, memo, useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { cloneDeep, isEqual } from "lodash";
-import { Box, FormControl, MenuItem, Stack, styled } from "@mui/material";
-import { useQuery } from "@apollo/client";
-import { compareNodeStats, FormatDate } from "../../utils";
+
 import {
   CrossValidationResultsInput,
   LIST_BATCHES,
@@ -13,9 +13,10 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
-import StyledSelect from "../StyledFormComponents/StyledSelect";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
+import { compareNodeStats, FormatDate } from "../../utils";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledSelect from "../StyledFormComponents/StyledSelect";
 
 export type FilterForm = Pick<CrossValidationResultsInput, "nodeTypes" | "severities" | "batchIDs">;
 

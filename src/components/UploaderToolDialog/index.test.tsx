@@ -1,15 +1,23 @@
+import userEvent from "@testing-library/user-event";
 import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
-import userEvent from "@testing-library/user-event";
+import { axe } from "vitest-axe";
+
+import { render, waitFor } from "../../test-utils";
+
 import UploaderToolDialog from "./index";
 
-jest.mock("../../env", () => ({
-  ...jest.requireActual("../../env"),
-  REACT_APP_UPLOADER_CLI: "mocked-cli-download-link",
-  REACT_APP_UPLOADER_CLI_VERSION: "2.3-alpha-6",
-}));
+vi.mock(import("../../env"), async (importOriginal) => {
+  const mod = await importOriginal();
+
+  return {
+    default: {
+      ...mod.default,
+      VITE_UPLOADER_CLI: "mocked-cli-download-link",
+      VITE_UPLOADER_CLI_VERSION: "2.3-alpha-6",
+    },
+  };
+});
 
 type ParentProps = {
   children: React.ReactNode;
@@ -43,7 +51,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'Close' button is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <UploaderToolDialog open onClose={mockOnClose} />
@@ -60,7 +68,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the 'X' icon is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <UploaderToolDialog open onClose={mockOnClose} />
@@ -77,7 +85,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should close the dialog when the backdrop is clicked", async () => {
-    const mockOnClose = jest.fn();
+    const mockOnClose = vi.fn();
     const { getByTestId } = render(
       <TestParent>
         <UploaderToolDialog open onClose={mockOnClose} />

@@ -1,3 +1,6 @@
+import { useMutation, useLazyQuery, ApolloError } from "@apollo/client";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
 import {
   createContext,
   useContext,
@@ -8,9 +11,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { useSnackbar } from "notistack";
-import { isEqual } from "lodash";
-import { useMutation, useLazyQuery, ApolloError } from "@apollo/client";
+
 import {
   LIST_POTENTIAL_COLLABORATORS,
   EDIT_SUBMISSION_COLLABORATORS,
@@ -19,8 +20,9 @@ import {
   EditSubmissionCollaboratorsResp,
   EditSubmissionCollaboratorsInput,
 } from "../../graphql";
-import { useSubmissionContext } from "./SubmissionContext";
 import { Logger, userToCollaborator } from "../../utils";
+
+import { useSubmissionContext } from "./SubmissionContext";
 
 /**
  * Types for CollaboratorsContext
@@ -75,8 +77,8 @@ type ProviderProps = {
 /**
  * CollaboratorsProvider component to provide collaborators context
  *
- * @see {@link useSubmissionContext} The context hook
- * @returns {JSX.Element}
+ * @see {@link useCollaboratorsContext} The context hook
+ * @returns {JSX.Element | null} The rendered context provider or null
  */
 export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
   const { data: submissionData } = useSubmissionContext();
@@ -227,7 +229,10 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
     collaboratorIdx: number,
     newCollaborator: CollaboratorInput
   ): void => {
-    if (isNaN(collaboratorIdx) || !newCollaborator?.collaboratorID) {
+    if (
+      isNaN(collaboratorIdx) ||
+      (!newCollaborator?.collaboratorID && !newCollaborator?.permission)
+    ) {
       return;
     }
 
@@ -265,8 +270,8 @@ export const CollaboratorsProvider: FC<ProviderProps> = ({ children }) => {
    */
   const saveCollaborators = useCallback(async (): Promise<Collaborator[]> => {
     const collaboratorsToSave: CollaboratorInput[] = currentCollaborators
-      .filter((c) => !!c.collaboratorID)
-      .map((c) => ({ collaboratorID: c.collaboratorID, permission: "Can Edit" }));
+      .filter((c) => !!c.collaboratorID && !!c.permission)
+      .map((c) => ({ collaboratorID: c.collaboratorID, permission: c.permission }));
 
     try {
       const { data, errors } = await editSubmissionCollaborators({

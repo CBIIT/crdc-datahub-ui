@@ -1,6 +1,4 @@
-import { memo, useCallback, useMemo, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { isEqual } from "lodash";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Box,
   FormControl,
@@ -11,15 +9,18 @@ import {
   styled,
   TextField,
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { isStringLengthBetween } from "../../utils";
-import { ListApplicationsInput, ListApplicationsResp } from "../../graphql";
-import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
-import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
-import StyledAutocompleteFormComponent from "../../components/StyledFormComponents/StyledAutocomplete";
-import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
-import Tooltip from "../../components/Tooltip";
+import { isEqual } from "lodash";
+import { memo, useCallback, useMemo, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
 import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import StyledAutocompleteFormComponent from "../../components/StyledFormComponents/StyledAutocomplete";
+import StyledTextFieldFormComponent from "../../components/StyledFormComponents/StyledOutlinedInput";
+import StyledSelectFormComponent from "../../components/StyledFormComponents/StyledSelect";
+import Tooltip from "../../components/Tooltip";
+import { ListApplicationsInput, ListApplicationsResp } from "../../graphql";
+import { useDebouncedWatch } from "../../hooks/useDebouncedWatch";
+import { isStringLengthBetween } from "../../utils";
 
 export type FilterForm = Pick<
   ListApplicationsInput,

@@ -1,14 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import NavigatorView from "./NavigatorView";
+
 import { DataCommonProvider } from "../../components/Contexts/DataCommonContext";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { DataCommons } from "../../config/DataCommons";
 import env from "../../env";
 
+import NavigatorView from "./NavigatorView";
+
 type CustomStoryProps = React.ComponentProps<typeof NavigatorView> & {
   model: string;
   version?: string;
-  tier?: AppEnv["REACT_APP_DEV_TIER"];
+  tier?: AppEnv["VITE_DEV_TIER"];
 };
 
 const meta: Meta<CustomStoryProps> = {
@@ -39,7 +41,7 @@ const meta: Meta<CustomStoryProps> = {
         sessionStorage.removeItem("manifest");
 
         // Set the dev tier to fetch the correct manifest from
-        env.REACT_APP_DEV_TIER = context.args.tier;
+        env.VITE_DEV_TIER = context.args.tier;
       } catch (e) {
         /* empty */
       }
@@ -61,7 +63,7 @@ type Story = StoryObj<typeof meta>;
 export const ModelNavigator: Story = {
   args: {
     model: "GC",
-    version: "latest",
+    version: "9.0.0",
     tier: "dev",
   },
 };

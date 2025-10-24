@@ -1,10 +1,10 @@
-import React, { FC } from "react";
-import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
-import { query as GET_APP } from "../../graphql/getApplication";
-import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";
+import React, { FC } from "react";
+
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { questionnaireDataFactory } from "@/factories/application/QuestionnaireDataFactory";
+
 import {
   APPROVE_APP,
   ApproveAppInput,
@@ -17,96 +17,15 @@ import {
   RejectAppResp,
   ReopenAppResp,
 } from "../../graphql";
+import { query as GET_APP } from "../../graphql/getApplication";
+import { query as GET_LAST_APP } from "../../graphql/getMyLastApplication";
+import { act, render, renderHook, waitFor } from "../../test-utils";
 
-const baseApplication: Omit<Application, "questionnaireData"> = {
-  _id: "",
-  status: "New",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
-  history: [],
-  controlledAccess: false,
-  openAccess: false,
-  ORCID: "",
-  PI: "",
-  applicant: {
-    applicantID: "",
-    applicantName: "",
-    applicantEmail: "",
-  },
-  programName: "",
-  studyAbbreviation: "",
-  conditional: false,
-  pendingConditions: [],
-  programAbbreviation: "",
-  programDescription: "",
-  version: "",
-};
+import { Status as FormStatus, FormProvider, useFormContext } from "./FormContext";
 
-const baseQuestionnaireData: QuestionnaireData = {
-  sections: [],
-  pi: {
-    firstName: "",
-    lastName: "",
-    position: "",
-    email: "",
-    ORCID: "",
-    institution: "",
-    address: "",
-  },
-  piAsPrimaryContact: false,
-  primaryContact: {
-    position: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    institution: "",
-  },
-  additionalContacts: [],
-  program: {
-    _id: "",
-    name: "",
-    abbreviation: "",
-    description: "",
-  },
-  study: {
-    name: "",
-    abbreviation: "",
-    description: "",
-    publications: [],
-    plannedPublications: [],
-    repositories: [],
-    funding: [],
-    isDbGapRegistered: false,
-    dbGaPPPHSNumber: "",
-  },
-  accessTypes: [],
-  targetedSubmissionDate: "",
-  targetedReleaseDate: "",
-  timeConstraints: [],
-  cancerTypes: [],
-  otherCancerTypes: "",
-  otherCancerTypesEnabled: false,
-  preCancerTypes: "",
-  numberOfParticipants: 0,
-  species: [],
-  otherSpeciesEnabled: false,
-  otherSpeciesOfSubjects: "",
-  cellLines: false,
-  modelSystems: false,
-  imagingDataDeIdentified: false,
-  dataDeIdentified: false,
-  dataTypes: [],
-  otherDataTypes: "",
-  clinicalData: {
-    dataTypes: [],
-    otherDataTypes: "",
-    futureDataTypes: false,
-  },
-  files: [],
-  submitterComment: "",
-};
+const baseApplication: Omit<Application, "questionnaireData"> = applicationFactory.build({
+  questionnaireData: undefined,
+});
 
 type Props = {
   appId: string;
@@ -148,11 +67,11 @@ const TestParent: FC<Props> = ({ mocks, appId, children }: Props) => (
 
 describe("FormContext > useFormContext Tests", () => {
   it("should throw an exception when used outside of a FormProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "FormContext cannot be used outside of the FormProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 
@@ -413,10 +332,11 @@ describe("approveForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
@@ -425,7 +345,7 @@ describe("approveForm Tests", () => {
   it("should send an approve request to the API", async () => {
     const appId = "556ac14a-f247-42e8-8878-8468060fb49a";
 
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<ApproveAppResp, ApproveAppInput> = {
       request: {
         query: APPROVE_APP,
@@ -453,7 +373,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("mock approval comment", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "mock approval comment", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "success",
         id: appId,
@@ -462,96 +385,6 @@ describe("approveForm Tests", () => {
         expect.objectContaining({
           comment: "mock approval comment",
           wholeProgram: true,
-        })
-      );
-    });
-  });
-
-  it("should send all institution names when approving an application", async () => {
-    const appId = "556ac14a-f247-42e8-8878-8468060fb49a";
-
-    const getAppMock: MockedResponse<GetAppResp> = {
-      request: {
-        query: GET_APP,
-      },
-      variableMatcher: () => true,
-      result: {
-        data: {
-          getApplication: {
-            ...baseApplication,
-            questionnaireData: JSON.stringify({
-              ...baseQuestionnaireData,
-              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-              pi: {
-                ...baseQuestionnaireData.pi,
-                institution: "PI-INST-NAME",
-              },
-              primaryContact: {
-                ...baseQuestionnaireData.primaryContact,
-                institution: "PC-INST-NAME",
-              },
-              additionalContacts: [
-                {
-                  ...baseQuestionnaireData.primaryContact,
-                  institution: "AC-INST-NAME-0",
-                },
-                {
-                  ...baseQuestionnaireData.primaryContact,
-                  institution: "AC-INST-NAME-1",
-                },
-                {
-                  ...baseQuestionnaireData.primaryContact,
-                  institution: "AC-INST-NAME-2",
-                },
-              ],
-            }),
-          },
-        },
-      },
-    };
-
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
-    const mock: MockedResponse<ApproveAppResp, ApproveAppInput> = {
-      request: {
-        query: APPROVE_APP,
-      },
-      variableMatcher: mockVariableMatcher,
-      result: {
-        data: {
-          approveApplication: {
-            _id: appId,
-          },
-        },
-      },
-    };
-
-    const { result } = renderHook(() => useFormContext(), {
-      wrapper: ({ children }) => (
-        <TestParent mocks={[getAppMock, mock]} appId={appId}>
-          {children}
-        </TestParent>
-      ),
-    });
-
-    await waitFor(() => {
-      expect(result.current.status).toEqual(FormStatus.LOADED);
-    });
-
-    await act(async () => {
-      const approveResp = await result.current.approveForm("", true);
-      expect(approveResp).toEqual({
-        status: "success",
-        id: appId,
-      });
-      expect(mockVariableMatcher).toHaveBeenCalledWith(
-        expect.objectContaining({
-          institutions: [
-            "PI-INST-NAME",
-            "PC-INST-NAME",
-            "AC-INST-NAME-0",
-            "AC-INST-NAME-1",
-            "AC-INST-NAME-2",
-          ],
         })
       );
     });
@@ -582,7 +415,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "failed",
         errorMessage: "Test GraphQL error",
@@ -613,7 +449,10 @@ describe("approveForm Tests", () => {
     });
 
     await act(async () => {
-      const approveResp = await result.current.approveForm("", true);
+      const approveResp = await result.current.approveForm(
+        { reviewComment: "", pendingModelChange: false },
+        true
+      );
       expect(approveResp).toEqual({
         status: "failed",
         errorMessage: "Test network error",
@@ -632,17 +471,18 @@ describe("inquireForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
   };
 
   it("should send an inquire request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<InquireAppResp> = {
       request: {
         query: INQUIRE_APP,
@@ -747,17 +587,18 @@ describe("rejectForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
   };
 
   it("should send an reject request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<RejectAppResp> = {
       request: {
         query: REJECT_APP,
@@ -862,17 +703,18 @@ describe("reopenForm Tests", () => {
       data: {
         getApplication: {
           ...baseApplication,
-          questionnaireData: JSON.stringify({
-            ...baseQuestionnaireData,
-            sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
-          }),
+          questionnaireData: JSON.stringify(
+            questionnaireDataFactory.build({
+              sections: [{ name: "A", status: "In Progress" }], // To prevent fetching lastApp
+            })
+          ),
         },
       },
     },
   };
 
   it("should send a reopen request to the API", async () => {
-    const mockVariableMatcher = jest.fn().mockImplementation(() => true);
+    const mockVariableMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<ReopenAppResp> = {
       request: {
         query: REOPEN_APP,

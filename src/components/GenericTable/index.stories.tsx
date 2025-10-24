@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import GenericTable from "./index";
+
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+
+import GenericTable from "./index";
 
 const meta: Meta<typeof GenericTable> = {
   title: "Miscellaneous / Generic Table",

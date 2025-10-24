@@ -1,53 +1,19 @@
-import { FC } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
+import { FC } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor } from "@testing-library/react";
-import DataActivity from "./DataActivity";
-import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
+import { axe } from "vitest-axe";
+
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import * as SubmissionCtx from "../../components/Contexts/SubmissionContext";
 import { SubmissionCtxStatus } from "../../components/Contexts/SubmissionContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { LIST_BATCHES, ListBatchesResp } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
 
-// NOTE: We omit all properties that the component specifically depends on
-const baseSubmission: Omit<Submission, "_id"> = {
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  crossSubmissionStatus: null,
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
+import DataActivity from "./DataActivity";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -64,26 +30,15 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
 
 describe("General", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any accessibility violations", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADING,
-      data: {
-        getSubmission: {
-          _id: "",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        batchStatusList: {
-          batches: [],
-        },
-      },
-      error: null,
-    });
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADING,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -95,9 +50,6 @@ describe("General", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [],
-            },
-            batchStatusList: {
               batches: [],
             },
           },
@@ -115,19 +67,20 @@ describe("General", () => {
   it.todo("should refetch data when the submission ID changes");
 
   it("should show an error message when the batches cannot be fetched (network)", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "simulated-network-error",
-          ...baseSubmission,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: "simulated-network-error",
+          }),
+          submissionStats: null,
+          getSubmissionAttributes: null,
         },
-        submissionStats: null,
-        batchStatusList: null,
-      },
-      error: null,
-      refetch: null,
-    });
+        error: null,
+        refetch: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -151,19 +104,20 @@ describe("General", () => {
   });
 
   it("should show an error message when the batches cannot be fetched (GraphQL)", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "simulated-graphql-error",
-          ...baseSubmission,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: "simulated-graphql-error",
+          }),
+          submissionStats: null,
+          getSubmissionAttributes: null,
         },
-        submissionStats: null,
-        batchStatusList: null,
-      },
-      error: null,
-      refetch: null,
-    });
+        error: null,
+        refetch: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -189,7 +143,7 @@ describe("General", () => {
   });
 
   it("should not crash when no submission is available", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
       status: SubmissionCtxStatus.LOADED,
       data: null,
       error: null,
@@ -205,26 +159,28 @@ describe("General", () => {
 
 describe("Table", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the placeholder text when no data is available", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "",
-          ...baseSubmission,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build(),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              isBatchUploading: false,
+              hasOrphanError: false,
+            },
+          },
         },
-        submissionStats: {
-          stats: [],
-        },
-        batchStatusList: {
-          batches: [],
-        },
-      },
-      error: null,
-    });
+        error: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -236,9 +192,6 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [],
-            },
-            batchStatusList: {
               batches: [],
             },
           },
@@ -261,80 +214,29 @@ describe("Table", () => {
 
   it.todo("should use the correct pluralization for the error count of %p");
 
-  // NOTE: This only happens when isPolling is false
-  it("should refetch the submission if there are uploading batches", async () => {
-    const mockRefetch = jest.fn();
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "refetching-submission-test",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        batchStatusList: {
-          batches: [],
-        },
-      },
-      error: null,
-      refetch: mockRefetch,
-    });
-
-    const mocks: MockedResponse<ListBatchesResp>[] = [
-      {
-        request: {
-          query: LIST_BATCHES,
-        },
-        variableMatcher: () => true,
-        result: {
-          data: {
-            listBatches: {
-              total: 0,
-              batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
-            },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-001",
-                  status: "Uploading",
-                },
-              ],
+  it("should not refetch the submission if the submission is already polling", async () => {
+    const mockRefetch = vi.fn();
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.POLLING,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: "refetching-submission-test",
+          }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              isBatchUploading: true,
+              hasOrphanError: false,
             },
           },
         },
-      },
-    ];
-
-    render(<DataActivity ref={null} />, {
-      wrapper: ({ children }) => <TestParent mocks={mocks}>{children}</TestParent>,
-    });
-
-    await waitFor(() => {
-      expect(mockRefetch).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it("should not refetch the submission if the submission is already polling", async () => {
-    const mockRefetch = jest.fn();
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.POLLING,
-      data: {
-        getSubmission: {
-          _id: "refetching-submission-test",
-          ...baseSubmission,
-        },
-        submissionStats: {
-          stats: [],
-        },
-        batchStatusList: {
-          batches: [],
-        },
-      },
-      error: null,
-      refetch: mockRefetch,
-    });
+        error: null,
+        refetch: mockRefetch,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -346,15 +248,7 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [], // NOTE: This shouldn't really be empty, but it's fine for this test
-            },
-            batchStatusList: {
-              batches: [
-                {
-                  _id: "batch-001",
-                  status: "Uploading",
-                },
-              ],
+              batches: [],
             },
           },
         },
@@ -371,22 +265,24 @@ describe("Table", () => {
   });
 
   it("should have a default pagination count of 20 rows per page", async () => {
-    jest.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          _id: "",
-          ...baseSubmission,
+    vi.spyOn(SubmissionCtx, "useSubmissionContext").mockReturnValue(
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build(),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: {
+              isBatchUploading: false,
+              hasOrphanError: false,
+            },
+          },
         },
-        submissionStats: {
-          stats: [],
-        },
-        batchStatusList: {
-          batches: [],
-        },
-      },
-      error: null,
-    });
+        error: null,
+      })
+    );
 
     const mocks: MockedResponse<ListBatchesResp>[] = [
       {
@@ -398,9 +294,6 @@ describe("Table", () => {
           data: {
             listBatches: {
               total: 0,
-              batches: [],
-            },
-            batchStatusList: {
               batches: [],
             },
           },

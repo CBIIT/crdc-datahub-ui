@@ -1,6 +1,10 @@
 import { useAuthContext } from "../components/Contexts/AuthContext";
 import { hasPermission } from "../config/AuthPermissions";
-import { RequiresInstitutionAssigned, RequiresStudiesAssigned } from "../config/AuthRoles";
+import {
+  ExternalRoles,
+  RequiresInstitutionAssigned,
+  RequiresStudiesAssigned,
+} from "../config/AuthRoles";
 
 /**
  * Constrains the fields that this hook supports generating states for
@@ -69,8 +73,10 @@ const useProfileFields = (
   if (isSelf && viewType === "profile") {
     fields.firstName = "UNLOCKED";
     fields.lastName = "UNLOCKED";
-    fields.permissions = "DISABLED";
-    fields.notifications = "DISABLED";
+
+    // If the profile is external, hide the permissions and notifications fields
+    fields.permissions = ExternalRoles.includes(profileOf?.role) ? "HIDDEN" : "DISABLED";
+    fields.notifications = ExternalRoles.includes(profileOf?.role) ? "HIDDEN" : "DISABLED";
 
     // If the profile requires studies, show a textual representation of the studies field
     fields.studies = RequiresStudiesAssigned.includes(profileOf?.role) ? "READ_ONLY" : "HIDDEN";

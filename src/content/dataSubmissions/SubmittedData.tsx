@@ -1,8 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import { useLazyQuery } from "@apollo/client";
-import { isEqual } from "lodash";
-import { useSnackbar } from "notistack";
 import {
   Alert,
   Checkbox,
@@ -13,24 +9,30 @@ import {
   CheckboxProps,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
+import { isEqual } from "lodash";
+import { useSnackbar } from "notistack";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+
+import { useAuthContext } from "../../components/Contexts/AuthContext";
+import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
+import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
+import DeleteNodeDataButton from "../../components/DataSubmissions/DeleteNodeDataButton";
+import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
+import SubmittedDataFilters, {
+  FilterForm,
+  FilterMethods,
+} from "../../components/DataSubmissions/SubmittedDataFilters";
+import GenericTable, { Column } from "../../components/GenericTable";
+import TruncatedText from "../../components/TruncatedText";
 import {
   GET_SUBMISSION_NODES,
   GetSubmissionNodesInput,
   GetSubmissionNodesResp,
 } from "../../graphql";
-import GenericTable, { Column } from "../../components/GenericTable";
-import SubmittedDataFilters, {
-  FilterForm,
-  FilterMethods,
-} from "../../components/DataSubmissions/SubmittedDataFilters";
 import { coerceToString, rearrangeKeys, safeParse } from "../../utils";
-import { ExportNodeDataButton } from "../../components/DataSubmissions/ExportNodeDataButton";
+
 import DataViewContext from "./Contexts/DataViewContext";
-import { useSubmissionContext } from "../../components/Contexts/SubmissionContext";
-import DeleteNodeDataButton from "../../components/DataSubmissions/DeleteNodeDataButton";
-import DataViewDetailsDialog from "../../components/DataSubmissions/DataViewDetailsDialog";
-import { useAuthContext } from "../../components/Contexts/AuthContext";
-import TruncatedText from "../../components/TruncatedText";
 
 const StyledCheckbox = styled(Checkbox)({
   padding: 0,

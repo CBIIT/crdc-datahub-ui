@@ -1,31 +1,34 @@
 import jsPDF from "jspdf";
+
+import { fontResourceFactory } from "@/factories/application/FontResource";
+
 import { FontResource } from "./Fonts";
 import * as utils from "./utils";
 
-const mockAddFileToVFS = jest.fn();
-const mockAddFont = jest.fn();
+const mockAddFileToVFS = vi.fn();
+const mockAddFont = vi.fn();
 const MockJsPDF = {
   addFileToVFS: (...p) => mockAddFileToVFS(...p),
   addFont: (...p) => mockAddFont(...p),
 };
 
-const baseFont: FontResource = {
+const baseFont: FontResource = fontResourceFactory.build({
   src: "",
   family: "mock-family",
   style: "normal",
   fontWeight: 500,
-};
+});
 
 describe("loadFont", () => {
   beforeEach(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-    jest.resetAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.resetAllMocks();
   });
 
   it("should add the font to the jsPDF instance if the fetch is successful", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue({
+    vi.spyOn(window, "fetch").mockResolvedValue({
       ok: true,
-      arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(1)),
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(1)),
     } as unknown as Response);
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
@@ -43,7 +46,7 @@ describe("loadFont", () => {
   });
 
   it("should enforce heavy caching to avoid unnecessary network requests", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -56,7 +59,7 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if an invalid font resource is provided (src)", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -69,7 +72,7 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if an invalid font resource is provided (family)", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -82,7 +85,7 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if an invalid font resource is provided (style)", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -95,7 +98,7 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if an invalid font resource is provided (fontWeight)", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -108,7 +111,7 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if the fetch fails", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 404 }));
+    vi.spyOn(window, "fetch").mockResolvedValue(new Response(null, { status: 404 }));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -122,7 +125,7 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if the fetch throws an exception", async () => {
-    jest.spyOn(window, "fetch").mockRejectedValue(new Error("Mock fetch error"));
+    vi.spyOn(window, "fetch").mockRejectedValue(new Error("Mock fetch error"));
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
       ...baseFont,
@@ -136,9 +139,9 @@ describe("loadFont", () => {
   });
 
   it("should not add the font to the jsPDF instance if the arrayBuffer fails", async () => {
-    jest.spyOn(window, "fetch").mockResolvedValue({
+    vi.spyOn(window, "fetch").mockResolvedValue({
       ok: true,
-      arrayBuffer: jest.fn().mockRejectedValue(new Error("Mock arrayBuffer error")),
+      arrayBuffer: vi.fn().mockRejectedValue(new Error("Mock arrayBuffer error")),
     } as unknown as Response);
 
     await utils.loadFont(MockJsPDF as unknown as jsPDF, {
@@ -155,11 +158,11 @@ describe("loadFont", () => {
 
 describe("arrayBufferToBase64", () => {
   beforeEach(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should return a base64 string if the buffer is valid", () => {
@@ -182,7 +185,7 @@ describe("arrayBufferToBase64", () => {
   );
 
   it("should return an empty string if btoa fails", () => {
-    jest.spyOn(window, "btoa").mockImplementation(() => {
+    vi.spyOn(window, "btoa").mockImplementation(() => {
       throw new Error("Mock btoa error");
     });
 

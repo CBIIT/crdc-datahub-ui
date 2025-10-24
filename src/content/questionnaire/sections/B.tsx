@@ -1,31 +1,33 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep, merge } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import dayjs from "dayjs";
+import { unset } from "lodash";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import { useOrganizationListContext } from "../../../components/Contexts/OrganizationListContext";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
-import SectionGroup from "../../../components/Questionnaire/SectionGroup";
-import TextInput from "../../../components/Questionnaire/TextInput";
+import FundingAgency from "../../../components/Questionnaire/FundingAgency";
+import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
 import Publication from "../../../components/Questionnaire/Publication";
 import Repository from "../../../components/Questionnaire/Repository";
+import SectionGroup from "../../../components/Questionnaire/SectionGroup";
+import SelectInput from "../../../components/Questionnaire/SelectInput";
+import TextInput from "../../../components/Questionnaire/TextInput";
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
+import { NotApplicableProgram, OtherProgram } from "../../../config/ProgramConfig";
+import SectionMetadata from "../../../config/SectionMetadata";
+import useFormMode from "../../../hooks/useFormMode";
 import {
+  combineQuestionnaireData,
   filterAlphaNumeric,
   findProgram,
   Logger,
   mapObjectWithKey,
   validateUTF8,
 } from "../../../utils";
-import AddRemoveButton from "../../../components/AddRemoveButton";
-import PlannedPublication from "../../../components/Questionnaire/PlannedPublication";
-import { InitialQuestionnaire } from "../../../config/InitialValues";
-import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import useFormMode from "../../../hooks/useFormMode";
-import FundingAgency from "../../../components/Questionnaire/FundingAgency";
-import SelectInput from "../../../components/Questionnaire/SelectInput";
-import SectionMetadata from "../../../config/SectionMetadata";
-import { useOrganizationListContext } from "../../../components/Contexts/OrganizationListContext";
-import { NotApplicableProgram, OtherProgram } from "../../../config/ProgramConfig";
 
 export type KeyedPublication = {
   key: string;
@@ -59,7 +61,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   const { B: SectionBMetadata } = SectionMetadata;
 
   const [program, setProgram] = useState<ProgramInput>(null);
-  const [study] = useState<Study>(data.study);
+  const [study, setStudy] = useState<Study>(data.study);
   const [publications, setPublications] = useState<KeyedPublication[]>(
     data.study?.publications?.map(mapObjectWithKey) || []
   );
@@ -93,7 +95,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData: QuestionnaireData = merge(cloneDeep(data), formObject);
+    const combinedData: QuestionnaireData = combineQuestionnaireData(data, formObject);
 
     // Reset study if the data failed to load
     if (!formObject.study) {
@@ -127,6 +129,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           ? plannedPublication.expectedDate
           : "",
       })) || [];
+
+    unset(combinedData.program, "key");
+    unset(combinedData.study, "key");
+    combinedData.study?.plannedPublications?.forEach((x) => unset(x, "key"));
+    combinedData.study?.publications?.forEach((x) => unset(x, "key"));
+    combinedData.study?.repositories?.forEach((x) => unset(x, "key"));
+    combinedData.study?.funding?.forEach((x) => unset(x, "key"));
 
     return { ref: formRef, data: combinedData };
   };
@@ -176,8 +185,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const addPublication = () => {
-    setPublications([
-      ...publications,
+    setPublications((prev) => [
+      ...prev,
       {
         key: `${publications.length}_${new Date().getTime()}`,
         title: "",
@@ -193,7 +202,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @param key generated key for the publication
    */
   const removePublication = (key: string) => {
-    setPublications(publications.filter((c) => c.key !== key));
+    setPublications((prev) => prev?.filter((c) => c.key !== key));
   };
 
   /**
@@ -202,8 +211,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const addPlannedPublication = () => {
-    setPlannedPublications([
-      ...plannedPublications,
+    setPlannedPublications((prev) => [
+      ...prev,
       {
         key: `${plannedPublications.length}_${new Date().getTime()}`,
         title: "",
@@ -218,7 +227,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @param key generated key for the planned publication
    */
   const removePlannedPublication = (key: string) => {
-    setPlannedPublications(plannedPublications.filter((c) => c.key !== key));
+    setPlannedPublications((prev) => prev?.filter((c) => c.key !== key));
   };
 
   /**
@@ -227,8 +236,8 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const addRepository = () => {
-    setRepositories([
-      ...repositories,
+    setRepositories((prev) => [
+      ...prev,
       {
         key: `${repositories.length}_${new Date().getTime()}`,
         name: "",
@@ -254,14 +263,13 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @returns {void}
    */
   const addFunding = () => {
-    setFundings([
-      ...fundings,
+    setFundings((prev) => [
+      ...prev,
       {
         key: `${fundings.length}_${new Date().getTime()}`,
         agency: "",
         grantNumbers: "",
         nciProgramOfficer: "",
-        nciGPA: "",
       },
     ]);
   };
@@ -272,7 +280,7 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
    * @param key generated key for the funding
    */
   const removeFunding = (key: string) => {
-    setFundings(fundings.filter((f) => f.key !== key));
+    setFundings((prev) => prev?.filter((f) => f.key !== key));
   };
 
   /**
@@ -301,6 +309,43 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
   useEffect(() => {
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, []);
+
+  const assignStableKeys = <T extends object>(
+    previous: ReadonlyArray<T & { key: string }>,
+    incoming: ReadonlyArray<T | (T & { key: string })>
+  ): Array<T & { key: string }> =>
+    incoming?.map((item, index) => ({
+      ...item,
+      key: previous?.[index]?.key || mapObjectWithKey(item, index).key,
+    }));
+
+  useEffect(() => {
+    setProgram(data?.program);
+  }, [data?.program]);
+
+  useEffect(() => {
+    setStudy(data?.study);
+  }, [data?.study]);
+
+  useEffect(() => {
+    const incoming = data?.study?.publications ?? [];
+    setPublications((prev) => assignStableKeys(prev, incoming));
+  }, [data.study?.publications]);
+
+  useEffect(() => {
+    const incoming = data?.study?.plannedPublications ?? [];
+    setPlannedPublications((prev) => assignStableKeys(prev, incoming));
+  }, [data?.study?.plannedPublications]);
+
+  useEffect(() => {
+    const incoming = data?.study?.repositories ?? [];
+    setRepositories((prev) => assignStableKeys(prev, incoming));
+  }, [data.study?.repositories]);
+
+  useEffect(() => {
+    const incoming = data?.study?.funding ?? [];
+    setFundings((prev) => assignStableKeys(prev, incoming));
+  }, [data.study?.funding]);
 
   const allProgramOptions = useMemo(() => {
     // Filter out system-managed programs
@@ -448,13 +493,21 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={fundings}
           renderItem={(funding: KeyedFunding, idx: number) => (
-            <FundingAgency
-              idPrefix="section-b-"
-              index={idx}
-              funding={funding}
-              onDelete={() => removeFunding(funding.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`study[funding][${idx}][key]`}
+                value={funding.key}
+                readOnly
+              />
+              <FundingAgency
+                idPrefix="section-b-"
+                index={idx}
+                funding={funding}
+                onDelete={() => removeFunding(funding.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>
@@ -476,13 +529,21 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={publications}
           renderItem={(pub: KeyedPublication, idx: number) => (
-            <Publication
-              idPrefix="section-b-"
-              index={idx}
-              publication={pub}
-              onDelete={() => removePublication(pub.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`study[publications][${idx}][key]`}
+                value={pub.key}
+                readOnly
+              />
+              <Publication
+                idPrefix="section-b-"
+                index={idx}
+                publication={pub}
+                onDelete={() => removePublication(pub.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>
@@ -504,13 +565,21 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={plannedPublications}
           renderItem={(pub: KeyedPlannedPublication, idx: number) => (
-            <PlannedPublication
-              idPrefix="section-b-"
-              index={idx}
-              plannedPublication={pub}
-              onDelete={() => removePlannedPublication(pub.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`study[plannedPublications][${idx}][key]`}
+                value={pub.key}
+                readOnly
+              />
+              <PlannedPublication
+                idPrefix="section-b-"
+                index={idx}
+                plannedPublication={pub}
+                onDelete={() => removePlannedPublication(pub.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>
@@ -532,13 +601,21 @@ const FormSectionB: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={repositories}
           renderItem={(repo: KeyedRepository, idx: number) => (
-            <Repository
-              idPrefix="section-b-"
-              index={idx}
-              repository={repo}
-              onDelete={() => removeRepository(repo.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`study[repositories][${idx}][key]`}
+                value={repo.key}
+                readOnly
+              />
+              <Repository
+                idPrefix="section-b-"
+                index={idx}
+                repository={repo}
+                onDelete={() => removeRepository(repo.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>

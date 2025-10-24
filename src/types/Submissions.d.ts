@@ -250,6 +250,7 @@ type QCResult = {
   severity: "Error" | "Warning";
   uploadedDate: string; // batch.updatedAt
   validatedDate: string;
+  issueCount: number;
   errors: ErrorMessage[];
   warnings: ErrorMessage[];
 };
@@ -281,6 +282,14 @@ type ErrorMessage = {
    * A detailed description of the error.
    */
   description: string;
+  /**
+   * The property that caused the error, if applicable.
+   */
+  offendingProperty?: string;
+  /**
+   * The value that caused the error, if applicable.
+   */
+  offendingValue?: string;
 };
 
 type DataRecord = {
@@ -403,7 +412,7 @@ type SubmitButtonResult = {
 /**
  * Represents the permissions a collaborator can have in a submission
  */
-type CollaboratorPermissions = "Can Edit";
+type CollaboratorPermissions = "Can Edit" | "No Access";
 
 /**
  * Represents a submitter that can view and edit another submitter's submission
@@ -418,3 +427,69 @@ type Collaborator = {
  * Modifiable collaborator fields
  */
 type CollaboratorInput = Pick<Collaborator, "collaboratorID" | "permission">;
+
+/**
+ * Attributes of a Data Submission that are used to determine the
+ * current state of the submission for enabling/disabling submit actions.
+ */
+type SubmissionAttributes = {
+  /**
+   * True if the submission status is 'New'
+   */
+  isSubmissionStatusNew: boolean;
+  /**
+   * True if either metadata or file validation is currently running ('Validating' status)
+   */
+  isValidating: boolean;
+  /**
+   * True if any batch in the submission is in the 'Uploading' state
+   */
+  isBatchUploading: boolean;
+  /**
+   * True if the submission status is one of the allowed states for submission ('In Progress', 'Withdrawn', or 'Rejected')
+   */
+  isValidSubmissionStatus: boolean;
+  /**
+   * True if metadata validation has been initialized for submissions with the intention 'Delete'
+   */
+  isValidDeleteIntention: boolean;
+  /**
+   * True if metadata validation has been initialized for 'Metadata Only' submissions
+   */
+  isReadyMetadataOnly: boolean;
+  /**
+   * True if the data file size is greater than 0 for 'Metadata and Data Files' submissions
+   */
+  isValidDataFileSize: boolean;
+  /**
+   * True if metadata validation has been initialized for 'Metadata and Data Files' submissions
+   */
+  isReadyMetadataDataFile: boolean;
+  /**
+   * True if both metadata and file validation statuses are not 'New'
+   */
+  isValidationNotNew: boolean;
+  /**
+   * True if any QC result contains the orphaned file error code ('F008')
+   */
+  hasOrphanError: boolean;
+  /**
+   * True if the metadata validation status is 'Error'
+   */
+  isMetadataValidationError: boolean;
+  /**
+   * True if the data file validation status is 'Error'
+   */
+  isDatafileValidationError: boolean;
+  /**
+   * True if the current submit action allows for admin submit
+   */
+  isAdminSubmit: boolean;
+};
+
+type NodeTypeSummary = {
+  nodeType: string;
+  new: number;
+  updated: number;
+  deleted: number;
+};

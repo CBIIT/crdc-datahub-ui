@@ -1,8 +1,10 @@
 import { FormControl, FormGroup, FormHelperText, Grid, styled } from "@mui/material";
 import { FC, useEffect, useId, useRef, useState } from "react";
-import Tooltip from "../Tooltip";
-import CheckboxInput from "./CheckboxInput";
+
 import { updateInputValidity } from "../../utils";
+import Tooltip from "../Tooltip";
+
+import CheckboxInput from "./CheckboxInput";
 
 const StyledFormLabel = styled("label")(({ theme }) => ({
   fontWeight: 700,

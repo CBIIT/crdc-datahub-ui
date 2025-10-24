@@ -1,5 +1,6 @@
-import { FC, memo } from "react";
 import { isEqual } from "lodash";
+import { FC, memo } from "react";
+
 import { formatFullStudyName } from "../../utils";
 import SummaryList from "../SummaryList";
 

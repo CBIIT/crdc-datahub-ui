@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { memo, useCallback, useMemo } from "react";
+
 import { titleCase } from "../../utils";
 
 const StyledTSpan = styled("tspan")({

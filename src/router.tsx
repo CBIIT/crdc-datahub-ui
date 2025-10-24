@@ -1,10 +1,11 @@
 import { lazy } from "react";
 import { RouteObject } from "react-router-dom";
-import Layout from "./layouts";
+
 import withTracking from "./components/Hocs/withTracking";
 import LazyLoader from "./components/LazyLoader";
-import RequireAuth from "./components/RequireAuth";
 import MaintenanceGate from "./components/MaintenanceGate";
+import RequireAuth from "./components/RequireAuth";
+import Layout from "./layouts";
 
 // Layouts
 const MainLayout = withTracking(Layout);
@@ -14,6 +15,7 @@ const Home = LazyLoader(lazy(() => import("./content")));
 const Login = LazyLoader(lazy(() => import("./content/Login/Controller")));
 const Questionnaire = LazyLoader(lazy(() => import("./content/questionnaire/Controller")));
 const DataSubmissions = LazyLoader(lazy(() => import("./content/dataSubmissions/Controller")));
+const DataExplorer = LazyLoader(lazy(() => import("./content/DataExplorer/Controller")));
 const Users = LazyLoader(lazy(() => import("./content/users/Controller")));
 const ModelNavigator = LazyLoader(lazy(() => import("./content/ModelNavigator/Controller")));
 const ReleaseNotes = LazyLoader(lazy(() => import("./content/ReleaseNotes/Controller")));
@@ -78,6 +80,26 @@ const routes: RouteObject[] = [
                 redirectName="Data Submission"
               />
             ),
+          },
+          {
+            path: "/data-explorer",
+            element: (
+              <RequireAuth
+                component={<DataExplorer />}
+                redirectPath="/data-explorer"
+                redirectName="Data Explorer"
+              />
+            ),
+            children: [
+              {
+                index: true,
+                element: null,
+              },
+              {
+                path: ":studyId",
+                element: null,
+              },
+            ],
           },
           {
             path: "/submission-request/:appId/:section?",

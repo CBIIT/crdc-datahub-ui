@@ -9,7 +9,8 @@ import {
   TypographyProps,
   styled,
 } from "@mui/material";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -34,19 +35,15 @@ const StyledCloseDialogButton = styled(IconButton)(() => ({
 }));
 
 const StyledCloseButton = styled(Button)({
-  background: "#FFFFFF",
   "&.MuiButton-root": {
     minWidth: "101px",
     padding: "10px",
-    color: "#000000",
     fontSize: "16px",
     fontStyle: "normal",
-    fontWeight: 500,
     lineHeight: "24px",
     letterSpacing: "0.32px",
     textTransform: "none",
     alignSelf: "center",
-    border: "1.5px solid #AEAEAE",
   },
 });
 

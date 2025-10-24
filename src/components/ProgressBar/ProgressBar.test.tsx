@@ -1,33 +1,87 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { FC, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
-import config from "../../config/SectionConfig";
-import ProgressBar from "./ProgressBar";
-import {
-  ContextState as FormCtxState,
-  Context as FormCtx,
-  Status as FormStatus,
-} from "../Contexts/FormContext";
-import { ContextState, Context as AuthCtx, Status as AuthStatus } from "../Contexts/AuthContext";
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { axe } from "vitest-axe";
 
-const BaseUser: User = {
-  _id: "base-user-id",
-  firstName: "",
-  lastName: "",
-  role: "User",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  permissions: [],
-  notifications: [],
-  updateAt: "",
-  createdAt: "",
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { formContextStateFactory } from "@/factories/application/FormContextStateFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { organizationFactory } from "@/factories/auth/OrganizationFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+import {
+  GET_APPLICATION_FORM_VERSION,
+  GetApplicationFormVersionResp,
+  LIST_INSTITUTIONS,
+  LIST_ORGS,
+  ListInstitutionsInput,
+  ListInstitutionsResp,
+  ListOrgsInput,
+  ListOrgsResp,
+} from "@/graphql";
+
+import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import config from "../../config/SectionConfig";
+import { render } from "../../test-utils";
+import { ContextState, Context as AuthCtx } from "../Contexts/AuthContext";
+import { ContextState as FormCtxState, Context as FormCtx } from "../Contexts/FormContext";
+
+import ProgressBar from "./ProgressBar";
+
+const institutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
+  request: {
+    query: LIST_INSTITUTIONS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listInstitutions: {
+        total: 3,
+        institutions: [
+          ...institutionFactory.build(5, (idx) => ({
+            _id: `institution-${idx}`,
+            name: `Institution ${idx + 1}`,
+            status: "Active",
+          })),
+        ],
+      },
+    },
+  },
+};
+
+const formVersionMock: MockedResponse<GetApplicationFormVersionResp> = {
+  request: {
+    query: GET_APPLICATION_FORM_VERSION,
+  },
+  result: {
+    data: {
+      getApplicationFormVersion: {
+        _id: "mock-uuid",
+        version: "1.0.0",
+      },
+    },
+  },
+};
+
+const listOrgsMock: MockedResponse<ListOrgsResp, ListOrgsInput> = {
+  request: {
+    query: LIST_ORGS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      listPrograms: {
+        total: 3,
+        programs: [
+          ...organizationFactory.build(3, (idx) => ({
+            _id: `program-${idx + 1}`,
+            name: `Program ${idx + 1}`,
+            status: "Active",
+          })),
+        ],
+      },
+    },
+  },
 };
 
 const BaseApplication: Application = {
@@ -37,39 +91,36 @@ const BaseApplication: Application = {
 
 type Props = {
   section: string;
-  user?: User;
-  data?: Application;
+  user?: Partial<User>;
+  data?: Partial<Application>;
 };
 
-const BaseComponent: FC<Props> = ({
-  section,
-  user = { ...BaseUser },
-  data = { ...BaseApplication },
-}: Props) => {
+const BaseComponent: FC<Props> = ({ section, user = {}, data = {} }: Props) => {
   const formValue = useMemo<FormCtxState>(
-    () => ({
-      status: FormStatus.LOADED,
-      data: data as Application,
-    }),
+    () =>
+      formContextStateFactory.build({
+        data: applicationFactory.build({ ...data }),
+      }),
     [data]
   );
 
   const authValue = useMemo<ContextState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      user,
-      isLoggedIn: true,
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ ...user }),
+      }),
     [user]
   );
 
   return (
     <BrowserRouter>
-      <AuthCtx.Provider value={authValue}>
-        <FormCtx.Provider value={formValue}>
-          <ProgressBar section={section} />
-        </FormCtx.Provider>
-      </AuthCtx.Provider>
+      <MockedProvider mocks={[institutionsMock, formVersionMock, listOrgsMock]}>
+        <AuthCtx.Provider value={authValue}>
+          <FormCtx.Provider value={formValue}>
+            <ProgressBar section={section} />
+          </FormCtx.Provider>
+        </AuthCtx.Provider>
+      </MockedProvider>
     </BrowserRouter>
   );
 };
@@ -281,7 +332,6 @@ describe("Basic Functionality", () => {
           section={config.REVIEW.title}
           data={data}
           user={{
-            ...BaseUser,
             _id: "owner-of-sr",
             permissions: ["submission_request:view", "submission_request:submit"],
           }}
@@ -315,7 +365,6 @@ describe("Basic Functionality", () => {
           section={config.REVIEW.title}
           data={data}
           user={{
-            ...BaseUser,
             _id: "some-other-user",
             role: "Admin",
             permissions: ["submission_request:view", "submission_request:submit"],
@@ -350,7 +399,6 @@ describe("Basic Functionality", () => {
           section={config.REVIEW.title}
           data={data}
           user={{
-            ...BaseUser,
             _id: "user-id-01",
             role: "Admin",
             permissions: ["submission_request:view"], // Only possible to view the submission request, no submit or review
@@ -363,4 +411,93 @@ describe("Basic Functionality", () => {
       expect(reviewSection.textContent).toBe("Review");
     }
   );
+});
+
+describe("Implementation Requirements", () => {
+  it("should disable the import button in the Review section", () => {
+    const data: Application = {
+      ...BaseApplication,
+      status: "In Progress",
+      applicant: {
+        ...BaseApplication.applicant,
+        applicantID: "current-user",
+      },
+      questionnaireData: {
+        ...BaseApplication.questionnaireData,
+        sections: Object.keys(config)?.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { getByTestId } = render(
+      <BaseComponent
+        section={config.REVIEW.id}
+        data={data}
+        user={{
+          _id: "current-user",
+          role: "Submitter",
+          permissions: ["submission_request:view", "submission_request:create"],
+        }}
+      />
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeDisabled();
+  });
+
+  it("should show the import button when user is the submission owner", () => {
+    const data: Application = {
+      ...BaseApplication,
+      status: "In Progress",
+      applicant: {
+        ...BaseApplication.applicant,
+        applicantID: "current-user",
+      },
+      questionnaireData: {
+        ...BaseApplication.questionnaireData,
+        sections: Object.keys(config)?.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { getByTestId } = render(
+      <BaseComponent
+        section={config.A.id}
+        data={data}
+        user={{
+          _id: "current-user",
+          role: "Admin",
+          permissions: ["submission_request:view", "submission_request:create"],
+        }}
+      />
+    );
+
+    expect(getByTestId("import-application-excel-button")).toBeInTheDocument();
+  });
+
+  it("should not show the import button when user is not the submission owner", () => {
+    const data: Application = {
+      ...BaseApplication,
+      status: "In Progress",
+      applicant: {
+        ...BaseApplication.applicant,
+        applicantID: "other-user",
+      },
+      questionnaireData: {
+        ...BaseApplication.questionnaireData,
+        sections: Object.keys(config)?.map((s) => ({ name: s, status: "Completed" })),
+      },
+    };
+
+    const { queryByTestId } = render(
+      <BaseComponent
+        section={config.A.id}
+        data={data}
+        user={{
+          _id: "current-user",
+          role: "Admin",
+          permissions: ["submission_request:view", "submission_request:create"],
+        }}
+      />
+    );
+
+    expect(queryByTestId("import-application-excel-button")).not.toBeInTheDocument();
+  });
 });

@@ -1,9 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { fn, expect } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
-import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
-import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
-import Button from "./index";
+import type { Meta, StoryObj } from "@storybook/react";
+import { fn, expect, screen, userEvent, waitFor, within } from "@storybook/test";
+
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -12,6 +15,9 @@ import {
   RestoreAppInput,
   RestoreAppResp,
 } from "../../graphql";
+import { Context as AuthContext } from "../Contexts/AuthContext";
+
+import Button from "./index";
 
 const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
   request: {
@@ -53,16 +59,14 @@ const meta: Meta<typeof Button> = {
   decorators: [
     (Story) => (
       <AuthContext.Provider
-        value={
-          {
-            isLoggedIn: true,
-            user: {
-              _id: "applicant-123",
-              role: "Submitter",
-              permissions: ["submission_request:cancel"],
-            } as User,
-          } as AuthCtxState
-        }
+        value={authCtxStateFactory.build({
+          isLoggedIn: true,
+          user: userFactory.build({
+            _id: "applicant-123",
+            role: "Submitter",
+            permissions: ["submission_request:cancel"],
+          }),
+        })}
       >
         <Story />
       </AuthContext.Provider>
@@ -80,30 +84,16 @@ export const RestoreCanceled: Story = {
   name: "Restore (From Canceled)",
   args: {
     onCancel: fn(),
-    application: {
+    application: applicationFactory.build({
       _id: "mock-id",
       status: "Canceled",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
+      applicant: applicantFactory.build({
         applicantID: "applicant-123",
         applicantName: "",
         applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
+      }),
       studyAbbreviation: "Mock Study that is canceled",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
+    }),
   },
   argTypes: {
     application: {
@@ -121,30 +111,16 @@ export const RestoreDeleted: Story = {
   name: "Restore (From Deleted)",
   args: {
     onCancel: fn(),
-    application: {
+    application: applicationFactory.build({
       _id: "mock-id",
       status: "Deleted",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
+      applicant: applicantFactory.build({
         applicantID: "applicant-123",
         applicantName: "",
         applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
+      }),
       studyAbbreviation: "Mock Study that is deleted",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
+    }),
   },
   argTypes: {
     application: {
@@ -159,30 +135,16 @@ export const RestoreDialog: Story = {
   name: "Restore Confirmation Dialog",
   args: {
     onCancel: fn(),
-    application: {
+    application: applicationFactory.build({
       _id: "mock-id",
       status: "Canceled",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
+      applicant: applicantFactory.build({
         applicantID: "applicant-123",
         applicantName: "",
         applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
+      }),
       studyAbbreviation: "Mock Study that is canceled",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
+    }),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -219,30 +181,16 @@ export const RestoreDialog: Story = {
 export const Cancel: Story = {
   args: {
     onCancel: fn(),
-    application: {
+    application: applicationFactory.build({
       _id: "mock-id",
       status: "In Progress",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
+      applicant: applicantFactory.build({
         applicantID: "applicant-123",
         applicantName: "",
         applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
+      }),
       studyAbbreviation: "Mock Study that is in progress",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
+    }),
   },
   argTypes: {
     application: {
@@ -257,30 +205,16 @@ export const CancelConfirmDialog: Story = {
   name: "Cancel Confirmation Dialog",
   args: {
     onCancel: fn(),
-    application: {
+    application: applicationFactory.build({
       _id: "mock-id",
       status: "In Progress",
-      createdAt: "",
-      updatedAt: "",
-      submittedDate: "",
-      history: [],
-      ORCID: "",
-      applicant: {
+      applicant: applicantFactory.build({
         applicantID: "applicant-123",
         applicantName: "",
         applicantEmail: "",
-      },
-      PI: "",
-      controlledAccess: false,
-      openAccess: false,
+      }),
       studyAbbreviation: "Mock Study that is in progress",
-      conditional: false,
-      pendingConditions: [],
-      programName: "",
-      programAbbreviation: "",
-      programDescription: "",
-      version: "",
-    },
+    }),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

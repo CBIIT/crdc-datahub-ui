@@ -1,9 +1,13 @@
-import React, { FC } from "react";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedProviderProps, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { InstitutionProvider, useInstitutionList } from "./InstitutionListContext";
+import React, { FC } from "react";
+
+import { institutionFactory } from "@/factories/institution/InstitutionFactory";
+
 import { LIST_INSTITUTIONS, ListInstitutionsInput, ListInstitutionsResp } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+
+import { InstitutionProvider, useInstitutionList } from "./InstitutionListContext";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -31,11 +35,11 @@ const TestParent: FC<Props> = ({ mocks = [], mockProps = {}, children }: Props) 
 
 describe("useInstitutionList", () => {
   it("should throw an exception when used outside of a InstitutionProvider", async () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "useInstitutionList cannot be used outside of the InstitutionProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 
   it("should render without crashing (no data)", async () => {
@@ -94,26 +98,12 @@ describe("useInstitutionList", () => {
           data: {
             listInstitutions: {
               total: 3,
-              institutions: [
-                {
-                  _id: "inst 1",
-                  name: "inst 1",
-                  status: "Active",
-                  submitterCount: 0,
-                },
-                {
-                  _id: "inst 2",
-                  name: "inst 2",
-                  status: "Active",
-                  submitterCount: 0,
-                },
-                {
-                  _id: "inst 3",
-                  name: "inst 3",
-                  status: "Active",
-                  submitterCount: 0,
-                },
-              ],
+              institutions: institutionFactory.build(3, (index) => ({
+                _id: `inst ${index + 1}`,
+                name: `inst ${index + 1}`,
+                status: "Active",
+                submitterCount: 0,
+              })),
             },
           },
         },

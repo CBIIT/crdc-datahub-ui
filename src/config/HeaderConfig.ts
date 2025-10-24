@@ -1,8 +1,10 @@
 import Logo from "../assets/header/Portal_Logo.svg";
 import LogoSmall from "../assets/header/Portal_Logo_Small.svg";
 import usaFlagSmall from "../assets/header/us_flag_small.svg";
-import { DataCommons } from "./DataCommons";
+import DataExplorerInstructions from "../assets/pdf/CRDC_Data_Explorer_Instructions.pdf";
 import ApiInstructions from "../assets/pdf/CRDC_Data_Submission_API_Instructions.pdf";
+
+import { DataCommons } from "./DataCommons";
 
 export const DataSubmissionInstructionsLink =
   "https://datacommons.cancer.gov/data-submission-instructions";
@@ -38,6 +40,12 @@ export const HeaderLinks = [
     className: "navMobileItem",
   },
   {
+    name: "Data Explorer",
+    link: "/data-explorer",
+    id: "navbar-dropdown-data-explorer",
+    className: "navMobileItem",
+  },
+  {
     name: "Documentation",
     link: "#",
     id: "navbar-dropdown-documentation",
@@ -56,6 +64,14 @@ export const HeaderLinks = [
           name: "Data Submission\nInstructions",
           link: DataSubmissionInstructionsLink,
           id: "data-submission-instructions",
+          className: "navMobileSubItem",
+        },
+      ],
+      [
+        {
+          name: "Data Explorer\nInstructions",
+          link: DataExplorerInstructions,
+          id: "data-explorer-instructions",
           className: "navMobileSubItem",
         },
       ],
@@ -83,27 +99,12 @@ export const HeaderLinks = [
       },
     ]),
   },
-  {
-    name: "Operation Dashboard",
-    link: "/operation-dashboard",
-    id: "navbar-dropdown-operation-dashboard",
-    className: "navMobileItem",
-    permissions: ["dashboard:view"],
-  },
 
   {
     name: "User",
     id: "navbar-dropdown-user",
     className: "navMobileItem clickable",
     columns: [
-      [
-        {
-          name: "User Profile",
-          link: "/profile/:userId",
-          id: "navbar-dropdown-item-user-profile",
-          className: "navMobileSubItem",
-        },
-      ],
       [
         {
           name: "Uploader CLI Tool",
@@ -120,6 +121,13 @@ export const HeaderLinks = [
         },
       ],
       [
+        {
+          name: "Operation Dashboard",
+          link: "/operation-dashboard",
+          id: "navbar-dropdown-operation-dashboard",
+          className: "navMobileSubItem",
+          permissions: ["dashboard:view"],
+        },
         {
           name: "Manage Studies",
           link: "/studies",
@@ -147,6 +155,14 @@ export const HeaderLinks = [
           id: "navbar-dropdown-item-user-manage",
           className: "navMobileSubItem",
           permissions: ["user:manage"],
+        },
+      ],
+      [
+        {
+          name: "User Profile",
+          link: "/profile/:userId",
+          id: "navbar-dropdown-item-user-profile",
+          className: "navMobileSubItem",
         },
       ],
       [

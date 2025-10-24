@@ -1,6 +1,8 @@
 import { styled } from "@mui/material";
 import { Link } from "react-router-dom";
+
 import FooterData from "../../config/FooterConfig";
+
 import NewsletterForm from "./NewsletterForm";
 
 const StyledFooter = styled("footer")({

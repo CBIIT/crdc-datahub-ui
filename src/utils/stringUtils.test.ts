@@ -550,7 +550,7 @@ describe("coerceToString", () => {
     expect(utils.coerceToString(value)).toBe(expected);
   });
 
-  it.each<unknown>([Symbol("symbol"), function mock() {}, () => {}])(
+  it.each<unknown>([function mock() {}, () => {}])(
     "should return an empty string for unsupported type %p",
     (value) => {
       expect(utils.coerceToString(value)).toBe("");

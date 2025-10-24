@@ -1,11 +1,15 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn } from "@storybook/test";
 import { MockedResponse } from "@apollo/client/testing";
-import { screen, userEvent, waitFor, within } from "@storybook/testing-library";
+import type { Meta, StoryObj } from "@storybook/react";
+import { screen, userEvent, waitFor, within, expect, fn } from "@storybook/test";
+
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+
+import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 import { Context as AuthContext, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 import { Context as FormContext, Status as FormStatus } from "../Contexts/FormContext";
+
 import Button from "./index";
-import { CANCEL_APP, CancelAppInput, CancelAppResp } from "../../graphql";
 
 const mockCancelApp: MockedResponse<CancelAppResp, CancelAppInput> = {
   request: {
@@ -54,31 +58,13 @@ const meta: Meta<typeof Button> = {
       <FormContext.Provider
         value={{
           status: FormStatus.LOADED,
-          data: {
+          data: applicationFactory.build({
             _id: "mock-id",
             status: "In Progress",
-            createdAt: "",
-            updatedAt: "",
-            submittedDate: "",
-            history: [],
-            ORCID: "",
-            applicant: {
+            applicant: applicantFactory.build({
               applicantID: "applicant-123",
-              applicantName: "",
-              applicantEmail: "",
-            },
-            PI: "",
-            controlledAccess: false,
-            openAccess: false,
-            studyAbbreviation: "MOCK-STUDY",
-            conditional: false,
-            pendingConditions: [],
-            programName: "",
-            programAbbreviation: "",
-            programDescription: "",
-            version: "",
-            questionnaireData: null,
-          },
+            }),
+          }),
         }}
       >
         <Story />

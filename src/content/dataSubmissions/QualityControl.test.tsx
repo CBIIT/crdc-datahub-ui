@@ -1,10 +1,24 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { aggregatedQCResultFactory } from "@/factories/submission/AggregatedQCResultFactory";
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
+import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 import {
   LIST_BATCHES,
   ListBatchesInput,
@@ -18,74 +32,24 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
   SubmissionQCResultsInput,
+  GetPendingPVsResponse,
+  GetPendingPVsInput,
+  GET_PENDING_PVS,
 } from "../../graphql";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../../components/Contexts/SubmissionContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { fireEvent, render, waitFor, within } from "../../test-utils";
+
 import QualityControl from "./QualityControl";
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseQCResult: QCResult = {
-  submissionID: "",
-  type: "",
-  validationType: "metadata",
-  batchID: "",
-  displayID: 0,
-  submittedID: "",
-  severity: "Error",
-  uploadedDate: "",
-  validatedDate: "",
-  errors: [],
-  warnings: [],
-};
-
-const baseBatch = {
-  _id: "",
-  displayID: 0,
-  createdAt: "",
-  updatedAt: "",
-  __typename: "Batch",
+const emptyPendingPVsMock: MockedResponse<GetPendingPVsResponse, GetPendingPVsInput> = {
+  request: {
+    query: GET_PENDING_PVS,
+  },
+  variableMatcher: () => true,
+  result: {
+    data: {
+      getPendingPVs: [],
+    },
+  },
 };
 
 const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
@@ -113,9 +77,6 @@ const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
         total: 0,
         batches: null,
       },
-      batchStatusList: {
-        batches: null,
-      },
     },
   },
 };
@@ -134,14 +95,14 @@ const issueTypesMock: MockedResponse<
       aggregatedSubmissionQCResults: {
         total: 1,
         results: [
-          {
-            code: "ISSUE1",
-            title: "Issue Title 1",
-            count: 100,
-            description: "",
-            severity: "Error",
-            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as AggregatedQCResult,
+          aggregatedQCResultFactory
+            .build({
+              code: "ISSUE1",
+              title: "Issue Title 1",
+              count: 100,
+              severity: "Error",
+            })
+            .withTypename("AggregatedQCResult"),
         ],
       },
     },
@@ -162,22 +123,22 @@ const aggSubmissionMock: MockedResponse<
       aggregatedSubmissionQCResults: {
         total: 2,
         results: [
-          {
-            code: "ISSUE1",
-            title: "Issue Title 1",
-            count: 100,
-            description: "",
-            severity: "Error",
-            __typename: "AggregatedQCResult", // Necessary or tests fail due to query fragments relying on type
-          } as AggregatedQCResult,
-          {
-            code: "ISSUE2",
-            title: "Issue Title 2",
-            count: 200,
-            description: "",
-            severity: "Warning",
-            __typename: "AggregatedQCResult",
-          } as AggregatedQCResult,
+          aggregatedQCResultFactory
+            .build({
+              code: "ISSUE1",
+              title: "Issue Title 1",
+              count: 100,
+              severity: "Error",
+            })
+            .withTypename("AggregatedQCResult"),
+          aggregatedQCResultFactory
+            .build({
+              code: "ISSUE2",
+              title: "Issue Title 2",
+              count: 200,
+              severity: "Warning",
+            })
+            .withTypename("AggregatedQCResult"),
         ],
       },
     },
@@ -207,20 +168,25 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: ParentProps) => {
   const ctxValue: SubmissionCtxState = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          ...baseSubmission,
-          ...submission,
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            ...submission,
+          }),
+          getSubmissionAttributes: {
+            submissionAttributes: submissionAttributesFactory
+              .pick(["hasOrphanError", "isBatchUploading"])
+              .build({
+                hasOrphanError: false,
+                isBatchUploading: false,
+              }),
+          },
+          submissionStats: { stats: [] },
         },
-        batchStatusList: {
-          batches: [],
-        },
-        submissionStats: { stats: [] },
-      },
-      error: null,
-    }),
+        error: null,
+      }),
     [submission]
   );
 
@@ -237,7 +203,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
 
 describe("General", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any accessibility violations", async () => {
@@ -267,7 +233,7 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock]}
+          mocks={[aggMocks, mocks, nodesMock, batchesMock, issueTypesMock, emptyPendingPVsMock]}
           submission={{ _id: "test-network-error" }}
         >
           {children}
@@ -291,7 +257,7 @@ describe("General", () => {
       );
     });
 
-    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+    fireEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
 
     await waitFor(() => {
       expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
@@ -330,7 +296,15 @@ describe("General", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[aggMocks, submissionQCMock, mocks, nodesMock, batchesMock, issueTypesMock]}
+          mocks={[
+            aggMocks,
+            submissionQCMock,
+            mocks,
+            nodesMock,
+            batchesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-graphql-error" }}
         >
           {children}
@@ -373,7 +347,7 @@ describe("General", () => {
 
 describe("Filters", () => {
   it("should not send batchIDs or nodeTypes when the filter is set to 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
       request: {
         query: SUBMISSION_QC_RESULTS,
@@ -392,7 +366,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-filters-1" }}
         >
           {children}
@@ -423,9 +404,9 @@ describe("Filters", () => {
   });
 
   it("should include batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<SubmissionQCResultsResp, null> = {
-      maxUsageCount: 3, // Init + 2 Filter changes
+      maxUsageCount: Infinity, // Init + 2 Filter changes
       request: {
         query: SUBMISSION_QC_RESULTS,
       },
@@ -464,15 +445,13 @@ describe("Filters", () => {
           listBatches: {
             total: 1,
             batches: [
-              {
-                ...baseBatch,
-                _id: "batch-999",
-                displayID: 999,
-              },
+              batchFactory
+                .build({
+                  _id: "batch-999",
+                  displayID: 999,
+                })
+                .withTypename("Batch"),
             ],
-          },
-          batchStatusList: {
-            batches: null, // NOTE: Required by type, but not used in the component
           },
         },
       },
@@ -481,7 +460,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMockWithData, nodesMockWithData, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMockWithData,
+            nodesMockWithData,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-filters-2" }}
         >
           {children}
@@ -581,7 +567,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "filter-nodes" }}
         >
           {children}
@@ -656,7 +649,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "sorting-nodeType" }}
         >
           {children}
@@ -735,7 +735,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "filter-nodes" }}
         >
           {children}
@@ -805,14 +812,35 @@ describe("Filters", () => {
           listBatches: {
             total: 3,
             batches: [
-              { ...baseBatch, _id: "batch01", displayID: 1, createdAt: "2023-05-22T00:00:00Z" },
-              { ...baseBatch, _id: "batch02", displayID: 55, createdAt: "2024-07-31T00:00:00Z" },
-              { ...baseBatch, _id: "batch03", displayID: 94, createdAt: "2024-12-12T00:00:00Z" },
-              { ...baseBatch, _id: "batch04", displayID: 1024, createdAt: "2028-10-03T00:00:00Z" },
+              batchFactory
+                .build({
+                  _id: "batch01",
+                  displayID: 1,
+                  createdAt: "2023-05-22T00:00:00Z",
+                })
+                .withTypename("Batch"),
+              batchFactory
+                .build({
+                  _id: "batch02",
+                  displayID: 55,
+                  createdAt: "2024-07-31T00:00:00Z",
+                })
+                .withTypename("Batch"),
+              batchFactory
+                .build({
+                  _id: "batch03",
+                  displayID: 94,
+                  createdAt: "2024-12-12T00:00:00Z",
+                })
+                .withTypename("Batch"),
+              batchFactory
+                .build({
+                  _id: "batch04",
+                  displayID: 1024,
+                  createdAt: "2028-10-03T00:00:00Z",
+                })
+                .withTypename("Batch"),
             ],
-          },
-          batchStatusList: {
-            batches: null,
           },
         },
       },
@@ -821,7 +849,14 @@ describe("Filters", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "format-batches" }}
         >
           {children}
@@ -867,7 +902,7 @@ describe("Filters", () => {
 
 describe("Table", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // NOTE: This is just a sanity check for the column rendering
@@ -883,8 +918,7 @@ describe("Table", () => {
           submissionQCResults: {
             total: 2,
             results: [
-              {
-                ...baseQCResult,
+              qcResultFactory.build({
                 displayID: 1,
                 type: "1-fake-long-node-01",
                 submittedID: "1-submitted-id-001",
@@ -893,13 +927,12 @@ describe("Table", () => {
                 warnings: [
                   {
                     code: null,
-                    title: "mock-warning-title-1",
-                    description: "mock-warning-description-1",
+                    title: "mock-very-very-long-warning-title-1",
+                    description: "mock-very-very-long-warning-description-1",
                   },
                 ],
-              },
-              {
-                ...baseQCResult,
+              }),
+              qcResultFactory.build({
                 displayID: 2,
                 type: "2-fake-long-node-02",
                 submittedID: "2-submitted-id-002",
@@ -912,7 +945,7 @@ describe("Table", () => {
                     description: "mock-error-description-1",
                   },
                 ],
-              },
+              }),
             ],
           },
         },
@@ -929,6 +962,7 @@ describe("Table", () => {
             batchesMock,
             nodesMock,
             issueTypesMock,
+            emptyPendingPVsMock,
           ]}
           submission={{ _id: "format-batches" }}
         >
@@ -948,12 +982,12 @@ describe("Table", () => {
 
     await waitFor(() => {
       expect(getByText("1-submitted-id-...")).toBeInTheDocument();
-      expect(getByText("1-fake-long-nod...")).toBeInTheDocument();
+      expect(getByText("1-fake-long-...")).toBeInTheDocument();
     });
 
-    expect(getByText("mock-warning-ti...")).toBeInTheDocument();
+    expect(getByText("mock-very-very-long-warning-ti...")).toBeInTheDocument();
     expect(getByText(/mock-error-1/)).toBeInTheDocument();
-    expect(getByText("2-fake-long-nod...")).toBeInTheDocument();
+    expect(getByText("2-fake-long-...")).toBeInTheDocument();
     expect(getByText("5/22/2023")).toBeInTheDocument();
     expect(getByText("7/31/2024")).toBeInTheDocument();
   });
@@ -977,7 +1011,14 @@ describe("Table", () => {
     const { getByText } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-placeholder" }}
         >
           {children}
@@ -1013,7 +1054,14 @@ describe("Table", () => {
     const { getByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-pagination-count" }}
         >
           {children}
@@ -1037,7 +1085,7 @@ describe("Table", () => {
         data: {
           submissionQCResults: {
             total: 1,
-            results: [{ ...baseQCResult }],
+            results: [qcResultFactory.build()],
           },
         },
       },
@@ -1046,7 +1094,14 @@ describe("Table", () => {
     const { getAllByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-enabled-export" }}
         >
           {children}
@@ -1081,7 +1136,14 @@ describe("Table", () => {
     const { getAllByTestId } = render(<QualityControl />, {
       wrapper: ({ children }) => (
         <TestParent
-          mocks={[mock, batchesMock, nodesMock, issueTypesMock, aggSubmissionMock]}
+          mocks={[
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            aggSubmissionMock,
+            emptyPendingPVsMock,
+          ]}
           submission={{ _id: "test-disabled-export" }}
         >
           {children}
@@ -1095,5 +1157,342 @@ describe("Table", () => {
       expect(buttons[0]).toBeDisabled();
       expect(buttons[1]).toBeDisabled();
     });
+  });
+});
+
+describe("Implementation Requirements", () => {
+  it("should display 'Record Count' column in Aggregated view with correct values", async () => {
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "agg-view-record-count" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    expect(within(getByTestId("table-view-switch")).getByRole("checkbox")).toHaveProperty(
+      "checked",
+      false
+    );
+
+    expect(await findByText("Record Count")).toBeInTheDocument();
+
+    expect(await findByText("100")).toBeInTheDocument();
+    expect(await findByText("200")).toBeInTheDocument();
+  });
+
+  it("should display 'Issue Count' column in Expanded view with correct values", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 2,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: errorMessageFactory.build(2, (index) => ({
+                  title: `error-${index}`,
+                  description: `desc-${index}`,
+                })),
+                warnings: [errorMessageFactory.build({ title: "warn-1", description: "desc-3" })],
+                issueCount: 3,
+              }),
+              qcResultFactory.build({
+                displayID: 2,
+                type: "node-02",
+                submittedID: "id-002",
+                severity: "Warning",
+                validatedDate: "2024-07-31T11:27:00Z",
+                errors: [],
+                warnings: [
+                  errorMessageFactory.build({ code: null, title: "warn-2", description: "desc-4" }),
+                ],
+                issueCount: 10003,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-issue-count" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    expect(await findByText("Issue Count")).toBeInTheDocument();
+
+    expect(await findByText("3")).toBeInTheDocument();
+    expect(await findByText("10,003")).toBeInTheDocument();
+  });
+
+  it("should contain 'Issue(s)' column in Expanded view", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: [
+                  errorMessageFactory.build({
+                    code: null,
+                    title: "error-1",
+                    description: "desc-1",
+                  }),
+                ],
+                warnings: [],
+                issueCount: 1,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-issues-col" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    expect(await findByText("Issue(s)")).toBeInTheDocument();
+  });
+
+  it("should display only the first issue message, truncated, and append 'and other #' if multiple issues exist in Expanded view", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: [
+                  errorMessageFactory.build({
+                    title: "A very long error message that should be truncated for display",
+                    description: "desc-1",
+                  }),
+                  errorMessageFactory.build({
+                    title: "error-2",
+                    description: "desc-2",
+                  }),
+                ],
+                warnings: [
+                  errorMessageFactory.build({ code: null, title: "warn-1", description: "desc-3" }),
+                ],
+                issueCount: 3,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText, findByTestId } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-issue-trunc" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    expect(await findByText(/A very long error message that.../)).toBeInTheDocument();
+
+    expect(await findByTestId("others-text")).toHaveTextContent("other 2");
+  });
+
+  it("should show tooltip on 'other #' with correct message in Expanded view", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: errorMessageFactory.build(2, (index) => ({
+                  title: `error-${index}`,
+                  description: `desc-${index}`,
+                })),
+                warnings: [],
+                issueCount: 2,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByText, findByTestId } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-others-tooltip" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    const others = await findByTestId("others-text");
+    userEvent.hover(others);
+
+    expect(await findByText("Click to view all issues for this record.")).toBeInTheDocument();
+  });
+
+  it("should open the error details dialog when clicking on 'other #'", async () => {
+    const mock: MockedResponse<SubmissionQCResultsResp, null> = {
+      request: {
+        query: SUBMISSION_QC_RESULTS,
+      },
+      variableMatcher: () => true,
+      result: {
+        data: {
+          submissionQCResults: {
+            total: 1,
+            results: [
+              qcResultFactory.build({
+                displayID: 1,
+                type: "node-01",
+                submittedID: "id-001",
+                severity: "Error",
+                validatedDate: "2023-05-22T12:52:00Z",
+                errors: errorMessageFactory.build(3, (index) => ({
+                  title: `error-${index}`,
+                  description: `desc-${index}`,
+                })),
+                warnings: [],
+                issueCount: 3,
+              }),
+            ],
+          },
+        },
+      },
+    };
+
+    const { getByTestId, findByTestId, findByText } = render(<QualityControl />, {
+      wrapper: ({ children }) => (
+        <TestParent
+          mocks={[
+            aggSubmissionMock,
+            submissionQCMock,
+            mock,
+            batchesMock,
+            nodesMock,
+            issueTypesMock,
+            emptyPendingPVsMock,
+          ]}
+          submission={{ _id: "expanded-view-others-dialog" }}
+        >
+          {children}
+        </TestParent>
+      ),
+    });
+
+    userEvent.click(within(getByTestId("table-view-switch")).getByRole("checkbox"));
+
+    const others = await findByTestId("others-text");
+    userEvent.click(others);
+
+    expect(await findByText("Validation Issues")).toBeInTheDocument();
+    expect(await findByText(/For Node-01 Node ID id-001/i)).toBeInTheDocument();
   });
 });

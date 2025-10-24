@@ -1,6 +1,7 @@
-import React, { FC, useState, useEffect } from "react";
 import { Dialog, styled } from "@mui/material";
+import React, { FC, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import background from "../assets/banner/login_banner.webp";
 import { useAuthContext } from "../components/Contexts/AuthContext";
 
@@ -52,7 +53,7 @@ const PageContentContainer = styled("div")({
   width: "100%",
   height: "633px",
   margin: "auto",
-  backgroundImage: `url(${background})`,
+  backgroundImage: `url("${background}")`,
   backgroundBlendMode: "luminosity, normal",
   backgroundSize: "cover",
   backgroundRepeat: "no-repeat",

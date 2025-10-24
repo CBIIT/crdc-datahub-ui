@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom";
+
+import SuspenseLoader from "../../components/SuspenseLoader";
 import env from "../../env";
 import usePageTitle from "../../hooks/usePageTitle";
-import SuspenseLoader from "../../components/SuspenseLoader";
 
 /**
  * Handles the NIH SSO redirect to the login page.
@@ -14,8 +15,8 @@ const LoginController = () => {
   const { state } = useLocation();
 
   const params = new URLSearchParams({
-    client_id: env.REACT_APP_NIH_CLIENT_ID,
-    redirect_uri: env.REACT_APP_NIH_REDIRECT_URL,
+    client_id: env.VITE_NIH_CLIENT_ID,
+    redirect_uri: env.VITE_NIH_REDIRECT_URL,
     response_type: "code",
     scope: "openid email profile",
     prompt: "login",
@@ -25,7 +26,7 @@ const LoginController = () => {
     params.append("state", state.redirectState);
   }
 
-  window.location.href = `${env.REACT_APP_NIH_AUTHORIZE_URL}?${params?.toString()}`;
+  window.location.href = `${env.VITE_NIH_AUTHORIZE_URL}?${params?.toString()}`;
 
   return <SuspenseLoader data-testid="login-flow-loader" fullscreen />;
 };

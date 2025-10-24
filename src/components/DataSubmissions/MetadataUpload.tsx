@@ -1,10 +1,14 @@
-import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
+import { Button, Stack, Typography, styled } from "@mui/material";
 import { isEqual } from "lodash";
 import { VariantType } from "notistack";
-import { Button, Stack, Typography, styled } from "@mui/material";
-import Tooltip from "../Tooltip";
+import React, { ReactElement, useEffect, useMemo, useRef, useState } from "react";
+
+import EditIconSvg from "@/assets/icons/pencil_icon.svg?react";
+
+import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import {
   CREATE_BATCH,
   CreateBatchInput,
@@ -12,14 +16,14 @@ import {
   UPDATE_BATCH,
   UpdateBatchResp,
 } from "../../graphql";
+import { Logger } from "../../utils";
 import { useAuthContext } from "../Contexts/AuthContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+import SubmissionUpdate from "../SubmissionUpdateDialog";
+import Tooltip from "../Tooltip";
+
 import FlowWrapper from "./FlowWrapper";
-import { Logger } from "../../utils";
-import { hasPermission } from "../../config/AuthPermissions";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import NavigatorLink from "./NavigatorLink";
-import ModelSelection from "../ModelSelection";
 
 const StyledUploadTypeText = styled(Typography)(() => ({
   color: "#083A50",
@@ -105,6 +109,11 @@ const StyledModelVersionText = styled(Typography)({
     fontWeight: 700,
     textTransform: "none",
   },
+});
+
+const StyledEditIcon = styled(EditIconSvg)({
+  color: "#005999",
+  marginBottom: "3px",
 });
 
 type Props = {
@@ -351,7 +360,7 @@ const MetadataUpload = ({ readOnly, onCreateBatch, onUpload }: Props) => {
             <NavigatorLink submission={getSubmission} />
           </StyledModelVersionText>
         )}
-        <ModelSelection />
+        <SubmissionUpdate icon={<StyledEditIcon />} />
       </Stack>
     ),
     [getSubmission]

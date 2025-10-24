@@ -1,5 +1,3 @@
-import React, { FC, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   List,
   ListItem,
@@ -8,13 +6,20 @@ import {
   Stack,
   ListItemAvatar,
   styled,
+  Divider,
 } from "@mui/material";
+import React, { FC, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import { hasPermission } from "../../config/AuthPermissions";
 import config from "../../config/SectionConfig";
-import { Status, useFormContext } from "../Contexts/FormContext";
-import StatusAdornment from "./StatusAdornment";
 import useFormMode from "../../hooks/useFormMode";
 import { useAuthContext } from "../Contexts/AuthContext";
-import { hasPermission } from "../../config/AuthPermissions";
+import { Status, useFormContext } from "../Contexts/FormContext";
+import ExportApplicationButton from "../ExportApplicationButton";
+import ImportApplicationButton from "../ImportApplicationButton";
+
+import StatusAdornment from "./StatusAdornment";
 
 type Props = {
   section: string;
@@ -69,6 +74,13 @@ const StyledButton = styled(ListItemButton)({
   },
   "&.Mui-disabled": {
     cursor: "not-allowed !important",
+  },
+});
+
+const StyledDivider = styled(Divider)({
+  margin: "38px 0",
+  "&.MuiDivider-root": {
+    borderBottomWidth: "2.25px",
   },
 });
 
@@ -131,30 +143,38 @@ const ProgressBar: FC<Props> = ({ section }) => {
   }, [section, sectionStatuses, formMode, formStatus, data?.status, user?.role]);
 
   return (
-    <StyledList>
-      {sections.map(({ url, id, icon, title, disabled, selected }, idx) => (
-        <StyledListItem key={title}>
-          <Link
-            id={`progress-bar-section-${id}`}
-            to={url}
-            style={{ pointerEvents: !disabled ? "initial" : "none" }}
-            data-testid={`progress-bar-section-${idx}`}
-            aria-disabled={disabled || false}
-            data-selected={selected || false}
-            preventScrollReset
-          >
-            <Stack direction="row" alignItems="center" justifyContent="center">
-              <StyledAvatar>
-                <StatusAdornment icon={icon} />
-              </StyledAvatar>
-              <StyledButton selected={selected} disabled={disabled}>
-                <ListItemText primary={title} />
-              </StyledButton>
-            </Stack>
-          </Link>
-        </StyledListItem>
-      ))}
-    </StyledList>
+    <Stack direction="column">
+      <StyledList>
+        {sections.map(({ url, id, icon, title, disabled, selected }, idx) => (
+          <StyledListItem key={title}>
+            <Link
+              id={`progress-bar-section-${id}`}
+              to={url}
+              style={{ pointerEvents: !disabled ? "initial" : "none" }}
+              data-testid={`progress-bar-section-${idx}`}
+              aria-disabled={disabled || false}
+              data-selected={selected || false}
+              preventScrollReset
+            >
+              <Stack direction="row" alignItems="center" justifyContent="center">
+                <StyledAvatar>
+                  <StatusAdornment icon={icon} />
+                </StyledAvatar>
+                <StyledButton selected={selected} disabled={disabled}>
+                  <ListItemText primary={title} />
+                </StyledButton>
+              </Stack>
+            </Link>
+          </StyledListItem>
+        ))}
+      </StyledList>
+      <StyledDivider />
+
+      <Stack flexDirection="column" gap="11px">
+        <ImportApplicationButton activeSection={section} />
+        <ExportApplicationButton />
+      </Stack>
+    </Stack>
   );
 };
 

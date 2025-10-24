@@ -1,10 +1,18 @@
-import React, { FC, useMemo } from "react";
-import { act, render, waitFor } from "@testing-library/react";
-import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import ListView from "./ListView";
+import userEvent from "@testing-library/user-event";
+import React, { FC, useMemo } from "react";
+import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
+import {
+  Status as AuthStatus,
+  Context as AuthContext,
+  ContextState as AuthContextState,
+} from "../../components/Contexts/AuthContext";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
 import {
   LIST_APPLICATIONS,
   SAVE_APP,
@@ -13,41 +21,21 @@ import {
   SaveAppResp,
   SaveAppInput,
 } from "../../graphql";
-import {
-  Status as AuthStatus,
-  Context as AuthContext,
-  ContextState as AuthContextState,
-} from "../../components/Contexts/AuthContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { act, render, waitFor } from "../../test-utils";
 
-const mockUsePageTitle = jest.fn();
-jest.mock("../../hooks/usePageTitle", () => ({
-  ...jest.requireActual("../../hooks/usePageTitle"),
-  __esModule: true,
+import ListView from "./ListView";
+
+const mockUsePageTitle = vi.fn();
+vi.mock("../../hooks/usePageTitle", async () => ({
+  ...(await vi.importActual("../../hooks/usePageTitle")),
   default: (p) => mockUsePageTitle(p),
 }));
 
-const mockNavigate = jest.fn();
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => ({
+  ...(await vi.importActual("react-router-dom")),
   useNavigate: () => mockNavigate,
 }));
-
-const baseUser: Omit<User, "role" | "permissions"> = {
-  _id: "user-id",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  IDP: "nih",
-  email: "",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  studies: null,
-  institution: null,
-  notifications: [],
-};
 
 const defaultMocks: MockedResponse[] = [
   {
@@ -87,12 +75,13 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const baseAuthCtx: AuthContextState = useMemo<AuthContextState>(
-    () => ({
-      status: AuthStatus.LOADED,
-      isLoggedIn: role !== null,
-      user: { ...baseUser, role, permissions },
-    }),
-    [role]
+    () =>
+      authCtxStateFactory.build({
+        status: AuthStatus.LOADED,
+        isLoggedIn: role !== null,
+        user: userFactory.build({ _id: "current-user", role, permissions }),
+      }),
+    [role, permissions]
   );
 
   return (
@@ -115,7 +104,7 @@ describe("Accessibility", () => {
     );
 
     await waitFor(() => {
-      expect(getByText("Submission Request List")).toBeInTheDocument();
+      expect(getByText("Submission Requests")).toBeInTheDocument();
     });
 
     await act(async () => {
@@ -126,8 +115,8 @@ describe("Accessibility", () => {
 
 describe("ListView Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useRealTimers();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("renders without crashing", () => {
@@ -136,7 +125,7 @@ describe("ListView Component", () => {
         <ListView />
       </TestParent>
     );
-    expect(getByText("Submission Request List")).toBeInTheDocument();
+    expect(getByText("Submission Requests")).toBeInTheDocument();
   });
 
   it("sets the page title correctly", () => {
@@ -145,7 +134,7 @@ describe("ListView Component", () => {
         <ListView />
       </TestParent>
     );
-    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Request List");
+    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Requests");
   });
 
   it("shows the 'Start a Submission Request' button for users with the required permissions", () => {
@@ -207,22 +196,8 @@ describe("ListView Component", () => {
     const saveAppMock: MockedResponse<SaveAppResp, SaveAppInput> = {
       request: {
         query: SAVE_APP,
-        variables: {
-          application: {
-            _id: undefined,
-            studyName: "",
-            studyAbbreviation: "",
-            questionnaireData: "{}",
-            controlledAccess: false,
-            openAccess: false,
-            ORCID: "",
-            PI: "",
-            programName: "",
-            programAbbreviation: "",
-            programDescription: "",
-          },
-        },
       },
+      variableMatcher: () => true,
       error: new Error("Error creating application"),
     };
 
@@ -450,7 +425,7 @@ describe("ListView Component", () => {
             applications: [
               {
                 _id: "application-id",
-                applicant: { applicantName: "John Doe", applicantID: "user-id" },
+                applicant: { applicantName: "John Doe", applicantID: "current-user" },
                 studyAbbreviation: "Study1",
                 programName: "Program1",
                 programAbbreviation: "P1",

@@ -12,10 +12,11 @@ import {
   Typography,
   Unstable_Grid2 as Grid2,
 } from "@mui/material";
+import { cloneDeep, flatMap, isEqual, uniq } from "lodash";
+import { useSnackbar } from "notistack";
 import { FC, memo, useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { useSnackbar } from "notistack";
-import { cloneDeep, flatMap, isEqual, uniq } from "lodash";
+
 import {
   EditUserInput,
   RetrievePBACDefaultsResp,

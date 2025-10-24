@@ -1,5 +1,5 @@
-import React, { FC } from "react";
 import { Box, Grid, Stack, Typography, styled } from "@mui/material";
+import React, { FC } from "react";
 
 const StyledGrid = styled(Grid)({
   marginTop: "46px",

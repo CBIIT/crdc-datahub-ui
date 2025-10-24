@@ -1,91 +1,71 @@
-import React, { useMemo } from "react";
-import { render, fireEvent, within, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
-import { axe } from "jest-axe";
-import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
+import React, { useMemo } from "react";
+import { Mock } from "vitest";
+import { axe } from "vitest-axe";
+
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import { render, fireEvent, within, waitFor } from "../../test-utils";
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthStatus,
   useAuthContext,
 } from "../Contexts/AuthContext";
+import { CollaboratorsProvider, useCollaboratorsContext } from "../Contexts/CollaboratorsContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
+
 import CollaboratorsTable from "./CollaboratorsTable";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 
-jest.mock("../Contexts/AuthContext", () => ({
-  ...jest.requireActual("../Contexts/AuthContext"),
-  useAuthContext: jest.fn(),
+vi.mock("../Contexts/AuthContext", async () => ({
+  ...(await vi.importActual("../Contexts/AuthContext")),
+  useAuthContext: vi.fn(),
 }));
 
-jest.mock("../Contexts/SubmissionContext", () => ({
-  ...jest.requireActual("../Contexts/SubmissionContext"),
-  useSubmissionContext: jest.fn(),
+vi.mock("../Contexts/SubmissionContext", async () => ({
+  ...(await vi.importActual("../Contexts/SubmissionContext")),
+  useSubmissionContext: vi.fn(),
 }));
 
-jest.mock("../Contexts/CollaboratorsContext", () => ({
-  ...jest.requireActual("../Contexts/CollaboratorsContext"),
-  useCollaboratorsContext: jest.fn(),
+vi.mock("../Contexts/CollaboratorsContext", async () => ({
+  ...(await vi.importActual("../Contexts/CollaboratorsContext")),
+  useCollaboratorsContext: vi.fn(),
 }));
 
-const mockUseAuthContext = useAuthContext as jest.Mock;
-const mockUseSubmissionContext = useSubmissionContext as jest.Mock;
-const mockUseCollaboratorsContext = useCollaboratorsContext as jest.Mock;
+const mockUseAuthContext = useAuthContext as Mock;
+const mockUseSubmissionContext = useSubmissionContext as Mock;
+const mockUseCollaboratorsContext = useCollaboratorsContext as Mock;
 
-const mockUser: User = {
-  _id: "user-1",
-  role: "Submitter",
-  email: "user1@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  studies: [],
-  institution: null,
-  IDP: "nih",
-  userStatus: "Active",
-  updateAt: "",
-  createdAt: "",
-  permissions: ["data_submission:create"],
-  notifications: [],
-};
-
-const mockSubmission: Submission = {
+const mockSubmission: Submission = submissionFactory.build({
   _id: "submission-1",
   submitterID: "user-1",
   collaborators: [],
-} as Submission;
+});
 
 const mockCollaborators: Collaborator[] = [
-  {
+  collaboratorFactory.build({
     collaboratorID: "user-2",
     collaboratorName: "Jane Smith",
     permission: "Can Edit",
-  },
+  }),
 ];
 
-const mockRemainingPotentialCollaborators: Collaborator[] = [
-  {
-    collaboratorID: "user-3",
-    collaboratorName: "Bob Johnson",
+const mockRemainingPotentialCollaborators: Collaborator[] = collaboratorFactory.build(
+  2,
+  (index) => ({
+    collaboratorID: `user-${index + 3}`,
+    collaboratorName: `User ${index + 3}`,
     permission: "Can Edit",
-  },
-  {
-    collaboratorID: "user-4",
-    collaboratorName: "Alice Williams",
-    permission: "Can Edit",
-  },
-];
+  })
+);
 
-const mockHandleAddCollaborator = jest.fn();
-const mockHandleRemoveCollaborator = jest.fn();
-const mockHandleUpdateCollaborator = jest.fn();
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
+const mockHandleAddCollaborator = vi.fn();
+const mockHandleRemoveCollaborator = vi.fn();
+const mockHandleUpdateCollaborator = vi.fn();
 
 type Props = {
   role?: UserRole;
@@ -94,11 +74,10 @@ type Props = {
 
 const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
   const authState = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      isLoggedIn: true,
-      user: { ...mockUser, role },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ _id: "user-1", role, permissions: ["data_submission:create"] }),
+      }),
     [role]
   );
 
@@ -111,12 +90,16 @@ const TestParent: React.FC<Props> = ({ role = "Submitter", children }) => {
   );
 };
 
-describe("CollaboratorsTable Accessibility Tests", () => {
+describe("Accessibility", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
-      user: mockUser,
+      user: userFactory.build({
+        _id: "user-1",
+        role: "Submitter",
+        permissions: ["data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -147,12 +130,16 @@ describe("CollaboratorsTable Accessibility Tests", () => {
   });
 });
 
-describe("CollaboratorsTable Component", () => {
+describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAuthContext.mockReturnValue({
-      user: mockUser,
+      user: userFactory.build({
+        _id: "user-1",
+        role: "Submitter",
+        permissions: ["data_submission:create"],
+      }),
       status: AuthStatus.LOADED,
     });
 
@@ -320,11 +307,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("renders placeholder in collaborator select when no collaboratorID", () => {
     const mockCollaboratorsWithEmptyID = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "",
         collaboratorName: "",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -363,11 +350,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("renders the correct number of collaborator rows", () => {
     const additionalCollaborators = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-5",
         collaboratorName: "Emily Davis",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -395,11 +382,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("returns empty string in renderValue when value is falsy", () => {
     const mockCollaboratorsWithEmptyID = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "",
         collaboratorName: "Jane Smith",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -425,11 +412,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("displays a space when collaboratorName is null", () => {
     const mockCollaboratorsWithNullName = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-2",
         collaboratorName: null,
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -454,11 +441,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("displays a space when collaboratorID is null", () => {
     const mockCollaboratorsWithNullID = [
-      {
+      collaboratorFactory.build({
         collaboratorID: null,
         collaboratorName: "user-name",
         permission: "Can Edit",
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -483,11 +470,11 @@ describe("CollaboratorsTable Component", () => {
 
   it("handles undefined collaborator permission by defaulting to no selection (only 'Can Edit' is valid)", () => {
     const mockCollaboratorsWithUndefinedPermission = [
-      {
+      collaboratorFactory.build({
         collaboratorID: "user-2",
         collaboratorName: "Jane Smith",
         permission: undefined,
-      },
+      }),
     ];
 
     mockUseCollaboratorsContext.mockReturnValue({
@@ -508,5 +495,106 @@ describe("CollaboratorsTable Component", () => {
 
     const collaboratorSelect = getByTestId("collaborator-select-0-input");
     expect(collaboratorSelect).toHaveValue("user-2");
+  });
+});
+
+describe("Implementation Requirements", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockUseAuthContext.mockReturnValue({
+      user: userFactory.build({
+        _id: "user-1",
+        role: "Submitter",
+        permissions: ["data_submission:create"],
+      }),
+      status: AuthStatus.LOADED,
+    });
+
+    mockUseSubmissionContext.mockReturnValue({
+      data: { getSubmission: mockSubmission },
+    });
+
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: mockCollaborators,
+      remainingPotentialCollaborators: mockRemainingPotentialCollaborators,
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+  });
+
+  it("renders the 'Can Edit' Access column with correct label and value", () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    expect(getByTestId("header-access")).toHaveTextContent("Access");
+
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toHaveTextContent("Can Edit");
+  });
+
+  it("renders the 'No Access' Access column with correct label and value", () => {
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: [
+        collaboratorFactory.build({
+          collaboratorID: "user-4",
+          collaboratorName: "Lost Access User",
+          permission: "No Access",
+        }),
+      ],
+      remainingPotentialCollaborators: [],
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    expect(getByTestId("header-access")).toHaveTextContent("Access");
+
+    const accessCell = getByTestId("collaborator-access-0");
+    expect(accessCell).toHaveTextContent("No Access");
+  });
+
+  it("allows removing collaborators with 'No Access'", () => {
+    mockUseCollaboratorsContext.mockReturnValue({
+      currentCollaborators: [
+        collaboratorFactory.build({
+          collaboratorID: "user-4",
+          collaboratorName: "Lost Access User",
+          permission: "No Access",
+        }),
+      ],
+      remainingPotentialCollaborators: [],
+      maxCollaborators: 5,
+      handleAddCollaborator: mockHandleAddCollaborator,
+      handleRemoveCollaborator: mockHandleRemoveCollaborator,
+      handleUpdateCollaborator: mockHandleUpdateCollaborator,
+      loading: false,
+    });
+
+    const { getByTestId } = render(
+      <TestParent>
+        <CollaboratorsTable isEdit />
+      </TestParent>
+    );
+
+    const removeButton = getByTestId("remove-collaborator-button-0");
+    expect(removeButton).toBeInTheDocument();
+    expect(removeButton).not.toBeDisabled();
+
+    fireEvent.click(removeButton);
+    expect(mockHandleRemoveCollaborator).toHaveBeenCalledWith(0);
   });
 });

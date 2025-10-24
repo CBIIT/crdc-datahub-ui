@@ -1,5 +1,7 @@
-import { fireEvent, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
+import { axe } from "vitest-axe";
+
+import { fireEvent, render, waitFor } from "../../test-utils";
+
 import ScrollButton from "./ScrollButtonView";
 
 describe("Accessibility", () => {
@@ -11,7 +13,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should be hidden by default", () => {
@@ -38,7 +40,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should scroll to the top of the page when clicked", () => {
-    window.scrollTo = jest.fn();
+    window.scrollTo = vi.fn();
 
     const { getByTestId } = render(<ScrollButton />);
 

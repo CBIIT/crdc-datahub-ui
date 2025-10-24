@@ -1,13 +1,16 @@
-import { CSSProperties, FC, useCallback, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { HistoryIconMap } from "./SubmissionRequestIconMap";
-import { useFormContext } from "../../Contexts/FormContext";
-import { FormatDate } from "../../../utils";
-import HistoryDialog from "../../HistoryDialog";
-import { ReactComponent as BellIcon } from "../../../assets/icons/border_filled_bell_icon.svg";
-import Tooltip from "../../Tooltip";
+import { CSSProperties, FC, useCallback, useState } from "react";
+
+import BellIcon from "../../../assets/icons/border_filled_bell_icon.svg?react";
 import { TOOLTIP_TEXT } from "../../../config/QuestionnaireTooltips";
+import { FormatDate } from "../../../utils";
+import { useFormContext } from "../../Contexts/FormContext";
+import HistoryDialog from "../../HistoryDialog";
+import TooltipList from "../../SummaryList/TooltipList";
+import Tooltip from "../../Tooltip";
+
+import { HistoryIconMap } from "./SubmissionRequestIconMap";
 
 /**
  * Determines the text color for a History event based
@@ -82,14 +85,19 @@ const HistorySection: FC = () => {
       if ((conditional || pendingConditions?.length > 0) && status === "Approved") {
         return ({ children }) => (
           <Tooltip
-            title={pendingConditions?.join(" ")}
+            title={<TooltipList data={pendingConditions} />}
             placement="top"
             open={undefined}
             disableHoverListener={false}
             disableInteractive
             arrow
           >
-            <Stack direction="row" alignItems="center" data-testid="status-bar-pending-conditions">
+            <Stack
+              direction="row"
+              alignItems="center"
+              data-testid="status-bar-pending-conditions"
+              sx={{ cursor: "pointer" }}
+            >
               {children}
               <StyledBellIcon />
             </Stack>

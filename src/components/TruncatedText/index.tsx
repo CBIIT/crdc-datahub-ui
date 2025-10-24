@@ -1,5 +1,6 @@
-import { FC, memo } from "react";
 import { styled, SxProps } from "@mui/material";
+import { FC, memo } from "react";
+
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
 
 const StyledText = styled("span")(() => ({

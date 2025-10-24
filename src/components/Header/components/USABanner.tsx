@@ -1,5 +1,6 @@
-import React from "react";
 import { styled } from "@mui/material";
+import React from "react";
+
 import { headerData } from "../../../config/HeaderConfig";
 
 const BannerArea = styled("div")({

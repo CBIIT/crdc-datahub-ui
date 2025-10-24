@@ -1,11 +1,13 @@
-import React, { FC } from "react";
-import { Grid, styled } from "@mui/material";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import TextInput from "./TextInput";
-import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
+import { Grid, styled } from "@mui/material";
+import React, { FC } from "react";
+
 import fundingAgencyOptions from "../../config/FundingConfig";
-import Autocomplete from "./AutocompleteInput";
 import AddRemoveButton from "../AddRemoveButton";
+import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
+
+import Autocomplete from "./AutocompleteInput";
+import TextInput from "./TextInput";
 
 const GridContainer = styled(Grid)(() => ({
   border: "0.5px solid #DCDCDC !important",
@@ -30,7 +32,7 @@ type Props = {
 const FundingAgency: FC<Props> = ({ idPrefix = "", index, funding, readOnly, onDelete }: Props) => {
   const { status } = useFormContext();
 
-  const { agency, grantNumbers, nciProgramOfficer, nciGPA } = funding || {};
+  const { agency, grantNumbers, nciProgramOfficer } = funding || {};
 
   return (
     <GridContainer container>
@@ -72,14 +74,6 @@ const FundingAgency: FC<Props> = ({ idPrefix = "", index, funding, readOnly, onD
           value={nciProgramOfficer}
           placeholder="Enter NCI Program Officer"
           maxLength={50}
-          readOnly={readOnly}
-        />
-        <TextInput
-          id={idPrefix.concat(`funding-agency-${index}-nci-genomic-program-administrator`)}
-          label="NCI Genomic Program Administrator"
-          name={`study[funding][${index}][nciGPA]`}
-          value={nciGPA}
-          placeholder="Enter GPA name, if applicable"
           readOnly={readOnly}
         />
       </Grid>

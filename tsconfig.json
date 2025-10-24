@@ -1,6 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
+    "target": "ESNext",
+    "module": "ESNext",
+    "types": [
+      "vite/client",
+      "vite-plugin-svgr/client",
+      "vitest/globals",
+      "vitest/jsdom",
+    ],
     "lib": [
       "dom",
       "dom.iterable",
@@ -14,16 +21,25 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/factories/*": ["./src/test-utils/factories/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/schemas/*": ["./src/schemas/*"],
+      "@/config/*": ["./src/config/*"],
+      "@/assets/*": ["./src/assets/*"],
+      "@/*": ["./src/*"],
+    }
   },
   "include": [
     "src",
     "conf",
+    "vite.config.ts",
+    "vite-env.d.ts",
     ".eslintrc.cjs",
     "types/*.d.ts",
     "public",

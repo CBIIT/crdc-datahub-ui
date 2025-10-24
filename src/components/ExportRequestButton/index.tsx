@@ -1,11 +1,13 @@
-import { forwardRef, memo, useState } from "react";
 import { styled, Button, ButtonProps } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { ReactComponent as DownloadIcon } from "../../assets/icons/download_icon_filled.svg";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
-import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
-import { GenerateDocument } from "./pdf/Generate";
+import { forwardRef, memo, useState } from "react";
+
+import DownloadIcon from "../../assets/icons/download_icon_filled.svg?react";
 import { downloadBlob, FormatDate, Logger } from "../../utils";
+import { Status as FormStatus, useFormContext } from "../Contexts/FormContext";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+
+import { GenerateDocument } from "./pdf/Generate";
 
 const StyledButton = styled(Button)({
   color: "#156071",

@@ -1,9 +1,6 @@
 import { getUserPermissionExtensions, getUserPermissionKey } from "../utils/profileUtils";
-import {
-  Roles as ALL_ROLES,
-  CanDeleteOtherSubmissionRequests,
-  CanSubmitOnlyTheirOwnSubmissionRequestRoles,
-} from "./AuthRoles";
+
+import { Roles as ALL_ROLES, CanDeleteOtherSubmissionRequests, ExternalRoles } from "./AuthRoles";
 
 /**
  * A flag indicating that no conditions, other than the user having the permission key, need to be met.
@@ -69,7 +66,7 @@ export const PERMISSION_MAP = {
         return false;
       }
 
-      if (CanSubmitOnlyTheirOwnSubmissionRequestRoles.includes(role)) {
+      if (ExternalRoles.includes(role)) {
         return isFormOwner && hasPermissionKey;
       }
 

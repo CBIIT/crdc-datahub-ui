@@ -32,6 +32,8 @@ events {
 }
 
 http {
+    client_max_body_size 128M;
+
     server {
         listen       0.0.0.0:4010;
         server_name  localhost;
@@ -63,6 +65,8 @@ http {
         # Frontend
         location / {
             allow all;
+            proxy_buffers 8 2048K;  
+            proxy_buffer_size 32K;
             proxy_pass http://localhost:3010/;
         }
     }

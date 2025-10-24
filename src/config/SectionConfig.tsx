@@ -3,6 +3,7 @@ import B from "../content/questionnaire/sections/B";
 import C from "../content/questionnaire/sections/C";
 import D from "../content/questionnaire/sections/D";
 import Review from "../content/questionnaire/sections/Review";
+
 import sectionMetadata from "./SectionMetadata";
 
 /**

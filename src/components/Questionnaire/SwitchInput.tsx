@@ -1,3 +1,4 @@
+import { SwitchProps, Grid, Switch, FormHelperText, styled, SxProps } from "@mui/material";
 import React, {
   FC,
   HTMLProps,
@@ -8,9 +9,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { SwitchProps, Grid, Switch, FormHelperText, styled, SxProps } from "@mui/material";
-import Tooltip from "../Tooltip";
+
 import { updateInputValidity } from "../../utils";
+import Tooltip from "../Tooltip";
 
 const GridStyled = styled(Grid, { shouldForwardProp: (p) => p !== "switchSx" })<{
   switchSx: SxProps;
@@ -218,19 +219,6 @@ const CustomSwitch: FC<Props> = ({
     return val ? graphQLValue : "";
   }, [isBoolean, val, graphQLValue, touched, touchRequired]);
 
-  // Validation if touch is required
-  useEffect(() => {
-    if (!touchRequired || readOnly) {
-      return;
-    }
-    if (!touched) {
-      updateInputValidity(inputRef, errorMsg);
-      return;
-    }
-
-    updateInputValidity(inputRef);
-  }, [touched, touchRequired]);
-
   const onChangeWrapper = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     if (readOnly) {
       return;
@@ -254,6 +242,22 @@ const CustomSwitch: FC<Props> = ({
       inputRef.current?.removeEventListener("invalid", invalid);
     };
   }, [inputRef]);
+
+  useEffect(() => {
+    if (!touchRequired || readOnly) {
+      return;
+    }
+    if (!touched) {
+      updateInputValidity(inputRef, errorMsg);
+      return;
+    }
+
+    updateInputValidity(inputRef);
+  }, [touched, touchRequired]);
+
+  useEffect(() => {
+    setVal(value);
+  }, [value]);
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item sx={sx} switchSx={switchSx}>

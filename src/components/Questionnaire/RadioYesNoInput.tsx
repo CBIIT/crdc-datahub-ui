@@ -1,4 +1,3 @@
-import React, { FC, useState, useRef, useEffect } from "react";
 import {
   Grid,
   FormControl,
@@ -9,7 +8,10 @@ import {
   styled,
   GridProps,
 } from "@mui/material";
+import React, { FC, useState, useRef, useEffect } from "react";
+
 import { updateInputValidity } from "../../utils";
+
 import StyledRadioButton from "./StyledRadioButton";
 
 const GridStyled = styled(Grid, {
@@ -113,6 +115,10 @@ const RadioYesNoInput: FC<Props> = ({
       radioGroupInputRef.current?.removeEventListener("invalid", invalid);
     };
   }, [radioGroupInputRef]);
+
+  useEffect(() => {
+    setVal(value?.toString() === "" || value?.toString() === undefined ? null : value?.toString());
+  }, [value]);
 
   return (
     <GridStyled md={gridWidth || 6} xs={12} item containerWidth={containerWidth}>

@@ -1,9 +1,10 @@
+import { useQuery } from "@apollo/client";
 import { FC, memo } from "react";
 import { Outlet } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+
+import MaintenancePage from "../../content/status/MaintenancePage";
 import { IS_MAINTENANCE_MODE, IsMaintenanceModeResponse } from "../../graphql/isMaintenanceMode";
 import { Logger } from "../../utils";
-import MaintenancePage from "../../content/status/MaintenancePage";
 
 export type MaintenanceGateProps = {
   children?: React.ReactNode;

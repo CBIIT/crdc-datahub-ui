@@ -14,6 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { isEqual } from "lodash";
 import {
   CSSProperties,
   forwardRef,
@@ -25,18 +26,19 @@ import {
   useRef,
   useState,
 } from "react";
-import { isEqual } from "lodash";
-import SuspenseLoader from "../SuspenseLoader";
-import TablePagination from "./TablePagination";
+
+import { useDelayedLoading } from "../../hooks/useDelayedLoading";
 import {
   generateSearchParameters,
   validatePage,
   validateRowsPerPage,
   validateSortDirection,
 } from "../../utils";
-import { tableStateReducer } from "./TableReducer";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
-import { useDelayedLoading } from "../../hooks/useDelayedLoading";
+import SuspenseLoader from "../SuspenseLoader";
+
+import TablePagination from "./TablePagination";
+import { tableStateReducer } from "./TableReducer";
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: "8px",
@@ -473,12 +475,19 @@ const GenericTable = <T,>(
 
   return (
     <StyledTableContainer {...containerProps}>
-      {(!paramsInitialized || showDelayedLoading) && <SuspenseLoader fullscreen={false} />}
+      {(!paramsInitialized || showDelayedLoading) && (
+        <SuspenseLoader fullscreen={false} data-testid="generic-table-suspense-loader" />
+      )}
       {(position === "top" || position === "both") && (
         <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />
       )}
       <StyledTableWrapper className="generic-table-wrapper">
-        <Table className="generic-table" {...tableProps} data-testid="generic-table">
+        <Table
+          className="generic-table"
+          {...tableProps}
+          data-testid="generic-table"
+          aria-label="Data table"
+        >
           {columns?.length > 0 && (
             <TableHeadComponent>
               <TableRow>
@@ -510,17 +519,18 @@ const GenericTable = <T,>(
               </TableRow>
             </TableHeadComponent>
           )}
-          <TableBody>
+          <TableBody data-testid="generic-table-body">
             {(!paramsInitialized || showDelayedLoading) && (total === 0 || !data?.length)
               ? Array.from(Array(numRowsNoContent).keys())?.map((_, idx) => (
-                  <StyledTableRow key={`loading_row_${idx}`}>
+                  <StyledTableRow key={`loading_row_${idx}`} data-testid="loading-row">
                     <TableCell colSpan={columns?.length} />
                   </StyledTableRow>
                 ))
               : data?.map((d: T, idx: number) => {
+                  // eslint-disable-next-line @typescript-eslint/dot-notation
                   const itemKey = setItemKey ? setItemKey(d, idx) : d["_id"];
                   return (
-                    <TableRow tabIndex={-1} hover key={itemKey}>
+                    <TableRow tabIndex={-1} hover key={itemKey} data-testid="generic-table-row">
                       {columns?.map((col: Column<T>) => (
                         <TableBodyCellComponent
                           key={`${itemKey}_${col.label}`}

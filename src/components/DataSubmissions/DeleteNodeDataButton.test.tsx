@@ -1,84 +1,25 @@
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
-import { useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
+import { useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { collaboratorFactory } from "@/factories/submission/CollaboratorFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
+import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
 import {
   SubmissionContext,
   SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../Contexts/SubmissionContext";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+
 import Button from "./DeleteNodeDataButton";
-import { DELETE_DATA_RECORDS, DeleteDataRecordsInput, DeleteDataRecordsResp } from "../../graphql";
-
-const BaseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  createdAt: "",
-  updatedAt: "",
-  studyID: "",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: User = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This role has access to the delete button by default
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:view", "data_submission:create"],
-  notifications: [],
-};
 
 type TestParentProps = {
   submission?: Partial<Submission>;
@@ -90,30 +31,27 @@ type TestParentProps = {
 const TestParent: React.FC<TestParentProps> = ({
   mocks = [],
   submission = {},
-  user = {},
+  user = { permissions: ["data_submission:view", "data_submission:create"] },
   children,
 }) => {
   const submissionCtxValue = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-      isPolling: false,
-      data: {
-        getSubmission: { ...BaseSubmission, ...submission },
-        submissionStats: {
-          stats: [],
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+        data: {
+          getSubmission: submissionFactory.build({ ...submission }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: null,
         },
-        batchStatusList: null,
-      },
-    }),
+      }),
     [submission]
   );
 
   const authCtxValue = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      user: { ...baseUser, ...user },
-    }),
+    () => authCtxStateFactory.build({ user: userFactory.build({ ...user }) }),
     [user]
   );
 
@@ -151,7 +89,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -283,16 +221,16 @@ describe("Basic Functionality", () => {
           _id: "collaborator-user",
           role: "Submitter",
         }}
-        submission={{
+        submission={submissionFactory.build({
           submitterID: "some-other-user",
           collaborators: [
-            {
+            collaboratorFactory.build({
               collaboratorID: "collaborator-user",
               collaboratorName: "",
               permission: "Can Edit",
-            },
+            }),
           ],
-        }}
+        })}
       >
         <Button nodeType="test" selectedItems={["ID_1", "ID_2", "ID_3"]} />,
       </TestParent>
@@ -302,7 +240,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onDelete callback when the delete operation is successful", async () => {
-    const onDelete = jest.fn();
+    const onDelete = vi.fn();
     const mocks: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput>[] = [
       {
         request: {
@@ -340,7 +278,7 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should be disabled when a deletion operation is in progress", () => {
@@ -423,7 +361,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should delete the selected nodes only when the 'Delete' button is clicked in the dialog", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput>[] = [
       {
         request: {
@@ -597,7 +535,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should use the proper pluralization for the delete confirmation snackbar message",
     async (selectedItems, expected) => {
-      const mockOnDelete = jest.fn();
+      const mockOnDelete = vi.fn();
       const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
         request: {
           query: DELETE_DATA_RECORDS,
@@ -660,7 +598,7 @@ describe("Implementation Requirements", () => {
   ])(
     "should have different verbiage when the nodeType is 'data file'",
     async ({ selectedItems, dialogTitle, dialogBody, snackbarMessage }) => {
-      const mockOnDelete = jest.fn();
+      const mockOnDelete = vi.fn();
       const mock: MockedResponse<DeleteDataRecordsResp, DeleteDataRecordsInput> = {
         request: {
           query: DELETE_DATA_RECORDS,

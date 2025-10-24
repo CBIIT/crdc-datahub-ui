@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { useMutation } from "@apollo/client";
 import {
   Button,
   Dialog,
@@ -9,11 +9,12 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useMutation } from "@apollo/client";
+import { FC, useState } from "react";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
+import CopyIconSvg from "../../assets/icons/copy_icon.svg?react";
 import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
 import GenericAlert, { AlertState } from "../GenericAlert";
-import { ReactComponent as CopyIconSvg } from "../../assets/icons/copy_icon.svg";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {

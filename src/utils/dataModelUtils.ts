@@ -1,7 +1,9 @@
-import { defaultTo } from "lodash";
+import { chain, values } from "lodash";
+
 import { MODEL_FILE_REPO } from "../config/DataCommons";
 import env from "../env";
 import { RetrieveCDEsResp } from "../graphql";
+
 import { Logger } from "./logger";
 
 /**
@@ -16,7 +18,7 @@ export const fetchManifest = async (): Promise<DataModelManifest> => {
   }
 
   const response = await fetch(
-    `${MODEL_FILE_REPO}${env.REACT_APP_DEV_TIER || "prod"}/cache/content.json`
+    `${MODEL_FILE_REPO}${env.VITE_DEV_TIER || "prod"}/cache/content.json`
   ).catch(() => null);
   const parsed = await response?.json().catch(() => null);
   if (response && parsed) {
@@ -63,7 +65,7 @@ export const listAvailableModelVersions = async (model: string): Promise<string[
 export const buildAssetUrls = (model: DataCommon, modelVersion: string): ModelAssetUrls => {
   const { name, assets } = model || {};
   const version = modelVersion === "latest" ? assets?.["current-version"] : modelVersion;
-  const tier = env.REACT_APP_DEV_TIER || "prod";
+  const tier = env.VITE_DEV_TIER || "prod";
 
   return {
     model_files:
@@ -134,114 +136,101 @@ export const buildFilterOptionsList = (config: ModelNavigatorConfig): string[] =
 };
 
 /**
- * A function to parse the datalist and reolace enums with those returned from retrieveCde query
- * Commented out until api is ready
- * @params {void}
+ * A utility to populate CDE data into the dictionary.
+ *
+ * Key details on handling:
+ * 1. Updates the Value field (CDE Name)
+ * 2. Updates the property enum
+ * 3. Updates the property type
+ *
+ * @param dictionary the MDF dictionary to populate with data
+ * @param data the API response data
  */
-export const updateEnums = (
-  cdeMap: Map<string, CDEInfo>,
-  dataList,
-  response: RetrieveCDEsResp["retrieveCDEs"] = [],
-  apiError = false
-) => {
-  const responseMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0]> = new Map();
+export const populateCDEData = (
+  dictionary: MDFDictionary,
+  data: RetrieveCDEsResp["retrieveCDEs"]
+): void => {
+  if (!dictionary || Object.keys(dictionary).length === 0) {
+    return;
+  }
 
-  defaultTo(response, []).forEach((item) =>
-    responseMap.set(`${item.CDECode}.${item.CDEVersion}`, item)
-  );
-
-  const resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }> =
-    new Map();
-  const mapKeyPrefixes: Map<string, string> = new Map();
-  const mapKeyPrefixesNoValues: Map<string, string> = new Map();
-
-  cdeMap.forEach((val, key) => {
-    const [prefix, cdeCodeAndVersion] = key.split(";");
-    const item = responseMap.get(cdeCodeAndVersion);
-
-    if (item) {
-      resultMap.set(key, { ...item, CDEOrigin: val?.CDEOrigin || "" });
-      mapKeyPrefixes.set(prefix, key);
-    } else {
-      mapKeyPrefixesNoValues.set(prefix, key);
-    }
+  const mappedCDEs = new Map<string, RetrieveCDEsResp["retrieveCDEs"][number]>();
+  data?.forEach((cde) => {
+    mappedCDEs.set(`${cde.CDECode}:${cde.CDEVersion}`, cde);
   });
 
-  const newObj = JSON.parse(JSON.stringify(dataList));
+  Object.values(dictionary)
+    .flatMap((node) => Object.values(node?.properties ?? {}))
+    .forEach((prop) => {
+      if (!Array.isArray(prop?.Term)) {
+        return;
+      }
+      prop.Term?.forEach((term) => {
+        const apiData = mappedCDEs.get(`${term.Code}:${term.Version}`);
 
-  traverseAndReplace(newObj, resultMap, mapKeyPrefixes, mapKeyPrefixesNoValues, apiError);
+        if (!isSupportedOrigin(term)) {
+          return;
+        }
 
-  return newObj;
-};
-
-export const traverseAndReplace = (
-  node,
-  resultMap: Map<string, RetrieveCDEsResp["retrieveCDEs"][0] & { CDEOrigin: string }>,
-  mapKeyPrefixes: Map<string, string>,
-  mapKeyPrefixesNoValues: Map<string, string>,
-  apiError: boolean,
-  parentKey = ""
-) => {
-  const getCDEPublicID = (cdeCode, cdeVersion) =>
-    `https://cadsr.cancer.gov/onedata/dmdirect/NIH/NCI/CO/CDEDD?filter=CDEDD.ITEM_ID=${cdeCode}%20and%20ver_nr=${cdeVersion}`;
-
-  if (typeof node !== "object" || node === null) return;
-
-  if (node.properties) {
-    for (const key in node.properties) {
-      if (Object.hasOwn(node.properties, key)) {
-        const fullKey = `${parentKey}.${key}`.replace(/^\./, "");
-        const prefixMatch = mapKeyPrefixes.get(fullKey);
-        const noValuesMatch = mapKeyPrefixesNoValues.get(fullKey);
-        const property = node.properties[key];
-        const fallbackMessage = [
-          "Permissible values are currently not available. Please contact the Data Hub HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
-        ];
-
-        if (prefixMatch) {
-          const { CDECode, CDEFullName, CDEVersion, CDEOrigin, PermissibleValues } =
-            resultMap.get(prefixMatch);
-
-          // Populate CDE details
-          property.CDEFullName = CDEFullName;
-          property.CDECode = CDECode;
-          property.CDEPublicID = getCDEPublicID(CDECode, CDEVersion);
-          property.CDEVersion = CDEVersion;
-          property.CDEOrigin = CDEOrigin;
+        if (apiData) {
+          // Update CDE Name
+          term.Value = apiData.CDEFullName;
 
           // Populate Permissible Values if available from API
-          if (Array.isArray(PermissibleValues) && PermissibleValues.length > 0) {
-            property.enum = PermissibleValues;
+          if (Array.isArray(apiData.PermissibleValues) && apiData.PermissibleValues.length > 0) {
+            prop.enum = apiData.PermissibleValues;
             // Permissible Values from API are empty, convert property to "string" type
           } else if (
-            Array.isArray(PermissibleValues) &&
-            PermissibleValues.length === 0 &&
-            property.enum
+            Array.isArray(apiData.PermissibleValues) &&
+            apiData.PermissibleValues.length === 0 &&
+            prop.enum
           ) {
-            delete property.enum;
-            property.type = "string";
+            delete prop.enum;
+            prop.type = "string";
           }
+        } else if (!apiData && prop.enum) {
+          Logger.error("dataModelUtils: Unable to match CDE for property", prop, term);
+          prop.enum = [
+            "Permissible values are currently not available. Please contact the CRDC Submission Portal HelpDesk at NCICRDCHelpDesk@mail.nih.gov",
+          ];
         }
-
-        // API did not return any Permissible Values, populate with fallback message
-        if (noValuesMatch && property.enum) {
-          Logger.error("Unable to match CDE for property", node?.properties?.[key]);
-          property.enum = fallbackMessage;
-        }
-      }
-    }
-  }
-
-  for (const subKey in node) {
-    if (Object.hasOwn(node, subKey)) {
-      traverseAndReplace(
-        node[subKey],
-        resultMap,
-        mapKeyPrefixes,
-        mapKeyPrefixesNoValues,
-        apiError,
-        `${parentKey}.${subKey}`
-      );
-    }
-  }
+      });
+    });
 };
+
+/**
+ * A utility to extract all unique caDSR CDEs from the MDF dictionary.
+ *
+ * @note Since the only supported CDE Origin is "caDSR", we ignore the uniqueness of the Origin field.
+ * @param dictionary the MDF dictionary to extract CDEs from
+ * @return An array of objects containing the CDE Code/Version/Origin
+ */
+export const extractSupportedCDEs = (dictionary: MDFDictionary): CDEInfo[] => {
+  if (!dictionary || Object.keys(dictionary).length === 0) {
+    return [];
+  }
+
+  return chain(dictionary)
+    .values()
+    .flatMap((node) => values(node?.properties ?? {}))
+    .flatMap("Term")
+    .filter((t) => t?.Code && t?.Version && t?.Origin)
+    .filter(isSupportedOrigin)
+    .uniqBy((t) => `${t.Code}:${t.Version}`)
+    .map((t) => ({
+      CDECode: t.Code,
+      CDEVersion: t.Version,
+      CDEOrigin: t.Origin,
+    }))
+    .value();
+};
+
+/**
+ * A base utility to determine if a CDE origin is supported.
+ *
+ * @param term The CDE term to check
+ * @returns True if the origin is supported, false otherwise
+ */
+const isSupportedOrigin = (
+  term: MDFDictionary[number]["properties"][number]["Term"][number]
+): boolean => term?.Origin?.toLowerCase()?.indexOf("cadsr") >= 0;

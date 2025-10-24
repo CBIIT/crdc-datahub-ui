@@ -1,16 +1,20 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { MockedResponse } from "@apollo/client/testing";
-import { userEvent, within } from "@storybook/testing-library";
-import { fn } from "@storybook/test";
-import Dialog from "./index";
-import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
+import type { Meta, StoryObj } from "@storybook/react";
+import { fn, userEvent, within } from "@storybook/test";
+
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { batchFileInfoFactory } from "@/factories/submission/BatchFileInfoFactory";
+
 import {
   DOWNLOAD_METADATA_FILE,
   DownloadMetadataFileInput,
   DownloadMetadataFileResp,
 } from "../../graphql";
+import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
-const mockBatch: Batch = {
+import Dialog from "./index";
+
+const mockBatch: Batch = batchFactory.build({
   _id: "mock-batch-0001",
   displayID: 0,
   submissionID: "mock-submission-0001",
@@ -19,11 +23,11 @@ const mockBatch: Batch = {
   files: [],
   status: "Uploaded",
   errors: [],
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
+  createdAt: "2023-06-11T14:41:30.724Z",
+  updatedAt: "2023-06-11T16:41:30.724Z",
+});
 
-const mockFile: BatchFileInfo = {
+const mockFile: BatchFileInfo = batchFileInfoFactory.build({
   filePrefix: "",
   fileName: "",
   nodeType: "",
@@ -31,7 +35,7 @@ const mockFile: BatchFileInfo = {
   errors: [],
   createdAt: "",
   updatedAt: "",
-};
+});
 
 type CustomStoryProps = React.ComponentProps<typeof Dialog>;
 
@@ -205,14 +209,41 @@ export const DisabledDownloadIndividual: Story = {
 };
 
 /**
- * Simulates a state where the batch has no files
+ * Simulates a state where the metadata batch has no files
  */
-export const NoFiles: Story = {
+export const NoFilesMetadata: Story = {
+  name: "No Files - Metadata",
   args: {
     ...meta.args,
     batch: {
       ...mockBatch,
+      type: "metadata",
       displayID: 11,
+    },
+  },
+};
+
+export const NoFilesDatafiles: Story = {
+  name: "No Files - Data File",
+  args: {
+    ...meta.args,
+    batch: {
+      ...mockBatch,
+      type: "data file",
+      displayID: 2,
+    },
+  },
+};
+
+export const FailedDatafiles: Story = {
+  name: "Failed Upload - Data File",
+  args: {
+    ...meta.args,
+    batch: {
+      ...mockBatch,
+      status: "Failed",
+      type: "data file",
+      displayID: 8,
     },
   },
 };

@@ -1,47 +1,25 @@
-import { FC, useMemo } from "react";
-import { MemoryRouter } from "react-router-dom";
-import { render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import ApiTokenDialog from "./index";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
-import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
 
-const mockWriteText = jest.fn();
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
+import { GRANT_TOKEN, GrantTokenResp } from "../../graphql";
+import { render, waitFor } from "../../test-utils";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
+
+import ApiTokenDialog from "./index";
+
+const mockWriteText = vi.fn();
 Object.assign(navigator, {
   clipboard: {
     writeText: mockWriteText,
   },
 });
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: Omit<User, "permissions"> = {
-  _id: "",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: null,
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  notifications: [],
-};
 
 type ParentProps = {
   children: React.ReactNode;
@@ -57,11 +35,7 @@ const TestParent: FC<ParentProps> = ({
   children,
 }) => {
   const authState = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      isLoggedIn: true,
-      user: { ...baseUser, role, permissions },
-    }),
+    () => authCtxStateFactory.build({ user: userFactory.build({ role, permissions }) }),
     [role]
   );
 
@@ -84,7 +58,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", () => {
@@ -92,7 +66,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onClose when the 'Close' button is clicked", async () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getByText } = render(<ApiTokenDialog open onClose={onClose} />, {
       wrapper: TestParent,
     });
@@ -103,7 +77,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onClose when the 'X' icon is clicked", async () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { getByRole } = render(<ApiTokenDialog open onClose={onClose} />, {
       wrapper: TestParent,
     });
@@ -114,7 +88,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call onClose when the backdrop is clicked", async () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { findAllByRole } = render(<ApiTokenDialog open onClose={onClose} />, {
       wrapper: TestParent,
     });
@@ -193,6 +167,10 @@ describe("Basic Functionality", () => {
 });
 
 describe("Implementation Requirements", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   it("should generate a token when the 'Create Token' button is clicked", async () => {
     let called = false;
     const mock: MockedResponse<GrantTokenResp> = {

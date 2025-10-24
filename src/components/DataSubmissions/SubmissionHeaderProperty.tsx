@@ -1,7 +1,8 @@
 import { Grid, Stack, Typography, styled } from "@mui/material";
 import { memo } from "react";
-import TruncatedText from "../TruncatedText";
+
 import CopyTextButton from "../CopyTextButton";
+import TruncatedText from "../TruncatedText";
 
 const StyledLabel = styled(Typography)(() => ({
   color: "#000000",

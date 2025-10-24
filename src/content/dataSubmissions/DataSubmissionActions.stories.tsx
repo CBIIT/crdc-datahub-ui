@@ -1,69 +1,22 @@
-import { ComponentPropsWithoutRef } from "react";
 import type { Decorator, Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+import { ComponentPropsWithoutRef } from "react";
+
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   Context as AuthContext,
   ContextState as AuthCtxState,
 } from "../../components/Contexts/AuthContext";
-import DataSubmissionActions from "./DataSubmissionActions";
-import { Roles } from "../../config/AuthRoles";
 import {
   SubmissionContext,
-  SubmissionCtxState,
   SubmissionCtxStatus,
 } from "../../components/Contexts/SubmissionContext";
+import { Roles } from "../../config/AuthRoles";
 
-const baseSubmission: Submission = {
-  _id: "submission-1",
-  name: "",
-  submitterID: "example-user",
-  submitterName: "",
-  organization: undefined,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyID: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "In Progress",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: "New",
-  deletingData: false,
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: [],
-  fileErrors: [],
-  history: [],
-  conciergeName: "",
-  conciergeEmail: "",
-  intention: "New/Update",
-  dataType: "Metadata Only",
-  otherSubmissions: "",
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: {
-    formatted: "",
-    size: 0,
-  },
-  createdAt: "",
-  updatedAt: "",
-};
-
-const baseSubmissionCtx: SubmissionCtxState = {
-  status: SubmissionCtxStatus.LOADING,
-  data: { getSubmission: baseSubmission, batchStatusList: null, submissionStats: null },
-  error: null,
-  startPolling: fn(),
-  stopPolling: fn(),
-  refetch: fn(),
-  updateQuery: fn(),
-};
+import DataSubmissionActions from "./DataSubmissionActions";
 
 const dataSubmissionPermissions: DataSubmissionPermissions[] = [
   "data_submission:view",
@@ -104,8 +57,9 @@ type ContextArgs = {
   dataType: SubmissionDataType;
   intention: SubmissionIntention;
   dataFileSize: number;
-  submissionQCResults: ValidationResult<Pick<QCResult, "errors">> | null;
-  batchStatusList: { batches: Pick<Batch, "_id" | "status">[] } | null;
+  hasOrphanError: boolean;
+  isBatchUploading: boolean;
+  dataCommonsDisplayName: string;
 };
 
 type ComponentProps = ComponentPropsWithoutRef<typeof DataSubmissionActions>;
@@ -122,8 +76,9 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
     dataType,
     intention,
     dataFileSize,
-    submissionQCResults,
-    batchStatusList,
+    hasOrphanError = false,
+    isBatchUploading = false,
+    dataCommonsDisplayName,
   } = context.args;
 
   return (
@@ -141,28 +96,40 @@ const withProviders: Decorator<StoryArgs> = (Story, context) => {
       }
     >
       <SubmissionContext.Provider
-        value={{
-          ...baseSubmissionCtx,
+        value={submissionCtxStateFactory.build({
+          status: SubmissionCtxStatus.LOADING,
+          error: null,
+          startPolling: fn(),
+          stopPolling: fn(),
+          refetch: fn(),
+          updateQuery: fn(),
           data: {
-            ...baseSubmissionCtx.data,
-            getSubmission: {
-              ...baseSubmissionCtx.data.getSubmission,
+            getSubmission: submissionFactory.build({
+              _id: "submission-1",
+              submitterID: "example-user",
+              crossSubmissionStatus: "New",
               status: submissionStatus,
               metadataValidationStatus,
               fileValidationStatus,
+              dataCommonsDisplayName,
               dataType,
               intention,
               dataFileSize: {
                 formatted: "",
                 size: dataFileSize,
               },
+            }),
+            getSubmissionAttributes: {
+              submissionAttributes: submissionAttributesFactory
+                .pick(["hasOrphanError", "isBatchUploading"])
+                .build({
+                  hasOrphanError,
+                  isBatchUploading,
+                }),
             },
-            batchStatusList,
+            submissionStats: null,
           },
-          qcData: {
-            submissionQCResults,
-          },
-        }}
+        })}
       >
         <Story />
       </SubmissionContext.Provider>
@@ -233,14 +200,20 @@ const meta = {
         type: "number",
       },
     },
-    submissionQCResults: {
-      name: "submissionQCResults",
+    hasOrphanError: {
+      name: "hasOrphanError",
       control: {
-        type: "text",
+        type: "boolean",
       },
     },
-    batchStatusList: {
-      name: "batchStatusList",
+    isBatchUploading: {
+      name: "isBatchUploading",
+      control: {
+        type: "boolean",
+      },
+    },
+    dataCommonsDisplayName: {
+      name: "dataCommonsDisplayName",
       control: {
         type: "text",
       },
@@ -255,8 +228,9 @@ const meta = {
     dataType: "Metadata and Data Files",
     intention: "New/Update",
     dataFileSize: 1000,
-    submissionQCResults: null,
-    batchStatusList: null,
+    hasOrphanError: false,
+    isBatchUploading: false,
+    dataCommonsDisplayName: "DC-1",
     onAction: fn(),
   },
   tags: ["autodocs"],
@@ -301,12 +275,7 @@ export const MetadataAndDataFileShouldNotHaveNewStatus: Story = {
 export const SubmissionShouldNotHaveOrphanedFiles: Story = {
   name: "Submission should not have orphaned files",
   args: {
-    submissionQCResults: {
-      total: 1,
-      results: [
-        { errors: [{ title: "Orphaned file found", code: "F008" as const, description: "" }] },
-      ],
-    },
+    hasOrphanError: true,
   },
 };
 
@@ -317,7 +286,7 @@ export const ValidationShouldNotCurrentlyBeRunning: Story = {
 
 export const BatchesShouldNotBeUploading: Story = {
   name: "No Batches should have 'Uploading' status",
-  args: { batchStatusList: { batches: [{ _id: "batch-1", status: "Uploading" as BatchStatus }] } },
+  args: { isBatchUploading: true },
 };
 
 export const ThereShouldBeNoValidationErrorsForMetadataOrDataFiles: Story = {

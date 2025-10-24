@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { createStore, combineReducers, Store } from "redux";
+import { useLazyQuery } from "@apollo/client";
 import {
   ddgraph,
   moduleReducers as submission,
@@ -9,18 +8,20 @@ import {
   getModelExploreData,
   getChangelog,
 } from "data-model-navigator";
-import { useLazyQuery } from "@apollo/client";
-import { defaultTo } from "lodash";
+import { useState } from "react";
+import { createStore, combineReducers, Store } from "redux";
+
+import logo from "../assets/header/Logo.jpg";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
+import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
 import {
   buildAssetUrls,
   buildBaseFilterContainers,
   buildFilterOptionsList,
-  updateEnums,
   Logger,
+  extractSupportedCDEs,
+  populateCDEData,
 } from "../utils";
-import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
-import logo from "../assets/header/Logo.jpg";
 
 export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
 
@@ -59,12 +60,9 @@ const useBuildReduxStore = (): ReduxStoreResult => {
   const [store] = useState<Store>(makeStore());
   const [status, setStatus] = useState<ReduxStoreStatus>("waiting");
 
-  const [retrieveCDEs, { error: retrieveCDEsError }] = useLazyQuery<
-    RetrieveCDEsResp,
-    RetrieveCDEsInput
-  >(RETRIEVE_CDEs, {
+  const [retrieveCDEs] = useLazyQuery<RetrieveCDEsResp, RetrieveCDEsInput>(RETRIEVE_CDEs, {
     context: { clientName: "backend" },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "cache-first",
   });
 
   /**
@@ -94,42 +92,32 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       return null;
     });
 
-    const response = await getModelExploreData(...assets.model_files)?.catch((e) => {
-      Logger.error(e);
-      return null;
-    });
+    const { data: dictionary, version } =
+      (await getModelExploreData(...assets.model_files)?.catch((e) => {
+        Logger.error(e);
+        return {};
+      })) || {};
 
-    if (!response?.data || !response?.version) {
+    if (!dictionary || !version) {
       setStatus("error");
       return;
     }
 
-    let dictionary;
-    const { cdeMap, data: dataList } = response;
-
-    if (cdeMap) {
-      const cdeInfo: CDEInfo[] = Array.from(response.cdeMap.values());
+    const allCDEs = extractSupportedCDEs(dictionary);
+    if (allCDEs.length > 0) {
       try {
         const CDEs = await retrieveCDEs({
           variables: {
-            cdeInfo: cdeInfo.map(({ CDECode, CDEVersion }) => ({ CDECode, CDEVersion })),
+            cdeInfo: allCDEs.map(({ CDECode, CDEVersion }) => ({ CDECode, CDEVersion })),
           },
         });
-
-        if (retrieveCDEsError) {
-          dictionary = updateEnums(cdeMap, dataList, [], true);
-        } else {
-          const retrievedCDEs = defaultTo(CDEs.data.retrieveCDEs, []);
-          dictionary = updateEnums(cdeMap, dataList, retrievedCDEs);
-        }
+        populateCDEData(dictionary, CDEs?.data?.retrieveCDEs || []);
       } catch (error) {
-        dictionary = updateEnums(cdeMap, dataList, [], true);
+        populateCDEData(dictionary, []);
       }
-    } else {
-      dictionary = dataList;
     }
 
-    store.dispatch({ type: "RECEIVE_VERSION_INFO", data: response.version });
+    store.dispatch({ type: "RECEIVE_VERSION_INFO", data: version });
 
     store.dispatch({
       type: "REACT_FLOW_GRAPH_DICTIONARY",

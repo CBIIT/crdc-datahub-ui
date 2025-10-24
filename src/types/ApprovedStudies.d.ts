@@ -48,6 +48,18 @@ type ApprovedStudy = {
    */
   useProgramPC: boolean;
   /**
+   * Indicates whether the study has a pending data model change
+   */
+  pendingModelChange: boolean;
+  /**
+   * Indicates whether the study has a pending Genomic Program Administrator (GPA)
+   */
+  isPendingGPA: boolean;
+  /**
+   * Name of the Genomic Program Administrator (GPA)
+   */
+  GPAName: string;
+  /**
    * Submission Request approval date or manual record creation date
    */
   createdAt: string;
@@ -59,3 +71,8 @@ type ApprovedStudyOfMyOrganization = Pick<
 >;
 
 type AccessType = "All" | "Controlled" | "Open";
+
+type ReleasedStudy = Pick<ApprovedStudy, "_id" | "studyName" | "dbGaPID" | "studyAbbreviation"> & {
+  dataCommons: string[];
+  dataCommonsDisplayNames: string[];
+};

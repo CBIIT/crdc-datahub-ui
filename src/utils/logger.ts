@@ -2,10 +2,8 @@ import env from "../env";
 
 /**
  * Represents the different log levels that can be used.
- *
- * @note Currently only supports "error" levels.
  */
-export type LogLevel = "error";
+export type LogLevel = "error" | "info";
 
 /**
  * A simple wrapper for the `console.log` function.
@@ -23,7 +21,7 @@ const LoggingWrapper = (level: LogLevel, message: string, ...optionalParams: unk
   }
 
   // Skip logging on stage or production environments.
-  if (env?.REACT_APP_DEV_TIER === "prod" || env?.REACT_APP_DEV_TIER === "stage") {
+  if (env?.VITE_DEV_TIER === "prod" || env?.VITE_DEV_TIER === "stage") {
     return;
   }
 
@@ -32,6 +30,10 @@ const LoggingWrapper = (level: LogLevel, message: string, ...optionalParams: unk
     case "error":
       // eslint-disable-next-line no-console
       console.error(`[ERROR] [${timestamp}] ${message}`, ...optionalParams);
+      break;
+    case "info":
+      // eslint-disable-next-line no-console
+      console.info(`%c[INFO] [${timestamp}] ${message}`, "color: #90D5FF;", ...optionalParams);
       break;
   }
 };
@@ -52,4 +54,11 @@ export const Logger: Readonly<Record<LogLevel, LoggerFunction>> = {
    */
   error: (message: string, ...optionalParams: unknown[]) =>
     LoggingWrapper("error", message, ...optionalParams),
+  /**
+   * A simple info logging function.
+   *
+   * @see {@link LoggingWrapper} for more information.
+   */
+  info: (message: string, ...optionalParams: unknown[]) =>
+    LoggingWrapper("info", message, ...optionalParams),
 };

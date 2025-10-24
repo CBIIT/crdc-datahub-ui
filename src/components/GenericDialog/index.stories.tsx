@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import GenericDialog from "./index";
 
 const meta: Meta<typeof GenericDialog> = {

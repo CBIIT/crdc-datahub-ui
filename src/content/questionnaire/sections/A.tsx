@@ -1,17 +1,26 @@
-import React, { FC, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
 import { parseForm } from "@jalik/form-parser";
-import { cloneDeep } from "lodash";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { Checkbox, FormControlLabel, Grid, styled } from "@mui/material";
+import { cloneDeep, unset } from "lodash";
+import { FC, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+
+import useAggregatedInstitutions from "@/hooks/useAggregatedInstitutions";
+import useFormMode from "@/hooks/useFormMode";
+
+import AddRemoveButton from "../../../components/AddRemoveButton";
 import { Status as FormStatus, useFormContext } from "../../../components/Contexts/FormContext";
+import PansBanner from "../../../components/PansBanner";
 import AdditionalContact from "../../../components/Questionnaire/AdditionalContact";
+import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
 import FormContainer from "../../../components/Questionnaire/FormContainer";
 import SectionGroup from "../../../components/Questionnaire/SectionGroup";
 import TextInput from "../../../components/Questionnaire/TextInput";
-import AutocompleteInput from "../../../components/Questionnaire/AutocompleteInput";
-import AddRemoveButton from "../../../components/AddRemoveButton";
+import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
+import { InitialQuestionnaire } from "../../../config/InitialValues";
+import SectionMetadata from "../../../config/SectionMetadata";
 import {
+  combineQuestionnaireData,
   filterForNumbers,
   formatORCIDInput,
   isValidORCID,
@@ -19,12 +28,6 @@ import {
   validateEmail,
   validateUTF8,
 } from "../../../utils";
-import TransitionGroupWrapper from "../../../components/Questionnaire/TransitionGroupWrapper";
-import { InitialQuestionnaire } from "../../../config/InitialValues";
-import SectionMetadata from "../../../config/SectionMetadata";
-import useFormMode from "../../../hooks/useFormMode";
-import { useInstitutionList } from "../../../components/Contexts/InstitutionListContext";
-import PansBanner from "../../../components/PansBanner";
 
 export type KeyedContact = {
   key: string;
@@ -42,6 +45,10 @@ const StyledFormControlLabel = styled(FormControlLabel)({
   },
 });
 
+const HiddenField = styled("input")({
+  display: "none",
+});
+
 /**
  * Form Section A View
  *
@@ -53,12 +60,12 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     status,
     data: { questionnaireData: data },
   } = useFormContext();
-  const { data: institutionList } = useInstitutionList();
+  const { data: institutionList } = useAggregatedInstitutions();
   const location = useLocation();
-  const { pi } = data;
   const { readOnlyInputs } = useFormMode();
   const { A: SectionAMetadata } = SectionMetadata;
 
+  const [pi, setPi] = useState<PI>(data?.pi);
   const [primaryContact, setPrimaryContact] = useState<Contact>(data?.primaryContact);
   const [piAsPrimaryContact, setPiAsPrimaryContact] = useState<boolean>(
     data?.piAsPrimaryContact || false
@@ -82,7 +89,7 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
     }
 
     const formObject = parseForm(formRef.current, { nullify: false });
-    const combinedData = { ...cloneDeep(data), ...formObject };
+    const combinedData = combineQuestionnaireData(data, formObject);
 
     if (!formObject.additionalContacts || formObject.additionalContacts.length === 0) {
       combinedData.additionalContacts = [];
@@ -91,12 +98,14 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
       combinedData.primaryContact = null;
     }
 
+    combinedData.additionalContacts?.forEach((ac) => unset(ac, "key"));
+
     return { ref: formRef, data: combinedData };
   };
 
   const addContact = () => {
-    setAdditionalContacts([
-      ...additionalContacts,
+    setAdditionalContacts((prev) => [
+      ...prev,
       {
         key: `${additionalContacts.length}_${new Date().getTime()}`,
         position: "",
@@ -105,12 +114,31 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         email: "",
         phone: "",
         institution: "",
+        institutionID: "",
       },
     ]);
   };
 
   const removeContact = (key: string) => {
-    setAdditionalContacts(additionalContacts.filter((c) => c.key !== key));
+    setAdditionalContacts((prev) => prev.filter((c) => c.key !== key));
+  };
+
+  const handlePIInstitutionChange = (value: string) => {
+    const apiData = institutionList.find((i) => i.name === value);
+    setPi((prev) => ({
+      ...prev,
+      institution: apiData?.name || value,
+      institutionID: apiData?._id || "",
+    }));
+  };
+
+  const handlePCInstitutionChange = (value: string) => {
+    const apiData = institutionList.find((i) => i.name === value);
+    setPrimaryContact((prev) => ({
+      ...prev,
+      institution: apiData?.name || value,
+      institutionID: apiData?._id || "",
+    }));
   };
 
   useEffect(() => {
@@ -124,6 +152,28 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
 
     formContainerRef.current?.scrollIntoView({ block: "start" });
   }, [location]);
+
+  useEffect(() => {
+    setPi(data?.pi);
+  }, [data?.pi]);
+
+  useEffect(() => {
+    setPrimaryContact(data?.primaryContact);
+  }, [data?.primaryContact]);
+
+  useEffect(() => {
+    setPiAsPrimaryContact(data?.piAsPrimaryContact || false);
+  }, [data?.piAsPrimaryContact]);
+
+  useEffect(() => {
+    const incoming = data?.additionalContacts ?? [];
+    setAdditionalContacts((prev) =>
+      incoming.map((c, i) => ({
+        ...c,
+        key: prev[i]?.key ?? mapObjectWithKey(c, i).key,
+      }))
+    );
+  }, [data?.additionalContacts]);
 
   return (
     <FormContainer
@@ -198,10 +248,26 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
           options={institutionList?.map((i) => i.name)}
           placeholder="Enter or Select an Institution"
           validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+          onChange={(_, val) => handlePIInstitutionChange(val)}
+          onInputChange={(_, val, reason) => {
+            // NOTE: If reason is not 'input', then the user did not trigger this event
+            if (reason === "input") {
+              handlePIInstitutionChange(val);
+            }
+          }}
           required
           disableClearable
           freeSolo
           readOnly={readOnlyInputs}
+        />
+        <HiddenField
+          type="text"
+          name="pi[institutionID]"
+          value={pi?.institutionID || ""}
+          onChange={() => {}}
+          data-type="string"
+          aria-label="Institution ID field"
+          hidden
         />
         <TextInput
           id="section-a-pi-institution-address"
@@ -300,9 +366,25 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
               placeholder="Enter or Select an Institution"
               readOnly={readOnlyInputs}
               validate={(v: string) => v?.trim()?.length > 0 && !validateUTF8(v)}
+              onChange={(_, val) => handlePCInstitutionChange(val)}
+              onInputChange={(_, val, reason) => {
+                // NOTE: If reason is not 'input', then the user did not trigger this event
+                if (reason === "input") {
+                  handlePCInstitutionChange(val);
+                }
+              }}
               disableClearable
               required
               freeSolo
+            />
+            <HiddenField
+              type="text"
+              name="primaryContact[institutionID]"
+              value={primaryContact?.institutionID || ""}
+              onChange={() => {}}
+              data-type="string"
+              aria-label="Institution ID field"
+              hidden
             />
             <TextInput
               id="section-a-primary-contact-phone-number"
@@ -336,13 +418,22 @@ const FormSectionA: FC<FormSectionProps> = ({ SectionOption, refs }: FormSection
         <TransitionGroupWrapper
           items={additionalContacts}
           renderItem={(contact: KeyedContact, idx: number) => (
-            <AdditionalContact
-              idPrefix="section-a"
-              index={idx}
-              contact={contact}
-              onDelete={() => removeContact(contact.key)}
-              readOnly={readOnlyInputs}
-            />
+            <>
+              <input
+                type="hidden"
+                name={`additionalContacts[${idx}][key]`}
+                value={contact.key}
+                readOnly
+              />
+              <AdditionalContact
+                key={contact.key}
+                idPrefix="section-a"
+                index={idx}
+                contact={contact}
+                onDelete={() => removeContact(contact.key)}
+                readOnly={readOnlyInputs}
+              />
+            </>
           )}
         />
       </SectionGroup>

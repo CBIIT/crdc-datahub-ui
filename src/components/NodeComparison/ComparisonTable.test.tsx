@@ -1,13 +1,19 @@
-import { render } from "@testing-library/react";
-import { axe } from "jest-axe";
-import ComparisonTable from "./ComparisonTable";
-import { RetrieveReleasedDataResp } from "../../graphql";
+import { axe } from "vitest-axe";
 
-const baseNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number] = {
-  nodeType: "",
-  nodeID: "",
-  props: "{}",
-};
+import { submissionNodeFactory } from "@/factories/submission/SubmissionNodeFactory";
+
+import { RetrieveReleasedDataResp } from "../../graphql";
+import { render } from "../../test-utils";
+
+import ComparisonTable from "./ComparisonTable";
+
+const baseNode: RetrieveReleasedDataResp["retrieveReleasedDataByID"][number] = submissionNodeFactory
+  .pick(["nodeType", "nodeID", "props"])
+  .build({
+    nodeType: "",
+    nodeID: "",
+    props: "{}",
+  });
 
 describe("Accessibility", () => {
   it("should have no violations", async () => {

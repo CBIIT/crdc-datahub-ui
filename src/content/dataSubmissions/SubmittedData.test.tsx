@@ -1,11 +1,24 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import SubmittedData from "./SubmittedData";
+import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+import { submissionAttributesFactory } from "@/factories/submission/SubmissionAttributesFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+import { submissionStatisticFactory } from "@/factories/submission/SubmissionStatisticFactory";
+
+import { Context as AuthContext } from "../../components/Contexts/AuthContext";
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 import {
   GET_SUBMISSION_NODES,
   GetSubmissionNodesInput,
@@ -14,41 +27,9 @@ import {
   SubmissionStatsInput,
   SubmissionStatsResp,
 } from "../../graphql";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../../components/Contexts/SubmissionContext";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../../components/Contexts/AuthContext";
+import { render, waitFor, within } from "../../test-utils";
 
-const baseUser: User = {
-  _id: "current-user",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter", // NOTE: This role has access to everything nested here by default
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: ["data_submission:create"],
-  notifications: [],
-};
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: { ...baseUser },
-};
+import SubmittedData from "./SubmittedData";
 
 type ParentProps = {
   mocks?: MockedResponse[];
@@ -70,31 +51,45 @@ const TestParent: FC<ParentProps> = ({
   children,
 }: ParentProps) => {
   const value = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      error: null,
-      isPolling: false,
-      data: {
-        getSubmission: {
-          _id: submissionId,
-          name: submissionName,
-          submitterID,
-          collaborators,
-          deletingData,
-        } as Submission,
-        submissionStats: {
-          stats: [],
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        error: null,
+        data: {
+          getSubmission: submissionFactory.build({
+            _id: submissionId,
+            name: submissionName,
+            submitterID,
+            collaborators,
+            deletingData,
+          }),
+          submissionStats: {
+            stats: [],
+          },
+          getSubmissionAttributes: {
+            submissionAttributes: submissionAttributesFactory
+              .pick(["hasOrphanError", "isBatchUploading"])
+              .build({
+                hasOrphanError: false,
+                isBatchUploading: false,
+              }),
+          },
         },
-        batchStatusList: null,
-      },
-    }),
+      }),
     [submissionId, submissionName, deletingData]
   );
 
   return (
     <MockedProvider mocks={mocks} showWarnings>
       <MemoryRouter basename="">
-        <AuthContext.Provider value={baseAuthCtx}>
+        <AuthContext.Provider
+          value={authCtxStateFactory.build({
+            user: userFactory.build({
+              _id: "current-user",
+              permissions: ["data_submission:create"],
+            }),
+          })}
+        >
           <SubmissionContext.Provider value={value}>
             <SearchParamsProvider>{children}</SearchParamsProvider>
           </SubmissionContext.Provider>
@@ -105,15 +100,6 @@ const TestParent: FC<ParentProps> = ({
 };
 
 describe("SubmittedData > General", () => {
-  const baseSubmissionStatistic: SubmissionStatistic = {
-    nodeName: "",
-    total: 0,
-    new: 0,
-    passed: 0,
-    warning: 0,
-    error: 0,
-  };
-
   const mockSubmissionQuery: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
     request: {
       query: SUBMISSION_STATS,
@@ -122,14 +108,14 @@ describe("SubmittedData > General", () => {
     result: {
       data: {
         submissionStats: {
-          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
+          stats: [submissionStatisticFactory.build({ nodeName: "example-node", total: 1 })],
         },
       },
     },
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any high level accessibility violations", async () => {
@@ -415,15 +401,6 @@ describe("SubmittedData > General", () => {
 });
 
 describe("SubmittedData > Table", () => {
-  const baseSubmissionStatistic: SubmissionStatistic = {
-    nodeName: "",
-    total: 0,
-    new: 0,
-    passed: 0,
-    warning: 0,
-    error: 0,
-  };
-
   const mockSubmissionQuery: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
     request: {
       query: SUBMISSION_STATS,
@@ -432,14 +409,14 @@ describe("SubmittedData > Table", () => {
     result: {
       data: {
         submissionStats: {
-          stats: [{ ...baseSubmissionStatistic, nodeName: "example-node", total: 1 }],
+          stats: [submissionStatisticFactory.build({ nodeName: "example-node", total: 1 })],
         },
       },
     },
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the placeholder text when no data is available", async () => {
@@ -790,7 +767,7 @@ describe("SubmittedData > Table", () => {
         submitterID="some-other-user"
         collaborators={[
           {
-            collaboratorID: baseUser._id,
+            collaboratorID: "current-user",
             collaboratorName: "",
             permission: "Can Edit",
           },
@@ -840,7 +817,7 @@ describe("SubmittedData > Table", () => {
       },
     };
 
-    const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
+    const mockMatcherAllNodes = vi.fn().mockImplementation(() => true);
     const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
       maxUsageCount: 1,
       request: {
@@ -1048,7 +1025,7 @@ describe("SubmittedData > Table", () => {
       },
     };
 
-    const mockMatcherAllNodes = jest.fn().mockImplementation(() => true);
+    const mockMatcherAllNodes = vi.fn().mockImplementation(() => true);
     const getAllNodesMock: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput> = {
       request: {
         query: GET_SUBMISSION_NODES,

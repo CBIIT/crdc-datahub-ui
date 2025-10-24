@@ -1,5 +1,5 @@
-import { FC } from "react";
 import { Box, Stack, Typography, styled } from "@mui/material";
+import { FC } from "react";
 
 type Props = {
   color: string;

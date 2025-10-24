@@ -1,5 +1,5 @@
-import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
+import { LoadingButton } from "@mui/lab";
 import {
   FormControlLabel,
   RadioGroup,
@@ -8,10 +8,11 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
-import { useAuthContext } from "../Contexts/AuthContext";
-import StyledRadioButton from "../Questionnaire/StyledRadioButton";
+import React, { FC, ReactElement, useEffect, useMemo, useRef, useState } from "react";
+
+import { hasPermission } from "../../config/AuthPermissions";
+import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
 import {
   VALIDATE_SUBMISSION,
   ValidateSubmissionInput,
@@ -22,13 +23,14 @@ import {
   getDefaultValidationType,
   getValidationTypes,
 } from "../../utils";
-import FlowWrapper from "./FlowWrapper";
-import { CrossValidationButton } from "./CrossValidationButton";
-import { ValidationStatus } from "./ValidationStatus";
+import { useAuthContext } from "../Contexts/AuthContext";
 import { useSubmissionContext } from "../Contexts/SubmissionContext";
-import { TOOLTIP_TEXT } from "../../config/DashboardTooltips";
+import StyledRadioButton from "../Questionnaire/StyledRadioButton";
 import StyledTooltip from "../StyledFormComponents/StyledTooltip";
-import { hasPermission } from "../../config/AuthPermissions";
+
+import { CrossValidationButton } from "./CrossValidationButton";
+import FlowWrapper from "./FlowWrapper";
+import { ValidationStatus } from "./ValidationStatus";
 
 const StyledValidateButton = styled(LoadingButton)({
   padding: "10px",

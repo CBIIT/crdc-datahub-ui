@@ -1,9 +1,13 @@
-import React, { FC } from "react";
-import { GraphQLError } from "graphql";
-import { render, waitFor } from "@testing-library/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { AuthProvider, Status as AuthStatus, useAuthContext } from "./AuthContext";
+import { GraphQLError } from "graphql";
+import React, { FC } from "react";
+
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import { query as GET_MY_USER } from "../../graphql/getMyUser";
+import { render, waitFor } from "../../test-utils";
+
+import { AuthProvider, Status as AuthStatus, useAuthContext } from "./AuthContext";
 
 type Props = {
   mocks?: MockedResponse[];
@@ -39,11 +43,11 @@ const TestParent: FC<Props> = ({ mocks, children }: Props) => (
 
 describe("AuthContext > useAuthContext Tests", () => {
   it("should throw an exception when used outside of a AuthProvider", () => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestChild />)).toThrow(
       "AuthContext cannot be used outside of the AuthProvider component"
     );
-    jest.spyOn(console, "error").mockRestore();
+    vi.spyOn(console, "error").mockRestore();
   });
 });
 
@@ -53,15 +57,15 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should render without crashing", () => {
-    render(<TestParent />);
+    expect(() => render(<TestParent />)).not.toThrow();
   });
 
   it("should restore the user from localStorage cache", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "aaa-bbb-0101",
       firstName: "Test",
       lastName: "User",
-    };
+    });
 
     const mocks = [
       {
@@ -92,11 +96,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should successfully verify the cached user with the BE service", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "123-random-id-456",
       firstName: "Random",
       lastName: "Lastname with spaces",
-    };
+    });
 
     const mocks = [
       {
@@ -124,11 +128,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should update the localStorage cache when the user is verified", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "123-random-id-456",
       firstName: "Random",
       lastName: "Lastname with spaces",
-    };
+    });
 
     const mocks = [
       {
@@ -165,11 +169,11 @@ describe("AuthContext > AuthProvider Tests", () => {
   });
 
   it("should logout the user if the BE API call fails", async () => {
-    const userData = {
+    const userData = userFactory.build({
       _id: "GGGG-1393-AAA-9101",
       firstName: "Random",
       lastName: "Lastname",
-    };
+    });
 
     const mocks = [
       {

@@ -1,4 +1,3 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -11,6 +10,8 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { useSnackbar } from "notistack";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import {
   Controller,
   ControllerRenderProps,
@@ -19,12 +20,24 @@ import {
   useForm,
 } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "notistack";
+
 import bannerSvg from "../../assets/banner/profile_banner.png";
-import profileIcon from "../../assets/icons/profile_icon.svg";
+import profileIcon from "../../assets/icons/profile_icon.svg?url";
+import AccessRequest from "../../components/AccessRequest";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
+import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
+import DeleteDialog from "../../components/DeleteDialog";
+import PermissionPanel from "../../components/PermissionPanel";
+import StudyList from "../../components/StudyList";
+import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
+import BaseAutocomplete, {
+  StyledPaper as BasePaper,
+} from "../../components/StyledFormComponents/StyledAutocomplete";
+import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
+import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
 import SuspenseLoader from "../../components/SuspenseLoader";
 import { Roles } from "../../config/AuthRoles";
+import { DataCommons } from "../../config/DataCommons";
 import {
   EDIT_USER,
   EditUserInput,
@@ -45,21 +58,9 @@ import {
   UserIsPrimaryContactInput,
   UserIsPrimaryContactResp,
 } from "../../graphql";
-import { formatFullStudyName, formatIDP, Logger } from "../../utils";
-import { DataCommons } from "../../config/DataCommons";
 import usePageTitle from "../../hooks/usePageTitle";
-import { useSearchParamsContext } from "../../components/Contexts/SearchParamsContext";
-import BaseSelect from "../../components/StyledFormComponents/StyledSelect";
-import BaseOutlinedInput from "../../components/StyledFormComponents/StyledOutlinedInput";
-import BaseAutocomplete, {
-  StyledPaper as BasePaper,
-} from "../../components/StyledFormComponents/StyledAutocomplete";
-import BaseAsterisk from "../../components/StyledFormComponents/StyledAsterisk";
 import useProfileFields, { VisibleFieldState } from "../../hooks/useProfileFields";
-import AccessRequest from "../../components/AccessRequest";
-import PermissionPanel from "../../components/PermissionPanel";
-import StudyList from "../../components/StudyList";
-import DeleteDialog from "../../components/DeleteDialog";
+import { formatFullStudyName, formatIDP, Logger } from "../../utils";
 
 type Props = {
   /**
@@ -158,7 +159,7 @@ const StyledPaper = styled(BasePaper)({
 });
 
 const StyledPopper = styled(Popper)({
-  width: "463px !important",
+  width: "363px !important",
 });
 
 const StyledButtonStack = styled(Stack)({
@@ -274,15 +275,15 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
     skip: fieldset.studies !== "UNLOCKED",
   });
 
-  const { data: listInstitutions } = useQuery<ListInstitutionsResp, ListInstitutionsInput>(
-    LIST_INSTITUTIONS,
-    {
-      variables: { first: -1, orderBy: "name", sortDirection: "asc", status: "Active" },
-      context: { clientName: "backend" },
-      fetchPolicy: "cache-and-network",
-      skip: fieldset.institution !== "UNLOCKED",
-    }
-  );
+  const { data: listInstitutions, refetch: refetchInstitutions } = useQuery<
+    ListInstitutionsResp,
+    ListInstitutionsInput
+  >(LIST_INSTITUTIONS, {
+    variables: { first: -1, orderBy: "name", sortDirection: "asc", status: "Active" },
+    context: { clientName: "backend" },
+    fetchPolicy: "cache-and-network",
+    skip: fieldset.institution !== "UNLOCKED",
+  });
 
   const { data: isPrimaryContact } = useQuery<UserIsPrimaryContactResp, UserIsPrimaryContactInput>(
     USER_IS_PRIMARY_CONTACT,
@@ -463,6 +464,9 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
       return;
     }
 
+    if (typeof refetchInstitutions === "function") {
+      refetchInstitutions();
+    }
     sortStudyOptions();
 
     // If the user is a Federal Lead with no studies assigned, default to selecting "All" studies
@@ -482,6 +486,8 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
   if (!user || authStatus === AuthStatus.LOADING) {
     return <SuspenseLoader />;
   }
+
+  const { institutions = [] } = listInstitutions?.listInstitutions || {};
 
   return (
     <>
@@ -598,23 +604,35 @@ const ProfileView: FC<Props> = ({ _id, viewType }: Props) => {
                     <Controller
                       name="institution"
                       control={control}
-                      rules={{ required: false }}
+                      rules={{ required: true }}
                       render={({ field }) => (
-                        <StyledSelect
+                        <StyledAutocomplete
                           {...field}
-                          size="small"
-                          value={field.value || ""}
+                          options={institutions}
+                          getOptionLabel={(option: Institution) => option.name}
+                          isOptionEqualToValue={(option: Institution, value: Institution) =>
+                            option._id === value._id
+                          }
+                          onChange={(_, data: Institution | null) =>
+                            field.onChange(data?._id || "")
+                          }
+                          value={institutions.find((i) => i._id === field.value) || null}
+                          PaperComponent={StyledPaper}
+                          PopperComponent={StyledPopper}
+                          renderInput={({ inputProps, ...params }) => (
+                            <TextField
+                              {...params}
+                              inputProps={{
+                                "aria-labelledby": "userInstitution",
+                                "data-testid": "institution-input",
+                                required: true,
+                                ...inputProps,
+                              }}
+                              placeholder="Select an Institution"
+                            />
+                          )}
                           disabled={fieldset.institution === "DISABLED"}
-                          MenuProps={{ disablePortal: true }}
-                          inputProps={{ "aria-labelledby": "userInstitution" }}
-                          required
-                        >
-                          {listInstitutions?.listInstitutions.institutions.map((i) => (
-                            <MenuItem key={i._id} value={i._id}>
-                              {i.name}
-                            </MenuItem>
-                          ))}
-                        </StyledSelect>
+                        />
                       )}
                     />
                   ) : (

@@ -1,14 +1,14 @@
-import { render, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { axe } from "jest-axe";
-import { useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import {
-  Context as AuthContext,
-  ContextState as AuthContextState,
-  Status as AuthContextStatus,
-} from "../Contexts/AuthContext";
+import { useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { applicantFactory } from "@/factories/application/ApplicantFactory";
+import { applicationFactory } from "@/factories/application/ApplicationFactory";
+import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/factories/auth/UserFactory";
+
 import {
   CANCEL_APP,
   CancelAppInput,
@@ -17,56 +17,10 @@ import {
   RestoreAppInput,
   RestoreAppResp,
 } from "../../graphql";
+import { render, waitFor, within } from "../../test-utils";
+import { Context as AuthContext, ContextState as AuthContextState } from "../Contexts/AuthContext";
+
 import Button from "./index";
-
-const baseAuthCtx: AuthContextState = {
-  status: AuthContextStatus.LOADED,
-  isLoggedIn: false,
-  user: null,
-};
-
-const baseUser: User = {
-  _id: "base-user-123",
-  firstName: "",
-  lastName: "",
-  userStatus: "Active",
-  role: "Submitter",
-  IDP: "nih",
-  email: "",
-  studies: null,
-  institution: null,
-  dataCommons: [],
-  dataCommonsDisplayNames: [],
-  createdAt: "",
-  updateAt: "",
-  permissions: [],
-  notifications: [],
-};
-
-const baseApp: Omit<Application, "questionnaireData"> = {
-  _id: "",
-  status: "New",
-  createdAt: "",
-  updatedAt: "",
-  submittedDate: "",
-  history: [],
-  ORCID: "",
-  applicant: {
-    applicantID: "applicant-123",
-    applicantName: "",
-    applicantEmail: "",
-  },
-  PI: "",
-  controlledAccess: false,
-  openAccess: false,
-  studyAbbreviation: "",
-  conditional: false,
-  pendingConditions: [],
-  programName: "",
-  programAbbreviation: "",
-  programDescription: "",
-  version: "",
-};
 
 type TestParentProps = {
   user?: Partial<User>;
@@ -76,10 +30,10 @@ type TestParentProps = {
 
 const TestParent: React.FC<TestParentProps> = ({ mocks = [], user = {}, children }) => {
   const authCtxValue = useMemo<AuthContextState>(
-    () => ({
-      ...baseAuthCtx,
-      user: { ...baseUser, ...user },
-    }),
+    () =>
+      authCtxStateFactory.build({
+        user: userFactory.build({ ...user }),
+      }),
     [user]
   );
 
@@ -94,17 +48,14 @@ describe("Accessibility", () => {
   it("should have no violations for the component (cancel)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -118,17 +69,14 @@ describe("Accessibility", () => {
   it("should have no violations for the component (restore)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -142,18 +90,15 @@ describe("Accessibility", () => {
   it("should have no violations for the component (cancel disabled)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
         disabled
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -168,18 +113,15 @@ describe("Accessibility", () => {
   it("should have no violations for the component (restore disabled)", async () => {
     const { container, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
         disabled
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -194,7 +136,7 @@ describe("Accessibility", () => {
 
 describe("Basic Functionality", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should render without crashing", async () => {
@@ -222,17 +164,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -279,17 +220,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -342,17 +282,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -387,7 +326,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onCancel callback when the cancel operation is successful", async () => {
-    const onCancel = jest.fn();
+    const onCancel = vi.fn();
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -406,18 +345,17 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
         onCancel={onCancel}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -461,17 +399,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -518,17 +455,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -581,17 +517,16 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -626,7 +561,7 @@ describe("Basic Functionality", () => {
   });
 
   it("should call the onCancel callback when the restore operation is successful", async () => {
-    const onCancel = jest.fn();
+    const onCancel = vi.fn();
     const mocks: MockedResponse<RestoreAppResp, RestoreAppInput>[] = [
       {
         request: {
@@ -645,18 +580,17 @@ describe("Basic Functionality", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
         onCancel={onCancel}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -688,23 +622,20 @@ describe("Basic Functionality", () => {
 
 describe("Implementation Requirements", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should have a tooltip present on the Cancel button", async () => {
     const { getByTestId, findByRole } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -727,17 +658,14 @@ describe("Implementation Requirements", () => {
   it("should have a tooltip present on the Restore button", async () => {
     const { getByTestId, findByRole } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -760,17 +688,14 @@ describe("Implementation Requirements", () => {
   it("should dismiss the dialog when the 'Cancel' dialog button is clicked", async () => {
     const { findByRole, getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -794,15 +719,14 @@ describe("Implementation Requirements", () => {
   it("should not be rendered when the user is missing the required permissions", async () => {
     const { queryByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "In Progress",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent user={{ ...baseUser, _id: "owner", permissions: [] }}>{children}</TestParent>
+          <TestParent user={{ _id: "owner", permissions: [] }}>{children}</TestParent>
         ),
       }
     );
@@ -819,17 +743,14 @@ describe("Implementation Requirements", () => {
     (status) => {
       const { getByTestId } = render(
         <Button
-          application={{
-            ...baseApp,
+          application={applicationFactory.build({
             status,
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         />,
         {
           wrapper: ({ children }) => (
-            <TestParent
-              user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-            >
+            <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
               {children}
             </TestParent>
           ),
@@ -848,17 +769,14 @@ describe("Implementation Requirements", () => {
     (status) => {
       const { getByTestId } = render(
         <Button
-          application={{
-            ...baseApp,
+          application={applicationFactory.build({
             status,
-            applicant: { ...baseApp.applicant, applicantID: "owner" },
-          }}
+            applicant: applicantFactory.build({ applicantID: "owner" }),
+          })}
         />,
         {
           wrapper: ({ children }) => (
-            <TestParent
-              user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-            >
+            <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
               {children}
             </TestParent>
           ),
@@ -873,17 +791,14 @@ describe("Implementation Requirements", () => {
   it("should render tailored dialog content for the 'Restore' variant from Canceled", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Canceled",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -904,17 +819,14 @@ describe("Implementation Requirements", () => {
   it("should render tailored dialog content for the 'Restore' variant from Deleted", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "Deleted",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -935,17 +847,14 @@ describe("Implementation Requirements", () => {
   it("should render tailored dialog content for the 'Cancel' variant", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -966,18 +875,15 @@ describe("Implementation Requirements", () => {
   it("should render the Study Abbreviation in the dialog description", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "New",
           studyAbbreviation: "TEST",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -995,18 +901,15 @@ describe("Implementation Requirements", () => {
   it("should fallback to 'NA' for the Study Abbreviation in the dialog description", async () => {
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status: "New",
           studyAbbreviation: "",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
-          <TestParent
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
-          >
+          <TestParent user={{ _id: "owner", permissions: ["submission_request:cancel"] }}>
             {children}
           </TestParent>
         ),
@@ -1022,7 +925,7 @@ describe("Implementation Requirements", () => {
   });
 
   it("should require a reason for canceling", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse<CancelAppResp, CancelAppInput>[] = [
       {
         request: {
@@ -1041,18 +944,17 @@ describe("Implementation Requirements", () => {
 
     const { getByRole, getByTestId } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           _id: "mock-id-cancel-reason",
           status: "New",
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -1088,7 +990,7 @@ describe("Implementation Requirements", () => {
     { scenario: "Cancel", status: "New" },
     { scenario: "Restore", status: "Canceled" },
   ])("should limit the reason field to 500 characters ($scenario Action)", async ({ status }) => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mocks: MockedResponse[] = [
       {
         request: {
@@ -1110,19 +1012,18 @@ describe("Implementation Requirements", () => {
       },
     ];
 
-    const { getByRole, getByTestId, findByRole } = render(
+    const { rerender, getByRole, getByTestId, findByRole } = render(
       <Button
-        application={{
-          ...baseApp,
+        application={applicationFactory.build({
           status,
-          applicant: { ...baseApp.applicant, applicantID: "owner" },
-        }}
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
       />,
       {
         wrapper: ({ children }) => (
           <TestParent
             mocks={mocks}
-            user={{ ...baseUser, _id: "owner", permissions: ["submission_request:cancel"] }}
+            user={{ _id: "owner", permissions: ["submission_request:cancel"] }}
           >
             {children}
           </TestParent>
@@ -1142,6 +1043,16 @@ describe("Implementation Requirements", () => {
     const input = await within(getByRole("dialog")).findByRole("textbox");
 
     userEvent.type(input, "X".repeat(550));
+
+    // NOTE: Force rerender to ensure the input is re-evaluated for maxLength
+    rerender(
+      <Button
+        application={applicationFactory.build({
+          status,
+          applicant: applicantFactory.build({ applicantID: "owner" }),
+        })}
+      />
+    );
 
     // NOTE: the button is still enabled because of the maxLength on the input field
     await waitFor(() => {

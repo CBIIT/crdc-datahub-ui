@@ -1,17 +1,21 @@
-import { act, render, waitFor } from "@testing-library/react";
-import { axe } from "jest-axe";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { FC } from "react";
 import { GraphQLError } from "graphql";
+import { FC } from "react";
+import { axe } from "vitest-axe";
+
+import { submissionNodeFactory } from "@/factories/submission/SubmissionNodeFactory";
+
 import {
   RETRIEVE_RELEASED_DATA,
   RetrieveReleasedDataInput,
   RetrieveReleasedDataResp,
 } from "../../graphql";
+import { act, render, waitFor } from "../../test-utils";
+
 import NodeComparison from "./index";
 
-const mockTableRender = jest.fn().mockImplementation(() => <div>MOCK COMPARISON TABLE</div>);
-jest.mock("./ComparisonTable", () => ({
+const mockTableRender = vi.fn().mockImplementation(() => <div>MOCK COMPARISON TABLE</div>);
+vi.mock("./ComparisonTable", () => ({
   __esModule: true,
   default: (...p) => mockTableRender(...p),
 }));
@@ -105,16 +109,16 @@ describe("Basic Functionality", () => {
       result: {
         data: {
           retrieveReleasedDataByID: [
-            {
+            submissionNodeFactory.pick(["nodeType", "nodeID", "props"]).build({
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-            {
+            }),
+            submissionNodeFactory.pick(["nodeType", "nodeID", "props"]).build({
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "bar", baz: 2 }),
-            },
+            }),
           ],
         },
       },
@@ -154,11 +158,11 @@ describe("Basic Functionality", () => {
       result: {
         data: {
           retrieveReleasedDataByID: [
-            {
+            submissionNodeFactory.pick(["nodeType", "nodeID", "props"]).build({
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
+            }),
           ],
         },
       },
@@ -188,23 +192,13 @@ describe("Basic Functionality", () => {
       variableMatcher: () => true,
       result: {
         data: {
-          retrieveReleasedDataByID: [
-            {
+          retrieveReleasedDataByID: submissionNodeFactory
+            .pick(["nodeType", "nodeID", "props"])
+            .build(3, {
               nodeType: "mock_node_type",
               nodeID: "mock_node_id",
               props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-            {
-              nodeType: "mock_node_type",
-              nodeID: "mock_node_id",
-              props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-            {
-              nodeType: "mock_node_type",
-              nodeID: "mock_node_id",
-              props: JSON.stringify({ mock_node_data_name: "foo", baz: 1 }),
-            },
-          ],
+            }),
         },
       },
     };
@@ -283,7 +277,7 @@ describe("Implementation Requirements", () => {
 
 describe("Snapshots", () => {
   it("should match the nominal state snapshot", async () => {
-    const mockMatcher = jest.fn().mockReturnValue(true);
+    const mockMatcher = vi.fn().mockReturnValue(true);
     const mock: MockedResponse<RetrieveReleasedDataResp, RetrieveReleasedDataInput> = {
       request: {
         query: RETRIEVE_RELEASED_DATA,

@@ -1,17 +1,18 @@
-import { useMemo, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { IconButtonProps, IconButton, styled } from "@mui/material";
 import { CloudDownload } from "@mui/icons-material";
-import { useSnackbar } from "notistack";
+import { IconButtonProps, IconButton, styled } from "@mui/material";
 import dayjs from "dayjs";
+import { useSnackbar } from "notistack";
 import { unparse } from "papaparse";
-import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
+import { useMemo, useState } from "react";
+
 import {
   GET_SUBMISSION_NODES,
   GetSubmissionNodesInput,
   GetSubmissionNodesResp,
 } from "../../graphql";
 import { downloadBlob, filterAlphaNumeric } from "../../utils";
+import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 export type Props = {
   /**
@@ -93,7 +94,12 @@ export const ExportNodeDataButton: React.FC<Props> = ({
       return;
     }
 
-    if (!d?.getSubmissionNodes?.total || !d?.getSubmissionNodes?.nodes.length) {
+    if (
+      !d?.getSubmissionNodes?.total ||
+      !d?.getSubmissionNodes?.nodes.length ||
+      !("properties" in d.getSubmissionNodes) ||
+      !d.getSubmissionNodes.properties?.length
+    ) {
       enqueueSnackbar("There is no data to export for the selected node.", {
         variant: "error",
       });
@@ -104,7 +110,13 @@ export const ExportNodeDataButton: React.FC<Props> = ({
     try {
       const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
       const filename = `${filteredName}_${nodeType}_${dayjs().format("YYYYMMDDHHmm")}.tsv`;
+      const mappedFields = d.getSubmissionNodes.properties.reduce(
+        (acc, key) => ({ ...acc, [key]: "" }),
+        {}
+      );
       const csvArray = d.getSubmissionNodes.nodes.map((node) => ({
+        type: nodeType,
+        ...mappedFields,
         ...JSON.parse(node.props),
         status: node.status,
       }));

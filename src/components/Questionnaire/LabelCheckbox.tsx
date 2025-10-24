@@ -1,6 +1,7 @@
 import { Checkbox, CheckboxProps, FormControlLabelProps, styled } from "@mui/material";
 import { FC } from "react";
-import { ReactComponent as CheckboxCheckedIcon } from "../../assets/icons/checkbox_checked.svg";
+
+import CheckboxCheckedIcon from "../../assets/icons/checkbox_checked.svg?react";
 
 const StyledCheckboxCheckedIcon = styled(CheckboxCheckedIcon)<{
   readOnly?: boolean;

@@ -1,7 +1,4 @@
 import { Box, FormControl, MenuItem, SelectChangeEvent, styled, Typography } from "@mui/material";
-import { isEqual } from "lodash";
-import { FC, memo, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import {
   createEmbeddingContext,
   DashboardContentOptions,
@@ -9,13 +6,17 @@ import {
   FrameOptions,
   ToolbarOptions,
 } from "amazon-quicksight-embedding-sdk";
-import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
-import StyledLabel from "../../components/StyledFormComponents/StyledLabel";
-import SuspenseLoader from "../../components/SuspenseLoader";
+import { isEqual } from "lodash";
+import { FC, memo, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import { useAuthContext } from "../../components/Contexts/AuthContext";
-import { addDataCommonsParameter, addStudiesParameter } from "../../utils";
+import StyledLabel from "../../components/StyledFormComponents/StyledLabel";
+import StyledSelect from "../../components/StyledFormComponents/StyledSelect";
+import SuspenseLoader from "../../components/SuspenseLoader";
 import { RequiresStudiesAssigned } from "../../config/AuthRoles";
+import { addDataCommonsParameter, addStudiesParameter } from "../../utils";
 
 export type DashboardViewProps = {
   url: string;

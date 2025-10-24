@@ -1,6 +1,7 @@
+import { TypedDocumentNode } from "@apollo/client";
 import gql from "graphql-tag";
 
-export const query = gql`
+export const query: TypedDocumentNode<Response> = gql`
   query getApplication($id: ID!) {
     getApplication(_id: $id) {
       _id
@@ -21,11 +22,16 @@ export const query = gql`
         applicantID
         applicantName
       }
+      newInstitutions {
+        id
+        name
+      }
       programName
       studyAbbreviation
       questionnaireData
       conditional
       pendingConditions
+      version
     }
   }
 `;

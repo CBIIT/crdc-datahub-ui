@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
   Dialog,
@@ -9,15 +9,16 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { useForm } from "react-hook-form";
 import { isEqual } from "lodash";
-import { ReactComponent as CloseIconSvg } from "../../assets/icons/close_icon.svg";
-import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
-import StyledLabel from "../StyledFormComponents/StyledLabel";
+import React, { FC, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+
+import CloseIconSvg from "../../assets/icons/close_icon.svg?react";
 import StyledAsterisk from "../StyledFormComponents/StyledAsterisk";
-import Tooltip from "../Tooltip";
 import StyledHelperText from "../StyledFormComponents/StyledHelperText";
+import StyledLabel from "../StyledFormComponents/StyledLabel";
+import StyledOutlinedInput from "../StyledFormComponents/StyledOutlinedInput";
+import Tooltip from "../Tooltip";
 
 const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
@@ -107,6 +108,7 @@ const StyledButton = styled(LoadingButton)({
 export type InputForm = {
   dataFolder: string;
   manifest: string;
+  archive_manifest?: string;
 };
 
 type Props = {
@@ -209,6 +211,28 @@ const UploaderConfigDialog: FC<Props> = ({ onClose, onDownload, open, ...rest })
             />
             <StyledHelperText data-testid="uploader-config-dialog-error-manifest">
               {errors?.manifest?.message}
+            </StyledHelperText>
+          </Box>
+          <Box>
+            <StyledLabel id="archive-manifest-input-label">
+              Full Path to Archive Manifest File
+              <Tooltip
+                title="Enter the full path for the Archive Manifest file on your local machine or S3 bucket."
+                open={undefined}
+                disableHoverListener={false}
+                data-testid="archive-manifest-input-tooltip"
+              />
+            </StyledLabel>
+            <StyledOutlinedInput
+              {...register("archive_manifest", {
+                setValueAs: (v: string) => v?.trim(),
+              })}
+              placeholder="/Users/me/my-metadata-folder/my-archive-manifest.tsv"
+              data-testid="uploader-config-dialog-input-archive-manifest"
+              inputProps={{ "aria-labelledby": "archive-manifest-input-label" }}
+            />
+            <StyledHelperText data-testid="uploader-config-dialog-error-archive-manifest">
+              {errors?.archive_manifest?.message}
             </StyledHelperText>
           </Box>
         </StyledForm>

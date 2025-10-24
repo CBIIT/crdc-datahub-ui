@@ -1,10 +1,21 @@
-import { FC, useMemo } from "react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
-import { GraphQLError } from "graphql";
-import { MemoryRouter } from "react-router-dom";
-import { axe } from "jest-axe";
-import { render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { GraphQLError } from "graphql";
+import { FC, useMemo } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
+
+import { batchFactory } from "@/factories/submission/BatchFactory";
+import { crossValidationResultFactory } from "@/factories/submission/CrossValidationResultFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
+import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import {
+  SubmissionContext,
+  SubmissionCtxState,
+  SubmissionCtxStatus,
+} from "../../components/Contexts/SubmissionContext";
 import {
   CrossValidationResultsInput,
   CrossValidationResultsResp,
@@ -16,76 +27,9 @@ import {
   SubmissionStatsResp,
   SUBMISSION_CROSS_VALIDATION_RESULTS,
 } from "../../graphql";
-import {
-  SubmissionContext,
-  SubmissionCtxState,
-  SubmissionCtxStatus,
-} from "../../components/Contexts/SubmissionContext";
-import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
+import { render, waitFor, within } from "../../test-utils";
+
 import CrossValidation from "./CrossValidation";
-
-// NOTE: We omit all properties that the component specifically depends on
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseCrossValidationResult: CrossValidationResult = {
-  submissionID: "",
-  type: "",
-  validationType: "metadata",
-  batchID: "",
-  displayID: 0,
-  submittedID: "",
-  severity: "Error",
-  uploadedDate: "",
-  validatedDate: "",
-  conflictingSubmission: "",
-  errors: [],
-  warnings: [],
-};
-
-const baseBatch = {
-  _id: "",
-  displayID: 0,
-  createdAt: "",
-  updatedAt: "",
-  __typename: "Batch",
-};
 
 const nodesMock: MockedResponse<SubmissionStatsResp, SubmissionStatsInput> = {
   request: {
@@ -112,9 +56,6 @@ const batchesMock: MockedResponse<ListBatchesResp<true>, ListBatchesInput> = {
         total: 0,
         batches: null,
       },
-      batchStatusList: {
-        batches: null,
-      },
     },
   },
 };
@@ -127,20 +68,16 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: ParentProps) => {
   const ctxValue: SubmissionCtxState = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          ...baseSubmission,
-          ...submission,
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({ ...submission }),
+          getSubmissionAttributes: null,
+          submissionStats: { stats: [] },
         },
-        batchStatusList: {
-          batches: [],
-        },
-        submissionStats: { stats: [] },
-      },
-      error: null,
-    }),
+        error: null,
+      }),
     [submission]
   );
 
@@ -157,7 +94,7 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
 
 describe("General", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should not have any accessibility violations", async () => {
@@ -231,7 +168,7 @@ describe("General", () => {
   });
 
   it("should not send batchIDs or nodeTypes when the filter is set to 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       request: {
         query: SUBMISSION_CROSS_VALIDATION_RESULTS,
@@ -264,7 +201,7 @@ describe("General", () => {
 
   // NOTE: This test heavily depends on CrossValidationFilters test-ids
   it("should send batchIDs or nodeTypes when the filter is set to anything but 'All'", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       maxUsageCount: 3, // Init + 2 Filter changes
       request: {
@@ -314,15 +251,13 @@ describe("General", () => {
           listBatches: {
             total: 1,
             batches: [
-              {
-                ...baseBatch,
-                _id: "batch-999",
-                displayID: 999,
-              },
+              batchFactory
+                .build({
+                  _id: "batch-999",
+                  displayID: 999,
+                })
+                .withTypename("Batch"),
             ],
-          },
-          batchStatusList: {
-            batches: null, // NOTE: Required by type, but not used in the component
           },
         },
       },
@@ -402,9 +337,15 @@ describe("General", () => {
           submissionCrossValidationResults: {
             total: 2,
             results: [
-              { ...baseCrossValidationResult, conflictingSubmission: "submission_ID_A32524X" },
-              { ...baseCrossValidationResult, conflictingSubmission: "submission_ID_B291D34" },
-              { ...baseCrossValidationResult, conflictingSubmission: "submission_ID_C181181" },
+              crossValidationResultFactory.build({
+                conflictingSubmission: "submission_ID_A32524X",
+              }),
+              crossValidationResultFactory.build({
+                conflictingSubmission: "submission_ID_B291D34",
+              }),
+              crossValidationResultFactory.build({
+                conflictingSubmission: "submission_ID_C181181",
+              }),
             ],
           },
         },
@@ -471,7 +412,7 @@ describe("General", () => {
 
 describe("Table", () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render the placeholder text when no data is available", async () => {
@@ -548,7 +489,7 @@ describe("Table Actions", () => {
         data: {
           submissionCrossValidationResults: {
             total: 1,
-            results: [{ ...baseCrossValidationResult }],
+            results: [crossValidationResultFactory.build()],
           },
         },
       },

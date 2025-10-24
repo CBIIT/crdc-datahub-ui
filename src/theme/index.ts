@@ -1,8 +1,9 @@
 import { createTheme } from "@mui/material";
-import typography from "./typography";
+
 import breakpoints from "./breakpoints";
 import components from "./components";
 import palette from "./palette";
+import typography from "./typography";
 
 const theme = createTheme({
   typography,

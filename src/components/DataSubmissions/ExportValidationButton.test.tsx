@@ -1,11 +1,13 @@
-import React, { FC } from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { axe } from "jest-axe";
+import React, { FC } from "react";
+import { axe } from "vitest-axe";
 
-import { ExportValidationButton } from "./ExportValidationButton";
+import { aggregatedQCResultFactory } from "@/factories/submission/AggregatedQCResultFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
+import { qcResultFactory } from "@/factories/submission/QCResultFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 
 import {
   SUBMISSION_QC_RESULTS,
@@ -13,11 +15,14 @@ import {
   AGGREGATED_SUBMISSION_QC_RESULTS,
   AggregatedSubmissionQCResultsResp,
 } from "../../graphql";
+import { render, fireEvent, waitFor } from "../../test-utils";
 
-const mockDownloadBlob = jest.fn();
+import { ExportValidationButton } from "./ExportValidationButton";
 
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args: unknown[]) => mockDownloadBlob(...args),
 }));
 
@@ -32,75 +37,23 @@ const TestParent: FC<ParentProps> = ({ mocks, children }: ParentProps) => (
   </MockedProvider>
 );
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  status: "New",
-  metadataValidationStatus: "Error",
-  fileValidationStatus: "Error",
-  crossSubmissionStatus: "Error",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseQCResult: Omit<QCResult, "submissionID"> = {
-  batchID: "",
-  type: "",
-  validationType: "metadata",
-  severity: "Error",
-  displayID: 0,
-  submittedID: "",
-  uploadedDate: "",
-  validatedDate: "",
-  errors: [],
-  warnings: [],
-};
-
-const baseAggregatedQCResult: AggregatedQCResult = {
+const baseAggregatedQCResult: AggregatedQCResult = aggregatedQCResultFactory.build({
   code: "ERROR-001",
   title: "Fake Aggregated Error",
   severity: "Error",
   count: 25,
-};
+});
 
 describe("ExportValidationButton (Expanded View) tests", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not have accessibility violations", async () => {
     const { container } = render(
       <TestParent mocks={[]}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: "example-sub-id" }}
+          submission={submissionFactory.build({ _id: "example-sub-id" })}
           fields={{}}
         />
       </TestParent>
@@ -113,7 +66,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
     const { getByTestId, findByRole } = render(
       <TestParent mocks={[]}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: "test-tooltip-id" }}
+          submission={submissionFactory.build({ _id: "test-tooltip-id" })}
           fields={{}}
         />
       </TestParent>
@@ -152,7 +105,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
             data: {
               submissionQCResults: {
                 total: 1,
-                results: [{ ...baseQCResult, submissionID }],
+                results: [qcResultFactory.build({ submissionID })],
               },
             },
           };
@@ -162,7 +115,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton
+          submission={submissionFactory.build({ _id: submissionID })}
+          fields={{}}
+        />
       </TestParent>
     );
 
@@ -187,7 +143,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
   ])(
     "should safely create the CSV filename using submission name and export date",
     async ({ original, expected }) => {
-      jest.useFakeTimers().setSystemTime(new Date("2021-01-19T14:54:01Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2021-01-19T14:54:01Z"));
 
       const mocks: MockedResponse<SubmissionQCResultsResp>[] = [
         {
@@ -207,8 +163,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
               submissionQCResults: {
                 total: 1,
                 results: [
-                  {
-                    ...baseQCResult,
+                  qcResultFactory.build({
                     submissionID: "example-dynamic-filename-id",
                     errors: [
                       {
@@ -217,7 +172,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
                         description: "Error 01 description",
                       },
                     ],
-                  },
+                  }),
                 ],
               },
             },
@@ -226,17 +181,16 @@ describe("ExportValidationButton (Expanded View) tests", () => {
       ];
 
       const fields = {
-        ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
+        ID: vi.fn().mockImplementation((result: QCResult) => result.submissionID),
       };
 
       const { getByTestId } = render(
         <TestParent mocks={mocks}>
           <ExportValidationButton
-            submission={{
-              ...baseSubmission,
+            submission={submissionFactory.build({
               _id: "example-dynamic-filename-id",
               name: original,
-            }}
+            })}
             fields={fields}
           />
         </TestParent>
@@ -253,8 +207,8 @@ describe("ExportValidationButton (Expanded View) tests", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
     }
   );
 
@@ -287,7 +241,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton
+          submission={submissionFactory.build({ _id: submissionID })}
+          fields={{}}
+        />
       </TestParent>
     );
 
@@ -306,14 +263,16 @@ describe("ExportValidationButton (Expanded View) tests", () => {
   it("should call the field value callback function for each field", async () => {
     const submissionID = "formatter-callback-sub-id";
 
-    const qcErrors = [
-      { code: null, title: "Error 01", description: "Error 01 description" },
-      { code: null, title: "Error 02", description: "Error 02 description" },
-    ];
-    const qcWarnings = [
-      { code: null, title: "Warning 01", description: "Warning 01 description" },
-      { code: null, title: "Warning 02", description: "Warning 02 description" },
-    ];
+    const qcErrors = errorMessageFactory.build(2, (index) => ({
+      code: null,
+      title: `Error 0${index + 1}`,
+      description: `Error 0${index + 1} description`,
+    }));
+    const qcWarnings = errorMessageFactory.build(2, (index) => ({
+      code: null,
+      title: `Warning 0${index + 1}`,
+      description: `Warning 0${index + 1} description`,
+    }));
 
     const mocks: MockedResponse<SubmissionQCResultsResp>[] = [
       {
@@ -332,29 +291,12 @@ describe("ExportValidationButton (Expanded View) tests", () => {
           data: {
             submissionQCResults: {
               total: 3,
-              results: [
-                {
-                  ...baseQCResult,
-                  errors: qcErrors,
-                  warnings: qcWarnings,
-                  submissionID,
-                  displayID: 1,
-                },
-                {
-                  ...baseQCResult,
-                  errors: qcErrors,
-                  warnings: qcWarnings,
-                  submissionID,
-                  displayID: 2,
-                },
-                {
-                  ...baseQCResult,
-                  errors: qcErrors,
-                  warnings: qcWarnings,
-                  submissionID,
-                  displayID: 3,
-                },
-              ],
+              results: qcResultFactory.build(3, (index) => ({
+                errors: qcErrors,
+                warnings: qcWarnings,
+                submissionID,
+                displayID: index + 1,
+              })),
             },
           },
         },
@@ -362,16 +304,16 @@ describe("ExportValidationButton (Expanded View) tests", () => {
     ];
 
     const fields = {
-      DisplayID: jest.fn().mockImplementation((result: QCResult) => result.displayID),
-      ValidationType: jest.fn().mockImplementation((result: QCResult) => result.validationType),
+      DisplayID: vi.fn().mockImplementation((result: QCResult) => result.displayID),
+      ValidationType: vi.fn().mockImplementation((result: QCResult) => result.validationType),
       // Testing the fallback of falsy values
-      NullValueField: jest.fn().mockImplementation(() => null),
+      NullValueField: vi.fn().mockImplementation(() => null),
     };
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: submissionID }}
+          submission={submissionFactory.build({ _id: submissionID })}
           fields={fields}
         />
       </TestParent>
@@ -408,7 +350,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton
+          submission={submissionFactory.build({ _id: submissionID })}
+          fields={{}}
+        />
       </TestParent>
     );
 
@@ -448,7 +393,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton
+          submission={submissionFactory.build({ _id: submissionID })}
+          fields={{}}
+        />
       </TestParent>
     );
 
@@ -497,7 +445,10 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
     const { getByTestId } = render(
       <TestParent mocks={mocks}>
-        <ExportValidationButton submission={{ ...baseSubmission, _id: submissionID }} fields={{}} />
+        <ExportValidationButton
+          submission={submissionFactory.build({ _id: submissionID })}
+          fields={{}}
+        />
       </TestParent>
     );
 
@@ -516,7 +467,7 @@ describe("ExportValidationButton (Expanded View) tests", () => {
 
 describe("ExportValidationButton (Aggregated View) tests", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should execute the AGGREGATED_SUBMISSION_QC_RESULTS query onClick if isAggregated is true", async () => {
@@ -555,7 +506,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={submissionFactory.build({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />
@@ -598,7 +549,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={submissionFactory.build({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />
@@ -616,7 +567,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
   });
 
   it("should create a valid CSV filename and call downloadBlob for aggregated results", async () => {
-    jest.useFakeTimers().setSystemTime(new Date("2025-01-01T08:30:00Z"));
+    vi.useFakeTimers().setSystemTime(new Date("2025-01-01T08:30:00Z"));
     const aggregatorID = "aggregated-filename-test";
 
     const aggregatorMocks: MockedResponse<AggregatedSubmissionQCResultsResp>[] = [
@@ -654,7 +605,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID, name: "my aggregator" }}
+          submission={submissionFactory.build({ _id: aggregatorID, name: "my aggregator" })}
           fields={fields}
           isAggregated
         />
@@ -695,7 +646,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={submissionFactory.build({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />
@@ -736,7 +687,7 @@ describe("ExportValidationButton (Aggregated View) tests", () => {
     const { getByTestId } = render(
       <TestParent mocks={aggregatorMocks}>
         <ExportValidationButton
-          submission={{ ...baseSubmission, _id: aggregatorID }}
+          submission={submissionFactory.build({ _id: aggregatorID })}
           fields={{}}
           isAggregated
         />

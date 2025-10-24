@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
 import InquireFormDialog from "./InquireFormDialog";
 
 const meta: Meta<typeof InquireFormDialog> = {

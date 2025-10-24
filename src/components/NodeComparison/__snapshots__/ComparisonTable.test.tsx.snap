@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Snapshots should match the loading state snapshot: loading table 1`] = `
+exports[`Snapshots > should match the loading state snapshot > loading table 1`] = `
 <div>
   <div
     class="MuiTableContainer-root css-1dgj49d-MuiTableContainer-root"

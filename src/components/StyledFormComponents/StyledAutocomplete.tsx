@@ -1,5 +1,6 @@
 import { Autocomplete, Paper, styled } from "@mui/material";
-import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg";
+
+import dropdownArrowsIcon from "../../assets/icons/dropdown_arrows.svg?url";
 
 const StyledAutocomplete = styled(Autocomplete)(({ readOnly }: { readOnly?: boolean }) => ({
   "& .MuiInputBase-root": {
@@ -100,7 +101,7 @@ export const StyledPaper = styled(Paper)({
 });
 
 const DropdownArrowsIcon = styled("div")({
-  backgroundImage: `url(${dropdownArrowsIcon})`,
+  backgroundImage: `url("${dropdownArrowsIcon}")`,
   backgroundSize: "contain",
   backgroundRepeat: "no-repeat",
   width: "10px",

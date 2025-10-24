@@ -1,74 +1,27 @@
-import { FC, useMemo } from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
+import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
-import { axe } from "jest-axe";
-import { ExportCrossValidationButton } from "./ExportCrossValidationButton";
+import { FC, useMemo } from "react";
+import { axe } from "vitest-axe";
+
+import { crossValidationResultFactory } from "@/factories/submission/CrossValidationResultFactory";
+import { errorMessageFactory } from "@/factories/submission/ErrorMessageFactory";
+import { submissionCtxStateFactory } from "@/factories/submission/SubmissionContextFactory";
+import { submissionFactory } from "@/factories/submission/SubmissionFactory";
+
 import {
   CrossValidationResultsInput,
   CrossValidationResultsResp,
   SUBMISSION_CROSS_VALIDATION_RESULTS,
 } from "../../graphql";
+import { render, fireEvent, waitFor } from "../../test-utils";
 import {
   SubmissionCtxState,
   SubmissionCtxStatus,
   SubmissionContext,
 } from "../Contexts/SubmissionContext";
 
-const baseSubmission: Submission = {
-  _id: "",
-  name: "",
-  submitterID: "",
-  submitterName: "",
-  organization: null,
-  dataCommons: "",
-  dataCommonsDisplayName: "",
-  modelVersion: "",
-  studyAbbreviation: "",
-  studyName: "",
-  dbGaPID: "",
-  bucketName: "",
-  rootPath: "",
-  fileErrors: [],
-  history: [],
-  otherSubmissions: null,
-  conciergeName: "",
-  conciergeEmail: "",
-  createdAt: "",
-  updatedAt: "",
-  intention: "New/Update",
-  dataType: "Metadata and Data Files",
-  archived: false,
-  validationStarted: "",
-  validationEnded: "",
-  validationScope: "New",
-  validationType: ["metadata", "file"],
-  status: "New",
-  metadataValidationStatus: "New",
-  fileValidationStatus: "New",
-  crossSubmissionStatus: null,
-  studyID: "",
-  deletingData: false,
-  nodeCount: 0,
-  collaborators: [],
-  dataFileSize: null,
-};
-
-const baseCrossValidationResult: CrossValidationResult = {
-  submissionID: "",
-  type: "",
-  validationType: "metadata",
-  batchID: "",
-  displayID: 0,
-  submittedID: "",
-  severity: "Error",
-  uploadedDate: "",
-  validatedDate: "",
-  conflictingSubmission: "",
-  errors: [],
-  warnings: [],
-};
+import { ExportCrossValidationButton } from "./ExportCrossValidationButton";
 
 type ParentProps = {
   submission?: Partial<Submission>;
@@ -78,20 +31,18 @@ type ParentProps = {
 
 const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: ParentProps) => {
   const ctxValue: SubmissionCtxState = useMemo<SubmissionCtxState>(
-    () => ({
-      status: SubmissionCtxStatus.LOADED,
-      data: {
-        getSubmission: {
-          ...baseSubmission,
-          ...submission,
+    () =>
+      submissionCtxStateFactory.build({
+        status: SubmissionCtxStatus.LOADED,
+        data: {
+          getSubmission: submissionFactory.build({
+            ...submission,
+          }),
+          getSubmissionAttributes: null,
+          submissionStats: { stats: [] },
         },
-        batchStatusList: {
-          batches: [],
-        },
-        submissionStats: { stats: [] },
-      },
-      error: null,
-    }),
+        error: null,
+      }),
     [submission]
   );
 
@@ -102,15 +53,15 @@ const TestParent: FC<ParentProps> = ({ submission = {}, mocks, children }: Paren
   );
 };
 
-const mockDownloadBlob = jest.fn();
-jest.mock("../../utils", () => ({
-  ...jest.requireActual("../../utils"),
+const mockDownloadBlob = vi.fn();
+vi.mock("../../utils", async () => ({
+  ...(await vi.importActual("../../utils")),
   downloadBlob: (...args) => mockDownloadBlob(...args),
 }));
 
 describe("ExportCrossValidationButton cases", () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should not have accessibility violations", async () => {
@@ -147,7 +98,7 @@ describe("ExportCrossValidationButton cases", () => {
   });
 
   it("should only execute the fetch query onClick", async () => {
-    const mockMatcher = jest.fn().mockImplementation(() => true);
+    const mockMatcher = vi.fn().mockImplementation(() => true);
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       request: {
         query: SUBMISSION_CROSS_VALIDATION_RESULTS,
@@ -220,7 +171,7 @@ describe("ExportCrossValidationButton cases", () => {
   ])(
     "should generate the correct filename for the submission using the name and current date",
     async ({ name, date, expected }) => {
-      jest.useFakeTimers().setSystemTime(date);
+      vi.useFakeTimers({ now: date }).setSystemTime(date);
 
       const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
         request: {
@@ -231,23 +182,19 @@ describe("ExportCrossValidationButton cases", () => {
           data: {
             submissionCrossValidationResults: {
               total: 1,
-              results: [
-                {
-                  ...baseCrossValidationResult,
-                },
-              ],
+              results: crossValidationResultFactory.build(1),
             },
           },
         },
       };
 
       const fields = {
-        ID: jest.fn().mockImplementation((result: QCResult) => result.submissionID),
+        ID: vi.fn().mockImplementation((result: QCResult) => result.submissionID),
       };
 
       const { getByTestId } = render(<ExportCrossValidationButton fields={fields} />, {
         wrapper: ({ children }) => (
-          <TestParent mocks={[mock]} submission={{ ...baseSubmission, name }}>
+          <TestParent mocks={[mock]} submission={submissionFactory.build({ name })}>
             {children}
           </TestParent>
         ),
@@ -264,8 +211,8 @@ describe("ExportCrossValidationButton cases", () => {
         );
       });
 
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
     }
   );
 
@@ -304,14 +251,17 @@ describe("ExportCrossValidationButton cases", () => {
   it("should call the field value callback function for each field", async () => {
     const submissionID = "formatter-callback-sub-id";
 
-    const qcErrors = [
-      { code: null, title: "Error 01", description: "Error 01 description" },
-      { code: null, title: "Error 02", description: "Error 02 description" },
-    ];
-    const qcWarnings = [
-      { code: null, title: "Warning 01", description: "Warning 01 description" },
-      { code: null, title: "Warning 02", description: "Warning 02 description" },
-    ];
+    const qcErrors = errorMessageFactory.build(2, (index) => ({
+      code: null,
+      title: `Error 0${index + 1}`,
+      description: `Error 0${index + 1} description`,
+    }));
+
+    const qcWarnings = errorMessageFactory.build(2, (index) => ({
+      code: null,
+      title: `Warning 0${index + 1}`,
+      description: `Warning 0${index + 1} description`,
+    }));
 
     const mock: MockedResponse<CrossValidationResultsResp, CrossValidationResultsInput> = {
       request: {
@@ -322,41 +272,24 @@ describe("ExportCrossValidationButton cases", () => {
         data: {
           submissionCrossValidationResults: {
             total: 3,
-            results: [
-              {
-                ...baseCrossValidationResult,
-                errors: qcErrors,
-                warnings: qcWarnings,
-                submissionID,
-                displayID: 1,
-              },
-              {
-                ...baseCrossValidationResult,
-                errors: qcErrors,
-                warnings: qcWarnings,
-                submissionID,
-                displayID: 2,
-              },
-              {
-                ...baseCrossValidationResult,
-                errors: qcErrors,
-                warnings: qcWarnings,
-                submissionID,
-                displayID: 3,
-              },
-            ],
+            results: crossValidationResultFactory.build(3, (index) => ({
+              errors: qcErrors,
+              warnings: qcWarnings,
+              submissionID,
+              displayID: index + 1,
+            })),
           },
         },
       },
     };
 
     const fields = {
-      DisplayID: jest.fn().mockImplementation((result: CrossValidationResult) => result.displayID),
-      ValidationType: jest
+      DisplayID: vi.fn().mockImplementation((result: CrossValidationResult) => result.displayID),
+      ValidationType: vi
         .fn()
         .mockImplementation((result: CrossValidationResult) => result.validationType),
       // Testing the fallback of falsy values
-      NullValueField: jest.fn().mockImplementation(() => null),
+      NullValueField: vi.fn().mockImplementation(() => null),
     };
 
     const { getByTestId } = render(<ExportCrossValidationButton fields={fields} />, {

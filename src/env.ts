@@ -1,6 +1,6 @@
 let processEnv = {};
 try {
-  processEnv = process.env ?? {};
+  processEnv = import.meta.env ?? {};
 } catch (e) {
   processEnv = {};
 }
