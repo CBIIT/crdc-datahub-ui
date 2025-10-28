@@ -463,6 +463,7 @@ const ListingView: FC = () => {
                   border: 0,
                   borderTopLeftRadius: 0,
                   borderTopRightRadius: 0,
+                  borderTop: "1px solid #6CACDA",
                 },
               }}
               AdditionalActions={{
