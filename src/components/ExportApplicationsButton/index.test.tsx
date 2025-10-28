@@ -4,14 +4,10 @@ import { GraphQLError } from "graphql";
 import { FC } from "react";
 import { axe } from "vitest-axe";
 
-import {
-  GET_SUBMISSION_NODES,
-  GetSubmissionNodesInput,
-  GetSubmissionNodesResp,
-} from "../../graphql";
-import { render, fireEvent, waitFor } from "../../test-utils";
+import { GET_SUBMISSION_NODES, GetSubmissionNodesInput, GetSubmissionNodesResp } from "@/graphql";
+import { render, fireEvent, waitFor } from "@/test-utils";
 
-import { ExportApplicationsButton } from ".";
+import ExportApplicationsButton from "./index";
 
 type ParentProps = {
   mocks?: MockedResponse[];

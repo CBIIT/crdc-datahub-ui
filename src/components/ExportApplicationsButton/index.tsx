@@ -4,14 +4,13 @@ import { IconButtonProps, IconButton, styled } from "@mui/material";
 import dayjs from "dayjs";
 import { useSnackbar } from "notistack";
 import { unparse } from "papaparse";
-import { FC, useMemo, useState } from "react";
+import { FC, memo, useMemo, useState } from "react";
 
+import { useAuthContext } from "@/components/Contexts/AuthContext";
 import StyledFormTooltip from "@/components/StyledFormComponents/StyledTooltip";
 import { hasPermission } from "@/config/AuthPermissions";
 import { LIST_APPLICATIONS, ListApplicationsInput, ListApplicationsResp } from "@/graphql";
 import { downloadBlob, fetchAllData, FormatDate, Logger } from "@/utils";
-
-import { useAuthContext } from "../Contexts/AuthContext";
 
 export type ExportApplicationsButtonProps = {
   /**
@@ -37,7 +36,7 @@ const StyledTooltip = styled(StyledFormTooltip)({
  *
  * @returns ExportApplicationsButton component
  */
-export const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
+const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
   scope,
   disabled,
   ...buttonProps
@@ -115,9 +114,8 @@ export const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
   }
 
   return (
-    <StyledTooltip title={tooltip} placement="top" data-testid="export-applications-tooltip">
+    <StyledTooltip title={tooltip} placement="top" data-testid="export-applications-tooltip" arrow>
       <span>
-        {/* TODO: The styling itself is not implemented */}
         <StyledIconButton
           onClick={handleClick}
           disabled={loading || disabled}
@@ -131,3 +129,5 @@ export const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
     </StyledTooltip>
   );
 };
+
+export default memo<ExportApplicationsButtonProps>(ExportApplicationsButton);
