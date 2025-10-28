@@ -396,6 +396,9 @@ const ListingView: FC = () => {
   const exportScope = useMemo<ExportApplicationsButtonProps["scope"]>(
     () => ({
       ...filtersRef.current,
+      submitterName: filtersRef?.current?.submitterName || undefined,
+      programName: filtersRef?.current?.programName || "All",
+      studyName: filtersRef?.current?.studyName || undefined,
       ...tableRef.current?.tableParams,
     }),
     [filtersRef.current, tableRef.current?.tableParams]
