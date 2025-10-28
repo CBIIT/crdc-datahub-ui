@@ -393,16 +393,13 @@ const ListingView: FC = () => {
     [navigate, reviewApp]
   );
 
-  const exportScope = useMemo<ExportApplicationsButtonProps["scope"]>(
-    () => ({
-      ...filtersRef.current,
-      submitterName: filtersRef?.current?.submitterName || undefined,
-      programName: filtersRef?.current?.programName || "All",
-      studyName: filtersRef?.current?.studyName || undefined,
-      ...tableRef.current?.tableParams,
-    }),
-    [filtersRef.current, tableRef.current?.tableParams]
-  );
+  const exportScope: ExportApplicationsButtonProps["scope"] = {
+    ...filtersRef.current,
+    submitterName: filtersRef?.current?.submitterName || undefined,
+    programName: filtersRef?.current?.programName || "All",
+    studyName: filtersRef?.current?.studyName || undefined,
+    ...tableRef.current?.tableParams,
+  };
 
   const Actions = useMemo<React.ReactNode>(
     () => (
