@@ -22,7 +22,7 @@ const ExtendedApprovedStudyFragment = gql`
       firstName
       lastName
     }
-    programs {
+    program {
       _id
       name
       conciergeID
@@ -81,12 +81,13 @@ export type Response<PartialResponse = false> = {
         | "openAccess"
         | "PI"
         | "ORCID"
+        | "programID"
         | "createdAt"
         | "useProgramPC"
         | "pendingModelChange"
         | "GPAName"
       > & {
         primaryContact: Pick<User, "_id" | "firstName" | "lastName">;
-        programs: Pick<Organization, "_id" | "name" | "conciergeID" | "conciergeName">[];
+        program: Pick<Organization, "_id" | "name" | "conciergeID" | "conciergeName">;
       };
 };

@@ -87,10 +87,12 @@ type Props = {
 const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: Props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuthContext();
-  const { data, setData } = useFormContext();
+  const { data, formRef, setData } = useFormContext();
   const { readOnlyInputs } = useFormMode();
+
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+
   const isFormOwner = user?._id === data?.applicant?.applicantID;
   const isReviewSection = activeSection?.toUpperCase() === config.REVIEW.id.toUpperCase();
   const shouldDisable =
@@ -138,22 +140,25 @@ const ImportApplicationButton = ({ activeSection, disabled = false, ...rest }: P
       return;
     }
 
-    const newData = await QuestionnaireExcelMiddleware.parse(
-      await dataTransferFile?.arrayBuffer(),
-      {
-        application: data,
-      }
-    );
-
-    const res = await setData(newData as QuestionnaireData, { skipSave: false });
+    const parsedForm = await QuestionnaireExcelMiddleware.parse(dataTransferFile, {});
+    const isCompleted = parsedForm?.sections?.every((section) => section.status === "Completed");
+    const res = await setData(parsedForm, { skipSave: false });
 
     if (res?.status === "success") {
       enqueueSnackbar(
-        "Your data for this Submission Request has been imported. Please review each page and confirm all fields before submitting.",
+        isCompleted
+          ? "Your data has been imported and all passed validation. You may proceed to Review & Submit."
+          : "Your data has been imported, but some pages contain validation errors. Please review each page and resolve before submitting.",
         { variant: "success" }
+      );
+    } else {
+      enqueueSnackbar(
+        "Import failed. Your data could not be imported. Please check the file format and template, then try again.",
+        { variant: "error" }
       );
     }
 
+    setTimeout(() => formRef?.current?.reportValidity(), 200);
     setOpenDialog(false);
     setIsUploading(false);
   };
