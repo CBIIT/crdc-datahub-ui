@@ -87,7 +87,7 @@ const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
 
       const filename = `crdc-submission-requests-${dayjs().format("YYYY-MM-DD-HH-mm-ss")}.csv`;
       const csvArray = data.map((application) => ({
-        "Submitter Name": application.applicant.applicantName,
+        "Submitter Name": application.applicant?.applicantName,
         Program: application.programName || "N/A",
         Study: application.studyAbbreviation || "N/A",
         Status: application.status,
@@ -95,10 +95,12 @@ const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
         "Submitted Date": FormatDate(application.submittedDate, "M/D/YYYY h:mm A"),
         "Last Updated Date": FormatDate(application.updatedAt, "M/D/YYYY h:mm A"),
         "Pending Condition(s)":
-          application.pendingConditions?.map((pc) => `- ${pc}`).join("\n") || "N/A",
+          // NOTE: Prefix the dash with a space to prevent interpreting this line
+          // as a mathematical formula
+          application.pendingConditions?.map((pc) => ` - ${pc}`).join("\n") || "N/A",
       }));
 
-      downloadBlob(unparse(csvArray), filename, "text/csv");
+      downloadBlob(unparse(csvArray, { quotes: true }), filename, "text/csv;charset=utf-8;");
     } catch (err) {
       Logger.error("Failed to export Submission Requests.", err);
       enqueueSnackbar("Oops! An error occurred while exporting the Submission Requests.", {
@@ -114,7 +116,7 @@ const ExportApplicationsButton: FC<ExportApplicationsButtonProps> = ({
   }
 
   return (
-    <StyledTooltip title={tooltip} placement="top" data-testid="export-applications-tooltip" arrow>
+    <StyledTooltip title={tooltip} data-testid="export-applications-tooltip">
       <span>
         <StyledIconButton
           onClick={handleClick}
