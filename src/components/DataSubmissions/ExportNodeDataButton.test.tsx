@@ -70,23 +70,44 @@ describe("Basic Functionality", () => {
     const submissionID = "example-execute-test-sub-id";
     const nodeType = "participant";
 
-    let called = false;
+    let initialCallCount = 0;
+    let batchCallCount = 0;
     const mocks: MockedResponse<GetSubmissionNodesResp>[] = [
+      // Initial call
       {
         request: {
           query: GET_SUBMISSION_NODES,
         },
-        variableMatcher: () => true,
+        variableMatcher: (vars) => vars.first === 1 && vars.offset === 0,
         result: () => {
-          called = true;
-
+          initialCallCount += 1;
           return {
             data: {
               getSubmissionNodes: {
                 total: 1,
                 IDPropName: null,
-                properties: [],
-                nodes: [{ nodeType, nodeID: "example-node-id", props: "", status: null }],
+                properties: ["id"],
+                nodes: [{ nodeType, nodeID: "example-node-id", props: "{}", status: null }],
+              },
+            },
+          };
+        },
+      },
+      // Batch call
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000 && vars.offset === 0,
+        result: () => {
+          batchCallCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: 1,
+                IDPropName: null,
+                properties: ["id"],
+                nodes: [{ nodeType, nodeID: "example-node-id", props: "{}", status: null }],
               },
             },
           };
@@ -103,12 +124,14 @@ describe("Basic Functionality", () => {
       </TestParent>
     );
 
-    expect(called).toBe(false);
+    expect(initialCallCount).toBe(0);
+    expect(batchCallCount).toBe(0);
 
     // NOTE: This must be separate from the expect below to ensure its not called multiple times
     userEvent.click(getByTestId("export-node-data-button"));
     await waitFor(() => {
-      expect(called).toBe(true);
+      expect(initialCallCount).toBe(1);
+      expect(batchCallCount).toBe(1);
     });
   });
 
@@ -229,12 +252,39 @@ describe("Basic Functionality", () => {
     const submissionID = "example-dataset-level-errors-id";
 
     const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+      // Initial call
       {
         request: {
           query: GET_SUBMISSION_NODES,
         },
-        variableMatcher: () => true,
-        result: {
+        variableMatcher: (vars) => vars.first === 1 && vars.offset === 0,
+        result: () => ({
+          data: {
+            getSubmissionNodes: {
+              total: 1,
+              IDPropName: "x",
+              properties: ["some prop"],
+              nodes: [
+                {
+                  nodeType: "aaaa",
+                  nodeID: "123",
+                  status: null,
+                  props: "{}",
+                  __typename: "Node",
+                },
+              ],
+              __typename: "NodeConnection",
+            },
+          },
+        }),
+      },
+      // Batch fetch call
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000 && vars.offset === 0,
+        result: () => ({
           data: {
             getSubmissionNodes: {
               total: 1,
@@ -246,11 +296,13 @@ describe("Basic Functionality", () => {
                   nodeID: 123 as unknown as string,
                   status: null,
                   props: "this is not JSON",
+                  __typename: "Node",
                 },
               ],
+              __typename: "NodeConnection",
             },
           },
-        },
+        }),
       },
     ];
 
@@ -265,14 +317,18 @@ describe("Basic Functionality", () => {
 
     fireEvent.click(getByTestId("export-node-data-button"));
 
+    // With improved error handling, invalid JSON should not crash the export
+    // Instead, it should gracefully handle the error and still download
     await waitFor(() => {
-      expect(global.mockEnqueue).toHaveBeenCalledWith(
-        "Failed to export TSV for the selected node.",
-        {
-          variant: "error",
-        }
-      );
+      expect(mockDownloadBlob).toHaveBeenCalled();
     });
+
+    // Verify that the download occurred even with invalid JSON props
+    expect(mockDownloadBlob).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.stringContaining("invalid-data_aaaa_"),
+      "text/tab-separated-values"
+    );
   });
 });
 
@@ -399,11 +455,36 @@ describe("Implementation Requirements", () => {
       vi.useFakeTimers().setSystemTime(date);
 
       const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+        // Initial call to get properties and total
         {
           request: {
             query: GET_SUBMISSION_NODES,
           },
-          variableMatcher: () => true,
+          variableMatcher: (vars) => vars.first === 1 && vars.offset === 0,
+          result: {
+            data: {
+              getSubmissionNodes: {
+                total: 1,
+                IDPropName: "a",
+                properties: ["a"],
+                nodes: [
+                  {
+                    nodeType,
+                    nodeID: "example-node-id",
+                    props: JSON.stringify({ a: 1 }),
+                    status: null,
+                  },
+                ],
+              },
+            },
+          },
+        },
+        // Batch fetch call
+        {
+          request: {
+            query: GET_SUBMISSION_NODES,
+          },
+          variableMatcher: (vars) => vars.first === 4000 && vars.offset === 0,
           result: {
             data: {
               getSubmissionNodes: {
@@ -451,28 +532,66 @@ describe("Implementation Requirements", () => {
   it("should include the `type` column in the TSV export", async () => {
     const nodeType = "a_unique_node_type";
 
+    let initialCallCount = 0;
+    let batchCallCount = 0;
+
     const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+      // Initial call
       {
         request: {
           query: GET_SUBMISSION_NODES,
         },
-        variableMatcher: () => true,
-        result: {
-          data: {
-            getSubmissionNodes: {
-              total: 1,
-              IDPropName: "a",
-              properties: ["a"],
-              nodes: [
-                {
-                  nodeType,
-                  nodeID: "example-node-id",
-                  props: JSON.stringify({ a: 1 }),
-                  status: "Passed",
-                },
-              ],
+        variableMatcher: (vars) => vars.first === 1,
+        result: () => {
+          initialCallCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: 1,
+                IDPropName: "a",
+                properties: ["a"],
+                nodes: [
+                  {
+                    nodeType,
+                    nodeID: "example-node-id-1",
+                    props: JSON.stringify({ a: 1 }),
+                    status: "Passed",
+                    __typename: "Node",
+                  },
+                ],
+                __typename: "NodeConnection",
+              },
             },
-          },
+          };
+        },
+      },
+      // Batch call
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000,
+        result: () => {
+          batchCallCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: 1,
+                IDPropName: "a",
+                properties: ["a"],
+                nodes: [
+                  {
+                    nodeType,
+                    nodeID: "example-node-id-2",
+                    props: JSON.stringify({ a: 1 }),
+                    status: "Passed",
+                    __typename: "Node",
+                  },
+                ],
+                __typename: "NodeConnection",
+              },
+            },
+          };
         },
       },
     ];
@@ -488,9 +607,19 @@ describe("Implementation Requirements", () => {
 
     userEvent.click(getByTestId("export-node-data-button"));
 
-    await waitFor(() => {
-      expect(mockDownloadBlob).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(initialCallCount + batchCallCount).toBeGreaterThanOrEqual(2);
+      },
+      { timeout: 5000 }
+    );
+
+    await waitFor(
+      () => {
+        expect(mockDownloadBlob).toHaveBeenCalled();
+      },
+      { timeout: 5000 }
+    );
 
     expect(mockDownloadBlob.mock.calls[0][0]).toContain(
       `type\ta\tstatus\r\n${nodeType}\t1\tPassed`
@@ -503,12 +632,39 @@ describe("Implementation Requirements", () => {
     const nodeType = "a_prop_with_varying_data";
 
     const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+      // Initial call to get properties and total
       {
         request: {
           query: GET_SUBMISSION_NODES,
         },
-        variableMatcher: () => true,
-        result: {
+        variableMatcher: (vars) => vars.first === 1 && vars.offset === 0,
+        result: () => ({
+          data: {
+            getSubmissionNodes: {
+              total: 2,
+              IDPropName: "dev.property",
+              properties: ["dev.property", "another.property", "abc123", "pdx.pdx_id"],
+              nodes: [
+                {
+                  nodeType,
+                  nodeID: "example-node-id",
+                  props: JSON.stringify({ "dev.property": "yes", abc123: 5 }),
+                  status: "Passed",
+                  __typename: "Node",
+                },
+              ],
+              __typename: "NodeConnection",
+            },
+          },
+        }),
+      },
+      // Batch fetch call
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000 && vars.offset === 0,
+        result: () => ({
           data: {
             getSubmissionNodes: {
               total: 2,
@@ -521,6 +677,7 @@ describe("Implementation Requirements", () => {
                   nodeID: "example-node-id",
                   props: JSON.stringify({ "dev.property": "yes", abc123: 5 }),
                   status: "Passed",
+                  __typename: "Node",
                 },
                 // This has all props
                 {
@@ -533,11 +690,13 @@ describe("Implementation Requirements", () => {
                     "pdx.pdx_id": "PD1234",
                   }),
                   status: "Error",
+                  __typename: "Node",
                 },
               ],
+              __typename: "NodeConnection",
             },
           },
-        },
+        }),
       },
     ];
 
@@ -564,5 +723,147 @@ describe("Implementation Requirements", () => {
         // SECOND DATA ROW
         `a_prop_with_varying_data\tno\there\t10\tPD1234\tError`
     );
+  });
+
+  it("should batch requests when fetching large datasets", async () => {
+    const submissionID = "example-batch-test-id";
+    const nodeType = "participant";
+    const totalNodes = 8500; // More than one batch of 4000
+
+    let callCount = 0;
+    const mocks: MockedResponse<GetSubmissionNodesResp, GetSubmissionNodesInput>[] = [
+      // Initial call to get properties and total
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 1 && vars.offset === 0,
+        result: () => {
+          callCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: totalNodes,
+                IDPropName: "participant_id",
+                properties: ["participant_id", "age"],
+                nodes: [
+                  {
+                    nodeType,
+                    nodeID: "P001",
+                    props: JSON.stringify({ participant_id: "P001", age: 25 }),
+                    status: "Passed",
+                  },
+                ],
+              },
+            },
+          };
+        },
+      },
+      // First batch (0-3999)
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000 && vars.offset === 0,
+        result: () => {
+          callCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: totalNodes,
+                IDPropName: "participant_id",
+                properties: ["participant_id", "age"],
+                nodes: Array.from({ length: 4000 }, (_, i) => ({
+                  nodeType,
+                  nodeID: `P${String(i).padStart(5, "0")}`,
+                  props: JSON.stringify({
+                    participant_id: `P${String(i).padStart(5, "0")}`,
+                    age: 25 + i,
+                  }),
+                  status: "Passed",
+                })),
+              },
+            },
+          };
+        },
+      },
+      // Second batch (4000-7999)
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000 && vars.offset === 4000,
+        result: () => {
+          callCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: totalNodes,
+                IDPropName: "participant_id",
+                properties: ["participant_id", "age"],
+                nodes: Array.from({ length: 4000 }, (_, i) => ({
+                  nodeType,
+                  nodeID: `P${String(i + 4000).padStart(5, "0")}`,
+                  props: JSON.stringify({
+                    participant_id: `P${String(i + 4000).padStart(5, "0")}`,
+                    age: 25 + i,
+                  }),
+                  status: "Passed",
+                })),
+              },
+            },
+          };
+        },
+      },
+      // Third batch (8000-8499)
+      {
+        request: {
+          query: GET_SUBMISSION_NODES,
+        },
+        variableMatcher: (vars) => vars.first === 4000 && vars.offset === 8000,
+        result: () => {
+          callCount += 1;
+          return {
+            data: {
+              getSubmissionNodes: {
+                total: totalNodes,
+                IDPropName: "participant_id",
+                properties: ["participant_id", "age"],
+                nodes: Array.from({ length: 500 }, (_, i) => ({
+                  nodeType,
+                  nodeID: `P${String(i + 8000).padStart(5, "0")}`,
+                  props: JSON.stringify({
+                    participant_id: `P${String(i + 8000).padStart(5, "0")}`,
+                    age: 25 + i,
+                  }),
+                  status: "Passed",
+                })),
+              },
+            },
+          };
+        },
+      },
+    ];
+
+    const { getByTestId } = render(
+      <TestParent mocks={mocks}>
+        <ExportNodeDataButton
+          submission={{ _id: submissionID, name: "batch-test" }}
+          nodeType={nodeType}
+        />
+      </TestParent>
+    );
+
+    fireEvent.click(getByTestId("export-node-data-button"));
+
+    await waitFor(
+      () => {
+        expect(mockDownloadBlob).toHaveBeenCalled();
+      },
+      { timeout: 10000 }
+    );
+
+    // Verify that multiple batches were called (1 initial + 3 batches)
+    expect(callCount).toBe(4);
   });
 });

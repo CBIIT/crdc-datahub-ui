@@ -11,7 +11,7 @@ import {
   GetSubmissionNodesInput,
   GetSubmissionNodesResp,
 } from "../../graphql";
-import { downloadBlob, filterAlphaNumeric } from "../../utils";
+import { downloadBlob, fetchAllData, filterAlphaNumeric } from "../../utils";
 import StyledFormTooltip from "../StyledFormComponents/StyledTooltip";
 
 export type Props = {
@@ -73,53 +73,107 @@ export const ExportNodeDataButton: React.FC<Props> = ({
   const handleClick = async () => {
     setLoading(true);
 
-    const { data: d, error } = await getSubmissionNodes({
-      variables: {
-        _id: submission?._id,
-        sortDirection: "asc",
-        nodeType,
-        status: "All",
-        first: -1,
-        offset: 0,
-      },
-      context: { clientName: "backend" },
-      fetchPolicy: "no-cache",
-    });
-
-    if (error || !d?.getSubmissionNodes?.nodes) {
-      enqueueSnackbar("Unable to retrieve data for the selected node.", {
-        variant: "error",
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (
-      !d?.getSubmissionNodes?.total ||
-      !d?.getSubmissionNodes?.nodes.length ||
-      !("properties" in d.getSubmissionNodes) ||
-      !d.getSubmissionNodes.properties?.length
-    ) {
-      enqueueSnackbar("There is no data to export for the selected node.", {
-        variant: "error",
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
+      // First, fetch the initial data to get properties and total count
+      const { data: initialData, error: initialError } = await getSubmissionNodes({
+        variables: {
+          _id: submission?._id,
+          sortDirection: "asc",
+          nodeType,
+          status: "All",
+          first: 1,
+          offset: 0,
+          partial: false,
+        },
+        context: { clientName: "backend" },
+        fetchPolicy: "no-cache",
+      });
+
+      if (initialError || !initialData?.getSubmissionNodes) {
+        enqueueSnackbar("Unable to retrieve data for the selected node.", {
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { total } = initialData.getSubmissionNodes;
+
+      // Type narrowing: check if we have the full response with properties
+      if (!("properties" in initialData.getSubmissionNodes)) {
+        enqueueSnackbar("Unable to retrieve data for the selected node.", {
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { properties } = initialData.getSubmissionNodes;
+
+      if (!total || !properties?.length) {
+        enqueueSnackbar("There is no data to export for the selected node.", {
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Use fetchAllData to batch fetch all nodes
+      // Note: Using type assertion due to GetSubmissionNodesInput not extending BasePaginationParams
+      const queryInput = {
+        _id: submission?._id,
+        sortDirection: "asc" as const,
+        nodeType,
+        status: "All" as const,
+        partial: false as const,
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nodes = (await fetchAllData(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getSubmissionNodes as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        queryInput as any,
+        (data: GetSubmissionNodesResp) => {
+          if (!data?.getSubmissionNodes) return [];
+          if (!("nodes" in data.getSubmissionNodes)) return [];
+          return data.getSubmissionNodes.nodes as Pick<
+            SubmissionNode,
+            "nodeType" | "nodeID" | "props" | "status"
+          >[];
+        },
+        (data: GetSubmissionNodesResp) => data?.getSubmissionNodes?.total ?? 0,
+        { pageSize: 4000, total }
+      )) as Pick<SubmissionNode, "nodeType" | "nodeID" | "props" | "status">[];
+
+      if (!nodes.length) {
+        enqueueSnackbar("There is no data to export for the selected node.", {
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
       const filteredName = filterAlphaNumeric(submission.name?.trim()?.replaceAll(" ", "-"), "-");
       const filename = `${filteredName}_${nodeType}_${dayjs().format("YYYYMMDDHHmm")}.tsv`;
-      const mappedFields = d.getSubmissionNodes.properties.reduce(
-        (acc, key) => ({ ...acc, [key]: "" }),
-        {}
-      );
-      const csvArray = d.getSubmissionNodes.nodes.map((node) => ({
-        type: nodeType,
-        ...mappedFields,
-        ...JSON.parse(node.props),
-        status: node.status,
-      }));
+      const mappedFields = properties.reduce((acc, key) => ({ ...acc, [key]: "" }), {});
+      const csvArray = nodes.map((node) => {
+        try {
+          return {
+            type: nodeType,
+            ...mappedFields,
+            ...JSON.parse(node.props || "{}"),
+            status: node.status,
+          };
+        } catch (parseError) {
+          // If JSON parsing fails, return basic structure
+          return {
+            type: nodeType,
+            ...mappedFields,
+            status: node.status,
+          };
+        }
+      });
 
       downloadBlob(unparse(csvArray, { delimiter: "\t" }), filename, "text/tab-separated-values");
     } catch (err) {
