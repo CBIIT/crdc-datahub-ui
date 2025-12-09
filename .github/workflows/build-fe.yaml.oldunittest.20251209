@@ -9,9 +9,9 @@ on:
       environment:
         description: Build from github actions
         type: environment
-      #branch:
-        #description: Branch to build
-        #required: true
+      branch:
+        description: Branch to build
+        required: true
       trivy_test_scan_fe:
         description: "Run Trivy Test Scan"
         required: true
@@ -30,27 +30,6 @@ on:
       - "*.*.*"
 
 jobs:
-  pr-unit-test:
-    name: PR Unit Test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.action != 'closed'
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          submodules: recursive
-          clean: true
-          fetch-depth: 0
-
-      - name: Run Unit Test with new PR
-        id: unit-test-PR
-        run: |
-          echo "Running unit tests..."
-          npm ci
-          npx prisma generate
-          npm test
-
   build-frontend:
     name: Build frontend image
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
@@ -73,8 +52,7 @@ jobs:
         with:
 #          ref: ${{ env.CODE_BRANCH }}
 #          ref: ${{ github.ref_name }}
-#old          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.event.pull_request.base.ref }}
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || github.event.pull_request.base.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.event.pull_request.base.ref }}
           submodules: true
 
       - name: Extract branch name and set image tag
@@ -83,15 +61,13 @@ jobs:
           #BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           # Determine branch name
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+            BRANCH_NAME="${{ github.event.inputs.branch }}"
           else
             BRANCH_NAME="${{ github.event.pull_request.base.ref }}"
           fi
 
           echo "branch=$BRANCH_NAME" >> "$GITHUB_ENV"
           echo "Current branch is: $BRANCH_NAME"
-
-          # fetch tags and determine next build number
           git fetch --tags --force --quiet
           #tag=$(git tag -l $BRANCH_NAME* | tail -1)
           tag=$(git tag -l $BRANCH_NAME* | sort -V | tail -1)
