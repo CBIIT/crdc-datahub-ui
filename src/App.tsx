@@ -11,6 +11,7 @@ import theme from "./theme";
 const router = createBrowserRouter(routeConfig, {
   future: {
     v7_relativeSplatPath: true,
+    v7_startTransition: true,
   },
 });
 
@@ -30,7 +31,7 @@ const App = () => (
     >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <CssBaseline />
-        <RouterProvider router={router} future={{ v7_startTransition: true }} />
+        <RouterProvider router={router} />
       </LocalizationProvider>
     </SnackbarProvider>
   </ThemeProvider>
