@@ -10,7 +10,7 @@ import React, {
 
 import { askQuestion } from "../api/knowledgeBaseClient";
 import chatConfig from "../config/chatConfig";
-import { createChatMessage, createId, isAbortError } from "../utils/chatUtils";
+import { createChatMessage, createId, isAbortError, sanitizeChatMessage } from "../utils/chatUtils";
 import {
   clearConversationMessages,
   getStoredConversationMessages,
@@ -287,6 +287,11 @@ const useChatConversation = (): ChatConversationActions => {
         return;
       }
 
+      const sanitizedValue = sanitizeChatMessage(value);
+      if (!sanitizedValue) {
+        return;
+      }
+
       if (current.status === "bot_typing") {
         return;
       }
@@ -301,7 +306,7 @@ const useChatConversation = (): ChatConversationActions => {
       dispatch({
         type: "message_added",
         message: createChatMessage({
-          text: value,
+          text: sanitizedValue,
           sender: "user",
           senderName: chatConfig.userName,
         }),
@@ -318,7 +323,7 @@ const useChatConversation = (): ChatConversationActions => {
       const requestId = createId("bot_reply_");
       activeRequestRef.current = { requestId, abortController };
 
-      runReply(value, requestId, abortController).catch((error: unknown) => {
+      runReply(sanitizedValue, requestId, abortController).catch((error: unknown) => {
         if (!isAbortError(error)) {
           dispatch({ type: "status_changed", status: "idle" });
         }
