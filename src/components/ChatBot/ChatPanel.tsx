@@ -5,6 +5,7 @@ import { useChatConversationContext } from "./context/ChatConversationContext";
 import { useChatDrawerContext } from "./context/ChatDrawerContext";
 import ChatComposer from "./panel/ChatComposer";
 import MessageList from "./panel/MessageList";
+import { sanitizeChatMessage } from "./utils/chatUtils";
 
 const StyledStack = styled(Stack, {
   shouldForwardProp: (prop) => prop !== "isExpanded" && prop !== "isFullscreen",
@@ -61,7 +62,7 @@ const ChatPanel = (): JSX.Element => {
       return true;
     }
 
-    return inputValue?.trim()?.length === 0;
+    return sanitizeChatMessage(inputValue || "").length === 0;
   }, [inputValue, isBotTyping]);
 
   /**
