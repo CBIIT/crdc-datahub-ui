@@ -260,3 +260,179 @@ describe("createChatMessage", () => {
     expect(result2.timestamp).toEqual(new Date("2024-01-15T10:31:00Z"));
   });
 });
+
+describe("sanitizeChatMessage", () => {
+  it("should return normal English text unchanged", () => {
+    expect(utils.sanitizeChatMessage("Hello, how are you?")).toBe("Hello, how are you?");
+  });
+
+  it("should preserve numbers in the message", () => {
+    expect(utils.sanitizeChatMessage("I have 3 submissions")).toBe("I have 3 submissions");
+  });
+
+  it("should preserve common single punctuation marks", () => {
+    expect(utils.sanitizeChatMessage("Hello! How are you? I'm fine.")).toBe(
+      "Hello! How are you? I'm fine."
+    );
+  });
+
+  it("should filter out non-English special characters", () => {
+    expect(utils.sanitizeChatMessage("Hello© world™ test®")).toBe("Hello world test");
+  });
+
+  it("should filter out emoji characters", () => {
+    expect(utils.sanitizeChatMessage("Hello 😀 world 🌍")).toBe("Hello world");
+  });
+
+  it("should collapse consecutive punctuation marks", () => {
+    expect(utils.sanitizeChatMessage("Hello!!! How are you???")).toBe("Hello! How are you?");
+  });
+
+  it("should collapse consecutive punctuation with spaces between them", () => {
+    expect(utils.sanitizeChatMessage("Hello ! ! ! world")).toBe("Hello ! world");
+  });
+
+  it("should collapse mixed consecutive punctuation", () => {
+    expect(utils.sanitizeChatMessage("What?!?! Really...")).toBe("What? Really.");
+  });
+
+  it("should return empty string for only special characters", () => {
+    expect(utils.sanitizeChatMessage("©™®€£¥")).toBe("");
+  });
+
+  it("should return empty string for only emoji", () => {
+    expect(utils.sanitizeChatMessage("😀🎉🌍")).toBe("");
+  });
+
+  it("should return empty string for only punctuation", () => {
+    expect(utils.sanitizeChatMessage("...!!!???")).toBe("");
+  });
+
+  it("should return empty string for empty input", () => {
+    expect(utils.sanitizeChatMessage("")).toBe("");
+  });
+
+  it("should return empty string for whitespace only", () => {
+    expect(utils.sanitizeChatMessage("   ")).toBe("");
+  });
+
+  it("should trim extra whitespace from filtered results", () => {
+    expect(utils.sanitizeChatMessage("Hello   ©   world")).toBe("Hello world");
+  });
+
+  it("should preserve hyphens in words", () => {
+    expect(utils.sanitizeChatMessage("pre-submission data")).toBe("pre-submission data");
+  });
+
+  it("should preserve parentheses", () => {
+    expect(utils.sanitizeChatMessage("CRDC (Cancer Research Data Commons)")).toBe(
+      "CRDC (Cancer Research Data Commons)"
+    );
+  });
+
+  it("should preserve colons and semicolons", () => {
+    expect(utils.sanitizeChatMessage("Note: this is important; please read")).toBe(
+      "Note: this is important; please read"
+    );
+  });
+
+  it("should preserve forward slashes", () => {
+    expect(utils.sanitizeChatMessage("input/output data")).toBe("input/output data");
+  });
+
+  it("should not change the meaning when filtering", () => {
+    const input = "What's the status of submission #123?";
+    const result = utils.sanitizeChatMessage(input);
+
+    expect(result).toBe("What's the status of submission #123?");
+  });
+
+  it("should handle mixed valid and invalid characters", () => {
+    expect(utils.sanitizeChatMessage("Hello™ world© 123!")).toBe("Hello world 123!");
+  });
+
+  it("should return empty string for consecutive punctuation only with spaces", () => {
+    expect(utils.sanitizeChatMessage("! @ # $ %")).toBe("");
+  });
+
+  it("should handle a single character message", () => {
+    expect(utils.sanitizeChatMessage("a")).toBe("a");
+  });
+
+  it("should return empty string for a single special character", () => {
+    expect(utils.sanitizeChatMessage("©")).toBe("");
+  });
+
+  it("should return empty string for a single punctuation character", () => {
+    expect(utils.sanitizeChatMessage("!")).toBe("");
+  });
+
+  it("should preserve text surrounded by filtered characters", () => {
+    expect(utils.sanitizeChatMessage("©hello©")).toBe("hello");
+  });
+
+  it("should handle newlines and tabs as whitespace", () => {
+    expect(utils.sanitizeChatMessage("hello\n\tworld")).toBe("hello world");
+  });
+
+  it("should handle unicode whitespace characters", () => {
+    expect(utils.sanitizeChatMessage("hello\u00A0world")).toBe("hello world");
+  });
+
+  it("should preserve quoted strings", () => {
+    expect(utils.sanitizeChatMessage('She said "hello" to me')).toBe('She said "hello" to me');
+  });
+
+  it("should handle punctuation at the start of a message", () => {
+    expect(utils.sanitizeChatMessage("...Hello")).toBe(".Hello");
+  });
+
+  it("should handle punctuation at the end of a message", () => {
+    expect(utils.sanitizeChatMessage("Hello...")).toBe("Hello.");
+  });
+
+  it("should handle alternating punctuation and text", () => {
+    expect(utils.sanitizeChatMessage("a!b?c.d")).toBe("a!b?c.d");
+  });
+
+  it("should handle very long input without errors", () => {
+    const longMessage = "a".repeat(10000);
+    expect(utils.sanitizeChatMessage(longMessage)).toBe(longMessage);
+  });
+
+  it("should handle input that is entirely whitespace and punctuation", () => {
+    expect(utils.sanitizeChatMessage("   ...   !!!   ")).toBe("");
+  });
+
+  it("should preserve backslashes", () => {
+    expect(utils.sanitizeChatMessage("path\\to\\file")).toBe("path\\to\\file");
+  });
+
+  it("should preserve backticks", () => {
+    expect(utils.sanitizeChatMessage("use `code` here")).toBe("use `code` here");
+  });
+
+  it("should handle curly braces and brackets", () => {
+    expect(utils.sanitizeChatMessage("{key: [value]}")).toBe("{key:value]");
+  });
+
+  it("should filter non-Latin scripts", () => {
+    expect(utils.sanitizeChatMessage("Hello 你好 world")).toBe("Hello world");
+  });
+
+  it("should handle combining diacritical marks", () => {
+    expect(utils.sanitizeChatMessage("café résumé")).toBe("caf rsum");
+  });
+
+  it("should handle zero-width characters", () => {
+    expect(utils.sanitizeChatMessage("hello\u200Bworld")).toBe("helloworld");
+  });
+
+  it("should collapse punctuation separated by multiple spaces", () => {
+    expect(utils.sanitizeChatMessage("Hello !     ?     ! world")).toBe("Hello ! world");
+  });
+
+  it("should return empty string for only whitespace and special characters", () => {
+    expect(utils.sanitizeChatMessage("  ©  ™  ®  ")).toBe("");
+  });
+});
