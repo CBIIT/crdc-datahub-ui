@@ -67,6 +67,15 @@ export const createChatMessage = (args: {
  */
 const _escapeCharacterClass = (value: string): string => value.replace(/[\\\]^-]/g, "\\$&");
 
+const ALLOWED_PUNCTUATION = String.raw`.,!?;:'-/()\\"@#$%&*+=[]{}|<>~\``;
+const PUNCTUATION_CLASS = _escapeCharacterClass(ALLOWED_PUNCTUATION);
+const DISALLOWED_CHARACTERS_REGEX = new RegExp(`[^A-Za-z0-9\\s${PUNCTUATION_CLASS}]`, "g");
+const CONSECUTIVE_PUNCTUATION_REGEX = new RegExp(
+  `([${PUNCTUATION_CLASS}])(?:\\s*[${PUNCTUATION_CLASS}])+`,
+  "g"
+);
+const HAS_ALPHANUMERIC_REGEX = /[A-Za-z0-9]/;
+
 /**
  * Sanitizes a chat message by:
  * - removing disallowed characters
@@ -84,15 +93,6 @@ const _escapeCharacterClass = (value: string): string => value.replace(/[\\\]^-]
  * @returns {string} The sanitized message
  */
 export const sanitizeChatMessage = (message: string): string => {
-  const ALLOWED_PUNCTUATION = String.raw`.,!?;:'-/()\\"@#$%&*+=[]{}|<>~\``;
-  const PUNCTUATION_CLASS = _escapeCharacterClass(ALLOWED_PUNCTUATION);
-  const DISALLOWED_CHARACTERS_REGEX = new RegExp(`[^A-Za-z0-9\\s${PUNCTUATION_CLASS}]`, "g");
-  const CONSECUTIVE_PUNCTUATION_REGEX = new RegExp(
-    `([${PUNCTUATION_CLASS}])(?:\\s*[${PUNCTUATION_CLASS}])+`,
-    "g"
-  );
-  const HAS_ALPHANUMERIC_REGEX = /[A-Za-z0-9]/;
-
   const sanitizedMessage = message
     .replace(DISALLOWED_CHARACTERS_REGEX, "")
     .replace(CONSECUTIVE_PUNCTUATION_REGEX, "$1")
