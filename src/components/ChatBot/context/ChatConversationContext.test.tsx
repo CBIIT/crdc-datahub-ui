@@ -256,6 +256,52 @@ describe("ChatConversationContext", () => {
       expect(mockAskQuestion).not.toHaveBeenCalled();
     });
 
+    it("should not send a message that sanitizes to empty", async () => {
+      const { getByTestId } = await renderWithProvider();
+
+      const input = getByTestId("input-value");
+      userEvent.type(input, "!!!???");
+
+      const sendButton = getByTestId("send-button");
+      userEvent.click(sendButton);
+
+      expect(getByTestId("messages-count")).toHaveTextContent("1");
+      expect(mockAskQuestion).not.toHaveBeenCalled();
+    });
+
+    it("should send the sanitized message to the API", async () => {
+      const { getByTestId } = await renderWithProvider();
+
+      const input = getByTestId("input-value");
+      userEvent.type(input, "Hello\u00A9 world!!!");
+
+      const sendButton = getByTestId("send-button");
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(mockAskQuestion).toHaveBeenCalledWith(
+          expect.objectContaining({
+            question: "Hello world!",
+          })
+        );
+      });
+    });
+
+    it("should display the sanitized message in the user bubble", async () => {
+      const { getByTestId } = await renderWithProvider();
+
+      const input = getByTestId("input-value");
+      userEvent.type(input, "Hello\u00A9 world!!!");
+
+      const sendButton = getByTestId("send-button");
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        const messages = getByTestId("messages");
+        expect(messages.textContent).toContain("Hello world!");
+      });
+    });
+
     it("should add user message when sending", async () => {
       const { getByTestId } = await renderWithProvider();
 

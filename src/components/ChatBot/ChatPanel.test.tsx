@@ -238,6 +238,39 @@ describe("Basic Functionality", () => {
     expect(getByTestId("composer-send")).toBeDisabled();
   });
 
+  it("should disable send button when input sanitizes to empty", () => {
+    mockUseChatConversationContext.mockReturnValue({
+      ...defaultConversationState,
+      inputValue: "!!!???",
+    });
+
+    const { getByTestId } = render(<ChatPanel />);
+
+    expect(getByTestId("composer-send")).toBeDisabled();
+  });
+
+  it("should disable send button when input contains only special characters", () => {
+    mockUseChatConversationContext.mockReturnValue({
+      ...defaultConversationState,
+      inputValue: "\u00A9\u2122\u00AE",
+    });
+
+    const { getByTestId } = render(<ChatPanel />);
+
+    expect(getByTestId("composer-send")).toBeDisabled();
+  });
+
+  it("should enable send button when input has text mixed with special characters", () => {
+    mockUseChatConversationContext.mockReturnValue({
+      ...defaultConversationState,
+      inputValue: "Hello\u00A9 world",
+    });
+
+    const { getByTestId } = render(<ChatPanel />);
+
+    expect(getByTestId("composer-send")).not.toBeDisabled();
+  });
+
   it("should enable send button when input has text", () => {
     mockUseChatConversationContext.mockReturnValue({
       ...defaultConversationState,
