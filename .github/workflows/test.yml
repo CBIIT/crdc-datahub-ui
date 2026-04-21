@@ -15,14 +15,13 @@ permissions:
 
 jobs:
   test:
-    name: Test Changes (Shard ${{ matrix.shard }}/3)
+    name: Test Changes (Shard ${{ matrix.shard }}/${{ matrix.total }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
-    env:
-      VITEST_TOTAL_SHARDS: 3
+        shard: [1, 2, 3, 4]
+        total: [4]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -45,7 +44,7 @@ jobs:
         run: npm install
 
       - name: Run Vitest
-        run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ env.VITEST_TOTAL_SHARDS }}
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ matrix.total }}
 
       - name: Coveralls GitHub Action
         if: always()
@@ -53,7 +52,6 @@ jobs:
         continue-on-error: true
         with:
           file: coverage/lcov.info
-          flag-name: shard-${{ matrix.shard }}
           parallel: true
 
   coveralls-finish:
