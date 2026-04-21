@@ -52,6 +52,7 @@ jobs:
         continue-on-error: true
         with:
           file: coverage/lcov.info
+          flag-name: shard-${{ matrix.shard }}
           parallel: true
 
   coveralls-finish:
