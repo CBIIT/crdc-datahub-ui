@@ -148,11 +148,7 @@ const columns: Column<T>[] = [
           >
             {isDisabled ? (
               <StyledDisabledText>
-                <TruncatedText
-                  text={a.name}
-                  disableHoverListener
-                  labelSx={submissionNameTextStyle}
-                />
+                <TruncatedText text={a.name} disableHoverListener />
               </StyledDisabledText>
             ) : (
               <Link to={`/data-submission/${a._id}/upload-activity`}>
@@ -168,6 +164,7 @@ const columns: Column<T>[] = [
           <CopyTextButton
             copyText={a._id}
             title="Copy Data Submission ID to the clipboard"
+            aria-label="Copy Data Submission ID to the clipboard"
             sx={{ color: "#005999" }}
           />
         </StyledSubmissionNameWrapper>
