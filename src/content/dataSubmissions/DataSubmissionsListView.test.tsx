@@ -15,11 +15,20 @@ import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
 import { userFactory } from "@/factories/auth/UserFactory";
 import { submissionFactory } from "@/factories/submission/SubmissionFactory";
 import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "@/graphql";
-import { TestRouter, act, render } from "@/test-utils";
+import { TestRouter, act, render, waitFor } from "@/test-utils";
 
 import ListingView from "./DataSubmissionsListView";
 
 type Submission = ListSubmissionsResp["listSubmissions"]["submissions"][number];
+
+const mockDownloadBlob = vi.fn();
+const mockFetchAllData = vi.fn();
+
+vi.mock("@/utils", async () => ({
+  ...(await vi.importActual("@/utils")),
+  downloadBlob: (...args) => mockDownloadBlob(...args),
+  fetchAllData: (...args) => mockFetchAllData(...args),
+}));
 
 const baseSubmission: Submission = {
   ...submissionFactory.build({
@@ -102,6 +111,9 @@ const TestParent: FC<ParentProps> = ({
 describe("Accessibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDownloadBlob.mockReset();
+    mockFetchAllData.mockReset();
+    mockFetchAllData.mockResolvedValue([baseSubmission]);
   });
 
   it("should have no accessibility violations with results", async () => {
@@ -140,6 +152,9 @@ describe("Accessibility", () => {
 describe("Basic Functionality", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDownloadBlob.mockReset();
+    mockFetchAllData.mockReset();
+    mockFetchAllData.mockResolvedValue([baseSubmission]);
   });
 
   it("should render banner and table without crashing", async () => {
@@ -177,11 +192,66 @@ describe("Basic Functionality", () => {
     expect(getByText("STUDY")).toBeInTheDocument();
     expect(getByText("In Progress")).toBeInTheDocument();
   });
+
+  it("should export all expected columns and values", async () => {
+    const { findByTestId, getAllByTestId } = render(
+      <TestParent>
+        <ListingView />
+      </TestParent>
+    );
+
+    await findByTestId("submission-name-cell-sub-123");
+
+    const [exportButton] = getAllByTestId("export-data-submissions-button");
+
+    fireEvent.click(exportButton);
+
+    await waitFor(() => {
+      expect(mockDownloadBlob).toHaveBeenCalled();
+    });
+
+    const csvContent: string = mockDownloadBlob.mock.calls[0][0];
+    const headerRow = csvContent.split("\n")[0];
+    const headers = headerRow.split(",").map((h) => h.replace(/"/g, "").trim());
+
+    expect(headers).toEqual([
+      "Data Submission ID",
+      "Submission Name",
+      "Submitter",
+      "Data Commons",
+      "Type",
+      "Model Version",
+      "Program",
+      "Study",
+      "dbGaP ID",
+      "Status",
+      "Data Concierge",
+      "Record Count",
+      "Created Date",
+      "Last Updated",
+    ]);
+
+    expect(csvContent).toContain("sub-123");
+    expect(csvContent).toContain("Submission Alpha");
+    expect(csvContent).toContain("Jane Submitter");
+    expect(csvContent).toContain("CDS");
+    expect(csvContent).toContain("New/Update");
+    expect(csvContent).toContain("1.0");
+    expect(csvContent).toContain("Program 1");
+    expect(csvContent).toContain("STUDY");
+    expect(csvContent).toContain("phs001");
+    expect(csvContent).toContain("In Progress");
+    expect(csvContent).toContain("Alex Concierge");
+    expect(csvContent).toContain("10");
+  });
 });
 
 describe("Implementation Requirements", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDownloadBlob.mockReset();
+    mockFetchAllData.mockReset();
+    mockFetchAllData.mockResolvedValue([baseSubmission]);
   });
 
   it("should render submission name cell with link and copy action for active submission", async () => {

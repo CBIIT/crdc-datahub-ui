@@ -111,6 +111,11 @@ const StyledTooltipValue = styled("p")(() => ({
   margin: 0,
 }));
 
+const submissionNameTextStyle = {
+  fontWeight: 700,
+  color: "#005999",
+};
+
 const StyledSubmissionNameWrapper = styled(Stack)(() => ({
   flexDirection: "row",
   alignItems: "center",
@@ -143,11 +148,20 @@ const columns: Column<T>[] = [
           >
             {isDisabled ? (
               <StyledDisabledText>
-                <TruncatedText text={a.name} disableHoverListener />
+                <TruncatedText
+                  text={a.name}
+                  disableHoverListener
+                  labelSx={submissionNameTextStyle}
+                />
               </StyledDisabledText>
             ) : (
               <Link to={`/data-submission/${a._id}/upload-activity`}>
-                <TruncatedText text={a.name} underline={false} disableHoverListener />
+                <TruncatedText
+                  text={a.name}
+                  underline={false}
+                  disableHoverListener
+                  labelSx={submissionNameTextStyle}
+                />
               </Link>
             )}
           </StyledTooltip>
