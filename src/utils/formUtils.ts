@@ -1,4 +1,4 @@
-import { cloneDeep, mergeWith, has, unset, some, values, get } from "lodash";
+import { cloneDeep, mergeWith, has, unset, some, values, get, isEqual } from "lodash";
 import type * as z from "zod";
 
 import { ColumnKey, shouldPersistColumnValue } from "@/classes/Excel/PersistentColumns";
@@ -452,15 +452,18 @@ export const determineSectionStatus = (passed: boolean, hasData: boolean): Secti
  *
  * @param section The section to check for data
  * @param data The questionnaire data to check against
+ * @param contextualData Provides additional data that may be needed to determine if the section has data.
  * @returns A boolean flag indicating if the section has any meaningful data
  */
 export const sectionHasData = (
   section: SectionKey,
-  data: RecursivePartial<QuestionnaireData>
+  data: RecursivePartial<QuestionnaireData>,
+  contextualData: RecursivePartial<QuestionnaireData> = {}
 ): boolean => {
   switch (section) {
     case "A": {
       const hasPIFields = some(values(data?.pi), (v) => typeof v === "string" && v.trim() !== "");
+      const piIsNotAutoFilled = hasPIFields && !isEqual(data?.pi, contextualData?.pi);
       const hasPrimaryContactFields = some(
         values(data?.primaryContact),
         (v) => typeof v === "string" && v.trim() !== ""
@@ -470,7 +473,12 @@ export const sectionHasData = (
       );
       const sameAsPI = data?.piAsPrimaryContact === true;
 
-      return hasPIFields || sameAsPI || hasPrimaryContactFields || hasAdditionalContactFields;
+      return (
+        (hasPIFields && piIsNotAutoFilled) ||
+        sameAsPI ||
+        hasPrimaryContactFields ||
+        hasAdditionalContactFields
+      );
     }
     case "B": {
       const hasProgramFields = some(
