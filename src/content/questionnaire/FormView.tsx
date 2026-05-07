@@ -1,4 +1,4 @@
-import { useLazyQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { LoadingButton } from "@mui/lab";
 import {
   Checkbox,
@@ -236,10 +236,21 @@ const FormView: FC<Props> = ({ section }: Props) => {
 
   usePageTitle(`Submission Request${data?._id && data?._id !== "new" ? ` - ${data._id}` : ""}`);
 
-  const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
+  const { data: lastAppData } = useQuery<LastAppResp>(LAST_APP, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-first",
+    skip: activeSection !== "A" || formMode !== "Edit",
   });
+
+  const pi = useMemo<PI | null>(() => {
+    if (!lastAppData?.getMyLastApplication?.questionnaireData) {
+      return null;
+    }
+
+    return (
+      safeParse<QuestionnaireData>(lastAppData?.getMyLastApplication?.questionnaireData)?.pi || null
+    );
+  }, [lastAppData]);
 
   /**
    * Determines if the form has unsaved changes.
@@ -450,15 +461,7 @@ const FormView: FC<Props> = ({ section }: Props) => {
     // of Section A to In Progress.
     const additionalContext: RecursivePartial<QuestionnaireData> = {};
     if (activeSection === "A") {
-      try {
-        const { data: lastAppData } = await lastApp();
-        const { getMyLastApplication: lastAppResp } = lastAppData || {};
-        const parsedLastAppData = safeParse<QuestionnaireData>(lastAppResp?.questionnaireData);
-
-        additionalContext.pi = parsedLastAppData?.pi;
-      } catch (err) {
-        Logger.error("Error occurred while building additional context", err);
-      }
+      additionalContext.pi = pi;
     }
 
     const newStatus: SectionStatus = determineSectionStatus(
