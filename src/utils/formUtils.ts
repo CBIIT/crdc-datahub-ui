@@ -463,7 +463,7 @@ export const sectionHasData = (
   switch (section) {
     case "A": {
       const hasPIFields = some(values(data?.pi), (v) => typeof v === "string" && v.trim() !== "");
-      const piIsNotAutoFilled = hasPIFields && !isEqual(data?.pi, contextualData?.pi);
+      const hasEnteredPIFields = hasPIFields && !isEqual(data?.pi, contextualData?.pi);
       const hasPrimaryContactFields = some(
         values(data?.primaryContact),
         (v) => typeof v === "string" && v.trim() !== ""
@@ -474,10 +474,7 @@ export const sectionHasData = (
       const sameAsPI = data?.piAsPrimaryContact === true;
 
       return (
-        (hasPIFields && piIsNotAutoFilled) ||
-        sameAsPI ||
-        hasPrimaryContactFields ||
-        hasAdditionalContactFields
+        hasEnteredPIFields || sameAsPI || hasPrimaryContactFields || hasAdditionalContactFields
       );
     }
     case "B": {
