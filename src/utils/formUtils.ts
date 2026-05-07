@@ -468,8 +468,9 @@ export const sectionHasData = (
       const hasAdditionalContactFields = some(data?.additionalContacts || [], (contact) =>
         some(values(contact), (v) => typeof v === "string" && v.trim() !== "")
       );
+      const sameAsPI = data?.piAsPrimaryContact === true;
 
-      return hasPIFields || hasPrimaryContactFields || hasAdditionalContactFields;
+      return hasPIFields || sameAsPI || hasPrimaryContactFields || hasAdditionalContactFields;
     }
     case "B": {
       const hasProgramFields = some(
