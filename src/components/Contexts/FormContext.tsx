@@ -4,8 +4,7 @@ import React, { FC, createContext, useContext, useEffect, useMemo, useState } fr
 import { v4 } from "uuid";
 
 import { QuestionnaireDataMigrator } from "@/classes/QuestionnaireDataMigrator";
-
-import { InitialApplication, InitialQuestionnaire } from "../../config/InitialValues";
+import { InitialApplication, InitialQuestionnaire } from "@/config/InitialValues";
 import {
   APPROVE_APP,
   GET_APP,
@@ -28,9 +27,12 @@ import {
   LIST_INSTITUTIONS,
   ListInstitutionsInput,
   ListInstitutionsResp,
-} from "../../graphql";
-import { Logger } from "../../utils";
+  GetApplicationFormVersionResp,
+  GET_APPLICATION_FORM_VERSION,
+} from "@/graphql";
+import { Logger } from "@/utils";
 
+import { useAuthContext } from "./AuthContext";
 import { useOrganizationListContext, Status as ProgramStatus } from "./OrganizationListContext";
 
 export type ApproveFormInput = {
@@ -117,6 +119,7 @@ type ProviderProps = {
  */
 export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps) => {
   const [state, setState] = useState<ContextState>(initialState);
+  const { user } = useAuthContext();
   const { activeOrganizations, status: programStatus } = useOrganizationListContext();
 
   const [getInstitutions] = useLazyQuery<ListInstitutionsResp, ListInstitutionsInput>(
@@ -129,9 +132,18 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     }
   );
 
+  const [retrieveFormVersion] = useLazyQuery<GetApplicationFormVersionResp>(
+    GET_APPLICATION_FORM_VERSION,
+    {
+      context: { clientName: "backend" },
+      fetchPolicy: "cache-first",
+      onError: (e) => Logger.error("FormContext getFormVersion API error:", e),
+    }
+  );
+
   const [lastApp] = useLazyQuery<LastAppResp>(LAST_APP, {
     context: { clientName: "backend" },
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-first",
   });
 
   const [getApp] = useLazyQuery<GetAppResp>(GET_APP, {
@@ -178,7 +190,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     data: QuestionnaireData,
     opts?: { skipSave?: boolean; runMigrations?: boolean }
   ): Promise<SetDataReturnType> => {
-    let processedData = data;
+    let processedData: QuestionnaireData = data;
     if (opts?.runMigrations) {
       const migrator = new QuestionnaireDataMigrator(data, {
         getInstitutions,
@@ -242,7 +254,7 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
         application: {
           _id: newState?.data?._id === "new" ? undefined : newState?.data?._id,
           studyName: processedData?.study?.name,
-          studyAbbreviation: processedData?.study?.abbreviation || processedData?.study?.name,
+          studyAbbreviation: processedData?.study?.abbreviation,
           questionnaireData: JSON.stringify(processedData),
           controlledAccess: processedData?.accessTypes?.includes("Controlled Access") || false,
           openAccess: processedData?.accessTypes?.includes("Open Access") || false,
@@ -276,13 +288,9 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
       };
     }
 
-    // eslint-disable-next-line @typescript-eslint/dot-notation
-    if (d?.saveApplication?._id && processedData["_id"] === "new") {
-      newState.data = {
-        ...newState.data,
-        _id: d.saveApplication._id,
-        applicant: d?.saveApplication?.applicant,
-      };
+    // If the previous form ID was "new", inject the newly assigned UUID
+    if (d?.saveApplication?._id && newState.data._id === "new") {
+      newState.data._id = d.saveApplication._id;
     }
 
     newState.data = {
@@ -424,6 +432,12 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     if (programStatus !== ProgramStatus.LOADED) {
       return;
     }
+
+    if (state.status === Status.LOADED && state?.data?._id === id) {
+      Logger.info("FormContext: Skipping data fetch, already have loaded data for this ID");
+      return;
+    }
+
     if (!id || !id.trim()) {
       setState({
         status: Status.ERROR,
@@ -435,6 +449,39 @@ export const FormProvider: FC<ProviderProps> = ({ children, id }: ProviderProps)
     }
 
     (async () => {
+      if (id === "new") {
+        // Run the migrator to populate the last application data
+        const migrator = new QuestionnaireDataMigrator(
+          { ...InitialQuestionnaire },
+          {
+            getInstitutions,
+            newInstitutions: [],
+            getLastApplication: lastApp,
+            activePrograms: activeOrganizations || [],
+          }
+        );
+        const migratedData = await migrator.run();
+
+        const formVersion = await retrieveFormVersion();
+
+        setState({
+          status: Status.LOADED,
+          formRef: state.formRef,
+          data: {
+            ...InitialApplication,
+            applicant: {
+              applicantID: user?._id,
+              applicantName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+              applicantEmail: user?.email,
+            },
+            version: formVersion?.data?.getApplicationFormVersion?.version || "",
+            questionnaireData: migratedData,
+          },
+          error: null,
+        });
+        return;
+      }
+
       const { data: d, error } = await getApp();
       if (error || !d?.getApplication?.questionnaireData) {
         setState({

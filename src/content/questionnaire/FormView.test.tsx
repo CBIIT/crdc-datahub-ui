@@ -1,24 +1,35 @@
+import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { FC } from "react";
+import { MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
 import {
   Context as AuthContext,
   ContextState as AuthContextState,
   Status as AuthStatus,
-} from "../../components/Contexts/AuthContext";
+} from "@/components/Contexts/AuthContext";
 import {
   Context as FormContext,
   ContextState as FormContextState,
   Status as FormStatus,
-} from "../../components/Contexts/FormContext";
-import { render, waitFor, within } from "../../test-utils";
-import { applicationFactory } from "../../test-utils/factories/application/ApplicationFactory";
-import { authCtxStateFactory } from "../../test-utils/factories/auth/AuthCtxStateFactory";
-import { userFactory } from "../../test-utils/factories/auth/UserFactory";
-import { TestRouter } from "../../test-utils/TestRouter";
+} from "@/components/Contexts/FormContext";
+import { query as GET_LAST_APP } from "@/graphql/getMyLastApplication";
+import { render, waitFor, within } from "@/test-utils";
+import { applicationFactory } from "@/test-utils/factories/application/ApplicationFactory";
+import { authCtxStateFactory } from "@/test-utils/factories/auth/AuthCtxStateFactory";
+import { userFactory } from "@/test-utils/factories/auth/UserFactory";
+import { TestRouter } from "@/test-utils/TestRouter";
 
 import FormView from "./FormView";
+
+const mockNavigate = vi.hoisted(() => vi.fn());
+const mockUsePageTitle = vi.hoisted(() => vi.fn());
+
+vi.mock("react-router-dom", async () => ({
+  ...(await vi.importActual("react-router-dom")),
+  useNavigate: () => mockNavigate,
+}));
 
 const mockUseFormMode = vi.fn();
 vi.mock("../../hooks/useFormMode", () => ({
@@ -26,7 +37,7 @@ vi.mock("../../hooks/useFormMode", () => ({
 }));
 
 vi.mock("../../hooks/usePageTitle", () => ({
-  default: () => {},
+  default: (title: string) => mockUsePageTitle(title),
 }));
 
 let mockFormObject: FormObject | null = null;
@@ -97,23 +108,40 @@ const baseAuthCtxState: AuthContextState = authCtxStateFactory.build({
   }),
 });
 
+const baseMocks: MockedResponse[] = [
+  {
+    request: {
+      query: GET_LAST_APP,
+    },
+    result: {
+      data: {
+        getMyLastApplication: null,
+      },
+    },
+  },
+];
+
 type ParentProps = {
   formCtxState?: FormContextState;
   authCtxState?: AuthContextState;
   section?: string;
+  initialEntries?: MemoryRouterProps["initialEntries"];
 };
 
 const TestParent: FC<ParentProps> = ({
   formCtxState = baseFormCtxState,
   authCtxState = baseAuthCtxState,
   section = "REVIEW",
+  initialEntries = [`/submission-request/test-app-id/${section}`],
 }) => (
-  <TestRouter initialEntries={[`/submission-request/test-app-id/${section}`]}>
-    <AuthContext.Provider value={authCtxState}>
-      <FormContext.Provider value={formCtxState}>
-        <FormView section={section} />
-      </FormContext.Provider>
-    </AuthContext.Provider>
+  <TestRouter initialEntries={initialEntries}>
+    <MockedProvider mocks={baseMocks}>
+      <AuthContext.Provider value={authCtxState}>
+        <FormContext.Provider value={formCtxState}>
+          <FormView section={section} />
+        </FormContext.Provider>
+      </AuthContext.Provider>
+    </MockedProvider>
   </TestRouter>
 );
 
@@ -172,6 +200,112 @@ describe("Basic Functionality", () => {
     expect(getByRole("button", { name: "Request Additional Information" })).toBeInTheDocument();
     expect(queryByText("Save")).not.toBeInTheDocument();
     expect(queryByText("Next")).not.toBeInTheDocument();
+  });
+
+  it("should set the page title without the legacy new id", () => {
+    mockUseFormMode.mockReturnValue({ formMode: "Edit", readOnlyInputs: false });
+
+    const newFormState: FormContextState = {
+      ...baseFormCtxState,
+      data: applicationFactory.build({
+        ...baseFormCtxState.data,
+        _id: "new",
+        questionnaireData: baseFormCtxState.data.questionnaireData,
+      }),
+    };
+
+    render(
+      <TestParent
+        section="A"
+        initialEntries={["/submission-request/new/A"]}
+        formCtxState={newFormState}
+      />
+    );
+
+    expect(mockUsePageTitle).toHaveBeenCalledWith("Submission Request");
+  });
+
+  it("should replace the temporary new route with the persisted id after save", async () => {
+    mockUseFormMode.mockReturnValue({ formMode: "Edit", readOnlyInputs: false });
+
+    const newFormState: FormContextState = {
+      ...baseFormCtxState,
+      data: applicationFactory.build({
+        ...baseFormCtxState.data,
+        _id: "new",
+        questionnaireData: baseFormCtxState.data.questionnaireData,
+      }),
+    };
+
+    const savedFormState: FormContextState = {
+      ...baseFormCtxState,
+      data: applicationFactory.build({
+        ...baseFormCtxState.data,
+        _id: "persisted-form-id",
+        questionnaireData: baseFormCtxState.data.questionnaireData,
+      }),
+    };
+
+    const { rerender } = render(
+      <TestParent
+        section="A"
+        initialEntries={["/submission-request/new/A"]}
+        formCtxState={newFormState}
+      />
+    );
+
+    rerender(
+      <TestParent
+        section="A"
+        initialEntries={["/submission-request/new/A"]}
+        formCtxState={savedFormState}
+      />
+    );
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith("/submission-request/persisted-form-id/A", {
+        replace: true,
+        preventScrollReset: true,
+      });
+    });
+  });
+
+  it("should handle getMyLastApplication returning null when saving Section A", async () => {
+    mockUseFormMode.mockReturnValue({ formMode: "Edit", readOnlyInputs: false });
+
+    const mockSections: Section[] = [
+      { name: "A", status: "Not Started" },
+      { name: "B", status: "Not Started" },
+      { name: "C", status: "In Progress" },
+      { name: "D", status: "Not Started" },
+    ];
+
+    mockFormObject = {
+      ref: { current: document.createElement("form") },
+      data: { sections: mockSections } as QuestionnaireData,
+    };
+
+    const setDataMock = vi
+      .fn()
+      .mockResolvedValue({ status: "success", id: baseFormCtxState.data._id });
+
+    const formCtxState: FormContextState = {
+      ...baseFormCtxState,
+      setData: setDataMock,
+    };
+
+    const { getByText } = render(<TestParent section="A" formCtxState={formCtxState} />);
+
+    userEvent.click(getByText("Save"));
+
+    await waitFor(() => {
+      expect(setDataMock).toHaveBeenCalled();
+    });
+
+    expect(global.mockEnqueue).toHaveBeenCalledWith(
+      "Your changes for the Principal Investigator and Contact section have been successfully saved.",
+      { variant: "success" }
+    );
   });
 });
 
@@ -259,5 +393,130 @@ describe("Implementation Requirements", () => {
       expect(getByText("Request Additional Changes")).toBeInTheDocument();
     });
     expect(getByText("Confirm to move to Inquired")).toBeInTheDocument();
+  });
+
+  it("should indicate that changes were saved if any portion of the form has data", async () => {
+    mockUseFormMode.mockReturnValue({ formMode: "Edit", readOnlyInputs: false });
+
+    const mockSections: Section[] = [
+      { name: "A", status: "Not Started" },
+      { name: "B", status: "Not Started" },
+      { name: "C", status: "In Progress" }, // Triggers the specific message
+      { name: "D", status: "Not Started" },
+    ];
+
+    mockFormObject = {
+      ref: { current: document.createElement("form") },
+      data: { sections: mockSections } as QuestionnaireData,
+    };
+
+    const setDataMock = vi
+      .fn()
+      .mockResolvedValue({ status: "success", id: baseFormCtxState.data._id });
+
+    const formCtxState: FormContextState = {
+      ...baseFormCtxState,
+      setData: setDataMock,
+    };
+
+    const { getByText } = render(<TestParent section="A" formCtxState={formCtxState} />);
+
+    userEvent.click(getByText("Save"));
+
+    await waitFor(() => {
+      expect(setDataMock).toHaveBeenCalled();
+    });
+
+    expect(global.mockEnqueue).toHaveBeenCalledWith(
+      "Your changes for the Principal Investigator and Contact section have been successfully saved.",
+      { variant: "success" }
+    );
+  });
+
+  // NOTE: This is a slight variant of the above scenario, but testing for "new" UUIDs
+  it("should indicate that changes were saved if any portion of the form has data (new UUID)", async () => {
+    mockUseFormMode.mockReturnValue({ formMode: "Edit", readOnlyInputs: false });
+
+    const mockSections: Section[] = [
+      { name: "A", status: "Not Started" },
+      { name: "B", status: "In Progress" }, // Triggers the specific message
+      { name: "C", status: "Not Started" },
+      { name: "D", status: "Not Started" },
+    ];
+
+    const mockFormElement = document.createElement("form");
+    Object.defineProperty(mockFormElement, "checkValidity", {
+      value: vi.fn(() => false),
+    });
+
+    mockFormObject = {
+      ref: { current: mockFormElement },
+      data: { sections: mockSections } as QuestionnaireData,
+    };
+
+    const setDataMock = vi.fn().mockResolvedValue({ status: "success", id: "new" });
+
+    const formCtxState: FormContextState = {
+      ...baseFormCtxState,
+      setData: setDataMock,
+    };
+
+    const { getByText } = render(<TestParent section="A" formCtxState={formCtxState} />);
+
+    userEvent.click(getByText("Save"));
+
+    await waitFor(() => {
+      expect(setDataMock).toHaveBeenCalled();
+    });
+
+    expect(global.mockEnqueue).toHaveBeenCalledWith(
+      "Your changes for the Principal Investigator and Contact section have been successfully saved.",
+      { variant: "success" }
+    );
+  });
+
+  it("should show new success snackbar when saving a section for a form with no data", async () => {
+    mockUseFormMode.mockReturnValue({ formMode: "Edit", readOnlyInputs: false });
+
+    const mockSections: Section[] = [
+      { name: "A", status: "Not Started" },
+      { name: "B", status: "Not Started" },
+      { name: "C", status: "Not Started" },
+      { name: "D", status: "Not Started" },
+    ];
+
+    const mockFormElement = document.createElement("form");
+    Object.defineProperty(mockFormElement, "checkValidity", {
+      value: vi.fn(() => false),
+    });
+
+    mockFormObject = {
+      ref: { current: mockFormElement },
+      data: { sections: mockSections } as QuestionnaireData,
+    };
+
+    const setDataMock = vi.fn().mockResolvedValue({ status: "success", id: "new" });
+
+    const newFormState: FormContextState = {
+      ...baseFormCtxState,
+      data: applicationFactory.build({
+        ...baseFormCtxState.data,
+        _id: "new",
+      }),
+      setData: setDataMock,
+    };
+
+    const { getByText } = render(<TestParent section="A" formCtxState={newFormState} />);
+
+    userEvent.click(getByText("Save"));
+
+    await waitFor(() => {
+      expect(setDataMock).toHaveBeenCalled();
+    });
+
+    expect(global.mockEnqueue).toHaveBeenCalledWith(
+      "The Principal Investigator and Contact section has been successfully saved.",
+      { variant: "success" }
+    );
   });
 });
