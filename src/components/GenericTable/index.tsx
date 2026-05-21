@@ -139,6 +139,12 @@ export type Column<T> = {
    */
   defaultHidden?: boolean;
   /**
+   * Indicates if the column should be hidden from the visibility toggle interface.
+   * If true, the column will not appear in the column visibility popper at all.
+   * The column will still be rendered in the table.
+   */
+  hideFromToggle?: boolean;
+  /**
    * A comparator function for sorting rows based on the column values.
    * Primarily used when server-side sorting is unavailable
    */
@@ -147,6 +153,10 @@ export type Column<T> = {
    * Custom styling for the header table cell of the column
    */
   sx?: TableCellProps["sx"];
+  /**
+   * Define how the column label and value should be exported
+   */
+  exportValue?: (a: T) => { label: string; value: string | number };
 };
 
 export type Props<T> = {
@@ -486,7 +496,11 @@ const GenericTable = <T,>(
   return (
     <StyledTableContainer {...containerProps}>
       {(!paramsInitialized || showDelayedLoading) && (
-        <SuspenseLoader fullscreen={false} data-testid="generic-table-suspense-loader" />
+        <SuspenseLoader
+          fullscreen={false}
+          zIndex={250}
+          data-testid="generic-table-suspense-loader"
+        />
       )}
       {(position === "top" || position === "both") && (
         <Pagination verticalPlacement="top" disabled={!data || loading || !paramsInitialized} />

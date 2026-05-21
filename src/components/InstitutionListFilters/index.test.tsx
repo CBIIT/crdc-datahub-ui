@@ -1,9 +1,8 @@
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
 
-import { render, waitFor, within } from "../../test-utils";
+import { TestRouter, render, waitFor, within } from "../../test-utils";
 import { SearchParamsProvider } from "../Contexts/SearchParamsContext";
 
 import InstitutionListFilters from "./index";
@@ -13,9 +12,9 @@ type Props = {
   children: React.ReactNode;
 };
 const TestParent: React.FC<Props> = ({ initialEntries = ["/"], children }) => (
-  <MemoryRouter initialEntries={initialEntries}>
+  <TestRouter initialEntries={initialEntries}>
     <SearchParamsProvider>{children}</SearchParamsProvider>
-  </MemoryRouter>
+  </TestRouter>
 );
 
 describe("Accessibility", () => {
@@ -96,7 +95,7 @@ describe("InstitutionListFilters Component", () => {
     );
 
     await waitFor(() => {
-      expect(mockOnChange).toHaveBeenCalledWith({ name: "", status: "All" });
+      expect(mockOnChange).toHaveBeenCalledWith({ name: "", status: "Active" });
     });
   });
 
@@ -135,7 +134,7 @@ describe("InstitutionListFilters Component", () => {
     vi.advanceTimersByTime(500);
 
     await waitFor(() => {
-      expect(mockOnChange).toHaveBeenCalledWith({ name: "Test", status: "All" });
+      expect(mockOnChange).toHaveBeenCalledWith({ name: "Test", status: "Active" });
     });
     vi.useRealTimers();
   });
@@ -153,14 +152,28 @@ describe("InstitutionListFilters Component", () => {
     userEvent.type(nameInput, "TestName");
     vi.advanceTimersByTime(500);
     await waitFor(() => {
-      expect(mockOnChange).toHaveBeenCalledWith({ name: "TestName", status: "All" });
+      expect(mockOnChange).toHaveBeenCalledWith({ name: "TestName", status: "Active" });
     });
 
     userEvent.clear(nameInput);
     vi.advanceTimersByTime(500);
     await waitFor(() => {
-      expect(mockOnChange).toHaveBeenCalledWith({ name: "", status: "All" });
+      expect(mockOnChange).toHaveBeenCalledWith({ name: "", status: "Active" });
     });
     vi.useRealTimers();
+  });
+});
+
+describe("Implementation Requirements", () => {
+  it("should default the status filter to Active", async () => {
+    const { getByTestId } = render(
+      <TestParent>
+        <InstitutionListFilters />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(getByTestId("status-select-input")).toHaveValue("Active");
+    });
   });
 });

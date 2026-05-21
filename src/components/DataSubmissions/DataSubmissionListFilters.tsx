@@ -1,11 +1,22 @@
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { FormControl, IconButton, MenuItem, Grid, Box, styled, Stack } from "@mui/material";
+import {
+  FormControl,
+  IconButton,
+  MenuItem,
+  Grid,
+  Box,
+  styled,
+  Stack,
+  InputAdornment,
+  Backdrop,
+} from "@mui/material";
 import { debounce, isEqual, sortBy } from "lodash";
 import { memo, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
 import { isStringLengthBetween } from "../../utils";
+import ClearButton from "../ClearButton";
 import { useSearchParamsContext } from "../Contexts/SearchParamsContext";
 import { Column } from "../GenericTable";
 import ColumnVisibilityButton from "../GenericTable/ColumnVisibilityButton";
@@ -150,6 +161,7 @@ const DataSubmissionListFilters = ({
 
   const [touchedFilters, setTouchedFilters] = useState<TouchedState>(initialTouchedFields);
   const [selectMinWidth, setSelectMinWidth] = useState<number | null>(null);
+  const [isStatusesMenuOpen, setIsStatusesMenuOpen] = useState<boolean>(false);
 
   const debounceAfter3CharsInputs: FilterFormKey[] = ["name", "dbGaPID"];
   const debouncedOnChangeRef = useRef(
@@ -374,7 +386,7 @@ const DataSubmissionListFilters = ({
                     }
                     MenuProps={{
                       disablePortal: true,
-                      sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                      sx: { zIndex: 700, width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
                     }}
                     inputProps={{
                       id: "organization-filter",
@@ -414,17 +426,49 @@ const DataSubmissionListFilters = ({
                   <StyledSelect
                     {...field}
                     value={field.value || []}
-                    MenuProps={{ disablePortal: true }}
+                    MenuProps={{
+                      disablePortal: true,
+                      hideBackdrop: true,
+                      sx: { zIndex: 700, pointerEvents: "none" },
+                      PaperProps: {
+                        sx: { pointerEvents: "auto" },
+                      },
+                    }}
+                    open={isStatusesMenuOpen}
+                    onOpen={() => setIsStatusesMenuOpen(true)}
+                    onClose={() => setIsStatusesMenuOpen(false)}
                     inputProps={{ id: "status-filter", "data-testid": "status-select-input" }}
                     data-testid="status-select"
                     onChange={(e) => {
                       field.onChange(e);
                       handleFilterChange("status");
                     }}
-                    renderValue={(selected: string[]) =>
-                      selected?.length > 1 ? `${selected.length} statuses selected` : selected
-                    }
+                    displayEmpty
+                    renderValue={(selected: string[]) => {
+                      if (!selected?.length) {
+                        return "All";
+                      }
+                      if (selected.length > 1) {
+                        return `${selected.length} statuses selected`;
+                      }
+
+                      return selected;
+                    }}
                     multiple
+                    endAdornment={
+                      field.value?.length > 0 && (
+                        <InputAdornment position="end">
+                          <ClearButton
+                            onClick={() => {
+                              field.onChange([]);
+                              handleFilterChange("status");
+                            }}
+                            data-testid="status-clear-button"
+                            aria-label="Clear status selection"
+                          />
+                        </InputAdornment>
+                      )
+                    }
                   >
                     {statusValues.map((value) => (
                       <MenuItem
@@ -437,6 +481,11 @@ const DataSubmissionListFilters = ({
                     ))}
                   </StyledSelect>
                 )}
+              />
+              <Backdrop
+                open={isStatusesMenuOpen}
+                onClick={() => setIsStatusesMenuOpen(false)}
+                sx={{ zIndex: 500, opacity: "0 !important", cursor: "text" }}
               />
             </StyledFormControl>
           </Grid>
@@ -455,7 +504,7 @@ const DataSubmissionListFilters = ({
                   <StyledSelect
                     {...field}
                     value={dataCommons?.length ? field.value : "All"}
-                    MenuProps={{ disablePortal: true }}
+                    MenuProps={{ disablePortal: true, sx: { zIndex: 700 } }}
                     inputProps={{
                       id: "data-commons-filter",
                       "data-testid": "data-commons-select-input",
@@ -507,7 +556,7 @@ const DataSubmissionListFilters = ({
 
           <Grid item xs={4}>
             <StyledFormControl>
-              <StyledInlineLabel id="dbGaPID-filter">dbGaP ID</StyledInlineLabel>
+              <StyledInlineLabel id="dbGaPID-filter">Study</StyledInlineLabel>
               <StyledTextField
                 {...register("dbGaPID", {
                   setValueAs: (val) => val?.trim(),
@@ -516,7 +565,7 @@ const DataSubmissionListFilters = ({
                     isStringLengthBetween(e?.target?.value, 0, 3) && setValue("dbGaPID", ""),
                 })}
                 size="small"
-                placeholder="Minimum 3 characters required"
+                placeholder="Enter Study Name, Acronym, or dbGaP ID"
                 inputProps={{
                   "aria-labelledby": "dbGaPID-filter",
                   "data-testid": "dbGaPID-input",
@@ -541,7 +590,7 @@ const DataSubmissionListFilters = ({
                     }}
                     MenuProps={{
                       disablePortal: true,
-                      sx: { width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
+                      sx: { zIndex: 700, width: selectMinWidth ? `${selectMinWidth}px` : "auto" },
                     }}
                     inputProps={{
                       id: "submitter-name-filter",

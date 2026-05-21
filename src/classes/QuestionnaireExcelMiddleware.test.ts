@@ -1,4 +1,5 @@
 import ExcelJS, { Worksheet } from "exceljs";
+import { isEqual } from "lodash";
 import { v4 } from "uuid";
 
 import cancerTypeOptions, { CUSTOM_CANCER_TYPES } from "@/config/CancerTypesConfig";
@@ -1065,6 +1066,60 @@ describe("Serialization", () => {
       for (const col of ["H", "I", "J", "K", "L", "M", "N", "O"]) {
         expect(sheet.getColumn(col).values).toEqual([undefined, expect.any(String)]);
       }
+    });
+
+    it("should serialize repositories with 'Other' data type correctly", async () => {
+      const mockForm = questionnaireDataFactory.build({
+        study: studyFactory.build({
+          name: "",
+          abbreviation: "",
+          description: "",
+          funding: [],
+          publications: [],
+          plannedPublications: [],
+          repositories: [
+            repositoryFactory.build({
+              name: "Repo With Other Selected",
+              studyID: "RWO-001",
+              dataTypesSubmitted: ["clinicalTrial", "Other"],
+              otherDataTypesSubmitted: "metabolomics | transcriptomics",
+            }),
+            repositoryFactory.build({
+              name: "Repo Without Other Selected",
+              studyID: "RWNO-002",
+              dataTypesSubmitted: ["genomics", "imaging"],
+              otherDataTypesSubmitted: "should be in sheet but ignored on parse",
+            }),
+          ],
+        }),
+      });
+      const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+      // @ts-expect-error Private member
+      const sheet = await middleware.serializeSectionB();
+
+      // @ts-expect-error Private member
+      const wb = middleware.workbook;
+      expect(wb.getWorksheet("Program and Study")).toEqual(sheet);
+
+      expect(sheet.getColumn("P").values).toEqual([
+        undefined,
+        expect.any(String),
+        "Repo With Other Selected",
+        "Repo Without Other Selected",
+      ]);
+      expect(sheet.getColumn("R").values).toEqual([
+        undefined,
+        expect.any(String),
+        "clinicalTrial | Other",
+        "genomics | imaging",
+      ]);
+      expect(sheet.getColumn("S").values).toEqual([
+        undefined,
+        expect.any(String),
+        "metabolomics | transcriptomics",
+        "should be in sheet but ignored on parse",
+      ]);
     });
 
     it("should generate SectionB sheet with partial data (all null)", async () => {
@@ -2262,7 +2317,7 @@ describe("Parsing", () => {
           repositoryFactory.build({
             name: "Repository 1",
             studyID: "02ec12d2-12c2-45b6-b12d-9fd954f696b8",
-            dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics"],
+            dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics", "Other"],
             otherDataTypesSubmitted: "other 1 | other 2 | other 3",
           }),
           repositoryFactory.build({
@@ -2357,16 +2412,92 @@ describe("Parsing", () => {
         expect.objectContaining({
           name: "Repository 1",
           studyID: "02ec12d2-12c2-45b6-b12d-9fd954f696b8",
-          dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics"],
+          dataTypesSubmitted: ["clinicalTrial", "genomics", "imaging", "proteomics", "Other"],
           otherDataTypesSubmitted: "other 1 | other 2 | other 3",
         }),
         expect.objectContaining({
           name: "Repository 2",
           studyID: "03ec12d2-12c2-45b6-b12d-9fd954f696b8",
           dataTypesSubmitted: [],
-          otherDataTypesSubmitted: "other 1",
+          // otherDataTypesSubmitted is ignored when "Other" is not in dataTypesSubmitted
+          otherDataTypesSubmitted: "",
         }),
       ])
+    );
+  });
+
+  it("should ignore otherDataTypesSubmitted when 'Other' is not in dataTypesSubmitted", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        name: "Test Study",
+        abbreviation: "",
+        description: "",
+        funding: [],
+        publications: [],
+        plannedPublications: [],
+        repositories: [
+          repositoryFactory.build({
+            name: "Repo With Other",
+            studyID: "REPO-001",
+            dataTypesSubmitted: ["genomics", "Other"],
+            otherDataTypesSubmitted: "custom data type",
+          }),
+          repositoryFactory.build({
+            name: "Repo Without Other",
+            studyID: "REPO-002",
+            dataTypesSubmitted: ["genomics", "imaging"],
+            otherDataTypesSubmitted: "should be ignored",
+          }),
+          repositoryFactory.build({
+            name: "Repo Empty Types",
+            studyID: "REPO-003",
+            dataTypesSubmitted: [],
+            otherDataTypesSubmitted: "also should be ignored",
+          }),
+        ],
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+    expect(output.study.repositories).toHaveLength(3);
+
+    expect(output.study.repositories[0]).toEqual(
+      expect.objectContaining({
+        name: "Repo With Other",
+        studyID: "REPO-001",
+        dataTypesSubmitted: ["genomics", "Other"],
+        otherDataTypesSubmitted: "custom data type",
+      })
+    );
+    expect(output.study.repositories[1]).toEqual(
+      expect.objectContaining({
+        name: "Repo Without Other",
+        studyID: "REPO-002",
+        dataTypesSubmitted: ["genomics", "imaging"],
+        otherDataTypesSubmitted: "",
+      })
+    );
+    expect(output.study.repositories[2]).toEqual(
+      expect.objectContaining({
+        name: "Repo Empty Types",
+        studyID: "REPO-003",
+        dataTypesSubmitted: [],
+        otherDataTypesSubmitted: "",
+      })
     );
   });
 
@@ -2594,6 +2725,101 @@ describe("Parsing", () => {
 
     expect(pp1.expectedDate).toEqual("02/28/2030");
     expect(pp2.expectedDate).toEqual("12/31/2031");
+  });
+
+  it("should allow current date for planned publication expected date", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2000, 0, 1, 4, 4, 4));
+
+    const mockForm = questionnaireDataFactory.build({
+      program: programInputFactory.build({
+        _id: "Other",
+        name: "Program A",
+        abbreviation: "PA",
+        description: "Program A Desc",
+      }),
+      study: studyFactory.build({
+        name: "Date Parsing Study",
+        abbreviation: "DPS",
+        description: "Testing date parsing.",
+        funding: [],
+        publications: [],
+        plannedPublications: [
+          plannedPublicationFactory.build({
+            title: "DateTest #1",
+            expectedDate: "01/01/2000",
+          }),
+        ],
+        repositories: [],
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    const pp1 = output.study.plannedPublications.find((p) => p.title === "DateTest #1");
+    expect(pp1).toBeDefined();
+    expect(pp1.expectedDate).toEqual("01/01/2000");
+
+    vi.useRealTimers();
+  });
+
+  it("should not allow past dates for planned publication expected date and persist value", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      program: programInputFactory.build({
+        _id: "Other",
+        name: "Program A",
+        abbreviation: "PA",
+        description: "Program A Desc",
+      }),
+      study: studyFactory.build({
+        name: "Date Parsing Study",
+        abbreviation: "DPS",
+        description: "Testing date parsing.",
+        funding: [],
+        publications: [],
+        plannedPublications: [
+          plannedPublicationFactory.build({
+            title: "DateTest #1",
+            expectedDate: "01/01/2000",
+          }),
+        ],
+        repositories: [],
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionB();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    const result = await middleware.parseSectionB();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+
+    expect(result).toEqual(true);
+
+    const pp1 = output.study.plannedPublications.find((p) => p.title === "DateTest #1");
+    expect(pp1).toBeDefined();
+    expect(pp1.expectedDate).toEqual("01/01/2000");
   });
 
   it("should convert repository data types to an array of only valid options", async () => {
@@ -2962,6 +3188,38 @@ describe("Parsing", () => {
     // @ts-expect-error Private member
     const output = middleware.data;
     expect(output.study.dbGaPPPHSNumber).toEqual(expected);
+  });
+
+  it("should allow empty dbGaPPPHSNumber when isDbGapRegistered is false", async () => {
+    const mockForm = questionnaireDataFactory.build({
+      study: studyFactory.build({
+        isDbGapRegistered: false,
+        dbGaPPPHSNumber: "",
+      }),
+    });
+
+    const middleware = new QuestionnaireExcelMiddleware(mockForm, {});
+
+    // @ts-expect-error Private member
+    await middleware.serializeSectionC();
+
+    // @ts-expect-error Private member
+    middleware.data = { ...InitialQuestionnaire, sections: [...InitialSections] };
+
+    // @ts-expect-error Private member
+    await middleware.parseSectionC();
+
+    // @ts-expect-error Private member
+    const output = middleware.data;
+    expect(output.study.isDbGapRegistered).toEqual(false);
+    expect(output.study.dbGaPPPHSNumber).toEqual("");
+
+    // @ts-expect-error Private member
+    const { validationIssues } = middleware;
+    const dbGaPPPHSNumberIssue = validationIssues.find((issue) =>
+      isEqual(issue.path, ["study", "dbGaPPPHSNumber"])
+    );
+    expect(dbGaPPPHSNumberIssue).toBeUndefined();
   });
 
   it("should clear all Cancer Type options if 'Not Applicable' is selected", async () => {

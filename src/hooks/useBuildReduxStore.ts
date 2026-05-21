@@ -13,14 +13,18 @@ import { createStore, combineReducers, Store } from "redux";
 
 import logo from "../assets/header/Logo.jpg";
 import { baseConfiguration, defaultReadMeTitle, graphViewConfig } from "../config/ModelNavigator";
-import { RETRIEVE_CDEs, RetrieveCDEsInput, RetrieveCDEsResp } from "../graphql";
+import {
+  RETRIEVE_PVS_BY_PROPERTY_NAME,
+  RetrievePVsByPropertyNameInput,
+  RetrievePVsByPropertyNameResponse,
+} from "../graphql";
 import {
   buildAssetUrls,
   buildBaseFilterContainers,
   buildFilterOptionsList,
+  extractModelProperties,
   Logger,
-  extractSupportedCDEs,
-  populateCDEData,
+  populatePermissibleValues,
 } from "../utils";
 
 export type ReduxStoreStatus = "waiting" | "loading" | "error" | "success";
@@ -60,7 +64,10 @@ const useBuildReduxStore = (): ReduxStoreResult => {
   const [store] = useState<Store>(makeStore());
   const [status, setStatus] = useState<ReduxStoreStatus>("waiting");
 
-  const [retrieveCDEs] = useLazyQuery<RetrieveCDEsResp, RetrieveCDEsInput>(RETRIEVE_CDEs, {
+  const [retrievePVs] = useLazyQuery<
+    RetrievePVsByPropertyNameResponse,
+    RetrievePVsByPropertyNameInput
+  >(RETRIEVE_PVS_BY_PROPERTY_NAME, {
     context: { clientName: "backend" },
     fetchPolicy: "cache-first",
   });
@@ -87,37 +94,47 @@ const useBuildReduxStore = (): ReduxStoreResult => {
     const assets = buildAssetUrls(datacommon, modelVersion);
     const dmnConfig = datacommon.assets["model-navigator-config"];
 
-    const changelogMD = await getChangelog(assets?.changelog)?.catch((e) => {
-      Logger.error(e);
-      return null;
-    });
+    const [changelogMD, modelData] = await Promise.allSettled([
+      getChangelog(assets?.changelog),
+      getModelExploreData(...assets.model_files),
+    ]).then((results) =>
+      results.map((result) => {
+        if (result.status === "fulfilled") {
+          return result.value;
+        }
 
-    const { data: dictionary, version } =
-      (await getModelExploreData(...assets.model_files)?.catch((e) => {
-        Logger.error(e);
-        return {};
-      })) || {};
+        Logger.error("Received error during Model Navigator store building", result.reason);
+        return null;
+      })
+    );
 
-    if (!dictionary || !version) {
+    const { data: dictionary, version: versionData } = modelData || {};
+    if (!dictionary || !versionData) {
       setStatus("error");
       return;
     }
 
-    const allCDEs = extractSupportedCDEs(dictionary);
-    if (allCDEs.length > 0) {
-      try {
-        const CDEs = await retrieveCDEs({
-          variables: {
-            cdeInfo: allCDEs.map(({ CDECode, CDEVersion }) => ({ CDECode, CDEVersion })),
-          },
-        });
-        populateCDEData(dictionary, CDEs?.data?.retrieveCDEs || []);
-      } catch (error) {
-        populateCDEData(dictionary, []);
+    const allProperties = extractModelProperties(dictionary);
+    try {
+      const { data, error } = await retrievePVs({
+        variables: {
+          modelName: datacommon.name,
+          modelVersion: versionData?.model,
+          propertyNames: allProperties,
+        },
+      });
+
+      if (error || !data?.retrievePVsByPropertyName?.length) {
+        throw new Error(error?.message || "No permissible values returned by the API");
       }
+
+      populatePermissibleValues(dictionary, allProperties, data.retrievePVsByPropertyName);
+    } catch (error) {
+      Logger.error("populateStore: Received an error while retrieving permissible values", error);
+      populatePermissibleValues(dictionary, allProperties, []);
     }
 
-    store.dispatch({ type: "RECEIVE_VERSION_INFO", data: version });
+    store.dispatch({ type: "RECEIVE_VERSION_INFO", data: versionData });
 
     store.dispatch({
       type: "REACT_FLOW_GRAPH_DICTIONARY",
@@ -158,13 +175,15 @@ const useBuildReduxStore = (): ReduxStoreResult => {
       },
     });
 
-    store.dispatch({
-      type: "RECEIVE_CHANGELOG_INFO",
-      data: {
-        changelogMD,
-        changelogTabName: "Version History",
-      },
-    });
+    if (changelogMD) {
+      store.dispatch({
+        type: "RECEIVE_CHANGELOG_INFO",
+        data: {
+          changelogMD,
+          changelogTabName: "Version History",
+        },
+      });
+    }
 
     if (datacommon?.assets?.["model-navigator-config"]?.iconMap) {
       store.dispatch({

@@ -2,8 +2,11 @@ import { useLazyQuery } from "@apollo/client";
 import { Alert, Container, Stack, styled, TableCell, TableHead, Box } from "@mui/material";
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+
+import DataSubmissionListExport from "@/components/ExportSubmissionsButton";
+import SRFLink from "@/components/SRFLink";
 
 import bannerSvg from "../../assets/banner/submission_banner.png";
 import { useAuthContext, Status as AuthStatus } from "../../components/Contexts/AuthContext";
@@ -20,7 +23,7 @@ import TruncatedText from "../../components/TruncatedText";
 import { LIST_SUBMISSIONS, ListSubmissionsInput, ListSubmissionsResp } from "../../graphql";
 import { useColumnVisibility } from "../../hooks/useColumnVisibility";
 import usePageTitle from "../../hooks/usePageTitle";
-import { FormatDate, Logger } from "../../utils";
+import { FormatDate, formatFullStudyName, Logger } from "../../utils";
 
 type T = ListSubmissionsResp["listSubmissions"]["submissions"][number];
 
@@ -102,6 +105,7 @@ const columns: Column<T>[] = [
       ),
     field: "name",
     hideable: false,
+    exportValue: (a) => ({ label: "Submission Name", value: a.name }),
     sx: {
       width: "139px",
     },
@@ -111,6 +115,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => <TruncatedText text={a.submitterName} />,
     field: "submitterName",
     hideable: true,
+    exportValue: (a) => ({ label: "Submitter", value: a.submitterName }),
     sx: {
       width: "102px",
     },
@@ -120,6 +125,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => a.dataCommonsDisplayName,
     field: "dataCommonsDisplayName",
     hideable: true,
+    exportValue: (a) => ({ label: "Data Commons", value: a.dataCommonsDisplayName }),
     sx: {
       width: "94px",
     },
@@ -129,6 +135,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => a.intention,
     field: "intention",
     hideable: true,
+    exportValue: (a) => ({ label: "Type", value: a.intention }),
     sx: {
       width: "96px",
     },
@@ -138,6 +145,7 @@ const columns: Column<T>[] = [
     renderValue: (a) => <NavigatorLink submission={a} />,
     field: "modelVersion",
     hideable: true,
+    exportValue: (a) => ({ label: "Model Version", value: a.modelVersion }),
     sx: {
       width: "79px",
     },
@@ -146,19 +154,37 @@ const columns: Column<T>[] = [
     label: "Program",
     renderValue: (a) => <TruncatedText text={a.organization?.name ?? "NA"} />,
     fieldKey: "organization.name",
+    exportValue: (a) => ({ label: "Program", value: a.organization?.name ?? "NA" }),
   },
   {
     label: "Study",
-    renderValue: (a) => <TruncatedText text={a.studyAbbreviation} />,
-    field: "studyAbbreviation",
+    renderValue: (a) => (
+      <TruncatedText
+        text={a.study?.studyAbbreviation}
+        tooltipText={formatFullStudyName(a.study?.studyName, a.study?.studyAbbreviation)}
+        forceTooltip
+      />
+    ),
+    fieldKey: "study.studyAbbreviation",
     hideable: false,
+    exportValue: (a) => ({ label: "Study", value: a.study?.studyAbbreviation ?? "" }),
   },
-
+  {
+    label: "SRF",
+    renderValue: ({ submissionRequestID, canViewSubmissionRequest }) => (
+      <SRFLink appId={submissionRequestID} disabled={!canViewSubmissionRequest} />
+    ),
+    field: "submissionRequestID",
+    sortDisabled: true,
+    hideable: false,
+    hideFromToggle: true,
+  },
   {
     label: "dbGaP ID",
-    renderValue: (a) => <TruncatedText text={a.dbGaPID} maxCharacters={15} />,
-    field: "dbGaPID",
+    renderValue: (a) => <TruncatedText text={a?.study?.dbGaPID} maxCharacters={15} />,
+    fieldKey: "study.dbGaPID",
     hideable: true,
+    exportValue: (a) => ({ label: "dbGaP ID", value: a.study?.dbGaPID || "" }),
   },
 
   {
@@ -173,6 +199,7 @@ const columns: Column<T>[] = [
       ),
     field: "status",
     hideable: false,
+    exportValue: (a) => ({ label: "Status", value: a.status }),
     sx: {
       width: "87px",
     },
@@ -182,12 +209,17 @@ const columns: Column<T>[] = [
     renderValue: (a) => <TruncatedText text={a.conciergeName} />,
     field: "conciergeName",
     hideable: true,
+    exportValue: (a) => ({ label: "Data Concierge", value: a.conciergeName }),
   },
   {
     label: "Record Count",
     renderValue: (a) =>
       Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
     field: "nodeCount",
+    exportValue: (a) => ({
+      label: "Record Count",
+      value: Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(a.nodeCount || 0),
+    }),
   },
   {
     label: "Data File Size",
@@ -195,6 +227,7 @@ const columns: Column<T>[] = [
     hideable: true,
     defaultHidden: true,
     fieldKey: "dataFileSize.size",
+    exportValue: (a) => ({ label: "Data File Size", value: a.dataFileSize.formatted || 0 }),
     sx: {
       minWidth: "90px",
       width: "90px",
@@ -212,6 +245,10 @@ const columns: Column<T>[] = [
       ),
     field: "createdAt",
     hideable: true,
+    exportValue: (a) => ({
+      label: "Created Date",
+      value: a.createdAt ? FormatDate(a.createdAt, "M/D/YYYY h:mm A") : "",
+    }),
     sx: {
       width: "92px",
     },
@@ -229,6 +266,10 @@ const columns: Column<T>[] = [
     field: "updatedAt",
     hideable: true,
     default: true,
+    exportValue: (a) => ({
+      label: "Last Updated",
+      value: a.updatedAt ? FormatDate(a.updatedAt, "M/D/YYYY h:mm A") : "",
+    }),
     sx: {
       width: "108px",
     },
@@ -376,6 +417,20 @@ const ListingView: FC = () => {
     filtersRef.current = { ...data };
     setTablePage(0);
   };
+  const Actions = useMemo<React.ReactNode>(() => {
+    const scope = {
+      ...filtersRef.current,
+      ...tableRef.current?.tableParams,
+    };
+
+    return (
+      <DataSubmissionListExport
+        scope={scope}
+        hasData={totalData > 0}
+        visibleColumns={visibleColumns}
+      />
+    );
+  }, [filtersRef.current, tableRef.current?.tableParams, totalData, visibleColumns]);
 
   return (
     <>
@@ -417,7 +472,7 @@ const ListingView: FC = () => {
             defaultRowsPerPage={20}
             defaultOrder="desc"
             disableUrlParams={false}
-            position="bottom"
+            position="both"
             noContentText="You either do not have the appropriate permissions to view data submissions, or there are no data submissions associated with your account."
             onFetchData={handleFetchData}
             containerProps={{
@@ -426,7 +481,12 @@ const ListingView: FC = () => {
                 border: 0,
                 borderTopLeftRadius: 0,
                 borderTopRightRadius: 0,
+                borderTop: "1px solid #6CACDA",
               },
+            }}
+            AdditionalActions={{
+              top: { after: Actions },
+              bottom: { after: Actions },
             }}
             CustomTableHead={StyledTableHead}
             CustomTableHeaderCell={StyledHeaderCell}

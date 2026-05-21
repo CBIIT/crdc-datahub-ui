@@ -9,6 +9,19 @@ import { validatePHSNumber } from "@/utils";
 
 const FIELD_IS_REQUIRED = "This field is required.";
 
+export const studySchemaSuperRefine = (
+  val: { isDbGapRegistered?: boolean; dbGaPPPHSNumber?: string },
+  ctx: z.RefinementCtx
+) => {
+  if (val.isDbGapRegistered && !val.dbGaPPPHSNumber?.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["dbGaPPPHSNumber"],
+      message: FIELD_IS_REQUIRED,
+    });
+  }
+};
+
 /**
  * Schema for a section in the application questionnaire.
  */
@@ -251,10 +264,15 @@ export const plannedPublicationSchema = z
      */
     title: z.string().max(500).nonempty(),
     /**
-     * Target date for publication release.
-     * Stored as MM/DD/YYYY.
+     * Target date for publication release. Stored as MM/DD/YYYY.
+     * Must be a future date.
      */
-    expectedDate: z.string().refine((val) => dayjs(val, "MM/DD/YYYY", true)?.isValid()),
+    expectedDate: z.string().refine((val) => {
+      const date = dayjs(val, "MM/DD/YYYY", true)?.startOf("day");
+      const dateIsTodayOrAfter =
+        date?.isSame(dayjs().startOf("day")) || date?.isAfter(dayjs().startOf("day"));
+      return date?.isValid() && dateIsTodayOrAfter;
+    }),
   })
   .strict();
 
@@ -341,7 +359,7 @@ export const studySchema = z
       .string()
       .max(50)
       .trim()
-      .refine((val) => validatePHSNumber(val))
+      .refine((val) => !val || validatePHSNumber(val))
       .optional(),
     /**
      * The name of the Genomic Program Administrator.
@@ -350,15 +368,7 @@ export const studySchema = z
      */
     GPAName: z.string().optional(),
   })
-  .superRefine((val, ctx) => {
-    if (val.isDbGapRegistered && !val.dbGaPPPHSNumber) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["dbGaPPPHSNumber"],
-        message: FIELD_IS_REQUIRED,
-      });
-    }
-  })
+  .superRefine(studySchemaSuperRefine)
   .strict();
 
 /**

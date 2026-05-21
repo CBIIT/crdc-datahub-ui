@@ -175,7 +175,6 @@ const columns: Column<T>[] = [
         ""
       ),
     field: "submittedDate",
-    default: true,
     sx: {
       width: "161px",
     },
@@ -190,6 +189,7 @@ const columns: Column<T>[] = [
       ) : (
         ""
       ),
+    default: true,
     field: "updatedAt",
     sx: {
       width: "181px",
@@ -296,15 +296,6 @@ const ListingView: FC = () => {
 
   const handleCreate = useCallback(
     (_id: string) => {
-      if (!_id) {
-        navigate("", {
-          state: {
-            error: "Unable to create a submission request. Please try again later",
-          },
-        });
-        return;
-      }
-
       navigate(`/submission-request/${_id}`, {
         state: { from: "/submission-requests" },
       });

@@ -52,7 +52,7 @@ const InstitutionListFilters = ({ onChange }: Props) => {
   const { watch, register, control, setValue, getValues } = useForm<FilterForm>({
     defaultValues: {
       name: "",
-      status: "All",
+      status: "Active",
     },
   });
 
@@ -148,7 +148,7 @@ const InstitutionListFilters = ({ onChange }: Props) => {
             <StyledSelect
               {...field}
               value={field.value}
-              MenuProps={{ disablePortal: true }}
+              MenuProps={{ disablePortal: true, sx: { zIndex: 700 } }}
               inputProps={{ id: "status-filter", "data-testid": "status-select-input" }}
               data-testid="status-select"
               onChange={(e) => {

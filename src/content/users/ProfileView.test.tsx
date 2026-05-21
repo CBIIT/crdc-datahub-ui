@@ -1,7 +1,7 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { FC, useMemo } from "react";
-import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
+import { MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
 import { SearchParamsProvider } from "@/components/Contexts/SearchParamsContext";
@@ -26,7 +26,7 @@ import {
   RetrievePBACDefaultsInput,
   RetrievePBACDefaultsResp,
 } from "@/graphql";
-import { act, render, waitFor } from "@/test-utils";
+import { TestRouter, act, render, waitFor } from "@/test-utils";
 
 import {
   Context as AuthContext,
@@ -156,11 +156,11 @@ const TestParent: FC<ParentProps> = ({
 
   return (
     <MockedProvider mocks={mocks}>
-      <MemoryRouter initialEntries={initialEntries}>
+      <TestRouter initialEntries={initialEntries}>
         <AuthContext.Provider value={authCtx}>
           <SearchParamsProvider>{children}</SearchParamsProvider>
         </AuthContext.Provider>
-      </MemoryRouter>
+      </TestRouter>
     </MockedProvider>
   );
 };
@@ -244,6 +244,80 @@ describe("Implementation Requirements", () => {
     await waitFor(async () => {
       expect(await findByText("Alpha Cancer Center")).toBeInTheDocument();
       expect(await findByText("Beta Oncology Institute")).toBeInTheDocument();
+    });
+  });
+
+  it("should only display active institutions", async () => {
+    const activeInstitutionsMock: MockedResponse<ListInstitutionsResp, ListInstitutionsInput> = {
+      request: {
+        query: LIST_INSTITUTIONS,
+      },
+      variableMatcher: (variables) => variables.status === "Active",
+      result: {
+        data: {
+          listInstitutions: {
+            total: 2,
+            institutions: [
+              institutionFactory.build({ name: "Active Institute A", status: "Active" }),
+              institutionFactory.build({ name: "Active Institute B", status: "Active" }),
+            ],
+          },
+        },
+      },
+      maxUsageCount: Infinity,
+    };
+
+    const { findByLabelText, findAllByRole } = render(
+      <TestParent
+        mocks={[
+          getUserMock,
+          activeInstitutionsMock,
+          listApprovedStudiesMock,
+          retrievePBACDefaults,
+          getTooltipsMock,
+        ]}
+      >
+        <ProfileView _id="test-id" viewType="users" />
+      </TestParent>
+    );
+
+    const input = await findByLabelText(/Institution/i);
+    userEvent.click(input);
+    userEvent.clear(input);
+    userEvent.type(input, "a");
+    userEvent.clear(input);
+
+    const options = await findAllByRole("option");
+    expect(options).toHaveLength(2);
+  });
+
+  it("should only fetch active approved studies", async () => {
+    const mockMatcher = vi.fn().mockImplementation(() => true);
+    const activeStudiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
+      request: {
+        query: LIST_APPROVED_STUDIES,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          listApprovedStudies: {
+            total: 0,
+            studies: [],
+          },
+        },
+      },
+    };
+
+    render(
+      <TestParent
+        mocks={[getUserMock, activeStudiesMock, listInstitutionsMock, retrievePBACDefaults]}
+      >
+        <ProfileView _id="test-id" viewType="users" />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalledWith(expect.objectContaining({ statuses: ["Active"] }));
     });
   });
 });

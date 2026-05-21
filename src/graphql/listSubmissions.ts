@@ -35,8 +35,11 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         organization {
           name
         }
-        studyAbbreviation
-        dbGaPID
+        study {
+          studyName
+          studyAbbreviation
+          dbGaPID
+        }
         modelVersion
         status
         archived
@@ -51,6 +54,8 @@ export const query: TypedDocumentNode<Response, Input> = gql`
         dataFileSize {
           formatted
         }
+        submissionRequestID
+        canViewSubmissionRequest
       }
       organizations {
         _id
@@ -86,8 +91,7 @@ export type Response = {
       | "submitterName"
       | "dataCommonsDisplayName"
       | "organization"
-      | "studyAbbreviation"
-      | "dbGaPID"
+      | "study"
       | "modelVersion"
       | "status"
       | "archived"
@@ -99,6 +103,14 @@ export type Response = {
     > & {
       dataFileSize: Pick<Submission["dataFileSize"], "formatted">;
       history: Pick<Submission["history"][number], "status">[];
+      /**
+       * The ID of the submission request associated with this submission, if it exists.
+       */
+      submissionRequestID: string;
+      /**
+       * Whether the current user can view the submission request associated with this submission.
+       */
+      canViewSubmissionRequest: boolean;
     })[];
     organizations: Pick<Organization, "_id" | "name">[];
     submitterNames: string[];

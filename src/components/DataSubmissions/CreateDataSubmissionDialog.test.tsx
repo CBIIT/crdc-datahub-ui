@@ -2,7 +2,6 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import { GraphQLError } from "graphql";
 import { FC } from "react";
-import { MemoryRouter } from "react-router-dom";
 
 import { approvedStudyFactory } from "@/factories/approved-study/ApprovedStudyFactory";
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
@@ -16,7 +15,7 @@ import {
   ListApprovedStudiesInput,
   ListApprovedStudiesResp,
 } from "../../graphql";
-import { render, waitFor, within } from "../../test-utils";
+import { TestRouter, render, waitFor, within } from "../../test-utils";
 import { Context as AuthCtx, ContextState as AuthCtxState } from "../Contexts/AuthContext";
 
 import CreateDataSubmissionDialog from "./CreateDataSubmissionDialog";
@@ -29,6 +28,8 @@ const partialStudyProperties = [
   "controlledAccess",
   "pendingModelChange",
   "isPendingGPA",
+  "pendingImageDeIdentification",
+  "status",
 ] satisfies (keyof ApprovedStudy)[];
 
 const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
@@ -81,6 +82,17 @@ const baseStudies: GetMyUserResp["getMyUser"]["studies"] = [
     controlledAccess: true,
     pendingModelChange: true,
     isPendingGPA: true,
+    pendingImageDeIdentification: true,
+  }),
+  approvedStudyFactory.pick(partialStudyProperties).build({
+    _id: "pending-image-de-identification",
+    studyName: "study with pending image de-identification",
+    studyAbbreviation: "PIDI",
+    dbGaPID: "phsTEST",
+    controlledAccess: null,
+    pendingModelChange: false,
+    isPendingGPA: false,
+    pendingImageDeIdentification: true,
   }),
 ];
 
@@ -123,7 +135,7 @@ const TestParent: FC<ParentProps> = ({
 }) => (
   <AuthCtx.Provider value={authCtxState}>
     <MockedProvider mocks={mocks} addTypename={false}>
-      <MemoryRouter>{children}</MemoryRouter>
+      <TestRouter>{children}</TestRouter>
     </MockedProvider>
   </AuthCtx.Provider>
 );
@@ -804,7 +816,7 @@ describe("Basic Functionality", () => {
 describe("Implementation Requirements", () => {
   it("should disable the Create button if dbGaP ID is required and not added to the study", async () => {
     const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
-      {
+      approvedStudyFactory.build({
         _id: "controlled",
         studyName: "controlled-study",
         studyAbbreviation: "CS",
@@ -812,7 +824,7 @@ describe("Implementation Requirements", () => {
         controlledAccess: true,
         pendingModelChange: false,
         isPendingGPA: false,
-      },
+      }),
     ];
 
     const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
@@ -861,7 +873,7 @@ describe("Implementation Requirements", () => {
 
   it("should show an alert icon next to dbGaPID if it is required and not added to the study", async () => {
     const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
-      {
+      approvedStudyFactory.build({
         _id: "controlled",
         studyName: "controlled-study",
         studyAbbreviation: "CS",
@@ -869,7 +881,7 @@ describe("Implementation Requirements", () => {
         controlledAccess: true,
         pendingModelChange: false,
         isPendingGPA: false,
-      },
+      }),
     ];
 
     const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
@@ -929,7 +941,7 @@ describe("Implementation Requirements", () => {
 
   it("should hide the dbGaPID field if controlledAccess is false", async () => {
     const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
-      {
+      approvedStudyFactory.build({
         _id: "controlled",
         studyName: "controlled-study",
         studyAbbreviation: "CS",
@@ -937,8 +949,8 @@ describe("Implementation Requirements", () => {
         controlledAccess: true,
         pendingModelChange: false,
         isPendingGPA: false,
-      },
-      {
+      }),
+      approvedStudyFactory.build({
         _id: "non-controlled",
         studyName: "non-controlled-study",
         studyAbbreviation: "NCS",
@@ -946,7 +958,7 @@ describe("Implementation Requirements", () => {
         controlledAccess: false,
         pendingModelChange: false,
         isPendingGPA: false,
-      },
+      }),
     ];
 
     const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
@@ -1009,7 +1021,7 @@ describe("Implementation Requirements", () => {
 
   it("should have a tooltip for the dbGaPID field explaining why it is required", async () => {
     const ApprovedStudyNoDbGaPID: GetMyUserResp["getMyUser"]["studies"] = [
-      {
+      approvedStudyFactory.build({
         _id: "controlled",
         studyName: "controlled-study",
         studyAbbreviation: "CS",
@@ -1017,7 +1029,7 @@ describe("Implementation Requirements", () => {
         controlledAccess: true,
         pendingModelChange: false,
         isPendingGPA: false,
-      },
+      }),
     ];
 
     const { getByRole, getByTestId } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
@@ -1342,5 +1354,165 @@ describe("Implementation Requirements", () => {
         /The CRDC team is reviewing the data requirements of this study for potential data model changes/i
       )
     ).toBeInTheDocument();
+    expect(
+      await findByText(
+        /Pending submission of the risk mitigation document and the image de-identification protocol./i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("disables the Create button and shows a tooltip if the selected study has pending image de-identification", async () => {
+    const { getByRole, getByTestId, findByText } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: baseStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    // Open the dialog
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    // Open the study select dropdown and select the pending image de-identification study
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(getByTestId("study-option-pending-image-de-identification")).toBeInTheDocument();
+    });
+
+    userEvent.click(getByTestId("study-option-pending-image-de-identification"));
+
+    // The Create button should be disabled
+    const createButton = getByTestId("create-data-submission-dialog-create-button");
+    expect(createButton).toBeDisabled();
+
+    // Hover over the button parent span to trigger the tooltip
+    const createButtonWrapper = createButton.parentElement as HTMLElement;
+    userEvent.hover(createButtonWrapper);
+    expect(
+      await findByText(
+        /Pending submission of the risk mitigation document and the image de-identification protocol./i
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("should only fetch active approved studies", async () => {
+    const mockMatcher = vi.fn().mockImplementation(() => true);
+    const activeStudiesMock: MockedResponse<ListApprovedStudiesResp, ListApprovedStudiesInput> = {
+      request: {
+        query: LIST_APPROVED_STUDIES,
+      },
+      variableMatcher: mockMatcher,
+      result: {
+        data: {
+          listApprovedStudies: {
+            total: 0,
+            studies: [],
+          },
+        },
+      },
+    };
+
+    const { getByRole } = render(<CreateDataSubmissionDialog onCreate={vi.fn()} />, {
+      wrapper: (p) => (
+        <TestParent
+          mocks={[activeStudiesMock]}
+          authCtxState={authCtxStateFactory.build({
+            user: userFactory.build({
+              role: "Data Commons Personnel",
+              permissions: basePermissions,
+            }),
+          })}
+          {...p}
+        />
+      ),
+    });
+
+    userEvent.click(getByRole("button", { name: "Create a Data Submission" }));
+
+    await waitFor(() => {
+      expect(mockMatcher).toHaveBeenCalledWith(expect.objectContaining({ statuses: ["Active"] }));
+    });
+  });
+
+  it("should only display studies with an Active status from user's assigned studies", async () => {
+    const mixedStatusStudies: GetMyUserResp["getMyUser"]["studies"] = [
+      approvedStudyFactory.pick(partialStudyProperties).build({
+        _id: "active-study",
+        studyName: "Active Study",
+        studyAbbreviation: "AS",
+        dbGaPID: "phsTEST",
+        controlledAccess: false,
+        pendingModelChange: false,
+        status: "Active",
+      }),
+      approvedStudyFactory.pick(partialStudyProperties).build({
+        _id: "inactive-study",
+        studyName: "Inactive Study",
+        studyAbbreviation: "IS",
+        dbGaPID: "phsTEST",
+        controlledAccess: false,
+        pendingModelChange: false,
+        status: "Inactive",
+      }),
+    ];
+
+    const { getByRole, getByTestId, queryByTestId } = render(
+      <CreateDataSubmissionDialog onCreate={vi.fn()} />,
+      {
+        wrapper: (p) => (
+          <TestParent
+            mocks={[]}
+            authCtxState={authCtxStateFactory.build({
+              user: userFactory.build({
+                role: "Submitter",
+                studies: mixedStatusStudies,
+                permissions: basePermissions,
+              }),
+            })}
+            {...p}
+          />
+        ),
+      }
+    );
+
+    const openDialogButton = getByRole("button", { name: "Create a Data Submission" });
+    await waitFor(() => expect(openDialogButton).toBeEnabled());
+    userEvent.click(openDialogButton);
+
+    await waitFor(() => {
+      expect(getByTestId("create-submission-dialog")).toBeInTheDocument();
+    });
+
+    const studySelectButton = within(
+      getByTestId("create-data-submission-dialog-study-id-input")
+    ).getByRole("button");
+    userEvent.click(studySelectButton);
+
+    await waitFor(() => {
+      expect(studySelectButton).toHaveAttribute("aria-expanded", "true");
+    });
+
+    expect(getByTestId("study-option-active-study")).toBeInTheDocument();
+    expect(queryByTestId("study-option-inactive-study")).not.toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import userEvent from "@testing-library/user-event";
 import React, { FC, useMemo } from "react";
-import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
+import { MemoryRouterProps } from "react-router-dom";
 import { axe } from "vitest-axe";
 
 import { authCtxStateFactory } from "@/factories/auth/AuthCtxStateFactory";
@@ -13,15 +13,8 @@ import {
   ContextState as AuthContextState,
 } from "../../components/Contexts/AuthContext";
 import { SearchParamsProvider } from "../../components/Contexts/SearchParamsContext";
-import {
-  LIST_APPLICATIONS,
-  SAVE_APP,
-  ListApplicationsResp,
-  ListApplicationsInput,
-  SaveAppResp,
-  SaveAppInput,
-} from "../../graphql";
-import { act, render, waitFor } from "../../test-utils";
+import { LIST_APPLICATIONS, ListApplicationsResp, ListApplicationsInput } from "../../graphql";
+import { TestRouter, act, render, waitFor } from "../../test-utils";
 
 import ListView from "./ListView";
 
@@ -86,11 +79,11 @@ const TestParent: FC<ParentProps> = ({
 
   return (
     <MockedProvider mocks={mocks} addTypename={false}>
-      <MemoryRouter initialEntries={initialEntries}>
+      <TestRouter initialEntries={initialEntries}>
         <AuthContext.Provider value={baseAuthCtx}>
           <SearchParamsProvider>{children}</SearchParamsProvider>
         </AuthContext.Provider>
-      </MemoryRouter>
+      </TestRouter>
     </MockedProvider>
   );
 };
@@ -158,23 +151,9 @@ describe("ListView Component", () => {
     expect(queryByText("Start a Submission Request")).not.toBeInTheDocument();
   });
 
-  it("creates a new submission request when 'Start a Submission Request' button is clicked", async () => {
-    const saveAppMock: MockedResponse<SaveAppResp, SaveAppInput> = {
-      request: {
-        query: SAVE_APP,
-      },
-      variableMatcher: () => true,
-      result: {
-        data: {
-          saveApplication: {
-            _id: "new-application-id",
-          } as SaveAppResp["saveApplication"],
-        },
-      },
-    };
-
+  it("navigates to new form route when 'Start a Submission Request' is confirmed", async () => {
     const { getByText, findByText } = render(
-      <TestParent role="Submitter" mocks={[...defaultMocks, saveAppMock]}>
+      <TestParent role="Submitter" mocks={defaultMocks}>
         <ListView />
       </TestParent>
     );
@@ -186,38 +165,8 @@ describe("ListView Component", () => {
     userEvent.click(confirmBtn);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/submission-request/new-application-id", {
+      expect(mockNavigate).toHaveBeenCalledWith("/submission-request/new", {
         state: { from: "/submission-requests" },
-      });
-    });
-  });
-
-  it("shows an error when creating a new submission request fails", async () => {
-    const saveAppMock: MockedResponse<SaveAppResp, SaveAppInput> = {
-      request: {
-        query: SAVE_APP,
-      },
-      variableMatcher: () => true,
-      error: new Error("Error creating application"),
-    };
-
-    const { getByText, findByText } = render(
-      <TestParent role="Submitter" mocks={[...defaultMocks, saveAppMock]}>
-        <ListView />
-      </TestParent>
-    );
-
-    const button = getByText("Start a Submission Request");
-    userEvent.click(button);
-
-    const confirmBtn = await findByText("I Read and Accept");
-    userEvent.click(confirmBtn);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("", {
-        state: {
-          error: "Unable to create a submission request. Please try again later",
-        },
       });
     });
   });
@@ -591,5 +540,42 @@ describe("ListView Component", () => {
       expect(getByText("1/1/2021")).toBeInTheDocument();
       expect(getByText("1/2/2021")).toBeInTheDocument();
     });
+  });
+
+  it("uses Last Updated Date as the default sort key", async () => {
+    const variableMatcher = vi.fn().mockReturnValue(true);
+
+    const listApplicationsMock: MockedResponse<ListApplicationsResp, ListApplicationsInput> = {
+      request: {
+        query: LIST_APPLICATIONS,
+      },
+      variableMatcher,
+      result: {
+        data: {
+          listApplications: {
+            total: 0,
+            applications: [],
+            programs: [],
+            studies: [],
+          },
+        },
+      },
+    };
+
+    render(
+      <TestParent role="Submitter" mocks={[listApplicationsMock]}>
+        <ListView />
+      </TestParent>
+    );
+
+    await waitFor(() => {
+      expect(variableMatcher).toHaveBeenCalled();
+    });
+
+    expect(variableMatcher).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: "updatedAt",
+      })
+    );
   });
 });
