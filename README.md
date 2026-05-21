@@ -1,3 +1,6 @@
+> [!Warning]
+> This repository is archived and has been superseded by the CRDC Submission Portal mono repository: [crdc-datahub-codebase](https://github.com/CBIIT/crdc-datahub-codebase).
+
 # Introduction
 
 The CRDC Submission Portal is a React application that facilitates the data submission process for participating CRDC Data Commons projects. This project utilizes React.js, TypeScript, MUI, and Apollo Client, among other dependencies.
