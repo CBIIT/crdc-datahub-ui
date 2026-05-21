@@ -1,4 +1,4 @@
-> [!Warning]
+> [!Caution]
 > This repository is archived and has been superseded by the CRDC Submission Portal mono repository: [crdc-datahub-codebase](https://github.com/CBIIT/crdc-datahub-codebase).
 
 # Introduction
